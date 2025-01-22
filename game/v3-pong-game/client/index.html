@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pong Game Test</title>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #000;
+      color: #fff;
+    }
+    canvas {
+      border: 2px solid #fff;
+      background: #111;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="pongCanvas" width="800" height="400"></canvas>
+
+  <script>
+    const canvas = document.getElementById('pongCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let gameState = {}; // Holds the current game state
+
+    // Connect to WebSocket server
+    const socket = new WebSocket('ws://localhost:5050');
+
+    socket.onopen = () => {
+      console.log('Connected to server');
+    };
+
+    socket.onmessage = (event) => {
+      gameState = JSON.parse(event.data); // Update game state on receiving a message
+      renderGame();
+    };
+
+    socket.onclose = () => {
+      console.log('Disconnected from server');
+    };
+
+    // Send paddle movement to the server
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowUp') {
+        socket.send(JSON.stringify({ type: 'move', player: 1, direction: 'up' }));
+      } else if (e.key === 'ArrowDown') {
+        socket.send(JSON.stringify({ type: 'move', player: 1, direction: 'down' }));
+      }
+    });
+
+    // Render the game state
+    function renderGame() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (!gameState.ball || !gameState.paddles) return;
+
+      // Draw ball
+      const ballX = (gameState.ball.x / 100) * canvas.width; // Scale position
+      const ballY = (gameState.ball.y / 100) * canvas.height;
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.arc(ballX, ballY, 10, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Draw paddles
+      gameState.paddles.forEach((paddle, index) => {
+        const paddleX = index === 0 ? 10 : canvas.width - 20; // Left or right
+        const paddleY = (paddle.y / 100) * canvas.height;
+        ctx.fillRect(paddleX, paddleY, 10, 60); // Paddle width and height
+      });
+
+      // Draw scores
+      ctx.font = '20px Arial';
+      ctx.fillText(`Player 1: ${gameState.score.player1}`, 20, 20);
+      ctx.fillText(`Player 2: ${gameState.score.player2}`, canvas.width - 150, 20);
+    }
+  </script>
+</body>
+</html>
