@@ -20,7 +20,7 @@ def starter_view(request):
         return JsonResponse(mockData, status=status.HTTP_200_OK)
     elif request.method == "POST":
         jsonData = json.loads(request.body)
-        name = jsonData.get('name')
+        name = jsonData.get('name')     
         mockDatas = {
             'name' : name,
             'test' : "123456789"
