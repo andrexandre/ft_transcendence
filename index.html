@@ -1,0 +1,79 @@
+<html>
+<head>
+	<title>Single Page Application using JavaScript</title>
+</head>
+<script>
+	var pages = {
+		'home': `This is our Home page<br/><br/><img src='https://picsum.photos/id/76/500/300' style='width:500px;' />`,
+		'aboutus': `Our About Us page<br/><br/><img src='https://picsum.photos/id/129/500/300' style='width:500px;' />`,
+		'services': `Our Services page<br/><br/><img src='https://picsum.photos/id/26/500/300' style='width:500px;' />`,
+		'contact': `Our Contact us page<br/><br/><img src='https://picsum.photos/id/160/500/300' style='width:500px;' />`
+	};
+	function getPageContent(page) {
+		var contentToReturn;
+		switch (page) {
+			case 'home':
+				// history.pushState({}, "", "./home");
+				contentToReturn = pages.home;
+				break;
+			case 'aboutus':
+				// history.pushState({}, "", "./aboutus");
+				contentToReturn = pages.aboutus;
+				break;
+			case 'services':
+				// history.pushState({}, "", "./services");
+				contentToReturn = pages.services;
+				break;
+			case 'contact':
+				// history.pushState({}, "", "./contact");
+				contentToReturn = pages.contact;
+				break;
+			default:
+				contentToReturn = pages.home;
+				break;
+		}
+		document.getElementById('content').innerHTML = contentToReturn;
+	}
+	// function router() {
+	// 	const routes = {
+	// 		"/": "home",
+	// 		"/services": "services",
+	// 		"/about": "about",
+	// 	};
+	// 	const path = window.location.pathname;
+	// 	const page = routes[path] || "404";
+	// 	// document.getElementById("app").innerHTML = `<h1>${page} Page</h1>`;
+	// }
+	// router();
+	// window.onpopstate = router;
+</script>
+<body onload="getPageContent('home')">
+	<div style="width:10%; float: left;background: #eee;height: 100%;">
+		<ul>
+			<li style="line-height: 50px;">
+				<a href="javascript:void(0);" onclick="getPageContent('home')">
+					Home
+				</a>
+			</li>
+			<li style="line-height: 50px;">
+				<a href="javascript:void(0);" onclick="getPageContent('aboutus')">
+					About Us
+				</a>
+			</li>
+			<li style="line-height: 50px;">
+				<a href="javascript:void(0);" onclick="getPageContent('services')">
+					Services
+				</a>
+			</li>
+			<li style="line-height: 50px;">
+				<a href="javascript:void(0);" onclick="getPageContent('contact')">
+					Contact
+				</a>
+			</li>
+		</ul>
+	</div>
+	<div style="width: 90%;float: right; background: #999;color:#fff; height: 100%;font-size: 50px;">
+		<p style="margin-left: 50px;" id="content"><p>
+	</div>
+</body>
+</html>
