@@ -1,0 +1,11 @@
+
+service:
+  django_pong:
+    conatiner_name: django_pong
+    
+    volumes:
+    - ./:teste1:rw
+    ports:
+    - "8000:8000"
+    build:
+      context: ./conf

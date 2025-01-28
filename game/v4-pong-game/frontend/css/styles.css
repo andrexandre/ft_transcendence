@@ -1,0 +1,29 @@
+/* General body styling */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #222; /* Dark background */
+    color: #fff; /* White text for better contrast */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+  }
+  
+  /* Style for the game canvas */
+  canvas {
+    display: block;
+    border: 2px solid #fff; /* White border for the game canvas */
+    background-color: #000; /* Black background for the game area */
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5); /* Glow effect */
+  }
+  
+  /* Header styling */
+  h1 {
+    margin: 0 0 20px; /* Space below the header */
+    font-size: 2rem;
+    text-align: center;
+    text-shadow: 0 2px 5px rgba(255, 255, 255, 0.3); /* Text glow */
+  }
+  
