@@ -1,15 +1,14 @@
 import json, requests
 from django.shortcuts import render
 from rest_framework import generics, status
+from rest_framework.permissions import IsAuthenticated
 from django.http import HttpResponse, JsonResponse
-from rest_framework.views import APIView
 from django.views.decorators.csrf import csrf_exempt
-from django.urls import reverse
-from django.core import serializers
 
 #REMOVE!!!!!!! This is here because of csrf cookies, temp for api endpoint testing 
 @csrf_exempt
 def starter_view(request):
+    permission_classes = [IsAuthenticated]
     mockData = [
         {
             'name': 'Ze',
@@ -22,13 +21,11 @@ def starter_view(request):
             'admin': False
         }
     ]
-    return JsonResponse({"items" : mockData}, status=status.HTTP_200_OK, safe=False)
     if request.method == "GET":
         url = "http://127.0.0.1:8000/chat_view/"
         response = requests.get(url)
         if response.status_code == 200:
-            return HttpResponse(response.content)
-            #return JsonResponse(mockData, status=status.HTTP_200_OK)
+            return JsonResponse({"items": mockData}, status=status.HTTP_200_OK)
     elif request.method == "POST":
         jsonData = json.loads(request.body)
         name = jsonData.get('name')
