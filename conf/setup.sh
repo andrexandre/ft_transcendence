@@ -4,7 +4,6 @@ PROJECT_NAME=webStudy
 PROJECT_DIR="/teste1/$PROJECT_NAME"
 
 DESTINO="dataBase 5432"
-
 while ! nc -z $DESTINO; do
     echo "Esperando o serviço ficar disponivel!"
     echo "Waiting for dataBase service to be available for connection!"
@@ -46,6 +45,7 @@ fi
 # Executa o projeto ou outro comando passado ao script
 echo "Executing project!"
 exec "$@"
+
 
 # Creating suuper user so para desenvolvimento
 # python manage.py createsuperuser

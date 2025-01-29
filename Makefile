@@ -18,6 +18,7 @@ up:
 
 down:
 	docker compose down
+	make rmv
 
 # Show the status of the infrastructure 
 status:

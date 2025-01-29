@@ -11,6 +11,7 @@ RUN pip install django && \
 	# Para o ENGINE do postgres
 	pip install psycopg2 &&  \ 
 	pip install djangorestframework && \
+	pip install djangorestframework_simplejwt && \
 	pip install markdown && \
 	pip install django-filter
 
