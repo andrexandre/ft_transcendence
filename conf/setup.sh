@@ -1,7 +1,7 @@
 #!/bin/bash
 
-PROJECT_NAME=webStudy
-PROJECT_DIR="/teste1/$PROJECT_NAME"
+PROJECT_NAME=userManagement
+PROJECT_DIR="/backend/$PROJECT_NAME"
 
 DESTINO="dataBase 5432"
 while ! nc -z $DESTINO; do
@@ -26,9 +26,9 @@ if [ -d "$PROJECT_DIR" ]; then
 	
 	python manage.py migrate
 	sleep 1
-	python manage.py makemigrations login
+	python manage.py makemigrations user_api
 	sleep 1
-	python manage.py sqlmigrate login 0001
+	python manage.py sqlmigrate user_api 0001
 	sleep 1
 	python manage.py migrate
 

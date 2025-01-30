@@ -13,11 +13,15 @@ RUN pip install django && \
 	pip install djangorestframework && \
 	pip install djangorestframework_simplejwt && \
 	pip install markdown && \
-	pip install django-filter
+	pip install django-filter && \
+	pip install requests
 
 COPY ./setup.sh /bin/
+COPY ./tes.js /bin/
 RUN chmod 777 /bin/setup.sh
+RUN chmod 777 /bin/tes.js
 
 ENTRYPOINT [ "/bin/setup.sh" ]
 
 CMD [ "python" , "manage.py" , "runserver" , "0.0.0.0:8000" ]
+# CMD ["tail", "-f", "/dev/null"]
