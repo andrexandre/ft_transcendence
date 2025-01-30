@@ -1,11 +1,9 @@
 ### miguel ignore ###
-# game/v1-pong-game/testong/
 game/v1-pong-game
-# game/v2-pong-game/node_modules
 game/v2-pong-game
-game/v3-pong-game/node_modules
-game/v3-pong-game/v3.md
+game/v3-pong-game
+game/v4-pong-game/frontend/js
+game/v4-pong-game/frontend
 .env
-
 
 # ignore ...

@@ -1,0 +1,20 @@
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app  # Syncs backend folder to container
+      - dj_volume:/app/db  # Store database separately
+    depends_on:
+      - redis
+
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6380:6379"
+
+# ✅ Correctly defining the named volume
+volumes:
+  dj_volume:
