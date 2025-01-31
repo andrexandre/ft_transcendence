@@ -2,12 +2,11 @@
 services:
 
   dataBase:
-    # psql -h localhost -p 5432 -U aleperei -d transcendence 
     image: postgres
     container_name: dataBase
     shm_size: 128mb
     env_file:
-      - .env
+      - ./backend/userConf/.env
     networks:
       - ft_transcendence
     expose:
@@ -17,16 +16,16 @@ services:
     image: python
     container_name: user_management
     env_file:
-      - .env
+      - ./backend/userConf/.env
     depends_on:
       dataBase:
         condition: service_started
     build: 
-      context: ./conf
+      context: ./backend/userConf
     ports:
       - "8000:8000"
     volumes:
-      - ./userManagement:/backend/userManagement:rw #Vai guardar na home 
+      - ./backend/userManagement:/backend/userManagement:rw #Vai guardar na home 
     networks:
       - ft_transcendence
 

@@ -12,6 +12,9 @@ NAME = inception
 build-up:
 	docker compose up --build 
 
+build:
+	docker compose build 
+
 # Run docker-compose and create the containers
 up:
 	docker compose up
