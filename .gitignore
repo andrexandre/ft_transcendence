@@ -2,8 +2,8 @@
 game/v1-pong-game
 game/v2-pong-game
 game/v3-pong-game
-game/v4-pong-game/frontend/js
-game/v4-pong-game/frontend
+game/v4-pong-game
 .env
+game/backend/node_modules
 
 # ignore ...
