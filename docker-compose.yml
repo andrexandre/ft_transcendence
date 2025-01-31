@@ -6,7 +6,7 @@ services:
     container_name: dataBase
     shm_size: 128mb
     env_file:
-      - ./backend/userConf/.env
+      - ./backend/user/userConf/.env
     networks:
       - ft_transcendence
     expose:
@@ -16,16 +16,16 @@ services:
     image: python
     container_name: user_management
     env_file:
-      - ./backend/userConf/.env
+      - ./backend/user/userConf/.env
     depends_on:
       dataBase:
         condition: service_started
     build: 
-      context: ./backend/userConf
+      context: ./backend/user/userConf
     ports:
       - "8000:8000"
     volumes:
-      - ./backend/userManagement:/backend/userManagement:rw #Vai guardar na home 
+      - ./backend/user/userManagement:/backend/userManagement:rw #Vai guardar na home 
     networks:
       - ft_transcendence
 
