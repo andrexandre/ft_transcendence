@@ -1,3 +1,4 @@
+RUN=psql -U $POSTGRES_USER -d $POSTGRES_DB
 select * from 'nome da tabela'; ve tudos que esta inserido na tabela
 \d 'nome da tabela' - mostra o eschema da tabela
 \dt - ve todos os bancos de dados

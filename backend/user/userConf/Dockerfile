@@ -25,3 +25,4 @@ ENTRYPOINT [ "/bin/setup.sh" ]
 
 CMD [ "python" , "manage.py" , "runserver" , "0.0.0.0:8000" ]
 # CMD ["tail", "-f", "/dev/null"]
+# docker system df ve o tamanho total de tudo que o docker usa imagens volume cache
