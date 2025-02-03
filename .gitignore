@@ -3,8 +3,8 @@ game/v1-pong-game
 game/v2-pong-game
 game/v3-pong-game
 game/v4-pong-game
-.env
-game/backend/node_modules
+game/v5
+
 
 #alex ignore
 # Ignorar os arquivos de cache do Django
