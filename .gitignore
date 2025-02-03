@@ -6,4 +6,9 @@ game/v4-pong-game
 .env
 game/backend/node_modules
 
-# ignore ...
+#alex ignore
+# Ignorar os arquivos de cache do Django
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
