@@ -9,7 +9,7 @@ from django.http import HttpRequest, HttpRequest
 # For hashing do password
 from django.contrib.auth.hashers import make_password
 
-from .tokens import get_tokens_for_user
+from . import get_tokens_for_user
 
 
 def error(request, msg):
@@ -40,16 +40,19 @@ def login(request):
 			user = User.objects.get(username=username)
 			myTokens = get_tokens_for_user(user)
 			
-			headers = {
-				'Authorization': f'Bearer {myTokens['access']}',  # Exemplo de header de autorização
-			}
+			# headers = {
+			# 	'Authorization': f'Bearer {myTokens['access']}',  # Exemplo de header de autorização
+			# }
 			
 			# res = render(request, "login/login.html")
-			url = "http://127.0.0.1:8000/user_api/home"
-			res = redirect(url)
-			res['Authorization'] = f'Bearer {myTokens['access']}'
+			# url = "http://127.0.0.1:8000/user_api/home"
+			# res = redirect(url)
+			# res['Authorization'] = f'Bearer {myTokens['access']}'
+			tmp = HttpResponse("LOgin ok")
+			tmp['Authorization'] = f'Bearer {myTokens['access']}'
 
-			return res
+
+			return tmp
 		elif (response.status_code == 404):
 			return HttpResponse("POST ERROR")
 

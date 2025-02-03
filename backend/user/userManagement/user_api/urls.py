@@ -1,7 +1,6 @@
 from django.urls import path
-from .endpoints.homeView import HomeView
-from .endpoints.loginview import LoginView
-from .endpoints.registerView import RegisterView
+from .endpoints import HomeView, LoginView, RegisterView
+# Apagar depois
 from .endpoints.tests import register, login
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,

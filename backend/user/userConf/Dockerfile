@@ -1,6 +1,6 @@
-FROM python:3.13.1-slim
+# FROM python:3.13.1-slim
 
-#FROM python
+FROM python
 
 EXPOSE 8000
 
@@ -10,7 +10,6 @@ RUN apt update && \
 RUN apt install -y netcat-openbsd 
 
 RUN pip install django && \
-	# Para o ENGINE do postgres
 	pip install psycopg2 &&  \ 
 	pip install djangorestframework && \
 	pip install djangorestframework_simplejwt && \

@@ -53,6 +53,11 @@ content-type: application/json
     "password": "asd"
 }
 
+# ### hom1 1
+# GET http://127.0.0.1:8000/user_api/home HTTP/1.1
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM4NjA5NzYwLCJpYXQiOjE3Mzg2MDYxNjAsImp0aSI6IjdjNDdkOGIzN2I3ODQ0NzRiMWExMjE0Nzg2MGEyODRjIiwidXNlcl9pZCI6MX0.Rm78OtAqBNCsFn8ipvaC8590TfxTbxIkhKnfqnBkavg
+
+
 ### login
 POST http://127.0.0.1:8000/user_api/login_validate HTTP/1.1
 content-type: application/json
