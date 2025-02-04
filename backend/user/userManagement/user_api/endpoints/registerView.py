@@ -1,22 +1,16 @@
-from django.shortcuts import render
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework.renderers import JSONRenderer
-from rest_framework import status
 
-from django.http import JsonResponse
-from django.http import HttpResponse
 from ..models import User
-
-import json
+from rest_framework import status
 from rest_framework.views import APIView 
+# Temporario
+from django.shortcuts import render
+# For loading and return json content
+import json
+from django.http import JsonResponse
 # For hashing do password
 from django.contrib.auth.hashers import make_password
-from django.db import IntegrityError
-
-from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.authentication import JWTAuthentication
-
+# For execption of because the unique option on fields
+from django.db import IntegrityError			# se tentarem salvar um email ou username que ja existe
 
 
 
@@ -50,4 +44,4 @@ class RegisterView(APIView):
 		except IntegrityError: 
 			return
 		
-		return JsonResponse({"msg": "tudo cool"},status=200)
+		return JsonResponse({"msg": "Success"},status=status.HTTP_201_CREATED)

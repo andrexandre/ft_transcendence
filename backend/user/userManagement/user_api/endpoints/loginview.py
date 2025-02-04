@@ -1,21 +1,18 @@
+# Temporario
 from django.shortcuts import render
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework.renderers import JSONRenderer
-from rest_framework import status
 
-from django.http import JsonResponse
-from django.http import HttpResponse
 from ..models import User
-
 import json
+from django.http import JsonResponse
 from rest_framework.views import APIView 
+from rest_framework import status
 # For hashing do password
 from django.contrib.auth.hashers import make_password
-from django.db import IntegrityError
+
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from .tokens import get_tokens_for_user
 
 
 class LoginView(APIView):
@@ -37,14 +34,21 @@ class LoginView(APIView):
 		# try:
 		# except User.DoesNotExist:
 		# 	return 
+		myTokens = get_tokens_for_user(target_user)
+			
+		msg = {
+			"msg": "Success",
+			'Access': f'{myTokens['access']}',
+			'Refresh': f'{myTokens['refresh']}',
+		}
 		
 		hash_pass = make_password(password, "asd123")
 		if (target_user.validate_password(hash_pass)):
 			# Verificar se a palavra passe esta certa
-			return JsonResponse({"msg": "deu merda"})
+			return JsonResponse({"msg": "deu merda"}, status=status.HTTP_401_UNAUTHORIZED)
 
 		
-		return JsonResponse({"msg": "tudo cool"},status=200)
+		return JsonResponse(msg, status=status.HTTP_201_CREATED)
 
 
 
