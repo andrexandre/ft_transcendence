@@ -1,2 +1,12 @@
+# miguel ignore
+pong-game/testong/
+pongV2/
 node_modules
 .env
+
+#alex ignore
+# Ignorar os arquivos de cache do Django
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
