@@ -4,7 +4,7 @@ game/v2-pong-game
 game/v3-pong-game
 game/v4-pong-game
 game/v5
-
+game-project/node_modules
 
 #alex ignore
 # Ignorar os arquivos de cache do Django
@@ -12,3 +12,4 @@ game/v5
 *.pyo
 *.pyd
 __pycache__/
+
