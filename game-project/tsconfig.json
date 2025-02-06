@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
-    "esModuleInterop": true,
-    "moduleResolution": "node",
-    "target": "ES6",
-    "module": "CommonJS",
-    "outDir": "./dist",
+    "outDir": "./",
     "rootDir": "./",
+    "allowJs": true,
+    "target": "es6",
+    "module": "commonjs",
     "strict": true
-  }
+  },
+  "include": ["server.ts", "public/script.ts"], 
+  "exclude": ["node_modules"]
 }
