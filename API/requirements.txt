@@ -1,5 +1,0 @@
-django
-djangorestframework
-environs
-requests
-djangorestframework-simplejwt
