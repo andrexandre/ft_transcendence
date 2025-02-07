@@ -1,33 +1,33 @@
 
 services:
 
-  dataBase:
-    image: postgres
-    container_name: dataBase
-    shm_size: 128mb
-    env_file:
-      - ./backend/user/userConf/.env
-    networks:
-      - ft_transcendence
-    expose:
-      - 5432
+  # dataBase:
+  #   image: postgres
+  #   container_name: dataBase
+  #   shm_size: 128mb
+  #   env_file:
+  #     - ./backend/user/userConf/.env
+  #   networks:
+  #     - ft_transcendence
+  #   expose:
+  #     - 5432
 
-  django:
-    image: python
-    container_name: user_management
-    env_file:
-      - ./backend/user/userConf/.env
-    depends_on:
-      dataBase:
-        condition: service_started
-    build: 
-      context: ./backend/user/userConf
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./backend/user/userManagement:/backend/userManagement:rw #Vai guardar na home 
-    networks:
-      - ft_transcendence
+  # django:
+  #   image: python
+  #   container_name: user_management
+  #   env_file:
+  #     - ./backend/user/userConf/.env
+  #   depends_on:
+  #     dataBase:
+  #       condition: service_started
+  #   build: 
+  #     context: ./backend/user/userConf
+  #   ports:
+  #     - "8000:8000"
+  #   volumes:
+  #     - ./backend/user/userManagement:/backend/userManagement:rw #Vai guardar na home 
+  #   networks:
+  #     - ft_transcendence
 
 
 networks:
