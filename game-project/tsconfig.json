@@ -4,9 +4,10 @@
     "rootDir": "./",
     "allowJs": true,
     "target": "es6",
-    "module": "commonjs",
+    "module": "es6", /// _?????? with nodenext no funca // test with js
+    "moduleResolution": "nodenext",
     "strict": true
   },
-  "include": ["server.ts", "public/script.ts"], 
+  "include": ["server.ts", "public/**/*.ts"], 
   "exclude": ["node_modules"]
 }

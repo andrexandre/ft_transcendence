@@ -1,20 +1,20 @@
-import Fastify from "fastify";
+import Fastify, { FastifyRequest, FastifyReply } from "fastify";
 import fastifyWebsocket from "@fastify/websocket";
 import fastifyStatic from "@fastify/static";
 import * as path from "path";
 
 const fastify = Fastify({ logger: true });
 
-// ✅ Register WebSocket Plugin
+// Register WebSocket Plugin
 fastify.register(fastifyWebsocket);
 
-// ✅ Register Static File Serving
+// Register Static Files
 fastify.register(fastifyStatic, {
   root: path.join(__dirname, "public"),
   prefix: "/",
 });
 
-// ✅ WebSocket Route (MUST be registered before starting server)
+// WebSocket Route
 fastify.get("/ws", { websocket: true }, (connection, req) => {
   console.log("Player connected");
 
@@ -28,12 +28,12 @@ fastify.get("/ws", { websocket: true }, (connection, req) => {
   });
 });
 
-// ✅ Serve index.html
-fastify.get("/", async (request, reply) => {
+// Serve `index.html`
+fastify.get("/", async (request: FastifyRequest, reply: FastifyReply) => {
   return reply.sendFile("index.html");
 });
 
-// ✅ Start Server (Only start once!)
+// Start Server
 const start = async () => {
   try {
     await fastify.listen({ port: 3000, host: "0.0.0.0" });

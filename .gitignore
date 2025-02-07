@@ -1,10 +1,8 @@
 ### miguel ignore ###
-game/v1-pong-game
-game/v2-pong-game
-game/v3-pong-game
-game/v4-pong-game
-game/v5
 game-project/node_modules
+game-project/server.js
+game-project/public/game.js
+game-project/public/menu.js
 
 #alex ignore
 # Ignorar os arquivos de cache do Django
