@@ -1,7 +1,7 @@
 const userSchema = require('../schemas/userSchema');
+const fastifyJwt = require('@fastify/jwt');
 
 module.exports = async function (fastify, options) {
-  
   fastify.get('/users', async (request, reply) => {
     return {message : "Ola"};
   });

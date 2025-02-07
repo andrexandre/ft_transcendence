@@ -2,9 +2,12 @@
 
 const path = require('node:path')
 const AutoLoad = require('@fastify/autoload')
+const fastifyJwt = require('@fastify/jwt')
+require('dotenv').config();
 
 // Pass --options via CLI arguments in command to enable these options.
 const options = {}
+const JWT_SECRET = process.env.JWT_SECRET;
 
 module.exports = async function (fastify, opts) {
   // Place here your custom code!
@@ -14,6 +17,8 @@ module.exports = async function (fastify, opts) {
   // This loads all plugins defined in plugins
   // those should be support plugins that are reused
   // through your application
+
+  fastify.register(fastifyJwt, {secret: JWT_SECRET});
 
   fastify.register(AutoLoad, {
     dir: path.join(__dirname, 'plugins'),
