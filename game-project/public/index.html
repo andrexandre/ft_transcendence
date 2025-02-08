@@ -9,18 +9,30 @@
 <body>
     <div id="menu">
         <h1 id="title">PONGIFY</h1>
-        <button id="single">Single Player</button>
-        <button id="multi">Multi</button>
-        <button id="coop">Co-Op</button>
-        <button id="settings">Settings</button>
-        <div id="ball"></div>
+
+        <button class="main-btn" id="single">Single</button>
+        <div class="submenu hidden" id="single-menu">
+            <button class="sub-btn" id="classic">Classic</button>
+            <button class="sub-btn" id="infinity">Infinity Ball</button>
+        </div>
+
+        <button class="main-btn" id="multi">Multi</button>
+        <div class="submenu hidden" id="multi-menu">
+            <button class="sub-btn" id="tournament">Tournament</button>
+            <button class="sub-btn" id="dontPress">Don't Press</button>
+        </div>
+
+        <button class="main-btn" id="coop">Co-Op</button>
+        <div class="submenu hidden" id="coop-menu">
+            <button class="sub-btn" id="matrecos">Matrecos</button>
+            <button class="sub-btn" id="freeforall">Free For All</button>
+        </div>
+
+        <button class="main-btn" id="settings">Settings</button>
     </div>
+
     <canvas id="gameCanvas" class="hidden"></canvas>
-    <!-- <script src="dist/public/game.js"></script>
-    <script src="dist/public/menu.js"></script> -->
     <script type="module" src="menu.js"></script>
     <script type="module" src="game.js"></script>
-
-    <!-- <script src="script.js"></script> -->
 </body>
 </html>

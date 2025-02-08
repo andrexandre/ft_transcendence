@@ -1,4 +1,5 @@
-export function startSinglePlayerGame() {
+export function startSingleClassic()
+{
     const gameCanvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
     const ctx = gameCanvas.getContext("2d");
     const menu = document.getElementById("menu") as HTMLDivElement;
@@ -8,7 +9,7 @@ export function startSinglePlayerGame() {
     menu.classList.add("hidden");
     menu.classList.remove("visible");
 
-    // **Clear existing UI elements from previous game**
+    // Clear UI
     document.querySelectorAll(".scoreboard, .countdown, .win-message").forEach(el => el.remove());
 
     // Create new elements
@@ -36,11 +37,12 @@ export function startSinglePlayerGame() {
     let ballSpeedY = 0;
     const initialSpeedX = 2;
     const initialSpeedY = 1.5;
-    const paddleSpeed = 5;
+    const paddleSpeed = 2.5;
     const paddleHeight = 80;
 
     let playerScore = 0;
     let aiScore = 0;
+    let aiError = 40; // AI Dum
     let gameOver = false;
 
     let upPressed = false;
@@ -51,17 +53,17 @@ export function startSinglePlayerGame() {
         ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 
         ctx.fillStyle = "blue";
-        ctx.fillRect(10, playerY, 10, paddleHeight);
+        ctx.fillRect(0, playerY, 10, paddleHeight);
 
         ctx.fillStyle = "red";
-        ctx.fillRect(gameCanvas.width - 20, aiY, 10, paddleHeight);
+        ctx.fillRect(gameCanvas.width - 10, aiY, 10, paddleHeight);
 
         ctx.fillStyle = "green"; 
         ctx.beginPath();
         ctx.arc(ballX, ballY, 10, 0, Math.PI * 2);
         ctx.fill();
 
-        scoreboard.innerHTML = `<span style="color: blue;">Player 1</span> ${playerScore} - ${aiScore} <span style="color: red;">Player 2</span>`;
+        scoreboard.innerHTML = `<span style="color: blue;">Player 1</span> ${playerScore} - ${aiScore} <span style="color: red;">BoTony</span>`;
     }
 
     function update() {
@@ -73,6 +75,7 @@ export function startSinglePlayerGame() {
         ballX += ballSpeedX;
         ballY += ballSpeedY;
 
+        // collisions
         if (ballY <= 0 || ballY >= gameCanvas.height) ballSpeedY *= -1;
         if (ballX <= 20 && ballY > playerY && ballY < playerY + paddleHeight) ballSpeedX *= -1;
         if (ballX >= gameCanvas.width - 20 && ballY > aiY && ballY < aiY + paddleHeight) ballSpeedX *= -1;
@@ -88,14 +91,21 @@ export function startSinglePlayerGame() {
             resetGame();
         }
 
-        aiY = ballY - paddleHeight / 2;
+        // AI brain
+        // aiY = ballY - paddleHeight / 2;
+        const errorFactor = Math.random() * aiError - aiError / 2;
+        if (aiY + 70 < ballY + errorFactor) aiY += paddleSpeed;
+        if (aiY + 70 > ballY + errorFactor) aiY -= paddleSpeed;
+
+        if (aiY < 0) aiY = 0;
+        if (aiY > gameCanvas.height - 80) aiY = gameCanvas.height - 80;
     }
 
     function checkWinCondition() {
         if (playerScore === 5) {
             endGame("Player 1 Wins!", "blue");
         } else if (aiScore === 5) {
-            endGame("Player 2 Wins!", "red");
+            endGame("BoTony Wins!", "red");
         }
     }
 
@@ -123,6 +133,8 @@ export function startSinglePlayerGame() {
             ballSpeedX = initialSpeedX;
             ballSpeedY = initialSpeedY;
         });
+
+        if (aiError > 5) aiError -= 5; // Reduce AI error
     }
 
     function gameLoop() {
@@ -165,9 +177,9 @@ export function startSinglePlayerGame() {
         menu.classList.remove("hidden");
         menu.classList.add("visible");
 
-        // **Remove previous event listeners to prevent stacking**
+        // Remove previous event listeners to prevent stacking
         singleButton.replaceWith(singleButton.cloneNode(true));
-        document.getElementById("single")?.addEventListener("click", startSinglePlayerGame);
+        document.getElementById("single")?.addEventListener("click", startSingleClassic);
     }
 
     document.addEventListener("keydown", keyDownHandler);

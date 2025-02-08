@@ -1,6 +1,6 @@
 {
   "name": "pongify_ftw",
-  "version": "1.0.0",
+  "version": "1.0.7",
   "description": "You got to get Ponging...",
   "main": "server.js",
   "scripts": {
