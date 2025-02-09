@@ -8,26 +8,23 @@
 	<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
 </head>
 <style>
-	.inline-class {
-		display: inline-block;
+	#main {
+		grid-template-columns: 2fr 3fr;
+		height: 100vh;
+		/* width: 100vh; */
+	}
+	.grid-box {
 		margin: 10px;
 		border: 2px dashed whitesmoke;
 		border-radius: 10px;
 	}
 </style>
 <body class="bg-black">
-	<main class="p-4 h-auto">
-		<div class="grid grid-cols-4 gap-4 mb-4">
-			<div class="inline-class h-64"></div>
-			<div class="inline-class h-64"></div>
-			<div class="inline-class h-64"></div>
-			<div class="inline-class h-64"></div>
-		</div>
-		<div class="grid grid-cols-3 gap-4 mb-4">
-			<div class="inline-class h-48 md:h-72"></div>
-			<div class="inline-class h-48 md:h-72"></div>
-			<div class="inline-class h-48 md:h-72"></div>
-		</div>
+	<main id="main" class="grid p-4">
+		<div class="grid-box"></div>
+		<div class="grid-box"></div>
+		<div class="grid-box"></div>
+		<div class="grid-box"></div>
 	</main>
 </body>
 
