@@ -1,33 +1,44 @@
-export function startSingleClassic()
-{
+export function startSingleClassic() {
     const gameCanvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
     const ctx = gameCanvas.getContext("2d");
     const menu = document.getElementById("menu") as HTMLDivElement;
-    const singleButton = document.getElementById("single") as HTMLButtonElement;
 
-    // Hiden menu
+    // Hide menu, show game
     menu.classList.add("hidden");
     menu.classList.remove("visible");
+    gameCanvas.style.visibility = "visible";
 
-    // Clear UI
-    document.querySelectorAll(".scoreboard, .countdown, .win-message").forEach(el => el.remove());
+    // Create elements scoreboard/wining/countdown
+    let scoreboard = document.getElementById("scoreboard") as HTMLDivElement;
+    if (!scoreboard) {
+        scoreboard = document.createElement("div");
+        scoreboard.id = "scoreboard";
+        scoreboard.classList.add("scoreboard");
+        document.body.appendChild(scoreboard);
+    }
+    scoreboard.style.display = "block";
 
-    // Create new elements
-    const scoreboard = document.createElement("div");
-    scoreboard.classList.add("scoreboard");
-    document.body.appendChild(scoreboard);
+    let countdownDisplay = document.getElementById("countdown") as HTMLDivElement;
+    if (!countdownDisplay) {
+        countdownDisplay = document.createElement("div");
+        countdownDisplay.id = "countdown";
+        countdownDisplay.classList.add("countdown");
+        document.body.appendChild(countdownDisplay);
+    }
+    countdownDisplay.style.display = "none";
 
-    const countdownDisplay = document.createElement("div");
-    countdownDisplay.classList.add("countdown");
-    document.body.appendChild(countdownDisplay);
+    let winMessage = document.getElementById("win-message") as HTMLDivElement;
+    if (!winMessage) {
+        winMessage = document.createElement("div");
+        winMessage.id = "win-message";
+        winMessage.classList.add("countdown", "win-message");
+        document.body.appendChild(winMessage);
+    }
+    winMessage.style.display = "none";
 
-    const winMessage = document.createElement("div");
-    winMessage.classList.add("countdown", "win-message");
-    document.body.appendChild(winMessage);
-
+    // Game Variables
     gameCanvas.width = 800;
     gameCanvas.height = 400;
-    gameCanvas.style.visibility = "visible";
 
     let playerY = gameCanvas.height / 2 - 40;
     let aiY = gameCanvas.height / 2 - 40;
@@ -42,28 +53,34 @@ export function startSingleClassic()
 
     let playerScore = 0;
     let aiScore = 0;
-    let aiError = 40; // AI Dum
+    let aiError = 40;
     let gameOver = false;
 
     let upPressed = false;
     let downPressed = false;
+    /// addd
+    showCountdown(() => {
+        ballSpeedX = initialSpeedX;
+        ballSpeedY = initialSpeedY;
+    });
 
     function draw() {
         if (!ctx || gameOver) return;
         ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 
+        // Padles
         ctx.fillStyle = "blue";
         ctx.fillRect(0, playerY, 10, paddleHeight);
-
         ctx.fillStyle = "red";
         ctx.fillRect(gameCanvas.width - 10, aiY, 10, paddleHeight);
-
+        // Ball
         ctx.fillStyle = "green"; 
         ctx.beginPath();
         ctx.arc(ballX, ballY, 10, 0, Math.PI * 2);
         ctx.fill();
-
-        scoreboard.innerHTML = `<span style="color: blue;">Player 1</span> ${playerScore} - ${aiScore} <span style="color: red;">BoTony</span>`;
+        // Score
+        scoreboard.innerHTML = `<span style="color: blue;">Couves</span> ${playerScore} - ${aiScore} <span style="color: red;">BoTony</span>`;
+        // need to improve location and remove from the menu
     }
 
     function update() {
@@ -75,7 +92,6 @@ export function startSingleClassic()
         ballX += ballSpeedX;
         ballY += ballSpeedY;
 
-        // collisions
         if (ballY <= 0 || ballY >= gameCanvas.height) ballSpeedY *= -1;
         if (ballX <= 20 && ballY > playerY && ballY < playerY + paddleHeight) ballSpeedX *= -1;
         if (ballX >= gameCanvas.width - 20 && ballY > aiY && ballY < aiY + paddleHeight) ballSpeedX *= -1;
@@ -91,8 +107,6 @@ export function startSingleClassic()
             resetGame();
         }
 
-        // AI brain
-        // aiY = ballY - paddleHeight / 2;
         const errorFactor = Math.random() * aiError - aiError / 2;
         if (aiY + 70 < ballY + errorFactor) aiY += paddleSpeed;
         if (aiY + 70 > ballY + errorFactor) aiY -= paddleSpeed;
@@ -103,27 +117,38 @@ export function startSingleClassic()
 
     function checkWinCondition() {
         if (playerScore === 5) {
-            endGame("Player 1 Wins!", "blue");
+            draw();
+            setTimeout(() => endGame("Player 1 Wins!", "blue"), 1000);
         } else if (aiScore === 5) {
-            endGame("BoTony Wins!", "red");
+            draw();
+            setTimeout(() => endGame("BoTony Wins!", "red"), 1000);
         }
     }
-
+    
     function endGame(message: string, color: string) {
         gameOver = true;
-        winMessage.innerHTML = message;
-        winMessage.style.display = "block";
-        winMessage.style.color = color;
-
+    
+        if (!ctx) return;
+    
+        // Clear and redraw background
+        ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+        ctx.fillStyle = "black";
+        ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+    
+        // Draw winning text
+        ctx.fillStyle = color;
+        ctx.font = "40px 'Press Start 2P'";
+        ctx.textAlign = "center";
+        ctx.fillText(message, gameCanvas.width / 2, gameCanvas.height / 2);
+    
+        // Stop updating game
         setTimeout(() => {
-            winMessage.style.display = "none";
-            scoreboard.style.display = "none";
             returnToMenu();
         }, 5000);
     }
 
     function resetGame() {
-        if (gameOver) return;
+        if (gameOver) return; /// test move for the end print
         ballX = gameCanvas.width / 2;
         ballY = gameCanvas.height / 2;
         ballSpeedX = 0;
@@ -134,7 +159,7 @@ export function startSingleClassic()
             ballSpeedY = initialSpeedY;
         });
 
-        if (aiError > 5) aiError -= 5; // Reduce AI error
+        if (aiError > 4) aiError -= 5;
     }
 
     function gameLoop() {
@@ -154,41 +179,43 @@ export function startSingleClassic()
     }
 
     function showCountdown(callback: () => void) {
-        let count = 3;
-        countdownDisplay.style.display = "block";
-        countdownDisplay.style.color = "green";
-
+        let count = 4;
+    
         function updateCountdown() {
-            countdownDisplay.innerHTML = count.toString();
-            if (count > 0) {
+            if (!ctx) return;
+    
+            // Clear and redraw background
+            ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+            ctx.fillStyle = "black";  // 🔹 Ensure black background
+            ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+    
+            // Draw countdown text in the center
+            ctx.fillStyle = "green";
+            ctx.font = "60px 'Press Start 2P'";
+            ctx.textAlign = "center";
+            ctx.fillText(count.toString(), gameCanvas.width / 2, gameCanvas.height / 2);
+    
+            if (count > 1) {
                 count--;
                 setTimeout(updateCountdown, 1000);
             } else {
-                countdownDisplay.style.display = "none";
-                callback();
+                callback();  // Start ball movement
+                gameLoop();  // 🟢 Start the game after countdown
             }
         }
-
+    
         updateCountdown();
     }
+    
 
     function returnToMenu() {
         gameCanvas.style.visibility = "hidden";
         menu.classList.remove("hidden");
         menu.classList.add("visible");
-
-        // Remove previous event listeners to prevent stacking
-        singleButton.replaceWith(singleButton.cloneNode(true));
-        document.getElementById("single")?.addEventListener("click", startSingleClassic);
     }
 
     document.addEventListener("keydown", keyDownHandler);
     document.addEventListener("keyup", keyUpHandler);
-
-    showCountdown(() => {
-        ballSpeedX = initialSpeedX;
-        ballSpeedY = initialSpeedY;
-    });
 
     gameLoop();
 }

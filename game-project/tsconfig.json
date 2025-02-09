@@ -4,8 +4,8 @@
     "rootDir": "./",
     "allowJs": true,
     "target": "es6",
-    "module": "es6", /// _?????? with nodenext no funca // test with js
-    "moduleResolution": "nodenext",
+    "module": "es6", /// _?????? with nodenext no funca // test with "CommonJS" || "es6"
+    // "moduleResolution": "nodenext",
     "strict": true
   },
   "include": ["server.ts", "public/**/*.ts"], 

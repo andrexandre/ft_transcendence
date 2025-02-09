@@ -16,7 +16,7 @@ run:
 
 clean:
 	@echo "🗑 Cleaning up..."
-# rm -rf $(DIST_FOLDER)
+	rm -rf server.js public/menu.js public/game.js
 	rm -rf $(NODE_MODULES)
 
 re: clean all
