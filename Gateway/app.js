@@ -3,6 +3,7 @@
 const path = require('node:path')
 const AutoLoad = require('@fastify/autoload')
 const fastifyJwt = require('@fastify/jwt')
+const sqlite3 = require('sqlite3').verbose();
 require('dotenv').config();
 
 // Pass --options via CLI arguments in command to enable these options.
@@ -17,6 +18,20 @@ module.exports = async function (fastify, opts) {
   // This loads all plugins defined in plugins
   // those should be support plugins that are reused
   // through your application
+  const db = new sqlite3.Database('../Database/testDB.db', (err) => {
+    if(err){
+      console.log("Error opening db : ", err.message);
+    }
+    else{
+      console.log("Connected!");
+    }
+  });
+
+  db.serialize(() => {
+    db.run("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT, email TEXT)");
+  });
+
+  module.exports = {db};
 
   fastify.register(fastifyJwt, {secret: JWT_SECRET});
 

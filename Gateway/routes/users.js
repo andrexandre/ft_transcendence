@@ -1,17 +1,34 @@
 const userSchema = require('../schemas/userSchema');
-const fastifyJwt = require('@fastify/jwt');
+const {db} = require('../app');
 
-module.exports = async function (fastify, options) {
-  fastify.get('/users', async (request, reply) => {
-    return {message : "Ola"};
+async function userRoutes(fastify, options) {
+  fastify.post('/users', (request, reply) => {
+    const { name, email } = request.body;
+
+    const reponseQuery = db.prepare("INSERT INTO users (name, email) VALUES (?, ?)");
+    reponseQuery.run(name, email, function (err) {
+      if (err) {
+        return reply.status(500).send({ error: 'Error inserting data' });
+      }
+      reply.status(201).send({
+        message: 'User created successfully',
+        userId: this.lastID,
+      });
+    });
+    reponseQuery.finalize();
   });
 
-  fastify.post('/users' , {
-    schema: {
-      body: userSchema
-    }
-  }, async(request, reply) => {
-      const {name, pass} = request.body;
-      return {message : `User ${name}, pass ${pass}`}
+  fastify.get('/users', (request, reply) => {
+    const { name, email } = request.query;
+    console.log(email);
+    db.all(`SELECT * FROM users WHERE name LIKE "${name}"`, [], (err, rows) => {
+      if(err){
+        reply.status(500).send({error : 'Error fetching data'});
+        return;
+      }
+      reply.send(rows);
+    })
   });
-};
+}
+
+module.exports = userRoutes;
