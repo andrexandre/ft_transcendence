@@ -4,11 +4,16 @@ SERVER_FILE = server.ts
 
 all: install run
 
-install:
-	@echo "🔧 Installing dependencies... & 🔨 Compiling TypeScript..."
-	npm install
-	npm install fastify @fastify/static @fastify/websocket
-	tsc
+# install:
+# 	@echo "🔧 Installing dependencies... & 🔨 Compiling TypeScript..."
+# 	npm install
+# 	npm install fastify @fastify/static @fastify/websocket
+# 	tsc
+recomp:
+	docker compose down
+	docker rmi pongify
+	docker compose build
+	docker compose up
 
 run:
 	@echo "🚀 Starting the server..."

@@ -3,11 +3,15 @@
     "outDir": "./",
     "rootDir": "./",
     "allowJs": true,
-    "target": "es6",
-    "module": "es6", /// _?????? with nodenext no funca // test with "CommonJS" || "es6"
-    // "moduleResolution": "nodenext",
+    "target": "ES6",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext", //ver
+    "esModuleInterop": true,
     "strict": true
   },
   "include": ["server.ts", "public/**/*.ts"], 
   "exclude": ["node_modules"]
 }
+
+
+/// _?????? with nodenext no funca // test with "CommonJS" || "es6"

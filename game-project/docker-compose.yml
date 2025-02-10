@@ -1,0 +1,17 @@
+# # Build the Docker image
+# docker build -t pongify .
+
+# # Run the container
+# docker run -p 3000:3000 pongify
+
+services:
+  game:
+    image: pongify
+    container_name: pongify
+    environment:
+      - NODE_ENV=PRODUCTION
+    volumes:
+      - ./:/pong_vol:rw
+    ports:
+      - "3000:3000"
+    build: ./

@@ -10,13 +10,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import Fastify from "fastify";
 import fastifyWebsocket from "@fastify/websocket";
 import fastifyStatic from "@fastify/static";
-import * as path from "path";
+import path from "path"; // ✅ Fix import
 const fastify = Fastify({ logger: true });
 // Register WebSocket Plugin
 fastify.register(fastifyWebsocket);
 // Register Static Files
 fastify.register(fastifyStatic, {
-    root: path.join(__dirname, "public"),
+    root: path.join(process.cwd(), "public"), // ✅ Use process.cwd() to fix path issues
     prefix: "/",
 });
 // WebSocket Route

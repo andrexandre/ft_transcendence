@@ -1,7 +1,9 @@
-import Fastify, { FastifyRequest, FastifyReply } from "fastify";
+import Fastify from "fastify";
+import FastifyRequest from "fastify";
+import FastifyReply from "fastify";
 import fastifyWebsocket from "@fastify/websocket";
 import fastifyStatic from "@fastify/static";
-import * as path from "path";
+import path from "path";
 
 const fastify = Fastify({ logger: true });
 
@@ -10,12 +12,12 @@ fastify.register(fastifyWebsocket);
 
 // Register Static Files
 fastify.register(fastifyStatic, {
-  root: path.join(__dirname, "public"),
+  root: path.join(process.cwd(), "public"),
   prefix: "/",
 });
 
 // WebSocket Route
-fastify.get("/ws", { websocket: true }, (connection, req) => {
+fastify.get("/ws", { websocket: true }, (connection: any, req: any) => { // ✅ Fix types
   console.log("Player connected");
 
   connection.socket.on("message", (message: string) => {
@@ -29,7 +31,7 @@ fastify.get("/ws", { websocket: true }, (connection, req) => {
 });
 
 // Serve `index.html`
-fastify.get("/", async (request: FastifyRequest, reply: FastifyReply) => {
+fastify.get("/", async (request: any, reply: any) => {
   return reply.sendFile("index.html");
 });
 
