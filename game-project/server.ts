@@ -1,23 +1,23 @@
-import Fastify from "fastify";
-import FastifyRequest from "fastify";
-import FastifyReply from "fastify";
+import fastify from "fastify";
+import fastifyRequest from "fastify";
+import fastifyReply from "fastify";
 import fastifyWebsocket from "@fastify/websocket";
 import fastifyStatic from "@fastify/static";
 import path from "path";
 
-const fastify = Fastify({ logger: true });
+const gamefast = fastify({ logger: true });
 
 // Register WebSocket Plugin
-fastify.register(fastifyWebsocket);
+gamefast.register(fastifyWebsocket);
 
 // Register Static Files
-fastify.register(fastifyStatic, {
+gamefast.register(fastifyStatic, {
   root: path.join(process.cwd(), "public"),
   prefix: "/",
 });
 
 // WebSocket Route
-fastify.get("/ws", { websocket: true }, (connection: any, req: any) => { // ✅ Fix types
+gamefast.get("/ws", { websocket: true }, (connection: any, req: any) => { // ✅ Fix types
   console.log("Player connected");
 
   connection.socket.on("message", (message: string) => {
@@ -31,17 +31,17 @@ fastify.get("/ws", { websocket: true }, (connection: any, req: any) => { // ✅ 
 });
 
 // Serve `index.html`
-fastify.get("/", async (request: any, reply: any) => {
+gamefast.get("/", async (request: any, reply: any) => {
   return reply.sendFile("index.html");
 });
 
 // Start Server
 const start = async () => {
   try {
-    await fastify.listen({ port: 3000, host: "0.0.0.0" });
+    await gamefast.listen({ port: 3000, host: "0.0.0.0" });
     console.log("Server running at http://localhost:3000");
   } catch (err) {
-    fastify.log.error(err);
+    gamefast.log.error(err);
     process.exit(1);
   }
 };

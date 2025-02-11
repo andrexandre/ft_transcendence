@@ -46,8 +46,8 @@ export function startSingleClassic() {
     let ballY = gameCanvas.height / 2;
     let ballSpeedX = 0;
     let ballSpeedY = 0;
-    const initialSpeedX = 2;
-    const initialSpeedY = 1.5;
+    const initialSpeedX = 8;
+    const initialSpeedY = 4;
     const paddleSpeed = 2.5;
     const paddleHeight = 80;
 
@@ -55,32 +55,37 @@ export function startSingleClassic() {
     let aiScore = 0;
     let aiError = 40;
     let gameOver = false;
+    let countdownValue = 0;
 
     let upPressed = false;
     let downPressed = false;
-    /// addd
-    showCountdown(() => {
-        ballSpeedX = initialSpeedX;
-        ballSpeedY = initialSpeedY;
-    });
 
     function draw() {
-        if (!ctx || gameOver) return;
+        if (!ctx) return;
         ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-
-        // Padles
+    
+        // Draw paddles
         ctx.fillStyle = "blue";
         ctx.fillRect(0, playerY, 10, paddleHeight);
         ctx.fillStyle = "red";
         ctx.fillRect(gameCanvas.width - 10, aiY, 10, paddleHeight);
-        // Ball
-        ctx.fillStyle = "green"; 
+    
+        // Draw ball
+        ctx.fillStyle = "green";
         ctx.beginPath();
         ctx.arc(ballX, ballY, 10, 0, Math.PI * 2);
         ctx.fill();
-        // Score
+    
+        // Draw scoreboard
         scoreboard.innerHTML = `<span style="color: blue;">Couves</span> ${playerScore} - ${aiScore} <span style="color: red;">BoTony</span>`;
-        // need to improve location and remove from the menu
+    
+        // 🎯 ✅ Draw Countdown Before Game/Reset
+        if (countdownValue > 0) {
+            ctx.fillStyle = "green";
+            ctx.font = "100px 'Press Start 2P'";
+            ctx.textAlign = "center";
+            ctx.fillText(countdownValue.toString(), gameCanvas.width / 2, gameCanvas.height / 2);
+        }
     }
 
     function update() {
@@ -117,56 +122,66 @@ export function startSingleClassic() {
 
     function checkWinCondition() {
         if (playerScore === 5) {
-            draw();
+            gameOver = true;  // ✅ Stop game loop
             setTimeout(() => endGame("Player 1 Wins!", "blue"), 1000);
         } else if (aiScore === 5) {
-            draw();
+            gameOver = true;  // ✅ Stop game loop
             setTimeout(() => endGame("BoTony Wins!", "red"), 1000);
         }
     }
     
     function endGame(message: string, color: string) {
+        countdownValue = 0; // Stop countdown
         gameOver = true;
     
         if (!ctx) return;
     
-        // Clear and redraw background
         ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
         ctx.fillStyle = "black";
         ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
     
-        // Draw winning text
+        // Draw Winning Message
         ctx.fillStyle = color;
-        ctx.font = "40px 'Press Start 2P'";
+        ctx.font = "50px 'Press Start 2P'";
         ctx.textAlign = "center";
         ctx.fillText(message, gameCanvas.width / 2, gameCanvas.height / 2);
     
-        // Stop updating game
         setTimeout(() => {
             returnToMenu();
         }, 5000);
     }
 
     function resetGame() {
-        if (gameOver) return; /// test move for the end print
+        if (gameOver) return;
+    
         ballX = gameCanvas.width / 2;
         ballY = gameCanvas.height / 2;
         ballSpeedX = 0;
         ballSpeedY = 0;
-
-        showCountdown(() => {
-            ballSpeedX = initialSpeedX;
-            ballSpeedY = initialSpeedY;
-        });
-
-        if (aiError > 4) aiError -= 5;
+    
+        countdownValue = 3;
+    
+        const countdownInterval = setInterval(() => {
+            countdownValue--;
+    
+            if (countdownValue <= 0) {
+                clearInterval(countdownInterval);
+                if (!gameOver) {
+                    ballSpeedX = initialSpeedX;
+                    ballSpeedY = initialSpeedY;
+                }
+            }
+        }, 1000);
     }
-
+    
     function gameLoop() {
-        update();
-        draw();
-        requestAnimationFrame(gameLoop);
+        if (!gameOver) {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
     }
+    
 
     function keyDownHandler(event: KeyboardEvent) {
         if (event.key === "ArrowUp") upPressed = true;
@@ -177,45 +192,17 @@ export function startSingleClassic() {
         if (event.key === "ArrowUp") upPressed = false;
         if (event.key === "ArrowDown") downPressed = false;
     }
-
-    function showCountdown(callback: () => void) {
-        let count = 4;
     
-        function updateCountdown() {
-            if (!ctx) return;
-    
-            // Clear and redraw background
-            ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-            ctx.fillStyle = "black";  // 🔹 Ensure black background
-            ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
-    
-            // Draw countdown text in the center
-            ctx.fillStyle = "green";
-            ctx.font = "60px 'Press Start 2P'";
-            ctx.textAlign = "center";
-            ctx.fillText(count.toString(), gameCanvas.width / 2, gameCanvas.height / 2);
-    
-            if (count > 1) {
-                count--;
-                setTimeout(updateCountdown, 1000);
-            } else {
-                callback();  // Start ball movement
-                gameLoop();  // 🟢 Start the game after countdown
-            }
-        }
-    
-        updateCountdown();
-    }
-    
-
     function returnToMenu() {
         gameCanvas.style.visibility = "hidden";
         menu.classList.remove("hidden");
         menu.classList.add("visible");
+        scoreboard.style.display = "none";
     }
-
+    
     document.addEventListener("keydown", keyDownHandler);
     document.addEventListener("keyup", keyUpHandler);
 
+    resetGame();
     gameLoop();
 }

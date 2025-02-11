@@ -1,17 +1,21 @@
 {
-  "compilerOptions": {
-    "outDir": "./",
-    "rootDir": "./",
-    "allowJs": true,
-    "target": "ES6",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext", //ver
-    "esModuleInterop": true,
-    "strict": true
-  },
-  "include": ["server.ts", "public/**/*.ts"], 
-  "exclude": ["node_modules"]
+    "compilerOptions": {
+      "outDir": "./",
+      "rootDir": "./",
+      "allowJs": true,
+      "target": "ES6",
+      "module": "NodeNext",
+      "moduleResolution": "NodeNext", //ver
+      // "esModuleInterop": true,
+      "strict": false,
+      "noImplicitAny": false,
+      "skipLibCheck": true,
+      "noEmitOnError": false,
+    },
+    "include": ["server.ts", "public/**/*.ts"], 
+    "exclude": ["node_modules"]
 }
+
 
 
 /// _?????? with nodenext no funca // test with "CommonJS" || "es6"
