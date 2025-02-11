@@ -8,7 +8,7 @@ export function startSingleClassic() {
     menu.classList.remove("visible");
     gameCanvas.style.visibility = "visible";
 
-    // Create elements scoreboard/wining/countdown
+    // Create elements scoreboard
     let scoreboard = document.getElementById("scoreboard") as HTMLDivElement;
     if (!scoreboard) {
         scoreboard = document.createElement("div");
@@ -17,24 +17,6 @@ export function startSingleClassic() {
         document.body.appendChild(scoreboard);
     }
     scoreboard.style.display = "block";
-
-    let countdownDisplay = document.getElementById("countdown") as HTMLDivElement;
-    if (!countdownDisplay) {
-        countdownDisplay = document.createElement("div");
-        countdownDisplay.id = "countdown";
-        countdownDisplay.classList.add("countdown");
-        document.body.appendChild(countdownDisplay);
-    }
-    countdownDisplay.style.display = "none";
-
-    let winMessage = document.getElementById("win-message") as HTMLDivElement;
-    if (!winMessage) {
-        winMessage = document.createElement("div");
-        winMessage.id = "win-message";
-        winMessage.classList.add("countdown", "win-message");
-        document.body.appendChild(winMessage);
-    }
-    winMessage.style.display = "none";
 
     // Game Variables
     gameCanvas.width = 800;
@@ -46,14 +28,14 @@ export function startSingleClassic() {
     let ballY = gameCanvas.height / 2;
     let ballSpeedX = 0;
     let ballSpeedY = 0;
-    const initialSpeedX = 8;
-    const initialSpeedY = 4;
+    const initialSpeedX = 5;
+    const initialSpeedY = 3;
     const paddleSpeed = 2.5;
     const paddleHeight = 80;
 
     let playerScore = 0;
     let aiScore = 0;
-    let aiError = 40;
+    let aiError = 50;
     let gameOver = false;
     let countdownValue = 0;
 
@@ -79,7 +61,7 @@ export function startSingleClassic() {
         // Draw scoreboard
         scoreboard.innerHTML = `<span style="color: blue;">Couves</span> ${playerScore} - ${aiScore} <span style="color: red;">BoTony</span>`;
     
-        // 🎯 ✅ Draw Countdown Before Game/Reset
+        // Draw Countdown Before Game/Reset
         if (countdownValue > 0) {
             ctx.fillStyle = "green";
             ctx.font = "100px 'Press Start 2P'";
@@ -122,16 +104,16 @@ export function startSingleClassic() {
 
     function checkWinCondition() {
         if (playerScore === 5) {
-            gameOver = true;  // ✅ Stop game loop
+            gameOver = true;
             setTimeout(() => endGame("Player 1 Wins!", "blue"), 1000);
         } else if (aiScore === 5) {
-            gameOver = true;  // ✅ Stop game loop
+            gameOver = true;
             setTimeout(() => endGame("BoTony Wins!", "red"), 1000);
         }
     }
     
     function endGame(message: string, color: string) {
-        countdownValue = 0; // Stop countdown
+        countdownValue = 0; 
         gameOver = true;
     
         if (!ctx) return;
@@ -160,6 +142,8 @@ export function startSingleClassic() {
         ballSpeedY = 0;
     
         countdownValue = 3;
+
+        if (aiError > 5) aiError -= 5; 
     
         const countdownInterval = setInterval(() => {
             countdownValue--;
