@@ -4,6 +4,7 @@ pongV2/
 node_modules
 .env
 
+*.db
 #alex ignore
 # Ignorar os arquivos de cache do Django
 *.pyc

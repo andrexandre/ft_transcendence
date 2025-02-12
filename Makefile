@@ -21,6 +21,7 @@ up:
 
 down:
 	docker compose down
+	rm -rf ./backend/userManagement/node_modules
 	make rmv
 
 # Show the status of the infrastructure 
@@ -39,6 +40,7 @@ status:
 
 destroy:
 	docker compose down
+	rm -rf ./backend/userManagement/node_modules
 	make rmi
 	make rmv
 
