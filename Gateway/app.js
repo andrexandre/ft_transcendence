@@ -28,7 +28,7 @@ module.exports = async function (fastify, opts) {
   });
 
   db.serialize(() => {
-    db.run("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT, email TEXT)");
+    db.run("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT, email TEXT)");
   });
 
   module.exports = {db};
