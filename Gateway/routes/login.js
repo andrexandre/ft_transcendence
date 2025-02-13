@@ -3,19 +3,24 @@ const {db} = require('../app');
 
 async function loginRoutes(fastify, options) {
   fastify.post('/login', (request, reply) => {
-    const { username, password } = request.body;
+      const { username, password } = request.body;
 
-      const loginQuery = db.prepare(`SELECT EXISTS (SELECT username FROM users WHERE username = ?);`)
-      loginQuery.run(username, (err) => {
-        if (err) {
-          return reply.status(500).send({ error: 'Error inserting data' });
-        }
-        reply.status(201).send({
-          message: 'User loggedin successfully',
-          userId: this.lastID,
+      return new Promise((resolve, reject) => {
+        
+        const loginQuery = `SELECT * FROM users WHERE username = "${username}"`;
+
+        db.all(loginQuery, (err, rows) => {
+          if(err){
+            reject(err);
+          }
+          resolve(rows);
         });
-      });
-      loginQuery.finalize();
+      })
+    .then((rows) => {
+      reply.send(rows);
+    }).catch((err) => {
+      reply.status(500).send({ error: 'Database query error', details: err.message });
     });
+  });
 }
 module.exports = loginRoutes;
