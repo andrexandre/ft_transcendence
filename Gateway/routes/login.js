@@ -17,7 +17,11 @@ async function loginRoutes(fastify, options) {
         });
       })
     .then((rows) => {
-      reply.send(rows);
+      if(rows.length == 0){
+        reply.status(404).send({Error : "No user found!"});
+        return;
+      }
+      reply.status(200).send(rows);
     }).catch((err) => {
       reply.status(500).send({ error: 'Database query error', details: err.message });
     });
