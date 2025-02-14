@@ -31,5 +31,38 @@
 				</div>
 			</form>
 		</div>
+		<script>
+		document.querySelector('form').addEventListener('submit', async (e) => {
+			e.preventDefault();
+			
+			const userData = {
+				username: document.getElementById('username').value,
+				email: document.getElementById('email').value,
+				password: document.getElementById('password').value
+			};
+		
+			try {
+				const response = await fetch('http://localhost:3000/register', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify(userData)
+				});
+		
+				if (!response.ok) {
+					throw new Error('Registration failed');
+				}
+		
+				const data = await response.json();
+				console.log('Registration successful:', data);
+				// Redirect to login page or handle success
+				window.location.href = 'login.html';
+			} catch (error) {
+				console.error('Error:', error);
+				// Handle error (show message to user)
+			}
+		});
+		</script>
 	</body>
 </html>
