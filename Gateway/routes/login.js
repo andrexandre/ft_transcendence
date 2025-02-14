@@ -1,5 +1,6 @@
 const loginSchema = require('../schemas/loginSchema');
 const {db} = require('../app');
+const validateToken = require('../plugins/validateToken');
 
 async function loginRoutes(fastify, options) {
   fastify.post('/login', (request, reply) => {
@@ -24,6 +25,7 @@ async function loginRoutes(fastify, options) {
       reply.status(200).send(rows);
     }).catch((err) => {
       reply.status(500).send({ error: 'Database query error', details: err.message });
+      return;
     });
   });
 }

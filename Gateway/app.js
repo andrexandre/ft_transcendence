@@ -2,14 +2,12 @@
 
 const path = require('node:path')
 const AutoLoad = require('@fastify/autoload')
-const fastifyJwt = require('@fastify/jwt')
 const sqlite3 = require('sqlite3').verbose();
 const cors = require('@fastify/cors');
 require('dotenv').config();
 
 // Pass --options via CLI arguments in command to enable these options.
 const options = {}
-const JWT_SECRET = process.env.JWT_SECRET;
 
 module.exports = async function (fastify, opts) {
   // Place here your custom code!
@@ -38,9 +36,7 @@ module.exports = async function (fastify, opts) {
     origin: 'http://localhost:5500', // Allow frontend origin
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true // Allow cookies if needed
-});
-
-  fastify.register(fastifyJwt, {secret: JWT_SECRET});
+  });
 
   fastify.register(AutoLoad, {
     dir: path.join(__dirname, 'plugins'),
