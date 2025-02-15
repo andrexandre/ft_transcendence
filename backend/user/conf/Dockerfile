@@ -11,7 +11,7 @@ RUN apt update && \
 COPY ./setup.sh /bin/
 RUN chmod 777 /bin/setup.sh
 
-WORKDIR /backend/userManagement
+WORKDIR /backend/user/userManagement
 
 ENTRYPOINT [ "/bin/setup.sh" ]
 

@@ -21,7 +21,7 @@ up:
 
 down:
 	docker compose down
-	rm -rf ./backend/userManagement/node_modules
+	sudo rm -rf ./backend/user/userManagement/node_modules/
 	make rmv
 
 # Show the status of the infrastructure 

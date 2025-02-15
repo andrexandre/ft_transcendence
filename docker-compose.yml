@@ -2,10 +2,10 @@
 services:
 
   user_management:
-    image: node
+    image: user_management
     container_name: user_management
     build: 
-      context: ./backend/userConf
+      context: ./backend/user/conf
     ports:
       - 3000:3000
     volumes:
