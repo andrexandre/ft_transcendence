@@ -13,6 +13,30 @@ services:
     networks:
       - ft_transcendence
 
+  game:
+    image: pongify
+    container_name: pongify
+    environment:
+      - NODE_ENV=PRODUCTION
+    volumes:
+      - ./game-project:/pong_vol/game-project/:rw
+    ports:
+      - "5000:5000"
+    build: ./game-project/
+    networks:
+      - ft_transcendence
+
+  gateway:
+    image: gateway-api
+    container_name: gateway-api
+    build: 
+      context: ./backend/Gateway/config
+    ports:
+      - 7000:7000
+    volumes:
+      - ./backend/Gateway:/backend/:rw #Vai guardar na home 
+    networks:
+      - ft_transcendence
 
 networks:
   ft_transcendence:

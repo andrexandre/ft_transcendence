@@ -38,8 +38,8 @@ gamefast.get("/", async (request: any, reply: any) => {
 // Start Server
 const start = async () => {
   try {
-    await gamefast.listen({ port: 3000, host: "0.0.0.0" });
-    console.log("Server running at http://localhost:3000");
+    await gamefast.listen({ port: 5000, host: "0.0.0.0" });
+    console.log("Server running at http://localhost:5000");
   } catch (err) {
     gamefast.log.error(err);
     process.exit(1);

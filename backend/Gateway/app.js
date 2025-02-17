@@ -12,11 +12,10 @@ module.exports = async function (fastify, opts) {
   // Place here your custom code!
 
   // Do not touch the following lines
-
   // This loads all plugins defined in plugins
   // those should be support plugins that are reused
   // through your application
-  const db = new sqlite3.Database('../Database/testDB.db', (err) => {
+  const db = new sqlite3.Database('./Database/testDB.db', (err) => {
     if(err){
       console.log("Error opening db : ", err.message);
     }

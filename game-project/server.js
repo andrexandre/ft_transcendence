@@ -37,8 +37,8 @@ gamefast.get("/", (request, reply) => __awaiter(void 0, void 0, void 0, function
 // Start Server
 const start = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        yield gamefast.listen({ port: 3000, host: "0.0.0.0" });
-        console.log("Server running at http://localhost:3000");
+        yield gamefast.listen({ port: 5000, host: "0.0.0.0" });
+        console.log("Server running at http://localhost:5000");
     }
     catch (err) {
         gamefast.log.error(err);

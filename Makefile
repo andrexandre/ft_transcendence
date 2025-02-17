@@ -43,7 +43,7 @@ rmv:
 	docker volume rm $$(docker volume ls -q)
 
 # temporary db-commands
-API-DIR = Gateway
+API-DIR = backend/Gateway
 
 db-setup:
 	wget -qO $(API-DIR)/.env gist.githubusercontent.com/andrexandre/8c011820a35117d005016151cfd46207/raw/.env
@@ -56,7 +56,7 @@ db-start:
 DB-NAME = users
 
 db-clean:
-	-sqlite3 Database/testDB.db "drop table $(DB-NAME);" 2> /dev/null
+	-sqlite3 backend/Gateway/Database/testDB.db "drop table $(DB-NAME);" 2> /dev/null
 
 db-prune: db-clean
 	-rm -r $(API-DIR)/node_modules 2> /dev/null
@@ -67,9 +67,9 @@ db-re: db-clean db-start
 db-rep: db-prune db-setup db-start
 
 db-ls:
-	sqlite3 Database/testDB.db "select * from $(DB-NAME);"
+	sqlite3 backend/Gateway/Database/testDB.db "select * from $(DB-NAME);"
 
 USER = as
 
 db-rm:
-	sqlite3 Database/testDB.db 'delete from $(DB-NAME) where username = "$(USER)";'
+	sqlite3 backend/Gateway/Database/testDB.db 'delete from $(DB-NAME) where username = "$(USER)";'
