@@ -43,33 +43,33 @@ rmv:
 	docker volume rm $$(docker volume ls -q)
 
 # temporary db-commands
-API_DIR = Gateway
+API-DIR = Gateway
 
 db-setup:
-	wget -qO $(API_DIR)/.env gist.githubusercontent.com/andrexandre/8c011820a35117d005016151cfd46207/raw/.env
-	npm install --loglevel=error --prefix $(API_DIR)
+	wget -qO $(API-DIR)/.env gist.githubusercontent.com/andrexandre/8c011820a35117d005016151cfd46207/raw/.env
+	npm install --loglevel=error --prefix $(API-DIR)
 	@echo "$(GREEN)Please start live server on register.html$(END)"
 
 db-start:
-	npm run dev --prefix $(API_DIR)
+	npm run dev --prefix $(API-DIR)
 
-DB_NAME = users
+DB-NAME = users
 
 db-clean:
-	-sqlite3 Database/testDB.db "drop table $(DB_NAME);" 2> /dev/null
+	-sqlite3 Database/testDB.db "drop table $(DB-NAME);" 2> /dev/null
 
 db-prune: db-clean
-	-rm -r $(API_DIR)/node_modules 2> /dev/null
-	-rm -r $(API_DIR)/.env 2> /dev/null
+	-rm -r $(API-DIR)/node_modules 2> /dev/null
+	-rm -r $(API-DIR)/.env 2> /dev/null
 
 db-re: db-clean db-start
 
 db-rep: db-prune db-setup db-start
 
 db-ls:
-	sqlite3 Database/testDB.db "select * from $(DB_NAME);"
+	sqlite3 Database/testDB.db "select * from $(DB-NAME);"
 
 USER = as
 
 db-rm:
-	sqlite3 Database/testDB.db 'delete from $(DB_NAME) where username = "$(USER)";'
+	sqlite3 Database/testDB.db 'delete from $(DB-NAME) where username = "$(USER)";'
