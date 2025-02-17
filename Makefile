@@ -47,6 +47,7 @@ API-DIR = backend/Gateway
 
 db-setup:
 	wget -qO $(API-DIR)/.env gist.githubusercontent.com/andrexandre/8c011820a35117d005016151cfd46207/raw/.env
+	echo 'PORT=3000' > backend/user/conf/.env
 	npm install --loglevel=error --prefix $(API-DIR)
 	@echo "$(GREEN)Please start live server on register.html$(END)"
 
