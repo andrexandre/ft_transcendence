@@ -1,6 +1,5 @@
 const loginSchema = require('../schemas/loginSchema');
 const {db} = require('../app');
-const validateToken = require('../plugins/validateToken');
 
 async function loginRoutes(fastify, options) {
   fastify.post('/login', (request, reply) => {
