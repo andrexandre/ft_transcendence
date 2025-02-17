@@ -1,0 +1,20 @@
+
+services:
+
+  user_management:
+    image: user_management
+    container_name: user_management
+    build: 
+      context: ./backend/user/conf
+    ports:
+      - 3000:3000
+    volumes:
+      - ./backend/:/backend/:rw #Vai guardar na home 
+    networks:
+      - ft_transcendence
+
+
+networks:
+  ft_transcendence:
+    name: ft_transcendence
+    driver: bridge

@@ -4,6 +4,7 @@ game-project/server.js
 game-project/public/game.js
 game-project/public/menu.js
 
+*.db
 #alex ignore
 # Ignorar os arquivos de cache do Django
 *.pyc

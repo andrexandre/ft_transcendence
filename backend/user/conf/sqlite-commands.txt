@@ -1,0 +1,15 @@
+.databases - List names and files of attached databases
+
+.indices ?TABLE? - Show names of all indices. If TABLE specified, only 
+show indices for tables matching LIKE pattern TABLE
+
+.tables ?PATTERN? - List names of tables matching a LIKE pattern
+
+.schema ?TABLE? - Show the CREATE statements. If TABLE specified, 
+only show tables matching LIKE pattern TABLE
+
+.show - Show the current values for various settings
+
+
+
+.exit - Exit SQLite prompt
