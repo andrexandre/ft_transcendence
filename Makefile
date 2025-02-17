@@ -10,15 +10,14 @@ WHITE		:= \033[1;37m
 build-up:
 	docker compose up --build 
 
-build:
+build: env
 	docker compose build 
 
 up:
 	docker compose up
 
 down:
-	docker compose down
-	make rmv
+	docker compose down -v
 
 status:
 	@echo "$(GREEN)Containers status$(END)\n"
@@ -33,44 +32,53 @@ status:
 	@docker network ls
 	@echo
 
-destroy: down
-	make rmi
+destroy: down rmi
 
 rmi:
-	docker rmi $$(docker images -a -q)
+	docker rmi -f $$(docker images -a -q)
 
 rmv:
 	docker volume rm $$(docker volume ls -q)
 
-# temporary db-commands
 API-DIR = backend/Gateway
 
-db-setup:
-	wget -qO $(API-DIR)/.env gist.githubusercontent.com/andrexandre/8c011820a35117d005016151cfd46207/raw/.env
+# wget -qO $(API-DIR)/.env gist.githubusercontent.com/andrexandre/8c011820a35117d005016151cfd46207/raw/.env
+env:
+	echo "JWT_SECRET_LOADER=pVSOWeTXrAddkz/YCSR2nDybdRQfwOtKZxjecJ5L0GY=\nPORT=7000" > $(API-DIR)/.env
 	echo 'PORT=3000' > backend/user/conf/.env
-	npm install --loglevel=error --prefix $(API-DIR)
 	@echo "$(GREEN)Please start live server on register.html$(END)"
 
-db-start:
-	npm run dev --prefix $(API-DIR)
+env-clean:
+	-rm -r $(API-DIR)/.env 2> /dev/null
+	-rm -r backend/user/conf/.env 2> /dev/null
+
+re: down db-clean build-up
+
+rep: destroy db-clean build-up
+
+DB-PATH = backend/Gateway/Database/testDB.db
 
 DB-NAME = users
 
 db-clean:
-	-sqlite3 backend/Gateway/Database/testDB.db "drop table $(DB-NAME);" 2> /dev/null
+	sqlite3 $(DB-PATH) "drop table $(DB-NAME);" 2> /dev/null
 
-db-prune: db-clean
-	-rm -r $(API-DIR)/node_modules 2> /dev/null
-	-rm -r $(API-DIR)/.env 2> /dev/null
-
-db-re: db-clean db-start
-
-db-rep: db-prune db-setup db-start
-
-db-ls:
-	sqlite3 backend/Gateway/Database/testDB.db "select * from $(DB-NAME);"
+list-users:
+	sqlite3 $(DB-PATH) "select * from $(DB-NAME);"
 
 USER = as
 
-db-rm:
-	sqlite3 backend/Gateway/Database/testDB.db 'delete from $(DB-NAME) where username = "$(USER)";'
+rm-user:
+	sqlite3 $(DB-PATH) 'delete from $(DB-NAME) where username = "$(USER)";'
+
+# this is used to clean up the whole docker ecosystem
+system-prune:
+	-docker stop $$(docker ps -qa)
+	-docker system prune -f -a --volumes
+
+# this is the old way of cleaning, the newer needs testing
+# -docker stop $$(docker ps -qa)
+# -docker rm $$(docker ps -qa)
+# -docker rmi -f $$(docker image ls -qa)
+# -docker volume rm $$(docker volume ls -q)
+# -docker network rm $$(docker network ls --filter "name=ft_transcendence" -q)
