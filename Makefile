@@ -43,7 +43,7 @@ rmv:
 	docker volume rm $$(docker volume ls -q)
 
 # temporary db-commands
-API_DIR = Gateway
+API_DIR = backend/Gateway
 
 db-setup:
 	wget -qO $(API_DIR)/.env gist.githubusercontent.com/andrexandre/8c011820a35117d005016151cfd46207/raw/.env
