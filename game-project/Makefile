@@ -1,8 +1,17 @@
 NODE_MODULES = node_modules
 
-all: install run
+all: build up
 
-down: 
+build:
+	@echo "Building all Docker images..."
+	docker compose build
+
+up:
+	@echo "Starting all containers..."
+	docker compose up
+
+down:
+	@echo "Stopping all containers..."
 	docker compose down
 
 clean: down
@@ -12,6 +21,7 @@ clean: down
 
 recomp: down
 	docker rmi pongify
+# docker network rm net_pong
 	docker compose build
 	docker compose up
 

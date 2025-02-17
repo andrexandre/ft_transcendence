@@ -15,3 +15,7 @@ services:
     ports:
       - "3000:3000"
     build: ./
+    # networks:
+    #   net_pong:
+    #     name: net_pong
+    #     driver: bridge

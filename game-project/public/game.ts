@@ -166,7 +166,6 @@ export function startSingleClassic() {
         }
     }
     
-
     function keyDownHandler(event: KeyboardEvent) {
         if (event.key === "ArrowUp") upPressed = true;
         if (event.key === "ArrowDown") downPressed = true;
