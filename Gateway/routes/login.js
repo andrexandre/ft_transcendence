@@ -4,7 +4,7 @@ const validateToken = require('../plugins/validateToken');
 
 async function loginRoutes(fastify, options) {
   fastify.post('/login', (request, reply) => {
-      const { username, password } = request.body;
+    const { username, password } = request.body;
 
       return new Promise((resolve, reject) => {
         
@@ -18,6 +18,7 @@ async function loginRoutes(fastify, options) {
         });
       })
     .then((rows) => {
+      console.log(rows);
       if(rows.length == 0){
         reply.status(404).send({Error : "No user found!"});
         return;

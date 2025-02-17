@@ -4,7 +4,6 @@ const path = require('node:path')
 const AutoLoad = require('@fastify/autoload')
 const sqlite3 = require('sqlite3').verbose();
 const cors = require('@fastify/cors');
-require('dotenv').config();
 
 // Pass --options via CLI arguments in command to enable these options.
 const options = {}
