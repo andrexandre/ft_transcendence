@@ -1,0 +1,16 @@
+{
+	"name": "my-app",
+	"version": "1.0.0",
+	"scripts": {
+		"setup": "npm install && tsc",
+		"dev": "tsc --watch",
+		"prod": "http-server src",
+		"prune": "rm -rf node_modules && rm package-lock.json"
+	},
+	"devDependencies": {
+		"typescript": "5.7.3"
+	},
+	"dependencies": {
+		"http-server": "14.1.1"
+	}
+}
