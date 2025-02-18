@@ -1,5 +1,10 @@
-const loginSchema = require('../schemas/loginSchema');
-const {db} = require('../app');
+const loginSchema = require('../../schemas/loginSchema');
+const {db} = require('../../app');
+
+function filterJsonData(queryRows){
+    const reqUser = queryRows.find(u => u.id === 2);
+    return (reqUser.username);
+}
 
 async function loginRoutes(fastify, options) {
   fastify.post('/login', (request, reply) => {
@@ -17,7 +22,6 @@ async function loginRoutes(fastify, options) {
         });
       })
     .then((rows) => {
-      console.log(rows);
       if(rows.length == 0){
         reply.status(404).send({Error : "No user found!"});
         return;

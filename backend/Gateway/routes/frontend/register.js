@@ -1,4 +1,4 @@
-const {db} = require('../app');
+const {db} = require('../../app');
 
 async function registerRoutes(fastify, options) {
     fastify.post('/register', (request, reply) => {
