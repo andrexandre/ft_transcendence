@@ -82,3 +82,9 @@ system-prune:
 # -docker rmi -f $$(docker image ls -qa)
 # -docker volume rm $$(docker volume ls -q)
 # -docker network rm $$(docker network ls --filter "name=ft_transcendence" -q)
+
+# this is useful when root permissions are required to delete files
+# note: this removes the contents of the specified folder
+rm-rf:
+	@read -p "rm -rf $$PWD/" folder;\
+	docker run --rm -v ./$$folder:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
