@@ -1,19 +1,17 @@
 import fp from 'fastify-plugin';
 import sqlite3 from 'sqlite3';
 
-// const FILEPATH = './user.db';
-// const FILEPATH = './database/user.db';
-
-
 
 function fastifySqlite(fastify, options, done) {
 
 	const modes = sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE;
-	const connection = new (sqlite3.verbose().Database)(( options.dbPath || ":memory:"), modes, (err) => {
+	const filePath = options.dbPath || ":memory:";
+	const connection = new (sqlite3.verbose().Database)(filePath, modes, (err) => {
     if (err) {
-      console.log('Failed to connect to database!');
+		fastify.log.error('Erro ao conectar no DB:', err);
+		process.exit(1);
     } else {
-		console.log('Sucessful connection to database!');
+		fastify.log.info('Sucessful connection to database!');
 	}
   });
   
@@ -26,4 +24,4 @@ function fastifySqlite(fastify, options, done) {
   done();
 }
 
-export default fp(fastifySqlite, { dbPath: './user.db'});
+export default fp(fastifySqlite, {name: 'db'});

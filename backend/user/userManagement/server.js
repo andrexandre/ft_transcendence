@@ -1,44 +1,68 @@
 import fastify from "fastify";
 import fastifySqlite from './database_plugin.js'
-// import sqlite from 'node:sqlite'
+
 
 // Creation of the app  instance
-const server = fastify({logger: true});
+const server = fastify({logger: true });
 
-server.register(fastifySqlite);
-
-server.ready((err) => {
+server.register(fastifySqlite, { dbPath: './user.db'}).after((err) => {
 	if (err) {
 		console.log('Nao funcionou');
-	} else {
-		console.log('funcionou');
-		server.sqlite.run("CREATE TABLE alex (info TEXT)");
+		process.exit(1);
 	}
+	server.log.info('Database registred');
 });
-// server.printPlugins();
 
 
-// console.log(server);
+server.post('/create_user', (request, response) => {
+	console.log(request.body);
+	console.log(request.headers);
+	// const tmp = JSON.stringify(request.body)
+	const { name, apelido } = request.body;
+	server.sqlite.run(`INSERT INTO users (nome, apelido) VALUES ('${name}', '${apelido}');`);
+	
+	response.send({message: `Sucessifuly created ${name} ${apelido}`});
+});
 
 
-// server.register(function plugin (app, opts, next) {
-// 	console.log('');
-// 	next()
-// });
-// console.log(server);
+server.get('/', async (request, response) => {
+	
+	response.header('content-type', 'application/json');
+	await server.sqlite.each("SELECT id, nome, apelido FROM users", (err, row) => {
+		if (err) {
+			console.error(err);
+		} else {
+			console.log(row.id + ": " + row.nome + ' ' + row.apelido);
+		}
+    });
+	response.send({message: `Everything okay`});
 
-// server.get('/', (request, response) => {
+	// server.sqlite.get("SELECT * FROM users", (err, row) => {
+	// 	if (err) {
+	// 		console.log(err);
+	// 	} else if (row) {
+	// 		console.table(row);
+	// 		response.send({message: " Now we are working"});
+	// 	} else {
+	// 		console.log("Esta empty");
+	// 	}
+	// });
+});
 
-// 	response.header('content-type', 'application/json');
-// 	response.send({message: " Now we are working"});
-// });
-
-
-// const listenOptions = {
-// 	port: `${process.env.PORT}`,
-// 	host: '0.0.0.0'
+// {
+//     "name":"Alexsandro",
+//     "Apelido":"moreira",
+//     "username":"aleperei",
 // }
 
-// server.listen(listenOptions, () => {
-// 	console.log(`Server is running on port: ${process.env.PORT}`);
-// });
+
+
+const listenOptions = {
+	port: `${3000}`,
+	host: '0.0.0.0'
+}
+
+server.listen(listenOptions, () => {
+	console.log(`Server is running on port: ${process.env.PORT}`);
+	server.sqlite.run("CREATE TABLE IF NOT EXISTS users ( id INTEGER PRIMARY KEY AUTOINCREMENT, nome TEXT NOT NULL, apelido TEXT);");
+});
