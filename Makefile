@@ -60,7 +60,7 @@ DB-PATH = backend/Gateway/Database/testDB.db
 DB-NAME = users
 
 start-server:
-	cd frontend ; npx vite --host 127.0.0.1 --port 9000 --open register.html
+	cd frontend/src ; npx vite --host 127.0.0.1 --port 9000 --open register.html
 
 db-clean:
 	sqlite3 $(DB-PATH) "drop table $(DB-NAME);" 2> /dev/null
