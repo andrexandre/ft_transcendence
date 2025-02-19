@@ -31,7 +31,7 @@ module.exports = async function (fastify, opts) {
   module.exports = {db};
 
   fastify.register(cors, {
-    origin: 'http://127.0.0.1:5500', // Allow frontend origin
+    origin: 'http://127.0.0.1:9000', // Allow frontend origin
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true // Allow cookies if needed
   });

@@ -23,7 +23,7 @@ function setSubmissionHandler(url) {
 			}
 
 			const data = await response.json();
-			console.log('Success:', data);
+			console.log('Response:', data);
 			showToast(true, null);
 			// if (url.includes('register')) {
 			// 	window.location.href = 'login.html';
@@ -60,13 +60,19 @@ function showToast(success, message) {
 			toast.textContent = 'Operation failed!';
 		}
 	}
+	const displayDuration = 2000;
+	const fadeOutDuration = 1000;
 	setTimeout(() => {
-		toast.style.borderColor = 'black';
-		toast.style.color = 'black';
-		toast.style.backgroundColor = 'white';
-		toast.textContent = 'Toasted!';
-		toast.style.opacity = 0;
-		}, 3000);
+		// toast.style.borderColor = 'black';
+		// toast.style.color = 'black';
+		// toast.style.backgroundColor = 'white';
+		// toast.textContent = 'Toasted!';
+		toast.style.transition = `opacity ${fadeOutDuration}ms`;
+		toast.style.opacity = '0';
+		// setTimeout(() => {
+		// 	toast.remove();
+		// }, fadeOutDuration);
+		}, displayDuration);
 }
 
 console.log(`scripts.js imported at ${(new Date()).toLocaleTimeString()}`);
