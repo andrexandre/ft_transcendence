@@ -45,20 +45,12 @@ function showToast(success, message) {
 		toast.style.borderColor = 'darkgreen';
 		toast.style.color = 'darkgreen';
 		toast.style.backgroundColor = 'lightgreen';
-		if (message) {
-			toast.textContent = message;
-		} else {
-			toast.textContent = 'Operation successful!';
-		}
+		toast.textContent = message || 'Operation successful!';
 	} else {
 		toast.style.borderColor = 'darkred';
 		toast.style.color = 'darkred';
 		toast.style.backgroundColor = 'lightcoral';
-		if (message) {
-			toast.textContent = message;
-		} else {
-			toast.textContent = 'Operation failed!';
-		}
+		toast.textContent = message || 'Operation failed!';
 	}
 	const displayDuration = 2000;
 	const fadeOutDuration = 1000;

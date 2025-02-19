@@ -43,7 +43,7 @@ rmv:
 API-DIR = backend/Gateway
 
 setup:
-	npm install --prefix frontend
+	cd frontend ; npm install ; npx tsc
 	echo "JWT_SECRET_LOADER=pVSOWeTXrAddkz/YCSR2nDybdRQfwOtKZxjecJ5L0GY=\nPORT=7000" > $(API-DIR)/.env
 	echo 'PORT=3000' > backend/user/conf/.env
 
