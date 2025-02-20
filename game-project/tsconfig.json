@@ -11,6 +11,8 @@
       "skipLibCheck": true,
       "noEmitOnError": false,
     },
-    "include": ["server.ts", "public/**/*.ts"], 
+    "include": ["**/*.ts", "public/**/*.ts"], 
     "exclude": ["node_modules"]
 }
+
+// change **/*.ts from server.ts

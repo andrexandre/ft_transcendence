@@ -20,7 +20,6 @@ services:
       - NODE_ENV=PRODUCTION
     volumes:
       - ./game-project:/pong_vol/game-project/:rw
-      - sqlite_data:/pong_vol/game-project/database.sqlite # add
     ports:
       - "5000:5000"
     build: ./game-project/
@@ -43,6 +42,3 @@ networks:
   ft_transcendence:
     name: ft_transcendence
     driver: bridge
-
-volumes:
-  sqlite_data:

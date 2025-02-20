@@ -2,27 +2,12 @@ import fastify from "fastify";
 import fastifyWebsocket from "@fastify/websocket";
 import fastifyStatic from "@fastify/static";
 import path from "path";
-import sqlite3 from "sqlite3";
+import db_game from "./db_game.js";
 
-// Create or open SQLite database
-const db = new sqlite3.Database("database.db", (err) => {
-  if (err) {
-    console.error("Error opening database:", err.message);
-  } else {
-    console.log("Connected to SQLite database.");
-  }
-});
-
-// Create users table if not exists
-db.run(
-  `CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL
-  )`,
-  (err) => {
-    if (err) console.error("Error creating table:", err.message);
-  }
-);
+// if (db_game)
+//   console.log("YEEEEEEEEEEEEEEEEESSSSSSS")
+// else
+//   console.log("NOOOOOOOOOOOOOOOOOO")
 
 const gamefast = fastify({ logger: true });
 
@@ -57,23 +42,14 @@ gamefast.post("/add-user", async (request, reply) => {
     return reply.status(400).send({ error: "Name is required" });
   }
 
-  db.run("INSERT INTO users (name) VALUES (?)", [name], function (err) {
+  db_game.run("INSERT INTO users (user_name) VALUES (?)", [name], function (err) {
     if (err) {
-      return reply.status(500).send({ error: "Database error" });
+        return reply.status(500).send({ error: "Database error", details: err.message });
     }
-    reply.send({ message: "User added", userId: this.lastID });
+    reply.send({ message: "✅ User added", userId: this.lastID });
   });
 });
 
-// API Route to Get All Users
-gamefast.get("/users", async (request, reply) => {
-  db.all("SELECT * FROM users", [], (err, rows) => {
-    if (err) {
-      return reply.status(500).send({ error: "Database error" });
-    }
-    reply.send(rows);
-  });
-});
 
 // Serve `index.html`
 gamefast.get("/", async (request, reply) => {

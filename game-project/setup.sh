@@ -2,19 +2,13 @@
 
 npm install
 
-DB_FILE="/pong_vol/game-project/database.sqlite"
+DB_FILE="/pong_vol/game-project/db_game.db"
 
-# Create db
+# Check if database exists
 if [ ! -f "$DB_FILE" ]; then
-    echo "📌 Creating SQLite database..."
-    sqlite3 "$DB_FILE" <<EOF
-    CREATE TABLE users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT NOT NULL UNIQUE,
-        score INTEGER DEFAULT 0
-    );
-EOF
-    echo "✅ Database created successfully."
+    echo "📌 Creating empty SQLite database..."
+    touch "$DB_FILE"
+    echo "✅ Database initialized."
 else
     echo "📌 Database already exists."
 fi
