@@ -1,19 +1,22 @@
 const fastify = require('fastify')({ logger: true });
+const registerRoutes = require('./routes/auth/register');
+const cors = require('@fastify/cors');
 
-// Define a simple route
+fastify.register(registerRoutes);
+
+fastify.register(cors, {
+  origin: 'http://127.0.0.1:5500', // Allow frontend origin
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true // Allow cookies if needed
+});
+
+// Define a basic route
 fastify.get('/', async (request, reply) => {
   return { message: 'Hello, Fastify!' };
 });
 
 // Start the server
-const start = async () => {
-  try {
-    await fastify.listen({ port: 7000, host: '0.0.0.0' });
-    console.log(`🚀 Server running at http://localhost:7000`);
-  } catch (err) {
-    fastify.log.error(err);
-    process.exit(1);
-  }
-};
+fastify.listen({ port: 7000, host: '0.0.0.0' }, () => {
+  console.log('🚀 Server running at http://localhost:7000');
+});
 
-start();
