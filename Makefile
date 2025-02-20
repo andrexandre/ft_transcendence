@@ -59,11 +59,14 @@ DB-PATH = backend/Gateway/Database/testDB.db
 
 DB-NAME = users
 
-start-server:
+server-up:
+	cd frontend/src ; npm run tsc & npm run vite
+
+server-upd:
 	cd frontend/src ; npx vite --host 127.0.0.1 --port 9000 --open register.html &
 	cd frontend/src ; npx tsc --watch &
 
-end-server:
+server-down:
 	pkill -2 -f 'vite --host 127.0.0.1 --port 9000 --open register.html'
 	pkill -2 -f 'tsc --watch'
 
