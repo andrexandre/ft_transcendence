@@ -1,13 +1,13 @@
 
 function setSubmissionHandler(url: string): void {
 	document.querySelector('form')?.addEventListener('submit', async (e: Event) => {
-		e.preventDefault();
+		e.preventDefault()
 		const userData: { username: string; password: string; email?: string } = {
 			username: (document.getElementById('username') as HTMLInputElement).value,
 			password: (document.getElementById('password') as HTMLInputElement).value
-		};
+		}
 		if (url.includes('register')) {
-			userData.email = (document.getElementById('email') as HTMLInputElement).value;
+			userData.email = (document.getElementById('email') as HTMLInputElement).value
 		}
 
 		try {
@@ -23,26 +23,26 @@ function setSubmissionHandler(url: string): void {
 			}
 
 			const data = await response.json();
-			console.log('Success:', data);
+			console.log('Response: ', data);
 			showToast(true, null);
 			// if (url.includes('register')) {
 			// 	window.location.href = 'login.html';
 			// } else {
 			// 	window.location.href = 'dashboard.html';
-			// }
-		} catch (error) {
-			console.error(error);
-			if (error instanceof Error) {
-				showToast(false, error.message);
-			} else {
-				showToast(false, 'An unknown error occurred');
-			}
+			// }			
 		}
-	});
+		catch (error) {
+			console.log(error);
+			showToast(false, error as string);
+		}
+	})
 }
 
 function showToast(success: boolean, message: string | null): void {
-	const toast = document.getElementById('toast-default') as HTMLElement;
+	const displayDuration = 2000;
+	const fadeOutDuration = 1000;
+	const toast = document.getElementById('toast-default') as HTMLInputElement;
+	toast.style.transition = `opacity ${fadeOutDuration}ms`;
 	toast.style.opacity = '1';
 
 	if (success) {
@@ -57,12 +57,8 @@ function showToast(success: boolean, message: string | null): void {
 		toast.textContent = message || 'Operation failed!';
 	}
 	setTimeout(() => {
-		toast.style.borderColor = 'black';
-		toast.style.color = 'black';
-		toast.style.backgroundColor = 'white';
-		toast.textContent = 'Toasted!';
 		toast.style.opacity = '0';
-	}, 3000);
+	}, displayDuration);
 }
 
-console.log(`scripts.js imported at ${(new Date()).toLocaleTimeString()}`);
+console.log(`js from ts imported at ${(new Date()).toLocaleTimeString()}`);
