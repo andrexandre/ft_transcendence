@@ -6,14 +6,6 @@ game-project/public/game.js
 game-project/public/menu.js
 *.db
 
-
-#alex ignore
-# Ignorar os arquivos de cache do Django
-*.pyc
-*.pyo
-*.pyd
-__pycache__/
-
 # Logs
 logs
 *.log
@@ -75,3 +67,5 @@ profile-*
 profile*
 *clinic*
 *flamegraph*
+
+.vite

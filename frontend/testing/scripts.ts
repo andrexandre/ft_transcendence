@@ -1,13 +1,13 @@
 
-function setSubmissionHandler(url) {
-	document.querySelector('form').addEventListener('submit', async (e) => {
+function setSubmissionHandler(url: string): void {
+	document.querySelector('form')?.addEventListener('submit', async (e: Event) => {
 		e.preventDefault();
-		const userData = {
-			username: document.getElementById('username').value,
-			password: document.getElementById('password').value
+		const userData: { username: string; password: string; email?: string } = {
+			username: (document.getElementById('username') as HTMLInputElement).value,
+			password: (document.getElementById('password') as HTMLInputElement).value
 		};
 		if (url.includes('register')) {
-			userData.email = document.getElementById('email').value;
+			userData.email = (document.getElementById('email') as HTMLInputElement).value;
 		}
 
 		try {
@@ -32,41 +32,37 @@ function setSubmissionHandler(url) {
 			// }
 		} catch (error) {
 			console.error(error);
-			showToast(false, error);
+			if (error instanceof Error) {
+				showToast(false, error.message);
+			} else {
+				showToast(false, 'An unknown error occurred');
+			}
 		}
 	});
 }
 
-function showToast(success, message) {
-	const toast = document.getElementById('toast-default');
-	toast.style.opacity = 1;
+function showToast(success: boolean, message: string | null): void {
+	const toast = document.getElementById('toast-default') as HTMLElement;
+	toast.style.opacity = '1';
 
 	if (success) {
 		toast.style.borderColor = 'darkgreen';
 		toast.style.color = 'darkgreen';
 		toast.style.backgroundColor = 'lightgreen';
-		if (message) {
-			toast.textContent = message;
-		} else {
-			toast.textContent = 'Operation successful!';
-		}
+		toast.textContent = message || 'Operation successful!';
 	} else {
 		toast.style.borderColor = 'darkred';
 		toast.style.color = 'darkred';
 		toast.style.backgroundColor = 'lightcoral';
-		if (message) {
-			toast.textContent = message;
-		} else {
-			toast.textContent = 'Operation failed!';
-		}
+		toast.textContent = message || 'Operation failed!';
 	}
 	setTimeout(() => {
 		toast.style.borderColor = 'black';
 		toast.style.color = 'black';
 		toast.style.backgroundColor = 'white';
 		toast.textContent = 'Toasted!';
-		toast.style.opacity = 0;
-		}, 3000);
+		toast.style.opacity = '0';
+	}, 3000);
 }
 
 console.log(`scripts.js imported at ${(new Date()).toLocaleTimeString()}`);
