@@ -8,9 +8,9 @@ CYAN		:= \033[1;36m
 WHITE		:= \033[1;37m
 
 build-up:
-	docker compose up --build 
+	docker compose up --build
 
-build: env
+build: setup
 	docker compose build 
 
 up:
@@ -42,11 +42,10 @@ rmv:
 
 API-DIR = backend/Gateway
 
-# wget -qO $(API-DIR)/.env gist.githubusercontent.com/andrexandre/8c011820a35117d005016151cfd46207/raw/.env
-env:
+setup:
+	cd frontend ; npm install ; npx tsc
 	echo "JWT_SECRET_LOADER=pVSOWeTXrAddkz/YCSR2nDybdRQfwOtKZxjecJ5L0GY=\nPORT=7000" > $(API-DIR)/.env
 	echo 'PORT=3000' > backend/user/conf/.env
-	@echo "$(GREEN)Please start live server on register.html$(END)"
 
 env-clean:
 	-rm -r $(API-DIR)/.env 2> /dev/null
@@ -59,6 +58,9 @@ rep: destroy db-clean build-up
 DB-PATH = backend/Gateway/Database/testDB.db
 
 DB-NAME = users
+
+start-server:
+	cd frontend/src ; npx vite --host 127.0.0.1 --port 9000 --open register.html
 
 db-clean:
 	sqlite3 $(DB-PATH) "drop table $(DB-NAME);" 2> /dev/null
@@ -76,9 +78,8 @@ system-prune:
 	-docker stop $$(docker ps -qa)
 	-docker system prune -f -a --volumes
 
-# this is the old way of cleaning, the newer needs testing
-# -docker stop $$(docker ps -qa)
-# -docker rm $$(docker ps -qa)
-# -docker rmi -f $$(docker image ls -qa)
-# -docker volume rm $$(docker volume ls -q)
-# -docker network rm $$(docker network ls --filter "name=ft_transcendence" -q)
+# this is useful when root permissions are required to delete files
+# note: this removes the contents of the specified folder
+rm-rf:
+	@read -p "rm -rf $$PWD/" folder;\
+	docker run --rm -v ./$$folder:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
