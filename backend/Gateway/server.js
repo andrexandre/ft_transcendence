@@ -1,8 +1,10 @@
 const fastify = require('fastify')({ logger: true });
 const registerRoutes = require('./routes/auth/register');
+const gameRoutes = require('./routes/game/player-data');
 const cors = require('@fastify/cors');
 
 fastify.register(registerRoutes);
+fastify.register(gameRoutes);
 
 fastify.register(cors, {
   origin: 'http://127.0.0.1:5500', // Allow frontend origin
@@ -19,4 +21,3 @@ fastify.get('/', async (request, reply) => {
 fastify.listen({ port: 7000, host: '0.0.0.0' }, () => {
   console.log('🚀 Server running at http://localhost:7000');
 });
-

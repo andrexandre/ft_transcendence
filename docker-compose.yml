@@ -30,7 +30,7 @@ services:
     image: gateway-api
     container_name: gateway-api
     build: 
-      context: ./backend/Gateway/config
+      context: ./backend/Gateway/conf
     ports:
       - "7000:7000"
     volumes:
