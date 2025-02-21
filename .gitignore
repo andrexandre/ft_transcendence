@@ -69,4 +69,4 @@ profile*
 *flamegraph*
 
 .vite
-frontend/src/*.js
+frontend/**/*.js

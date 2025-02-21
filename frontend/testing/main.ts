@@ -1,3 +1,17 @@
+// To create scalability we can import from a file
+// and create certain functions that we can call here
+// import navbar from "./navbar.js"
+
+// cat navbar.js
+// const navbar = {
+// 	getHTML: () => "hello",
+// 	execJS: () => {
+// 		alert("HELLO");
+// 	}
+// }
+// const navbarHTML = await navbar.getHTML();
+// put this inside the innerHTML: ${navbarHTML}
+// after changing the html, we can execute the js using: navbar.execJS();
 
 // Create a simple SPA that switches content when a button is clicked
 document.getElementById("app")!.innerHTML = `
