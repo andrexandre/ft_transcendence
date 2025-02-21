@@ -1,26 +1,21 @@
 import fastify from "fastify";
 import fastifyWebsocket from "@fastify/websocket";
 import fastifyStatic from "@fastify/static";
+import fastifyCookie from "@fastify/cookie";
 import path from "path";
 import db_game from "./db_game.js";
 
-// if (db_game)
-//   console.log("YEEEEEEEEEEEEEEEEESSSSSSS")
-// else
-//   console.log("NOOOOOOOOOOOOOOOOOO")
 
 const gamefast = fastify({ logger: true });
 
-// Register WebSocket Plugin
 gamefast.register(fastifyWebsocket);
+gamefast.register(fastifyCookie);
 
-// Register Static Files
 gamefast.register(fastifyStatic, {
   root: path.join(process.cwd(), "public"),
   prefix: "/",
 });
 
-// WebSocket Route
 gamefast.get("/ws", { websocket: true }, (connection, req) => {
   console.log("Player connected");
 
@@ -36,13 +31,13 @@ gamefast.get("/ws", { websocket: true }, (connection, req) => {
 
 // API Route to Add User
 gamefast.post("/add-user", async (request, reply) => {
-  const { name } = request.body as { name: string };
+  const user_name = request.cookies.username;
 
-  if (!name) {
+  if (!user_name) {
     return reply.status(400).send({ error: "Name is required" });
   }
 
-  db_game.run("INSERT INTO users (user_name) VALUES (?)", [name], function (err) {
+  db_game.run("INSERT INTO users (user_name) VALUES (?)", [user_name], function (err) {
     if (err) {
         return reply.status(500).send({ error: "Database error", details: err.message });
     }
@@ -50,13 +45,11 @@ gamefast.post("/add-user", async (request, reply) => {
   });
 });
 
-
 // Serve `index.html`
 gamefast.get("/", async (request, reply) => {
   return reply.sendFile("index.html");
 });
 
-// Start Server
 const start = async () => {
   try {
     await gamefast.listen({ port: 5000, host: "0.0.0.0" });

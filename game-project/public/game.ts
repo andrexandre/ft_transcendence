@@ -1,3 +1,23 @@
+// import db_game from "../pong_vol/game-project/db_game.db"; 
+
+// async function getUserSettings(username: string): Promise<string> {
+//     return new Promise((resolve, reject) => {
+//         db_game.get(
+//             "SELECT user_set_tableSize FROM users WHERE user_name = ?",
+//             [username],
+//             (err, row) => {
+//                 if (err) {
+//                     console.error("❌ Database error:", err);
+//                     reject("medium");
+//                 } else {
+//                     resolve(row ? row.user_set_tableSize : "medium");
+//                 }
+//             }
+//         );
+//     });
+// }
+
+
 export function startSingleClassic() {
     const gameCanvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
     const ctx = gameCanvas.getContext("2d");
@@ -17,6 +37,20 @@ export function startSingleClassic() {
         document.body.appendChild(scoreboard);
     }
     scoreboard.style.display = "block";
+
+    // // Fetch user preferences
+    // const tableSize = await getUserSettings(user_name);
+
+    // // Apply table size
+    // const sizeMap = {
+    //     small: { width: 400, height: 200 },
+    //     medium: { width: 800, height: 400 },
+    //     large: { width: 1600, height: 800 }
+    // };
+
+    // const { width, height } = sizeMap[tableSize] || sizeMap.medium; // Default to Medium
+    // gameCanvas.width = width;
+    // gameCanvas.height = height;
 
     // Game Variables
     gameCanvas.width = 800;
