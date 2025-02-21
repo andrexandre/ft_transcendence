@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "tsc": "tsc --watch",
-    "vite": "npx vite src --host 127.0.0.1 --port 9000 --open register.html",
+    "vite": "npx vite src --host 127.0.0.1 --port 5500 --open register.html",
     "prune": "rm -rf node_modules package-lock.json"
   },
   "keywords": [],
