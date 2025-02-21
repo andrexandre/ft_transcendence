@@ -32,16 +32,16 @@ gamefast.get("/ws", { websocket: true }, (connection, req) => {
 // API Route to Add User
 gamefast.post("/add-user", async (request, reply) => {
   const user_name = request.cookies.username;
-
+  console.log(user_name);
   if (!user_name) {
     return reply.status(400).send({ error: "Name is required" });
   }
-
+  //return reply.status(200).send({ message: "✅ User added", user: user_name});
   db_game.run("INSERT INTO users (user_name) VALUES (?)", [user_name], function (err) {
     if (err) {
         return reply.status(500).send({ error: "Database error", details: err.message });
     }
-    reply.send({ message: "✅ User added", userId: this.lastID });
+    return reply.status(200).send({ message: "✅ User added", userId: this.lastID });
   });
 });
 

@@ -7,7 +7,7 @@ fastify.register(registerRoutes);
 fastify.register(gameRoutes);
 
 fastify.register(cors, {
-  origin: 'http://127.0.0.1:5500', // Allow frontend origin
+  origin: ['http://127.0.0.1:5500', 'http://pongify:5000'], // Allow frontend origin
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true // Allow cookies if needed
 });
