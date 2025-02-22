@@ -1,15 +1,14 @@
-
 function setSubmissionHandler(url) {
 	document.querySelector('form').addEventListener('submit', async (e) => {
 		e.preventDefault();
 		const userData = {
 			username: document.getElementById('username').value,
-			password: document.getElementById('password').value
+			password: document.getElementById('password').value,
+			email
 		};
 		if (url.includes('register')) {
 			userData.email = document.getElementById('email').value;
 		}
-
 		try {
 			const response = await fetch(url, {
 				method: 'POST',

@@ -21,16 +21,14 @@ async function loadQueryFile(fileName) {
 
 // Colocar ele dentro de um router tipo "RegisterRoutes"
 server.post('/create_user', (request, response) => {
-	console.log(request.body);
 	const { username, email, password } = request.body;
 	
 	// Tem que se fazer o hash da password
 	server.sqlite.run(`INSERT INTO users (username, email, password) VALUES ('${username}', '${email}', '${password}');`);
 	// Protecao caso algum username ou email ja estiver a ser usado
 	
-	response.send({message: `Sucessifuly created ${username} ${email}`});
+	response.status(200).send({message: `Sucessifuly created ${username} ${email}`});
 });
-
 
 async function getUsers() {
 	return new Promise((resolve, reject) => {
@@ -78,8 +76,6 @@ server.get('/',  async(request, response) => {
 		
 	response.send(JSON.stringify(content, null, 2));
 });
-
-
 
 const listenOptions = {
 	port: `${3000}`,
