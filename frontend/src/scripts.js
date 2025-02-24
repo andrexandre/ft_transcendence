@@ -4,7 +4,6 @@ function setSubmissionHandler(url) {
 		const userData = {
 			username: document.getElementById('username').value,
 			password: document.getElementById('password').value,
-			email
 		};
 		if (url.includes('register')) {
 			userData.email = document.getElementById('email').value;

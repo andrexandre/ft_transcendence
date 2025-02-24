@@ -1,9 +1,11 @@
 const fastify = require('fastify')({ logger: true });
 const registerRoutes = require('./routes/auth/register');
+const loginRoutes = require('./routes/auth/login');
 const gameRoutes = require('./routes/game/player-data');
 const cors = require('@fastify/cors');
 
 fastify.register(registerRoutes);
+fastify.register(loginRoutes);
 fastify.register(gameRoutes);
 
 fastify.register(cors, {
