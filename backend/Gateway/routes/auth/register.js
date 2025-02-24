@@ -1,5 +1,5 @@
 function registerRoute(fastify, options){
-    fastify.post('/register', async (request, reply) =>{
+    fastify.post('/register', async (request, reply) => {
         const { username, email, password } = request.body;
         const payload = {
             username: username,
