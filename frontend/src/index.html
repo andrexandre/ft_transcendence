@@ -18,18 +18,26 @@
 				"sidebar profile ad"
 				"sidebar stats friends";
 			grid-template-columns: 200px 3fr 4fr;
-			grid-template-rows: auto auto;
+			grid-template-rows: 50% 50%;
 			height: 100vh;
 			padding: 1rem;
 		}
 
 		.dash-component {
+			display: grid;
+			gap: 1rem;
 			color: dimgray;
 			border-color: dimgray;
 			border: 2px dashed;
 			border-radius: 1.5rem;
 			margin: 10px;
 			text-align: center;
+			padding: 2.5rem;
+		}
+		.sidebar-list {
+			display: flex;
+			flex-direction: column;
+			height: 100%;
 		}
 		.sidebar-component {
 			display: flex;
@@ -39,7 +47,12 @@
 			transition: background-color 0.2s;
 		}
 		.sidebar-component:hover {
-			background-color: var(--color-gray-300);
+			background-color: rgb(209 213 219); /* var(--color-gray-300); */
+		}
+
+		.profile-header {
+			display: flex;
+			gap: 4rem;
 		}
 
 		#sidebar { grid-area: sidebar; }
@@ -47,66 +60,59 @@
 		#ad { grid-area: ad; }
 		#stats { grid-area: stats; }
 		#friends { grid-area: friends; }
-		#profile {
-			text-align: center;
-		}
 	</style>
 </head>
 
 <body>
 	<main>
-		<aside id="sidebar" class="dash-component">
-			<ul class="flex flex-col h-full">
+		<aside id="sidebar" class="dash-component" style="padding: 0;">
+			<ul class="sidebar-list">
 				<li>
 					<a href="#"
 						class="sidebar-component">
-						<i class="content-center fa-solid fa-home"></i>
-						<span class="ms-3">Home</span>
+						<i style="align-content: center;" class="fa-solid fa-home"></i>
+						<span style="margin-inline-start: 0.75rem;">Home</span>
 					</a>
 				</li>
 				<li>
 					<a href="#"
 						class="sidebar-component">
-						<i class="content-center fa-solid fa-message"></i>
-						<span class="ms-3">Chat</span>
+						<i style="align-content: center;" class="fa-solid fa-message"></i>
+						<span style="margin-inline-start: 0.75rem;">Chat</span>
 					</a>
 				</li>
 				<li>
 					<a href="http://127.0.0.1:5000"
 						class="sidebar-component">
-						<i class="content-center fa-solid fa-gamepad"></i>
-						<span class="ms-3">Game</span>
+						<i style="align-content: center;" class="fa-solid fa-gamepad"></i>
+						<span style="margin-inline-start: 0.75rem;">Game</span>
 					</a>
 				</li>
 				<li>
 					<a href="#"
 						class="sidebar-component">
-						<i class="content-center fa-solid fa-bell"></i>
-						<span class="ms-3">Notifications</span>
+						<i style="align-content: center;" class="fa-solid fa-bell"></i>
+						<span style="margin-inline-start: 0.75rem;">Notifications</span>
 					</a>
 				</li>
 				<li style="margin-top: auto;">
 					<a href="#"
 						class="sidebar-component">
-						<i class="content-center fa-solid fa-gear"></i>
-						<span class="ms-3">Settings</span>
+						<i style="align-content: center;" class="fa-solid fa-gear"></i>
+						<span style="margin-inline-start: 0.75rem;">Settings</span>
 					</a>
 				</li>
 			</ul>
 		</aside>
 		<div id="profile" class="dash-component">
-			<!-- add grid grid-rows-2 -->
-			<div class="flex">
-				<!-- <img class="m-10 rounded-full w-50 h-50 shadow-xl shadow-gray-500 border-2" src="https://picsum.photos/id/237/200"> -->
-				<!-- <h1 class="self-center">Roof roof mfer</h1> -->
+			<div class="profile-header">
+				<img class="rounded-full w-50 h-50 shadow-xl shadow-gray-500 border-2" src="https://picsum.photos/id/237/200">
+				<div class="justify-center self-center">
+					<h1 class="text-3xl">Sir Barkalot</h1>
+					<p class="text-xl">The mighty tail-wagger</p>
+				</div>
 			</div>
-			<style>
-				#tmp {
-					justify-content: center;
-					align-items: center;
-				}
-			</style>
-			<p id="tmp" class="flex">Brother this is other stats</p>
+			<p>Champion of belly rubs, fetch, and fierce squirrel chases. Sir Barkalot is the first to answer the doorbell with a royal bark. His hobbies include digging to China and chewing shoes.</p>
 		</div>
 		<div id="ad" class="dash-component">game ad</div>
 		<div id="stats" class="dash-component">stats</div>

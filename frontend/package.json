@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "tsc": "tsc --watch",
+	"http-server": "npx http-server src -a 127.0.0.1 -p 5500 -o register.html",
     "vite": "npx vite src --host 127.0.0.1 --port 5500 --open register.html",
     "prune": "rm -rf node_modules package-lock.json"
   },
@@ -18,6 +19,7 @@
   },
   "dependencies": {
     "@tailwindcss/cli": "^4.0.8",
+    "http-server": "^14.1.1",
     "tailwindcss": "^4.0.8"
   }
 }
