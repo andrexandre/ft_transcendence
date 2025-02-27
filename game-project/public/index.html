@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PONGIFY</title>
     <link rel="stylesheet" href="style.css">
-	<!-- <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"> -->
 </head>
 <body>
     <div id="menu">
@@ -31,6 +29,29 @@
         </div>
 
         <button class="main-btn" id="settings">Settings</button>
+        <div class="submenu hidden" id="settings-menu">
+            <label for="difficulty">Difficulty:</label>
+            <select id="difficulty">
+                <option value="easy">Easy</option>
+                <option value="normal" selected>Normal</option>
+                <option value="hard">Hard</option>
+            </select>
+
+            <label for="table-size">Table Size:</label>
+            <select id="table-size">
+                <option value="small">Small</option>
+                <option value="medium" selected>Medium</option>
+                <option value="large">Large</option>
+            </select>
+
+            <label for="sound">Sound:</label>
+            <select id="sound">
+                <option value="on" selected>On</option>
+                <option value="off">Off</option>
+            </select>
+
+            <button class="save-settings-btn" id="save-settings">Save</button>
+        </div>
     </div>
 
     <canvas id="gameCanvas" class="hidden"></canvas>

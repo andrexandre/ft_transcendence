@@ -20,9 +20,6 @@ export function startSingleClassic(username: string) {
     }
     scoreboard.style.display = "block";
 
-    // scoreboard.innerHTML = `<span style="color: blue;">${username}</span> 0 - 0 <span style="color: red;">BoTony</span>`;
-
-
     gameCanvas.width = 800;
     gameCanvas.height = 400;
 
@@ -63,7 +60,6 @@ export function startSingleClassic(username: string) {
         ctx.fill();
     
         // Draw scoreboard
-        // scoreboard.innerHTML = `<span style="color: blue;">Couves</span> ${playerScore} - ${aiScore} <span style="color: red;">BoTony</span>`;
         scoreboard.innerHTML = `<span style="color: blue;">${username}</span> ${playerScore} - ${aiScore} <span style="color: red;">BoTony</span>`;
         // Draw Countdown Before Game/Reset
         if (countdownValue > 0) {
@@ -109,7 +105,7 @@ export function startSingleClassic(username: string) {
     function checkWinCondition() {
         if (playerScore === 5) {
             gameOver = true;
-            setTimeout(() => endGame("Player 1 Wins!", "blue"), 1000);
+            setTimeout(() => endGame("Player 1 Wins!", "blue"), 1000); // need change to variable.
         } else if (aiScore === 5) {
             gameOver = true;
             setTimeout(() => endGame("BoTony Wins!", "red"), 1000);

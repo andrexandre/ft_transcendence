@@ -55,19 +55,6 @@ singleBtn.addEventListener("click", () => toggleMenu(singleMenu));
 multiBtn.addEventListener("click", () => toggleMenu(multiMenu));
 coopBtn.addEventListener("click", () => toggleMenu(coopMenu));
 
-// // Game Mode Listeners
-// classicBtn.addEventListener("click", (event) => {
-//     event.stopPropagation();
-//     console.log("🔥 Classic button clicked! Starting game...");
-    
-//     // Hide menu, show game
-//     menu.classList.add("hidden"); 
-//     gameCanvas.classList.remove("hidden");
-//     gameCanvas.classList.add("visible");
-    
-//     startSingleClassic("Player1");
-// });
-
 
 document.addEventListener("DOMContentLoaded", async () => {
     console.log("📌 Menu Loaded, checking user...");
@@ -113,11 +100,19 @@ async function checkOrCreateUser(username: string) {
     }
 }
 
-document.getElementById("single")!.addEventListener("click", () => {
+// Game Mode Listeners
+classicBtn.addEventListener("click", (event) => {
     const username = sessionStorage.getItem("username");
     console.log(`🎯 Starting game for: ${username}`);
-
+    event.stopPropagation();
+    console.log("🔥 Classic button clicked! Starting game...");
+    
     if (username) {
+         // Hide menu, show game
+        menu.classList.add("hidden"); 
+        gameCanvas.classList.remove("hidden");
+        gameCanvas.classList.add("visible");
+
         startSingleClassic(username);
     } else {
         console.error("❌ No username found!");
