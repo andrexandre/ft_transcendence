@@ -10,9 +10,8 @@
 </head>
 
 <body class="bg-neutral-100 select-none">
-	<main class="grid grid-rows-2 h-screen p-4"
-		  style="grid-template-columns: 200px 3fr 4fr;">
-		<aside id="sidebar" class="!p-3 dash-component row-span-2">
+	<main class="grid grid-rows-2 h-screen p-4 grid-cols-[200px_3fr_4fr] *:p-10">
+		<aside id="sidebar" class="dash-component !p-3 row-span-2">
 			<ul class="sidebar-list">
 				<li>
 					<a href="#"
@@ -64,7 +63,7 @@
 		<div id="ad" class="dash-component">
 			<h1 class="text-xl font-bold">Let's Play Pong</h1>
 		</div>
-		<div id="stats" class="*:!p-0 dash-component">
+		<div id="stats" class="dash-component">
 			<h1 class="text-xl font-bold">Pong Stats</h1>
 			<div class="dash-component"></div>
 			<div class="dash-component"></div>
@@ -72,7 +71,7 @@
 			<div class="dash-component"></div>
 			<div class="dash-component"></div>
 		</div>
-		<div id="friends" class="*:!p-3 dash-component !flex flex-col justify-around">
+		<div id="friends" class="dash-component *:p-3 !flex flex-col justify-around">
 			<h1 class="text-xl font-bold">Active friends</h1>
 			<div class="dash-component !flex">
 				<img src="https://api.dicebear.com/9.x/avataaars-neutral/svg?seed=Brian" class="size-10 rounded-4xl">

@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 .dash-component {
-	@apply grid gap-4 m-2.5 p-10 text-center border-2 border-dashed rounded-3xl text-stone-600 border-stone-400 hover:border-stone-800;
+	@apply grid gap-4 m-2.5 text-center border-2 border-dashed rounded-3xl text-stone-600 border-stone-400 hover:border-stone-800;
 }
 .sidebar-list {
 	@apply flex flex-col h-full;
