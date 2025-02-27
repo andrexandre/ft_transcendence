@@ -40,15 +40,13 @@ rmi:
 rmv:
 	docker volume rm $$(docker volume ls -q)
 
-API-DIR = backend/Gateway
-
 setup:
 	cd frontend ; npm install ; npx tsc
-	echo "JWT_SECRET_LOADER=pVSOWeTXrAddkz/YCSR2nDybdRQfwOtKZxjecJ5L0GY=\nPORT=7000" > $(API-DIR)/.env
+	echo "JWT_SECRET_LOADER=pVSOWeTXrAddkz/YCSR2nDybdRQfwOtKZxjecJ5L0GY=\nPORT=7000" > backend/Gateway/.env
 	echo 'PORT=3000' > backend/user/conf/.env
 
 env-clean:
-	-rm -r $(API-DIR)/.env 2> /dev/null
+	-rm -r backend/Gateway/.env 2> /dev/null
 	-rm -r backend/user/conf/.env 2> /dev/null
 
 re: down db-clean build-up
@@ -63,11 +61,11 @@ server-up:
 	cd frontend/src ; npm run tsc & npm run vite
 
 server-upd:
-	cd frontend/src ; npx vite --host 127.0.0.1 --port 5500 --open register.html &
+	cd frontend/src ; npx vite --host 127.0.0.1 --port 5500 &
 	cd frontend/src ; npx tsc --watch &
 
 server-down:
-	pkill -2 -f 'vite --host 127.0.0.1 --port 5500 --open register.html'
+	pkill -2 -f 'vite --host 127.0.0.1 --port 5500'
 	pkill -2 -f 'tsc --watch'
 
 db-clean:

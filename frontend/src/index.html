@@ -7,116 +7,89 @@
 	<title>Dashboard</title>
 	<link rel="stylesheet" href="tw.css">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-	<style>
-		body {
-			background-color: whitesmoke;
-		}
-
-		main {
-			display: grid;
-			grid-template-areas:
-				"sidebar profile ad"
-				"sidebar stats friends";
-			grid-template-columns: 200px 3fr 4fr;
-			grid-template-rows: 50% 50%;
-			height: 100vh;
-			padding: 1rem;
-		}
-
-		.dash-component {
-			display: grid;
-			gap: 1rem;
-			color: dimgray;
-			border-color: dimgray;
-			border: 2px dashed;
-			border-radius: 1.5rem;
-			margin: 10px;
-			text-align: center;
-			padding: 2.5rem;
-		}
-		.sidebar-list {
-			display: flex;
-			flex-direction: column;
-			height: 100%;
-		}
-		.sidebar-component {
-			display: flex;
-			padding: 0.75rem;
-			border-radius: 2rem;
-			justify-content: space-between;
-			transition: background-color 0.2s;
-		}
-		.sidebar-component:hover {
-			background-color: rgb(209 213 219); /* var(--color-gray-300); */
-		}
-
-		.profile-header {
-			display: flex;
-			gap: 4rem;
-		}
-
-		#sidebar { grid-area: sidebar; }
-		#profile { grid-area: profile; }
-		#ad { grid-area: ad; }
-		#stats { grid-area: stats; }
-		#friends { grid-area: friends; }
-	</style>
 </head>
 
-<body>
-	<main>
-		<aside id="sidebar" class="dash-component" style="padding: 0;">
+<body class="bg-neutral-100 select-none">
+	<main class="grid grid-rows-2 h-screen p-4"
+		  style="grid-template-columns: 200px 3fr 4fr;">
+		<aside id="sidebar" class="!p-3 dash-component row-span-2">
 			<ul class="sidebar-list">
 				<li>
 					<a href="#"
 						class="sidebar-component">
-						<i style="align-content: center;" class="fa-solid fa-home"></i>
-						<span style="margin-inline-start: 0.75rem;">Home</span>
+						<i class="fa-solid fa-home content-center"></i>
+						<span>Home</span>
 					</a>
 				</li>
 				<li>
 					<a href="#"
 						class="sidebar-component">
-						<i style="align-content: center;" class="fa-solid fa-message"></i>
-						<span style="margin-inline-start: 0.75rem;">Chat</span>
+						<i class="fa-solid fa-message content-center"></i>
+						<span>Chat</span>
 					</a>
 				</li>
 				<li>
 					<a href="http://127.0.0.1:5000"
 						class="sidebar-component">
-						<i style="align-content: center;" class="fa-solid fa-gamepad"></i>
-						<span style="margin-inline-start: 0.75rem;">Game</span>
+						<i class="fa-solid fa-gamepad content-center"></i>
+						<span>Game</span>
 					</a>
 				</li>
 				<li>
 					<a href="#"
 						class="sidebar-component">
-						<i style="align-content: center;" class="fa-solid fa-bell"></i>
-						<span style="margin-inline-start: 0.75rem;">Notifications</span>
+						<i class="fa-solid fa-bell content-center"></i>
+						<span>Notifications</span>
 					</a>
 				</li>
-				<li style="margin-top: auto;">
+				<li class="mt-auto">
 					<a href="#"
 						class="sidebar-component">
-						<i style="align-content: center;" class="fa-solid fa-gear"></i>
-						<span style="margin-inline-start: 0.75rem;">Settings</span>
+						<i class="fa-solid fa-gear content-center"></i>
+						<span>Settings</span>
 					</a>
 				</li>
 			</ul>
 		</aside>
 		<div id="profile" class="dash-component">
 			<div class="profile-header">
-				<img class="rounded-full w-50 h-50 shadow-xl shadow-gray-500 border-2" src="https://picsum.photos/id/237/200">
+				<img class="rounded-full size-48 shadow-xl shadow-gray-500 border-2" src="https://picsum.photos/id/237/200">
 				<div class="justify-center self-center">
-					<h1 class="text-3xl">Sir Barkalot</h1>
+					<h1 class="text-3xl font-bold">Sir Barkalot</h1>
 					<p class="text-xl">The mighty tail-wagger</p>
 				</div>
 			</div>
 			<p>Champion of belly rubs, fetch, and fierce squirrel chases. Sir Barkalot is the first to answer the doorbell with a royal bark. His hobbies include digging to China and chewing shoes.</p>
 		</div>
-		<div id="ad" class="dash-component">game ad</div>
-		<div id="stats" class="dash-component">stats</div>
-		<div id="friends" class="dash-component">friends</div>
+		<div id="ad" class="dash-component">
+			<h1 class="text-xl font-bold">Let's Play Pong</h1>
+		</div>
+		<div id="stats" class="*:!p-0 dash-component">
+			<h1 class="text-xl font-bold">Pong Stats</h1>
+			<div class="dash-component"></div>
+			<div class="dash-component"></div>
+			<div class="dash-component"></div>
+			<div class="dash-component"></div>
+			<div class="dash-component"></div>
+		</div>
+		<div id="friends" class="*:!p-3 dash-component !flex flex-col justify-around">
+			<h1 class="text-xl font-bold">Active friends</h1>
+			<div class="dash-component !flex">
+				<img src="https://api.dicebear.com/9.x/avataaars-neutral/svg?seed=Brian" class="size-10 rounded-4xl">
+				<svg height="10" width="10"><circle cx="5" cy="5" r="5" fill="green" /></svg>
+				<h1 class="font-bold self-center ml-5">Brian</h1>
+			</div>
+			<div class="dash-component !flex">
+				<img src="https://api.dicebear.com/9.x/avataaars-neutral/svg?seed=Eliza" class="size-10 rounded-4xl">
+				<svg height="10" width="10"><circle cx="5" cy="5" r="5" fill="grey" /></svg>
+				<h1 class="font-bold self-center ml-5">Eliza</h1>
+			</div>
+			<div class="dash-component !flex">
+				<img src="https://api.dicebear.com/9.x/avataaars-neutral/svg?seed=Alexander" class="size-10 rounded-4xl">
+				<svg height="10" width="10"><circle cx="5" cy="5" r="5" fill="grey" /></svg>
+				<h1 class="font-bold self-center ml-5">Alexander</h1>
+			</div>
+		</div>
 	</main>
 </body>
 
