@@ -45,7 +45,7 @@ async function LoginRoutes(server, opts) {
 
             } catch(err) {
                 // ver depois o erro para ver a mensagem e o status
-                response.status(404).send({message: err});
+                response.status(400).send({message: err});
             }
 
             response.status(200).send({message: `Welcome to my Transcendence ${user.username}`});

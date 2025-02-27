@@ -6,8 +6,7 @@ function registerRoute(fastify, options){
             email: email,
             password: password
         };
-
-        const response = await fetch('http://user_management:3000/create_user', {
+        const response = await fetch('http://user_management:3000/api/create', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
