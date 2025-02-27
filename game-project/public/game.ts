@@ -1,27 +1,9 @@
-// import db_game from "../pong_vol/game-project/db_game.db"; 
-
-// async function getUserSettings(username: string): Promise<string> {
-//     return new Promise((resolve, reject) => {
-//         db_game.get(
-//             "SELECT user_set_tableSize FROM users WHERE user_name = ?",
-//             [username],
-//             (err, row) => {
-//                 if (err) {
-//                     console.error("❌ Database error:", err);
-//                     reject("medium");
-//                 } else {
-//                     resolve(row ? row.user_set_tableSize : "medium");
-//                 }
-//             }
-//         );
-//     });
-// }
-
-
-export function startSingleClassic() {
+export function startSingleClassic(username: string) {
+    console.log(`🎯 Game started for: ${username}`); // Debugging log
     const gameCanvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
     const ctx = gameCanvas.getContext("2d");
     const menu = document.getElementById("menu") as HTMLDivElement;
+
 
     // Hide menu, show game
     menu.classList.add("hidden");
@@ -38,21 +20,9 @@ export function startSingleClassic() {
     }
     scoreboard.style.display = "block";
 
-    // // Fetch user preferences
-    // const tableSize = await getUserSettings(user_name);
+    // scoreboard.innerHTML = `<span style="color: blue;">${username}</span> 0 - 0 <span style="color: red;">BoTony</span>`;
 
-    // // Apply table size
-    // const sizeMap = {
-    //     small: { width: 400, height: 200 },
-    //     medium: { width: 800, height: 400 },
-    //     large: { width: 1600, height: 800 }
-    // };
 
-    // const { width, height } = sizeMap[tableSize] || sizeMap.medium; // Default to Medium
-    // gameCanvas.width = width;
-    // gameCanvas.height = height;
-
-    // Game Variables
     gameCanvas.width = 800;
     gameCanvas.height = 400;
 
@@ -93,8 +63,8 @@ export function startSingleClassic() {
         ctx.fill();
     
         // Draw scoreboard
-        scoreboard.innerHTML = `<span style="color: blue;">Couves</span> ${playerScore} - ${aiScore} <span style="color: red;">BoTony</span>`;
-    
+        // scoreboard.innerHTML = `<span style="color: blue;">Couves</span> ${playerScore} - ${aiScore} <span style="color: red;">BoTony</span>`;
+        scoreboard.innerHTML = `<span style="color: blue;">${username}</span> ${playerScore} - ${aiScore} <span style="color: red;">BoTony</span>`;
         // Draw Countdown Before Game/Reset
         if (countdownValue > 0) {
             ctx.fillStyle = "green";

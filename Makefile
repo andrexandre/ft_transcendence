@@ -73,6 +73,10 @@ USER = as
 rm-user:
 	sqlite3 $(DB-PATH) 'delete from $(DB-NAME) where username = "$(USER)";'
 
+gm-users:
+	docker exec pongify sqlite3 -header -column /pong_vol/game-project/db_game.db "SELECT * FROM users;"
+
+
 # this is used to clean up the whole docker ecosystem
 system-prune:
 	-docker stop $$(docker ps -qa)
