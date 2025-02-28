@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt'
 
 // Temporario
-import getUserByUsername from '../server.js';
+import {getUserByUsername} from '../server.js';
 
 
 async function LoginRoutes(server, opts) {
