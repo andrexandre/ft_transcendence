@@ -17,12 +17,9 @@ function setSubmissionHandler(url: string): void {
 				},
 				body: JSON.stringify(userData)
 			});
-			if (!response.ok) {
+			if (response.status != 201) {
 				throw new Error('During the submission of the form');
 			}
-
-			const data = await response.json();
-			console.log('Response: ', data);
 			showToast(true, null);
 			// if (url.includes('register')) {
 			// 	window.location.href = 'login.html';

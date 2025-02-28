@@ -71,7 +71,7 @@ server-down:
 	pkill -2 -f 'tsc --watch'
 
 db-clean:
-	sqlite3 $(DB-PATH) "drop table $(DB-NAME);" 2> /dev/null
+	sqlite3 $(DB-PATH) "delete from $(DB-NAME);"
 
 list-users:
 	sqlite3 $(DB-PATH) "select * from $(DB-NAME);"
