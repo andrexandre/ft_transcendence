@@ -55,7 +55,7 @@ re: down db-clean build-up
 
 rep: destroy db-clean build-up
 
-DB-PATH = backend/Gateway/Database/testDB.db
+DB-PATH = backend/user/userManagement/user.db
 
 DB-NAME = users
 
