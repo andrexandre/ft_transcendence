@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Friends Chat</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <div class="rooms-sidebar">
+      <h2>Online Friends</h2>
+      <button class="refresh-button" id="refresh-button">↻</button>
+      <div class="friend-list" id="friendList">
+        <!-- Friends will be added here -->
+      </div>
+    </div>
+    <div class="chat-container">
+      <!-- Chat header with current friend name -->
+      <div class="chat-header">
+        <div class="current-friend">
+          <span class="online-status"></span>
+          <span class="friend-name">Friend Name</span>
+        </div>
+      </div>
+      
+      <!-- Messages container -->
+      <div class="messages-container" id="messages-container">
+        <ul id="messages">
+          <!-- Message examples (these will be created dynamically in your JS) -->
+          <li class="message received">
+            <div class="message-bubble">
+              <div class="message-text">Hey, how are you?</div>
+              <div class="message-time">10:05 AM</div>
+            </div>
+          </li>
+          <li class="message sent">
+            <div class="message-bubble">
+              <div class="message-text">I'm doing great! How about you?</div>
+              <div class="message-time">10:06 AM</div>
+            </div>
+          </li>
+          <li class="message received">
+            <div class="message-bubble">
+              <div class="message-text">Not bad at all. Just working on some coding projects.</div>
+              <div class="message-time">10:07 AM</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+      
+      <!-- Message form -->
+      <form id="form" action="">
+        <input id="input" placeholder="Type a message" autocomplete="off" />
+        <button>Send</button>
+      </form>
+    </div>
+
+    <!-- New elements for online users bar -->
+    <div class="online-users-toggle">
+      Online Users
+    </div>
+
+    <div class="online-users-bar">
+      <button class="close-bar">×</button>
+      <h2>Online Users</h2>
+      <ul class="online-users-list">
+        <!-- More users can be added here -->
+      </ul>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="index.js"></script>
+  </body>
+</html>
