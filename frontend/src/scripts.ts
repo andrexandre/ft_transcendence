@@ -17,15 +17,15 @@ function setSubmissionHandler(url: string): void {
 				},
 				body: JSON.stringify(userData)
 			});
-			if (response.status != 201) {
-				throw new Error('During the submission of the form');
+			if (!response.ok) {
+				throw new Error(`${response.status} - ${response.statusText}`);
 			}
-			showToast(true, null);
+			showToast(true, `${response.status} - ${response.statusText}`);
 			// if (url.includes('register')) {
 			// 	window.location.href = 'login.html';
 			// } else {
 			// 	window.location.href = 'dashboard.html';
-			// }			
+			// }
 		}
 		catch (error) {
 			console.log(error);
@@ -56,5 +56,3 @@ function showToast(success: boolean, message: string | null): void {
 		toast.style.opacity = '0';
 	}, displayDuration);
 }
-
-console.log(`js from ts imported at ${(new Date()).toLocaleTimeString()}`);
