@@ -1,4 +1,9 @@
+const fastifyCookie = require('@fastify/cookie')
+
 function loginRoute(fastify, options) {
+    
+    fastify.register(fastifyCookie);
+
     fastify.post('/login', async (request, reply) => {
         const { username, password } = request.body;
         const payload = {
@@ -12,7 +17,11 @@ function loginRoute(fastify, options) {
             },
             body: JSON.stringify(payload)
         });
-        reply.status(200).send(response);
+        if(response.status == 200){
+            reply.status(response.status).setCookie('username', payload.username);
+            return ;
+        }
+        reply.status(response.status);
     });
 }
 
