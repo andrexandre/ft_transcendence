@@ -12,7 +12,7 @@ function loginRoute(fastify, options) {
             },
             body: JSON.stringify(payload)
         });
-        reply.status(200).send(response);
+        reply.status(response.status);
     });
 }
 
