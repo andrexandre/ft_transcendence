@@ -20,7 +20,20 @@ async function loadQueryFile(fileName) {
 	return fs.readFile(filePath, 'utf8');
 }  
 
-export default async function getUserByUsername(username) {
+async function RegisterUsers(username, email, password) {
+    
+    return new Promise((resolve, reject) => {
+		server.sqlite.run(`INSERT INTO users (username, email, password) VALUES ('${username}', '${email}', '${password}');`, (err) => {
+			if (err) {
+				reject("Username or email already exist!");
+			} else {
+				resolve('');
+			}
+		});
+    });
+}
+
+async function getUserByUsername(username) {
     
     return new Promise((resolve, reject) => {
         server.sqlite.get("SELECT * FROM users WHERE username = ?", [username], (err, row) => {
@@ -34,6 +47,8 @@ export default async function getUserByUsername(username) {
           });
     });
 }
+
+export { getUserByUsername, RegisterUsers};
 
 async function getUsers() {
 	return new Promise((resolve, reject) => {
