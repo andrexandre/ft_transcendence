@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt'
+import {RegisterUsers} from '../server.js';
 
 async function RegisterRoutes(server, opts) {
     
@@ -32,12 +33,13 @@ async function RegisterRoutes(server, opts) {
                 // Password hashing
                 const salt = await bcrypt.genSalt(10);
                 const hashedPassword = await bcrypt.hash(password, salt);
-        
-                server.sqlite.run(`INSERT INTO users (username, email, password) VALUES ('${username}', '${email}', '${hashedPassword}');`);
+                
+                await RegisterUsers(username, email, hashedPassword);
+                // server.sqlite.run(`INSERT INTO users (username, email, password) VALUES ('${username}', '${email}', '${hashedPassword}');`);
                 // Protecao caso algum username ou email ja estiver a ser usado
         
-            } catch {
-                response.status(500).send({message: `Internal server error`})
+            } catch(err) {
+                response.status(500).send({message: `${err}`})
             }
         
             
