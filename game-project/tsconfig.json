@@ -5,17 +5,14 @@
       "allowJs": true,
       "target": "ES6",
       "module": "NodeNext",
-      "moduleResolution": "NodeNext", //ver
-      // "esModuleInterop": true,
+      "moduleResolution": "NodeNext",
       "strict": false,
       "noImplicitAny": false,
       "skipLibCheck": true,
       "noEmitOnError": false,
     },
-    "include": ["server.ts", "public/**/*.ts"], 
+    "include": ["**/*.ts", "public/**/*.ts"], 
     "exclude": ["node_modules"]
 }
 
-
-
-/// _?????? with nodenext no funca // test with "CommonJS" || "es6"
+// change **/*.ts from server.ts

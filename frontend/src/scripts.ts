@@ -9,7 +9,6 @@ function setSubmissionHandler(url: string): void {
 		if (url.includes('register')) {
 			userData.email = (document.getElementById('email') as HTMLInputElement).value
 		}
-
 		try {
 			const response = await fetch(url, {
 				method: 'POST',

@@ -7,7 +7,7 @@ services:
     build: 
       context: ./backend/user/conf
     ports:
-      - 3000:3000
+      - "3000:3000"
     volumes:
       - ./backend/:/backend/:rw #Vai guardar na home 
     networks:
@@ -30,9 +30,9 @@ services:
     image: gateway-api
     container_name: gateway-api
     build: 
-      context: ./backend/Gateway/config
+      context: ./backend/Gateway/conf
     ports:
-      - 7000:7000
+      - "7000:7000"
     volumes:
       - ./backend/Gateway:/backend/:rw #Vai guardar na home 
     networks:
@@ -49,5 +49,4 @@ services:
 
 networks:
   ft_transcendence:
-    name: ft_transcendence
     driver: bridge

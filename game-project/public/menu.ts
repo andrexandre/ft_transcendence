@@ -29,7 +29,7 @@ function toggleMenu(selectedMenu: HTMLDivElement) {
         }
     });
 
-    // 🟢 Toggle the clicked submenu
+    // Toggle the clicked submenu
     if (selectedMenu.classList.contains("expanded")) {
         console.log("Menu is already expanded, collapsing...");
         selectedMenu.classList.remove("expanded");
@@ -39,7 +39,7 @@ function toggleMenu(selectedMenu: HTMLDivElement) {
     }
 }
 
-// 📌 Collapse menus when clicking outside
+// Collapse menus when clicking outside
 document.addEventListener("click", (event) => {
     const isInsideMenu = (event.target as HTMLElement).closest("#menu");
 
@@ -54,7 +54,7 @@ singleBtn.addEventListener("click", () => toggleMenu(singleMenu));
 multiBtn.addEventListener("click", () => toggleMenu(multiMenu));
 coopBtn.addEventListener("click", () => toggleMenu(coopMenu));
 
-// 🎮 Game Mode Listeners
+// Game Mode Listeners
 classicBtn.addEventListener("click", (event) => {
     event.stopPropagation();
     console.log("🔥 Classic button clicked! Starting game...");
