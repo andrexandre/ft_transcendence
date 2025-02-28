@@ -9,47 +9,47 @@
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 
-<body class="bg-stone-100 select-none">
-	<main class="grid grid-rows-2 h-screen p-4 grid-cols-[200px_3fr_4fr]">
-		<aside id="sidebar" class="dash-component p-3 row-span-2">
-			<ul class="sidebar-list">
-				<li>
-					<a href="#"
-						class="sidebar-component">
-						<i class="fa-solid fa-home content-center"></i>
-						<span>Home</span>
-					</a>
-				</li>
-				<li>
-					<a href="#"
-						class="sidebar-component">
-						<i class="fa-solid fa-message content-center"></i>
-						<span>Chat</span>
-					</a>
-				</li>
-				<li>
-					<a href="http://127.0.0.1:5000"
-						class="sidebar-component">
-						<i class="fa-solid fa-gamepad content-center"></i>
-						<span>Game</span>
-					</a>
-				</li>
-				<li>
-					<a href="#"
-						class="sidebar-component">
-						<i class="fa-solid fa-bell content-center"></i>
-						<span>Notifications</span>
-					</a>
-				</li>
-				<li class="mt-auto">
-					<a href="#"
-						class="sidebar-component">
-						<i class="fa-solid fa-gear content-center"></i>
-						<span>Settings</span>
-					</a>
-				</li>
-			</ul>
-		</aside>
+<body class="bg-stone-100 select-none grid h-screen p-4 grid-cols-[200px_1fr]">
+	<aside id="sidebar" class="dash-component p-3">
+		<ul class="sidebar-list">
+			<li>
+				<a href="#"
+					class="sidebar-component">
+					<i class="fa-solid fa-home content-center"></i>
+					<span>Home</span>
+				</a>
+			</li>
+			<li>
+				<a href="#"
+					class="sidebar-component">
+					<i class="fa-solid fa-message content-center"></i>
+					<span>Chat</span>
+				</a>
+			</li>
+			<li>
+				<a href="http://127.0.0.1:5000"
+					class="sidebar-component">
+					<i class="fa-solid fa-gamepad content-center"></i>
+					<span>Game</span>
+				</a>
+			</li>
+			<li>
+				<a href="#"
+					class="sidebar-component">
+					<i class="fa-solid fa-bell content-center"></i>
+					<span>Notifications</span>
+				</a>
+			</li>
+			<li class="mt-auto">
+				<a href="#"
+					class="sidebar-component">
+					<i class="fa-solid fa-gear content-center"></i>
+					<span>Settings</span>
+				</a>
+			</li>
+		</ul>
+	</aside>
+	<main class="grid grid-cols-2 grid-rows-2">
 		<div id="profile" class="dash-component p-10 grid">
 			<div class="profile-header">
 				<img class="rounded-full size-48 shadow-xl shadow-stone-400 border-2" src="https://picsum.photos/id/237/200">
@@ -58,7 +58,7 @@
 					<p class="text-xl">The mighty tail-wagger</p>
 				</div>
 			</div>
-			<p>Champion of belly rubs, fetch, and fierce squirrel chases. Sir Barkalot is the first to answer the doorbell with a royal bark. His hobbies include digging to China and chewing shoes.</p>
+			<p class="max-lg:truncate">Champion of belly rubs, fetch, and fierce squirrel chases. Sir Barkalot is the first to answer the doorbell with a royal bark. His hobbies include digging to China and chewing shoes.</p>
 		</div>
 		<div id="ad" class="dash-component p-10">
 			<h1 class="text-xl font-bold">Let's Play Pong</h1>
@@ -90,6 +90,7 @@
 			</div>
 		</div>
 	</main>
+	<script src="lib.js"></script>
 </body>
 
 </html>
