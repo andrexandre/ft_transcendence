@@ -18,7 +18,11 @@ function loginRoute(fastify, options) {
             body: JSON.stringify(payload)
         });
         if(response.status == 200){
-            reply.status(response.status).setCookie('username', payload.username);
+            reply.status(response.status).setCookie('username', payload.username, {
+                path: '/',
+                httpOnly: true,
+                maxAge: 3600,
+            });
             return ;
         }
         reply.status(response.status);

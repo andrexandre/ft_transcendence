@@ -1,4 +1,3 @@
-
 function setSubmissionHandler(url: string): void {
 	document.querySelector('form')?.addEventListener('submit', async (e: Event) => {
 		e.preventDefault()
@@ -12,6 +11,7 @@ function setSubmissionHandler(url: string): void {
 		try {
 			const response = await fetch(url, {
 				method: 'POST',
+				credentials: "include",
 				headers: {
 					'Content-Type': 'application/json'
 				},
