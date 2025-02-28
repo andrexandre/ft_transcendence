@@ -59,8 +59,16 @@ DB-PATH = backend/user/userManagement/user.db
 
 DB-NAME = users
 
-start-server:
-	cd frontend/src ; npx vite --host 127.0.0.1 --port 9000 --open register.html
+server-up:
+	cd frontend/src ; npm run tsc & npm run vite
+
+server-upd:
+	cd frontend/src ; npx vite --host 127.0.0.1 --port 5500 --open register.html &
+	cd frontend/src ; npx tsc --watch &
+
+server-down:
+	pkill -2 -f 'vite --host 127.0.0.1 --port 5500 --open register.html'
+	pkill -2 -f 'tsc --watch'
 
 db-clean:
 	sqlite3 $(DB-PATH) "drop table $(DB-NAME);" 2> /dev/null
