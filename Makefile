@@ -10,11 +10,14 @@ WHITE		:= \033[1;37m
 build-up:
 	docker compose up --build
 
-build: setup
+build:
 	docker compose build 
 
 up:
 	docker compose up
+
+upd:
+	docker compose up -d
 
 down:
 	docker compose down -v
@@ -40,15 +43,6 @@ rmi:
 rmv:
 	docker volume rm $$(docker volume ls -q)
 
-setup:
-	cd frontend ; npm install ; npx tsc
-	echo "JWT_SECRET_LOADER=pVSOWeTXrAddkz/YCSR2nDybdRQfwOtKZxjecJ5L0GY=\nPORT=7000" > backend/Gateway/.env
-	echo 'PORT=3000' > backend/user/conf/.env
-
-env-clean:
-	-rm -r backend/Gateway/.env 2> /dev/null
-	-rm -r backend/user/conf/.env 2> /dev/null
-
 re: down db-clean build-up
 
 rep: destroy db-clean build-up
@@ -57,10 +51,13 @@ DB-PATH = backend/user/userManagement/user.db
 
 DB-NAME = users
 
-server-up:
+frontend/node_modules:
+	cd frontend ; npm install ; npx tsc
+
+server-up: frontend/node_modules
 	cd frontend/src ; npm run tsc & npm run vite
 
-server-upd:
+server-upd: frontend/node_modules
 	cd frontend/src ; npx vite --host 127.0.0.1 --port 5500 &
 	cd frontend/src ; npx tsc --watch &
 

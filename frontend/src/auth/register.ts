@@ -1,14 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<title>Login</title>
-		<link rel="stylesheet" href="tw.css">
-	</head>
 
-	<body class="flex justify-center min-h-screen bg-gray-100">
-		<div id="toast-default" class="flex items-center w-full max-w-xs p-4 bg-white rounded-lg shadow-sm" role="alert">Toasted</div>
+const register = () => {
+	return /*html*/`
 		<div class="m-auto h-fit max-w-xs p-9 bg-white border border-gray-200 rounded-lg shadow-sm">
 			<form class="space-y-6" action="#">
 				<h5 class="text-center text-2xl font-medium text-gray-900">Register an account</h5>
@@ -30,10 +22,7 @@
 				</div>
 			</form>
 		</div>
-		<script src="scripts.js"></script>
-		<script src="lib.js"></script>
-		<script>
-			setSubmissionHandler('http://127.0.0.1:7000/register');
-		</script>
-	</body>
-</html>
+	`;
+};
+
+export default register;

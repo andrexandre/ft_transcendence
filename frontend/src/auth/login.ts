@@ -1,24 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<title>Login</title>
-		<link rel="stylesheet" href="tw.css">
-	</head>
 
-	<body class="flex justify-center min-h-screen bg-gray-100">
-		<div id="toast-default" class="flex items-center w-full max-w-xs p-4 bg-white rounded-lg shadow-sm" role="alert">Toasted</div>
+const login = () => {
+	return /*html*/`
 		<div class="m-auto h-fit max-w-xs p-9 bg-white border border-gray-200 rounded-lg shadow-sm">
 			<form class="space-y-6" action="#">
-				<h5 class="text-center text-2xl font-medium text-gray-900">Register an account</h5>
+				<h5 class="text-center text-3xl font-medium text-gray-900">Login</h5>
 				<div>
 					<label for="username" class="block mb-2 text-sm font-medium text-gray-900">Username</label>
 					<input type="text" id="username" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Enter username" required />
-				</div>
-				<div>
-					<label for="email" class="block mb-2 text-sm font-medium text-gray-900">Email</label>
-					<input type="email" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Enter email" required />
 				</div>
 				<div>
 					<label for="password" class="block mb-2 text-sm font-medium text-gray-900">Password</label>
@@ -26,14 +14,13 @@
 				</div>
 				<button type="submit" class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Submit</button>
 				<div class="text-sm font-medium text-gray-500">
-					Already have an account? <a href="login.html" class="text-blue-700 hover:underline">Login</a>
+					Not registered? <a href="register.html" class="text-blue-700 hover:underline">Create account</a>
+					<p>Want to login? <a href=".." class="text-blue-700 hover:underline">Go to Dashboard</a>
+					</p>
 				</div>
 			</form>
 		</div>
-		<script src="scripts.js"></script>
-		<script src="lib.js"></script>
-		<script>
-			setSubmissionHandler('http://127.0.0.1:7000/register');
-		</script>
-	</body>
-</html>
+	`;
+};
+
+export default login;

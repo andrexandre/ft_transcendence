@@ -11,7 +11,7 @@
 	@apply flex flex-col h-full;
 }
 .sidebar-component {
-	@apply flex p-3 rounded-2xl justify-between hover:text-stone-400 hover:bg-stone-800 transition-all duration-200;
+	@apply flex p-3 rounded-2xl justify-between items-center w-full hover:text-stone-400 hover:bg-stone-800 transition-all;
 }
 
 .profile-header {
