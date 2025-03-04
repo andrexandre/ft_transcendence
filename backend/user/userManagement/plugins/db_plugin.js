@@ -1,5 +1,6 @@
 import fp from 'fastify-plugin';
 import sqlite3 from 'sqlite3';
+import { registerUsersDecorator, getUserByUsernameDecorator } from '../decorators/db_decorators.js';
 
 
 async function fastifySqlite(fastify, options) {
@@ -8,15 +9,19 @@ async function fastifySqlite(fastify, options) {
 	const filePath = options.dbPath || ":memory:";
 	const connection = new (sqlite3.verbose().Database)(filePath, modes, (err) => {
     if (err) {
-		throw "Error trying to connect to dataBase!";
+      throw "Error trying to connect to dataBase!";
     } else {
-		fastify.log.info('Sucessful connection to database!');
+      fastify.log.info('Sucessful connection to database!');
 	}
   });
   
   if (!fastify.sqlite) {
     fastify.decorate('sqlite', connection);
+    // (name, function, 'decorators dependencies')
+    fastify.decorate('registerUsers', registerUsersDecorator, ['sqlite']);
+    fastify.decorate('getUserByUsername', getUserByUsernameDecorator, ['sqlite']);
   }
+
 
   fastify.addHook('onClose', (fastify, done) => connection.end().then(done).catch(done));
 

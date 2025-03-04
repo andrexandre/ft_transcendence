@@ -1,8 +1,5 @@
 import bcrypt from 'bcrypt'
 
-// Temporario
-import {getUserByUsername} from '../server.js';
-
 
 async function LoginRoutes(server, opts) {
     
@@ -33,7 +30,7 @@ async function LoginRoutes(server, opts) {
             const { username, password } = request.body;
             let user;
             try {
-                user = await getUserByUsername(username);
+                user = await server.getUserByUsername(username);
                 console.log(user);
                 const login = await bcrypt.compare(password, user.password);
 
@@ -45,6 +42,8 @@ async function LoginRoutes(server, opts) {
 
             } catch(err) {
                 // ver depois o erro para ver a mensagem e o status
+                // 404 user dont exist
+                // erro no compare
                 response.status(404).send({message: err});
             }
 

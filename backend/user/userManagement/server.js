@@ -1,5 +1,5 @@
 import fastify from "fastify";
-import fastifySqlite from './database_plugin.js';
+import fastifySqlite from './plugins/db_plugin.js';
 import RegisterRoutes from "./routes/registerRoutes.js";
 import LoginRoutes from "./routes/loginRoutes.js";
 import fs from 'fs/promises';
@@ -11,7 +11,6 @@ import { compileFunction } from "vm";
 // Creation of the app  instance
 const server = fastify({ loger: true });
 
-
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 async function loadQueryFile(fileName) {
@@ -20,35 +19,6 @@ async function loadQueryFile(fileName) {
 	return fs.readFile(filePath, 'utf8');
 }  
 
-async function RegisterUsers(username, email, password) {
-    
-    return new Promise((resolve, reject) => {
-		server.sqlite.run(`INSERT INTO users (username, email, password) VALUES ('${username}', '${email}', '${password}');`, (err) => {
-			if (err) {
-				reject("Username or email already exist!");
-			} else {
-				resolve('');
-			}
-		});
-    });
-}
-
-async function getUserByUsername(username) {
-    
-    return new Promise((resolve, reject) => {
-        server.sqlite.get("SELECT * FROM users WHERE username = ?", [username], (err, row) => {
-            if (err) {
-				reject(err);
-            } else if (row) {
-				resolve(row);
-            } else {
-				reject('User not found');
-			}
-          });
-    });
-}
-
-export { getUserByUsername, RegisterUsers};
 
 async function getUsers() {
 	return new Promise((resolve, reject) => {
@@ -81,15 +51,6 @@ server.get('/',  async(request, response) => {
 	response.header('content-type', 'application/json');
 	// estudar o porque que isto funciona com a solucao do chatgpt
 	let content = await getUsers();
-	// await server.sqlite.each("SELECT id, username, email, password FROM users", (err, row) => {
-	// 	if (err) {
-	// 		console.error(err);
-	// 	} else {
-	// 		content.push({id: `${row.id}`, username: `${row.username}`, email: `${row.email}`, password: `${row.password}`});
-	// 		console.log(row.id + ": " + row.username + ' ' + row.email, + ' ' + row.password);
-	// 		// console.log(content);
-	// 	}
-    // });
 
 	console.log('aqui');
 	// console.log(content);
@@ -109,7 +70,7 @@ async function start() {
 	
 	try {
 		// Ver como registrar todas as routes com auto-load
-		await server.register(fastifySqlite, { dbPath: './user.db'});~
+		await server.register(fastifySqlite, { dbPath: './user.db'});
 		await server.register(RegisterRoutes);
 		await server.register(LoginRoutes);
 		

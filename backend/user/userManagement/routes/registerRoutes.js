@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt'
-import {RegisterUsers} from '../server.js';
+
 
 async function RegisterRoutes(server, opts) {
     
@@ -33,16 +33,22 @@ async function RegisterRoutes(server, opts) {
                 // Password hashing
                 const salt = await bcrypt.genSalt(10);
                 const hashedPassword = await bcrypt.hash(password, salt);
-                
-                await RegisterUsers(username, email, hashedPassword);
-                // server.sqlite.run(`INSERT INTO users (username, email, password) VALUES ('${username}', '${email}', '${hashedPassword}');`);
-                // Protecao caso algum username ou email ja estiver a ser usado
-        
+
+                await server.registerUsers(username, email, hashedPassword);
             } catch(err) {
-                response.status(500).send({message: `${err}`})
+
+                (err.status) ? 
+                response.status(err.status).send({message: `${err.message}`}) : response.status(500).send({message: `${err}`});
+                // if (err.status) {
+                //     // User ou email ja existe 409
+                //     // Ver se faco o schema depois
+                //     response.status(err.status).send({message: `${err.message}`});
+                // } else {
+                //     // Se uma das funcoes dar erro genSalt ou o hash 500
+                //     response.status(500).send({message: `${err}`})
+                // }
             }
-        
-            
+            // Ver se coloco a resosta dentro do throw
             response.status(201).send({message: `Successfully created user ${username} ${email}`});
         },
     });
