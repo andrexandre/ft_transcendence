@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PONGIFY</title>
+    <link rel="stylesheet" href="style.css">
+	<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div id="menu">
+        <h1 id="title">PONGIFY</h1>
+
+        <button class="main-btn" id="single">Single</button>
+        <div class="submenu hidden" id="single-menu">
+            <button class="sub-btn" id="classic">Classic</button>
+            <button class="sub-btn" id="infinity">Infinity Ball</button>
+        </div>
+
+        <button class="main-btn" id="multi">Multi</button>
+        <div class="submenu hidden" id="multi-menu">
+            <button class="sub-btn" id="tournament">Tournament</button>
+            <button class="sub-btn" id="dontPress">Don't Press</button>
+        </div>
+
+        <button class="main-btn" id="coop">Co-Op</button>
+        <div class="submenu hidden" id="coop-menu">
+            <button class="sub-btn" id="matrecos">Matrecos</button>
+            <button class="sub-btn" id="freeforall">Free For All</button>
+        </div>
+
+        <button class="main-btn" id="settings">Settings</button>
+    </div>
+
+    <canvas id="gameCanvas" class="hidden"></canvas>
+    <script type="module" src="menu.js"></script>
+    <script type="module" src="game.js"></script>
+</body>
+</html>

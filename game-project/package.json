@@ -1,0 +1,25 @@
+{
+  "name": "pongify_ftw",
+  "version": "1.0.7",
+  "description": "You got to get Ponging...",
+  "main": "server.js",
+  "scripts": {
+    "start": "tsc",
+    "dev": "node server.ts",
+    "watch": "nodemon --ext ts --exec 'npm run start && npm run dev'"
+  },
+  "type": "module",
+  "dependencies": {
+    "@fastify/cookie": "^11.0.2",
+    "@fastify/static": "^8.1.0",
+    "@fastify/websocket": "^11.0.2",
+    "fastify": "^5.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.1",
+    "better-sqlite3": "^11.8.1",
+    "nodemon": "^3.1.9",
+    "sqlite3": "^5.1.7",
+    "typescript": "^5.7.3"
+  }
+}

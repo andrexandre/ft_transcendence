@@ -7,14 +7,46 @@ services:
     build: 
       context: ./backend/user/conf
     ports:
-      - 3000:3000
+      - "3000:3000"
     volumes:
       - ./backend/:/backend/:rw #Vai guardar na home 
     networks:
       - ft_transcendence
 
+  game:
+    image: pongify
+    container_name: pongify
+    environment:
+      - NODE_ENV=PRODUCTION
+    volumes:
+      - ./game-project:/pong_vol/game-project/:rw
+    ports:
+      - "5000:5000"
+    build: ./game-project/
+    networks:
+      - ft_transcendence
+
+  gateway:
+    image: gateway-api
+    container_name: gateway-api
+    build: 
+      context: ./backend/Gateway/conf
+    ports:
+      - "7000:7000"
+    volumes:
+      - ./backend/Gateway:/backend/:rw #Vai guardar na home 
+    networks:
+      - ft_transcendence
+
+#   nginx:
+#     image: nginx
+#     container_name: nginx
+#     ports:
+#       - "9000:9000"
+#     volumes:
+#       - ./frontend/src:/usr/share/nginx/html:ro
+#       - ./frontend/nginx.conf:/etc/nginx/nginx.conf:ro
 
 networks:
   ft_transcendence:
-    name: ft_transcendence
     driver: bridge

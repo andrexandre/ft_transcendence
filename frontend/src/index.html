@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Dashboard</title>
+	<link rel="stylesheet" href="tw.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+	<style>
+		body {
+			background-color: whitesmoke;
+		}
+
+		main {
+			display: grid;
+			grid-template-areas:
+				"sidebar profile ad"
+				"sidebar stats friends";
+			grid-template-columns: 200px 3fr 4fr;
+			grid-template-rows: auto auto;
+			height: 100vh;
+			padding: 1rem;
+		}
+
+		.dash-component {
+			color: dimgray;
+			border-color: dimgray;
+			border: 2px dashed;
+			border-radius: 1.5rem;
+			margin: 10px;
+			text-align: center;
+		}
+		.sidebar-component {
+			display: flex;
+			padding: 0.75rem;
+			border-radius: 2rem;
+			justify-content: space-between;
+			transition: background-color 0.2s;
+		}
+		.sidebar-component:hover {
+			background-color: var(--color-gray-300);
+		}
+
+		#sidebar { grid-area: sidebar; }
+		#profile { grid-area: profile; }
+		#ad { grid-area: ad; }
+		#stats { grid-area: stats; }
+		#friends { grid-area: friends; }
+		#profile {
+			text-align: center;
+		}
+	</style>
+</head>
+
+<body>
+	<main>
+		<aside id="sidebar" class="dash-component">
+			<ul class="flex flex-col h-full">
+				<li>
+					<a href="#"
+						class="sidebar-component">
+						<i class="content-center fa-solid fa-home"></i>
+						<span class="ms-3">Home</span>
+					</a>
+				</li>
+				<li>
+					<a href="#"
+						class="sidebar-component">
+						<i class="content-center fa-solid fa-message"></i>
+						<span class="ms-3">Chat</span>
+					</a>
+				</li>
+				<li>
+					<a href="http://127.0.0.1:5000"
+						class="sidebar-component">
+						<i class="content-center fa-solid fa-gamepad"></i>
+						<span class="ms-3">Game</span>
+					</a>
+				</li>
+				<li>
+					<a href="#"
+						class="sidebar-component">
+						<i class="content-center fa-solid fa-bell"></i>
+						<span class="ms-3">Notifications</span>
+					</a>
+				</li>
+				<li style="margin-top: auto;">
+					<a href="#"
+						class="sidebar-component">
+						<i class="content-center fa-solid fa-gear"></i>
+						<span class="ms-3">Settings</span>
+					</a>
+				</li>
+			</ul>
+		</aside>
+		<div id="profile" class="dash-component">
+			<!-- add grid grid-rows-2 -->
+			<div class="flex">
+				<!-- <img class="m-10 rounded-full w-50 h-50 shadow-xl shadow-gray-500 border-2" src="https://picsum.photos/id/237/200"> -->
+				<!-- <h1 class="self-center">Roof roof mfer</h1> -->
+			</div>
+			<style>
+				#tmp {
+					justify-content: center;
+					align-items: center;
+				}
+			</style>
+			<p id="tmp" class="flex">Brother this is other stats</p>
+		</div>
+		<div id="ad" class="dash-component">game ad</div>
+		<div id="stats" class="dash-component">stats</div>
+		<div id="friends" class="dash-component">friends</div>
+	</main>
+</body>
+
+</html>

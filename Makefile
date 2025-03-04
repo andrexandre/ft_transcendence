@@ -7,24 +7,18 @@ MAGENTA		:= \033[1;35m
 CYAN		:= \033[1;36m
 WHITE		:= \033[1;37m
 
-NAME = inception
-
 build-up:
-	docker compose up --build 
+	docker compose up --build
 
-build:
+build: setup
 	docker compose build 
 
-# Run docker-compose and create the containers
 up:
 	docker compose up
 
 down:
-	docker compose down
-	sudo rm -rf ./backend/user/userManagement/node_modules/
-	make rmv
+	docker compose down -v
 
-# Show the status of the infrastructure 
 status:
 	@echo "$(GREEN)Containers status$(END)\n"
 	@docker ps -a
@@ -38,14 +32,62 @@ status:
 	@docker network ls
 	@echo
 
-destroy:
-	docker compose down
-	rm -rf ./backend/userManagement/node_modules
-	make rmi
-	make rmv
+destroy: down rmi
 
 rmi:
-	docker rmi $$(docker images -a -q)
+	docker rmi -f $$(docker images -a -q)
 
 rmv:
 	docker volume rm $$(docker volume ls -q)
+
+API-DIR = backend/Gateway
+
+setup:
+	cd frontend ; npm install ; npx tsc
+	echo "JWT_SECRET_LOADER=pVSOWeTXrAddkz/YCSR2nDybdRQfwOtKZxjecJ5L0GY=\nPORT=7000" > $(API-DIR)/.env
+	echo 'PORT=3000' > backend/user/conf/.env
+
+env-clean:
+	-rm -r $(API-DIR)/.env 2> /dev/null
+	-rm -r backend/user/conf/.env 2> /dev/null
+
+re: down db-clean build-up
+
+rep: destroy db-clean build-up
+
+DB-PATH = backend/user/userManagement/user.db
+
+DB-NAME = users
+
+server-up:
+	cd frontend/src ; npm run tsc & npm run vite
+
+server-upd:
+	cd frontend/src ; npx vite --host 127.0.0.1 --port 5500 --open register.html &
+	cd frontend/src ; npx tsc --watch &
+
+server-down:
+	pkill -2 -f 'vite --host 127.0.0.1 --port 5500 --open register.html'
+	pkill -2 -f 'tsc --watch'
+
+db-clean:
+	sqlite3 $(DB-PATH) "delete from $(DB-NAME);"
+
+list-users:
+	sqlite3 $(DB-PATH) "select * from $(DB-NAME);"
+
+USER = as
+
+rm-user:
+	sqlite3 $(DB-PATH) 'delete from $(DB-NAME) where username = "$(USER)";'
+
+# this is used to clean up the whole docker ecosystem
+system-prune:
+	-docker stop $$(docker ps -qa)
+	-docker system prune -f -a --volumes
+
+# this is useful when root permissions are required to delete files
+# note: this removes the contents of the specified folder
+rm-rf:
+	@read -p "rm -rf $$PWD/" folder;\
+	docker run --rm -v ./$$folder:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
