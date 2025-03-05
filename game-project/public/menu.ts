@@ -1,25 +1,33 @@
 import { startSingleClassic } from "./game.js";
 
-
 const menu = document.getElementById("menu") as HTMLDivElement;
 const gameCanvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
 
-// Main buttons
+// ✅ Main buttons
 const singleBtn = document.getElementById("single") as HTMLButtonElement;
 const multiBtn = document.getElementById("multi") as HTMLButtonElement;
 const coopBtn = document.getElementById("coop") as HTMLButtonElement;
+const settingsBtn = document.getElementById("settings") as HTMLButtonElement;
 
-// Submenus
+// ✅ Submenus
 const singleMenu = document.getElementById("single-menu") as HTMLDivElement;
 const multiMenu = document.getElementById("multi-menu") as HTMLDivElement;
 const coopMenu = document.getElementById("coop-menu") as HTMLDivElement;
+const settingsMenu = document.getElementById("settings-menu") as HTMLDivElement;
 
-// Submenu buttons
+// ✅ Submenu buttons
 const classicBtn = document.getElementById("classic") as HTMLButtonElement;
 const infinityBtn = document.getElementById("infinity") as HTMLButtonElement;
+const saveSettingsBtn = document.getElementById("save-settings") as HTMLButtonElement;
 
+// ✅ Settings fields
+const difficultySelect = document.getElementById("difficulty") as HTMLSelectElement;
+const tableSizeSelect = document.getElementById("table-size") as HTMLSelectElement;
+const soundSelect = document.getElementById("sound") as HTMLSelectElement;
 
-// Function to toggle submenus
+/** 
+ * ✅ Function to toggle a submenu 
+ */
 function toggleMenu(selectedMenu: HTMLDivElement) {
     console.log("Toggling menu:", selectedMenu.id);
 
@@ -27,35 +35,40 @@ function toggleMenu(selectedMenu: HTMLDivElement) {
     document.querySelectorAll(".submenu").forEach((menu) => {
         if (menu !== selectedMenu) {
             menu.classList.remove("expanded");
+            menu.classList.add("hidden"); // 🔹 Hide other menus
         }
     });
-    
-    // Toggle the clicked submenu
+
     if (selectedMenu.classList.contains("expanded")) {
-        console.log("Menu is already expanded, collapsing...");
+        console.log("🔽 Closed");
         selectedMenu.classList.remove("expanded");
+        selectedMenu.classList.add("hidden"); // 🔹 Hide when collapsed
     } else {
-        console.log("Expanding menu...");
+        console.log("🔼 Opened");
         selectedMenu.classList.add("expanded");
+        selectedMenu.classList.remove("hidden"); // 🔹 Show when expanded
     }
 }
 
-// Collapse menus when clicking outside
+
+// ✅ Collapse menus when clicking outside
 document.addEventListener("click", (event) => {
     const isInsideMenu = (event.target as HTMLElement).closest("#menu");
     
     if (!isInsideMenu) {
         console.log("Click outside, collapsing menus.");
-        document.querySelectorAll(".submenu").forEach(menu => menu.classList.remove("expanded"));
+        document.querySelectorAll(".submenu").forEach(menu => menu.classList.add("hidden"));
     }
 });
 
-// Event listeners for toggling submenus
+// ✅ Event listeners for toggling submenus
 singleBtn.addEventListener("click", () => toggleMenu(singleMenu));
 multiBtn.addEventListener("click", () => toggleMenu(multiMenu));
 coopBtn.addEventListener("click", () => toggleMenu(coopMenu));
+settingsBtn.addEventListener("click", () => toggleMenu(settingsMenu));
 
 
+// ✅ Fetch user data when menu loads
 document.addEventListener("DOMContentLoaded", async () => {
     console.log("📌 Menu Loaded, checking user...");
 
@@ -81,13 +94,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 });
 
-// ✅ Helper function to get cookies
+/** 
+ * ✅ Helper function to get cookies
+ */
 function getCookie(name: string): string | null {
     const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`));
     return match ? match[2] : null;
 }
 
-// ✅ Check if the user exists in `db_game`, if not create it
+/** 
+ * ✅ Check if the user exists in `db_game`, if not create it
+ */
 async function checkOrCreateUser(username: string) {
     try {
         const response = await fetch(`/get-user?username=${username}`);
@@ -100,12 +117,11 @@ async function checkOrCreateUser(username: string) {
     }
 }
 
-// Game Mode Listeners
+// ✅ Start game & pass username
 classicBtn.addEventListener("click", (event) => {
     const username = sessionStorage.getItem("username");
     console.log(`🎯 Starting game for: ${username}`);
     event.stopPropagation();
-    console.log("🔥 Classic button clicked! Starting game...");
     
     if (username) {
          // Hide menu, show game
@@ -117,4 +133,18 @@ classicBtn.addEventListener("click", (event) => {
     } else {
         console.error("❌ No username found!");
     }
+});
+
+// ✅ Save Settings (For now, just logs the values)
+saveSettingsBtn.addEventListener("click", () => {
+    const difficulty = difficultySelect.value;
+    const tableSize = tableSizeSelect.value;
+    const sound = soundSelect.value;
+
+    console.log("🎮 Settings Saved:");
+    console.log("➡ Difficulty:", difficulty);
+    console.log("➡ Table Size:", tableSize);
+    console.log("➡ Sound:", sound);
+    
+    // Future: Send settings to the server when implementing persistence
 });

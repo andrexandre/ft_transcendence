@@ -1,5 +1,5 @@
 export function startSingleClassic(username: string) {
-    console.log(`🎯 Game started for: ${username}`); // Debugging log
+    console.log(`🎯 Game started for: ${username}`);
     const gameCanvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
     const ctx = gameCanvas.getContext("2d");
     const menu = document.getElementById("menu") as HTMLDivElement;

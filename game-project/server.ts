@@ -57,6 +57,28 @@ gamefast.get<GetUserRequest>("/get-user", async (request, reply) => {
     );
 });
 
+// gamefast.post("/update-user-settings", async (request, reply) => {
+//     const { username } = request.query;
+//     const { difficulty, tableSize, sound } = request.body;
+
+//     if (!username) {
+//         return reply.status(400).send({ error: "No username provided" });
+//     }
+
+//     db_game.run(
+//         "UPDATE users SET user_set_dificulty = ?, user_set_tableSize = ?, user_set_sound = ? WHERE user_name = ?",
+//         [difficulty, tableSize, sound, username],
+//         (err) => {
+//             if (err) {
+//                 return reply.status(500).send({ error: "Database error", details: err.message });
+//             }
+//             console.log(`✅ Updated settings for ${username}`);
+//             reply.send({ success: true });
+//         }
+//     );
+// });
+
+
 // Serve `index.html`
 gamefast.get("/", async (request, reply) => {
     return reply.sendFile("index.html");
