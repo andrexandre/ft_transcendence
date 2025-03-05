@@ -24,7 +24,7 @@ async function getUsers() {
 	return new Promise((resolve, reject) => {
 	  const content = [];
   
-	  server.sqlite.each("SELECT id, username, email, password FROM users", (err, row) => {
+	  server.sqlite.each("SELECT * FROM users", (err, row) => {
 		if (err) {
 		  reject(err); // Rejeita a Promise em caso de erro
 		} else {
@@ -32,7 +32,8 @@ async function getUsers() {
 			id: `${row.id}`,
 			username: `${row.username}`,
 			email: `${row.email}`,
-			password: `${row.password}`
+			password: `${row.password}`,
+			is_online: `${row.is_online}`
 		  });
 		}
 	  }, (err, numRows) => {
