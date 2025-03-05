@@ -65,6 +65,10 @@ server-down:
 	pkill -2 -f 'vite --host 127.0.0.1 --port 5500'
 	pkill -2 -f 'tsc --watch'
 
+server-clean:
+	rm -rf frontend/node_modules
+	find frontend -type f -iname '*.js' -delete
+
 db-clean:
 	sqlite3 $(DB-PATH) "delete from $(DB-NAME);"
 
