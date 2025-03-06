@@ -21,18 +21,6 @@ document.addEventListener('keydown', (event: KeyboardEvent) => {
 	}
 });
 
-function getCookie(name: string): string | undefined {
-	const cookies = document.cookie;
-	const cookieArray = cookies.split(';');
-
-	for (let cookie of cookieArray) {
-		if (cookie.startsWith(name + '=')) {
-			return cookie.substring(name.length + 1);
-		}
-	}
-	return undefined;
-}
-
 function showToast(success: boolean, message: string | null): void {
 	const displayDuration = 2000;
 	const fadeOutDuration = 1000;
