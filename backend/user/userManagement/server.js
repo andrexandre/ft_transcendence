@@ -1,7 +1,7 @@
 import fastify from "fastify";
 import fastifySqlite from './plugins/db_plugin.js';
-import RegisterRoutes from "./routes/registerRoutes.js";
-import LoginRoutes from "./routes/loginRoutes.js";
+import RegisterRoutes from "./routes/auth/registerRoutes.js";
+import LoginRoutes from "./routes/auth/loginRoutes.js";
 import fs from 'fs/promises';
 import url from 'url';
 import path from 'path';
@@ -33,7 +33,8 @@ async function getUsers() {
 			username: `${row.username}`,
 			email: `${row.email}`,
 			password: `${row.password}`,
-			is_online: `${row.is_online}`
+			is_online: `${row.is_online}`,
+			friends: JSON.parse(row.friends)
 		  });
 		}
 	  }, (err, numRows) => {
@@ -45,6 +46,49 @@ async function getUsers() {
 	  });
 	});
 }
+
+// {
+// 	"request": true,
+// 	"requestorID": 123,
+// 	"requesteeID": 456,
+// 	"requestStatus": ["PENDING", "ACCEPTED", "REJECTED"]
+// },
+
+async function updateFriendsRequest(user1, user2) {
+	return new Promise((resolve, reject) => {
+	//   const querieson = {};
+	  server.sqlite.run(`UPDATE users 
+		SET friends = json_insert(friends, '$[#]',
+		json_object('request', 'true', 'requestorID', '${user2.id}', 'requesteeID', '${user1.id}', 'requestStatus', "PENDING")) 
+		WHERE id = ?;`, [user1.id], (err, row) => {
+		if (err) {
+		  reject(err); // Rejeita a Promise em caso de erro
+		} else {
+		  resolve('');
+		}
+	  });
+	});
+}
+
+
+server.post('/friend-request', async (request, response) => {
+
+	const { requesterUsername , requesteeUsername } = request.body;
+
+	try {
+		const requestee = await server.getUserByUsername(requesteeUsername);
+		const requester = await server.getUserByUsername(requesterUsername);
+
+		await updateFriendsRequest(requestee, requester);
+	} catch(err) {
+		console.log(err);
+		response.status(400).send({message: err});
+	}
+	
+	response.status(200).send({message: "Request was maid sucefful"});
+	// Tenho que colocar na base de dados dos dois que um pedido foi feito
+});
+
 
 // Only for tests
 server.get('/',  async(request, response) => {

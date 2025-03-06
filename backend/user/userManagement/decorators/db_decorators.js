@@ -6,8 +6,8 @@ export async function registerUsersDecorator(username, email, password) {
 		const friends = {
 			
 		};
-		const friendsJSON = JSON.stringify(friends);
-        this.sqlite.run(`INSERT INTO users (username, email, password, is_online, friends) VALUES ('${username}', '${email}', '${password}', 'FALSE', ${friendsJSON});`, (err) => {
+		const querie = `INSERT INTO users (username, email, password, is_online, friends) VALUES ('${username}', '${email}', '${password}', 'FALSE', json_array());`;
+        this.sqlite.run(querie, (err) => {
             if (err) {
                 reject({status: 409, message: 'Username or email already exist!'});
             } else {
