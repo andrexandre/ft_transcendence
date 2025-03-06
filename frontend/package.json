@@ -2,7 +2,6 @@
   "name": "frontend",
   "version": "1.0.0",
   "type": "module",
-  "main": "index.js",
   "scripts": {
     "prod": "npx tsc ; npx vite src --host 127.0.0.1 --port 5500 --open register.html",
     "tsc": "npx tsc --watch",
