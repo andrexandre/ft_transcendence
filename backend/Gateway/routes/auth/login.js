@@ -1,8 +1,4 @@
-import fastifyCookie from '@fastify/cookie'
-
 function loginRoute(fastify, options) {
-    
-    fastify.register(fastifyCookie);
 
     fastify.post('/login', async (request, reply) => {
         const { username, password } = request.body;
@@ -18,14 +14,27 @@ function loginRoute(fastify, options) {
             body: JSON.stringify(payload)
         });
         if(response.status == 200){
-            reply.status(response.status).setCookie('username', payload.username, {
-                path: '/',
-                httpOnly: true,
-                maxAge: 3600,
+            const data = {
+                username: payload.username,
+                userId: 2
+            };
+            const resStatus = await fetch('http://gateway-api:7000/api/genToken', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
             });
-            return ;
+            if(resStatus.ok){
+                const data = await resStatus.json();
+                const token = data.token;
+                reply.status(resStatus.status).setCookie("token", token);
+                return ;        
+            }
         }
-        reply.status(response.status);
+        else{
+            reply.status(response.status)
+        }
     });
 }
 

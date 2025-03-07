@@ -2,13 +2,28 @@ import Fastify from 'fastify'
 import registerRoutes from './routes/auth/register.js';
 import loginRoutes from './routes/auth/login.js';
 import gameRoutes from './routes/game/player-data.js';
+import jwtPlugin  from './routes/auth/jwtGenerator.js';
+import fastifyJwtToken from '@fastify/jwt';
+import fastifyCookie from '@fastify/cookie';
 import cors from '@fastify/cors';
+import dotenv from 'dotenv';
 
-const fastify = Fastify();
+dotenv.config();
+const fastify = Fastify({
+  logger: {
+    level: 'debug',
+    timestamp: true, 
+  },
+});
 
 fastify.register(registerRoutes);
 fastify.register(loginRoutes);
 fastify.register(gameRoutes);
+fastify.register(jwtPlugin);
+fastify.register(fastifyCookie);
+fastify.register(fastifyJwtToken, {
+  secret: process.env.JWT_SECRET_KEY
+});
 
 fastify.register(cors, {
   origin: ['http://127.0.0.1:5500', 'http://pongify:5000'], // Allow frontend origin
@@ -16,12 +31,11 @@ fastify.register(cors, {
   credentials: true // Allow cookies if needed
 });
 
-// Define a basic route
-fastify.get('/', async (request, reply) => {
-  return { message: 'Hello, Fastify!' };
-});
-
 // Start the server
-fastify.listen({ port: 7000, host: '0.0.0.0' }, () => {
+fastify.listen({ port: 7000, host: '0.0.0.0' }, (err) => {
+  if(err){
+    fastify.log.error(err);
+    process.exit(1);
+  }
   console.log('🚀 Server running at http://localhost:7000');
 });
