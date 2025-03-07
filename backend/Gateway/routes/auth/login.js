@@ -29,4 +29,4 @@ function loginRoute(fastify, options) {
     });
 }
 
-module.exports = loginRoute;
+export default loginRoute;

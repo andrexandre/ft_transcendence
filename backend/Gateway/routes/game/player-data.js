@@ -7,4 +7,5 @@ function gameData(fastify, options) {
         reply.status(200).setCookie('username', 'Manel');
     });
 }
-module.exports = gameData;
+
+export default gameData;
