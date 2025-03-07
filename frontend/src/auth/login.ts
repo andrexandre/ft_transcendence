@@ -1,4 +1,3 @@
-// import { navigate } from "../mediator.js"
 
 const login = {
 	getHTML: () => /*html*/`

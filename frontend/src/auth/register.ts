@@ -1,4 +1,3 @@
-// import { navigate } from "../mediator.js"
 
 const register = {
 	getHTML: () => /*html*/`

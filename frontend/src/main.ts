@@ -1,15 +1,6 @@
-import dashboard from "./index.js"
-import login from "./auth/login.js"
-import register from "./auth/register.js"
-// import { login } from "./mediator.js"
-// import { register } from "./mediator.js"
-
-// cat mediator.ts
-// import login from "./auth/login.js"
-// import register from "./auth/register.js"
-// import navigate from "./main.js"
-
-// export { login, register, navigate };
+import dashboard from "./index"
+import login from "./auth/login"
+import register from "./auth/register"
 
 export function navigate(event: Event, path: string): void {
 	event.preventDefault();
