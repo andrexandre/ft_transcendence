@@ -1,4 +1,4 @@
-const fastifyCookie = require('@fastify/cookie')
+import fastifyCookie from '@fastify/cookie'
 
 function gameData(fastify, options) {
     fastify.register(fastifyCookie);

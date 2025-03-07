@@ -1,4 +1,4 @@
-const fastifyCookie = require('@fastify/cookie')
+import fastifyCookie from '@fastify/cookie'
 
 function loginRoute(fastify, options) {
     

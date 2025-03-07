@@ -1,8 +1,8 @@
-const fastify = require('fastify')({ logger: true });
-const registerRoutes = require('./routes/auth/register');
-const loginRoutes = require('./routes/auth/login');
-const gameRoutes = require('./routes/game/player-data');
-const cors = require('@fastify/cors');
+import fastify from ('fastify')({ logger: true });
+import registerRoutes from ('./routes/auth/register');
+import loginRoutes from ('./routes/auth/login');
+import gameRoutes from ('./routes/game/player-data');
+import cors from ('@fastify/cors');
 
 fastify.register(registerRoutes);
 fastify.register(loginRoutes);
