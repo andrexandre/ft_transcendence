@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 #toast-default {
-	@apply fixed border-2 top-4 right-4 opacity-0;
+	@apply flex w-xs p-4 bg-white rounded-lg shadow-lg fixed border-2 top-4 right-4 opacity-0;
 }
 
 .dash-component {

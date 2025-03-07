@@ -1,3 +1,4 @@
+import { showToast } from "../lib"
 
 const register = {
 	getHTML: () => /*html*/`

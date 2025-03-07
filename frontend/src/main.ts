@@ -1,6 +1,12 @@
 import dashboard from "./index"
 import login from "./auth/login"
 import register from "./auth/register"
+import { showToast } from "./lib"
+import "./entrypoint"
+
+// import { dashboard, login, register } from "./pages" // ./pages/index
+// import "./styles"
+// import { lib } from "./utils"
 
 export function navigate(event: Event, path: string): void {
 	event.preventDefault();

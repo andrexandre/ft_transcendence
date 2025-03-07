@@ -1,3 +1,90 @@
+// this should work with the 'export default lib;' from lib.ts
+// import * as lib from "./lib"
+
+// // export default abstract class Page {
+// abstract class Page {
+// 	protected root: HTMLElement | undefined = undefined;
+// 	public mounted: boolean = false;
+// 	private cleanupHandlers: (() => void)[] = []
+// 	// public/protected/private keyword inside constructor parameters also makes that variable a class instance property
+// 	constructor(public readonly name: string, public readonly path: string) {
+// 	}
+
+// 	protected abstract onMount(): void;
+// 	protected abstract onCleanup(): void;
+
+// 	addCleanupHandler(fn: () => void) {
+// 		this.cleanupHandlers.push(fn);
+// 	}
+// 	cleanup() {
+// 		this.cleanupHandlers.forEach(handler => {
+// 			handler();
+// 		})
+// 		this.cleanupHandlers = [];
+// 		this.mounted = false;
+// 		this.root?.remove();
+// 		this.root = undefined;
+// 		this.onCleanup();
+// 	}
+// 	abstract getHtml(): string;
+// 	mount() {
+// 		const content = this.getHtml();
+// 		this.root = document.createElement('div');
+// 		this.root.id = `page-${this.name}`;
+// 		this.root.classList.add('w-full', 'h-full');
+// 		this.root.innerHTML = content;
+// 		this.mounted = true;
+// 		this.onMount();
+// 		return this.root;
+// 	}
+// }
+
+// class Dashboard extends Page {
+// 	constructor() {
+// 		super("dashboard", '/');
+// 		// super is Page class instance
+// 		// calling calls constructor, indexing uses its methods
+
+// 	}
+// 	onMount(): void {
+// 		console.log("I'm in dashboard!")
+// 		this.setSidebarToggler();
+// 	}
+// 	onCleanup(): void { }
+// 	getHtml(): string {
+// 		return /*html*/`boas`;
+// 	}
+// 	setSidebarToggler() {
+// 		const sidebar = document.getElementById('sidebar');
+// 		const sidebarList = document.getElementById('sidebar-list');
+// 		const closeButton = document.getElementById('hide-button');
+
+// 		const handler = () => {
+// 			const pElements = sidebar?.querySelectorAll('p');
+// 			if (!sidebar || !sidebarList)
+// 				return lib.showToast(false, null);
+// 			pElements?.forEach(p => {
+// 				if (p.style.display === 'none') {
+// 					p.previousElementSibling?.classList.replace('fa-bars', 'fa-arrow-left');
+// 					sidebar.style.width = '200px';
+// 					p.style.display = 'block';
+// 					sidebarList.classList.remove('place-items-center');
+// 				} else {
+// 					p.previousElementSibling?.classList.replace('fa-arrow-left', 'fa-bars');
+// 					sidebar.style.width = '70px';
+// 					p.style.display = 'none';
+// 					sidebarList.classList.add('place-items-center');
+// 				}
+// 			});
+// 		}
+// 		closeButton?.addEventListener('click', handler);
+// 		this.addCleanupHandler(() => closeButton?.removeEventListener('click', handler));
+// 	}
+// }
+
+// const dash: Dashboard = new Dashboard();
+
+import { showToast } from "./lib"
 
 const dashboard = {
 	getHTML: () => /*html*/`

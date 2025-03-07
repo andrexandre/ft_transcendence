@@ -52,18 +52,16 @@ DB-PATH = backend/user/userManagement/user.db
 DB-NAME = users
 
 frontend/node_modules:
-	cd frontend ; npm install ; npx tsc
+	cd frontend ; npm install
 
 server-up: frontend/node_modules
-	cd frontend/src ; npm run tsc & npm run vite
+	cd frontend/src ; npm run vite
 
 server-upd: frontend/node_modules
 	cd frontend/src ; npx vite --host 127.0.0.1 --port 5500 &
-	cd frontend/src ; npx tsc --watch &
 
 server-down:
 	pkill -2 -f 'vite --host 127.0.0.1 --port 5500'
-	pkill -2 -f 'tsc --watch'
 
 server-clean:
 	rm -rf frontend/node_modules
