@@ -1,9 +1,10 @@
+import '@fortawesome/fontawesome-free/css/all.min.css';
+import "./tw.css"
 import dashboard from "./index"
 import login from "./auth/login"
 import register from "./auth/register"
 import { showToast } from "./lib"
 import "./entrypoint"
-// import "./tw.css"
 
 // import { dashboard, login, register } from "./pages" // ./pages/index
 // import "./styles"
