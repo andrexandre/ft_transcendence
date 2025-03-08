@@ -55,17 +55,16 @@ frontend/node_modules:
 	cd frontend ; npm install
 
 server-up: frontend/node_modules
-	cd frontend/src ; npm run vite
+	cd frontend ; npx vite
 
 server-upd: frontend/node_modules
-	cd frontend/src ; npx vite --host 127.0.0.1 --port 5500 &
+	cd frontend ; npx vite &
 
 server-down:
-	pkill -2 -f 'vite --host 127.0.0.1 --port 5500'
+	pkill -2 -f '/.bin/vite'
 
 server-clean:
-	rm -rf frontend/node_modules
-	find frontend -type f -iname '*.js' -delete
+	rm -rf frontend/node_modules frontend/build
 
 db-clean:
 	sqlite3 $(DB-PATH) "delete from $(DB-NAME);"

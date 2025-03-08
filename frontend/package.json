@@ -3,10 +3,9 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "vite": "npx vite src --host 127.0.0.1 --port 5500",
+    "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview",
-    "prune": "rm -rf node_modules package-lock.json build"
+    "preview": "vite preview"
   },
   "keywords": [],
   "author": "",
