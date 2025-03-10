@@ -8,7 +8,7 @@ export async function prepareTokenData(requestData) {
 
 export async function generateToken(payload){
     try{
-        const token = fastify.jwt.sign(payload, {expiresIn: '1h'});
+        const token = this.jwt.sign(payload, {expiresIn: '1h'});
         return token;
     } catch(err){
         console.log(err);

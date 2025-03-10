@@ -15,12 +15,11 @@ function loginRoute(fastify, options) {
             body: JSON.stringify(payload)
         });
         if(response.status == 200){
-            const payload = fastify.prepareTokenData(response);
-            const token = fastify.generateToken(payload);
+            const payload = await fastify.prepareTokenData(response);
+            const token = await fastify.generateToken(payload);
             reply.status(200).setCookie("token", token);
         }
         else{
-            //console.log("Error");
             reply.status(response.status);
         }
     });
