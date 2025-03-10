@@ -10,11 +10,14 @@ WHITE		:= \033[1;37m
 build-up:
 	docker compose up --build
 
-build: setup
+build:
 	docker compose build 
 
 up:
 	docker compose up
+
+upd:
+	docker compose up -d
 
 down:
 	docker compose down -v
@@ -40,17 +43,6 @@ rmi:
 rmv:
 	docker volume rm $$(docker volume ls -q)
 
-API-DIR = backend/Gateway
-
-setup:
-	cd frontend ; npm install ; npx tsc
-	echo "JWT_SECRET_LOADER=pVSOWeTXrAddkz/YCSR2nDybdRQfwOtKZxjecJ5L0GY=\nPORT=7000" > $(API-DIR)/.env
-	echo 'PORT=3000' > backend/user/conf/.env
-
-env-clean:
-	-rm -r $(API-DIR)/.env 2> /dev/null
-	-rm -r backend/user/conf/.env 2> /dev/null
-
 re: down db-clean build-up
 
 rep: destroy db-clean build-up
@@ -59,16 +51,20 @@ DB-PATH = backend/user/userManagement/user.db
 
 DB-NAME = users
 
-server-up:
-	cd frontend/src ; npm run tsc & npm run vite
+frontend/node_modules:
+	cd frontend ; npm install
 
-server-upd:
-	cd frontend/src ; npx vite --host 127.0.0.1 --port 5500 --open register.html &
-	cd frontend/src ; npx tsc --watch &
+server-up: frontend/node_modules
+	cd frontend ; npx vite
+
+server-upd: frontend/node_modules
+	cd frontend ; npx vite &
 
 server-down:
-	pkill -2 -f 'vite --host 127.0.0.1 --port 5500 --open register.html'
-	pkill -2 -f 'tsc --watch'
+	pkill -2 -f '/.bin/vite'
+
+server-clean:
+	rm -rf frontend/node_modules frontend/build
 
 db-clean:
 	sqlite3 $(DB-PATH) "delete from $(DB-NAME);"
