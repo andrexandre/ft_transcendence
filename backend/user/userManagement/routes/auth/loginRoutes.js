@@ -1,4 +1,5 @@
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 
 
 async function LoginRoutes(server, opts) {
@@ -19,7 +20,8 @@ async function LoginRoutes(server, opts) {
                 200: {
                     type: 'object',
                     properties: {
-                        message: { type: 'string' },
+                        userID: { type: 'string' },
+                        username: { type: 'string' },
                     }
                 },
             },
@@ -28,16 +30,27 @@ async function LoginRoutes(server, opts) {
         handler:  async (request, response) => {
 
             const { username, password } = request.body;
-            let user;
+			let resContent;
+            // let user;
+            // let hash;
             try {
-                user = await server.getUserByUsername(username);
-                //console.log(user);
+                const user = await server.getUserByUsername(username);
                 const login = await bcrypt.compare(password, user.password);
 
                 if (login != true) {
                     throw({status: 401, message: 'Wrong password!'});
                 } else {
 					await server.updateUserStatus(user.username);
+
+					resContent = {
+						userID: `${user.id}`,
+						username: `${user.username}`
+					};
+					
+					// const data = JSON.stringify(Object.keys(tmpRes).sort());
+					// hash = crypto.createHash('sha256').update(data).digest('hex');
+
+					// console.log(hash);
 					// Ter que mudar o status do online para TRUE
                     // Criar os token aqui e colocar eles nas cookies
                 }
@@ -52,7 +65,7 @@ async function LoginRoutes(server, opts) {
                 // response.status(404).send({message: err});
             }
 
-            response.status(200).send({message: `Welcome to my Transcendence ${user.username}`});
+            response.status(200).send(resContent);
         },
     });
 }

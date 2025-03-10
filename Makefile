@@ -98,5 +98,5 @@ rm-rf:
 
 
 alex:
-	docker compose build user_management
+#	docker compose build user_management
 	docker compose up user_management
