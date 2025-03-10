@@ -20,6 +20,7 @@ async function loadQueryFile(fileName) {
 }  
 
 
+
 async function getUsers() {
 	return new Promise((resolve, reject) => {
 	  const content = [];
@@ -54,13 +55,14 @@ async function getUsers() {
 // 	"requestStatus": ["PENDING", "ACCEPTED", "REJECTED"]
 // },
 
-async function updateFriendsRequest(user1, user2) {
+async function updateFriendsRequest(user1, user2, id) {
 	return new Promise((resolve, reject) => {
 	//   const querieson = {};
+
 	  server.sqlite.run(`UPDATE users 
 		SET friends = json_insert(friends, '$[#]',
 		json_object('request', 'true', 'requestorID', '${user2.id}', 'requesteeID', '${user1.id}', 'requestStatus', "PENDING")) 
-		WHERE id = ?;`, [user1.id], (err, row) => {
+		WHERE id = ?;`, [id], (err, row) => {
 		if (err) {
 		  reject(err); // Rejeita a Promise em caso de erro
 		} else {
@@ -79,7 +81,9 @@ server.post('/friend-request', async (request, response) => {
 		const requestee = await server.getUserByUsername(requesteeUsername);
 		const requester = await server.getUserByUsername(requesterUsername);
 
-		await updateFriendsRequest(requestee, requester);
+		await updateFriendsRequest(requestee, requester, requestee.id);
+		await updateFriendsRequest(requestee, requester, requester.id);
+		
 	} catch(err) {
 		console.log(err);
 		response.status(400).send({message: err});
