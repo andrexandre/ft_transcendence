@@ -1,5 +1,5 @@
 import Fastify from 'fastify'
-import { generateToken, prepareTokenData } from './decorators/prepareToken.js';
+import { generateToken, prepareTokenData, verifyToken } from './decorators/prepareToken.js';
 import registerRoutes from './routes/auth/register.js';
 import loginRoutes from './routes/auth/login.js';
 import gameRoutes from './routes/game/player-data.js';
@@ -18,13 +18,18 @@ const fastify = Fastify({
 
 fastify.decorate('prepareTokenData', prepareTokenData);
 fastify.decorate('generateToken', generateToken);
+fastify.decorate('verifyToken', verifyToken);
 
 fastify.register(registerRoutes);
 fastify.register(loginRoutes);
 fastify.register(gameRoutes);
 fastify.register(fastifyCookie);
 fastify.register(fastifyJwt, {
-  secret: process.env.JWT_SECRET_KEY
+  secret: process.env.JWT_SECRET_KEY,
+  cookie: {
+    cookieName: 'token',
+    signed: false
+  }
 });
 
 fastify.register(cors, {

@@ -1,9 +1,5 @@
-import fastifyCookie from '@fastify/cookie'
-
 function gameData(fastify, options) {
-    fastify.register(fastifyCookie);
-
-    fastify.get('/set-cookie', async (request, reply) => {
+    fastify.get('/set-cookie',{onRequest: [fastify.verifyToken]}, async (request, reply) => {
         reply.status(200).setCookie('username', 'Manel');
     });
 }
