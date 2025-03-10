@@ -2,8 +2,7 @@ import Fastify from 'fastify'
 import registerRoutes from './routes/auth/register.js';
 import loginRoutes from './routes/auth/login.js';
 import gameRoutes from './routes/game/player-data.js';
-import jwtPlugin  from './routes/auth/jwtGenerator.js';
-import fastifyJwtToken from '@fastify/jwt';
+import fastifyJwt from '@fastify/jwt';
 import fastifyCookie from '@fastify/cookie';
 import cors from '@fastify/cors';
 import dotenv from 'dotenv';
@@ -19,9 +18,8 @@ const fastify = Fastify({
 fastify.register(registerRoutes);
 fastify.register(loginRoutes);
 fastify.register(gameRoutes);
-fastify.register(jwtPlugin);
 fastify.register(fastifyCookie);
-fastify.register(fastifyJwtToken, {
+fastify.register(fastifyJwt, {
   secret: process.env.JWT_SECRET_KEY
 });
 
