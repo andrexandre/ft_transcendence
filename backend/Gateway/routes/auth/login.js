@@ -1,4 +1,3 @@
-import { generateToken } from "../../plugins/jwtGenerator.js";
 
 function loginRoute(fastify, options) {
 
@@ -8,7 +7,6 @@ function loginRoute(fastify, options) {
             username: username,
             password: password
         };
-        const token = generateToken(fastify, payload.username, 1);
         const response = await fetch('http://user_management:3000/api/login', {
             method: 'POST',
             headers: {
@@ -17,9 +15,12 @@ function loginRoute(fastify, options) {
             body: JSON.stringify(payload)
         });
         if(response.status == 200){
-            console.log(1);      
+            const payload = fastify.prepareTokenData(response);
+            const token = fastify.generateToken(payload);
+            reply.status(200).setCookie("token", token);
         }
         else{
+            //console.log("Error");
             reply.status(response.status);
         }
     });

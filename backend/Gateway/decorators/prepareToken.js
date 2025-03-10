@@ -1,0 +1,16 @@
+export async function prepareTokenData(requestData) {
+    const data = await requestData.json();
+    const username = data.username;
+    const userId = data.userID;
+    const payload = {username, userId};
+    return payload;
+}
+
+export async function generateToken(payload){
+    try{
+        const token = fastify.jwt.sign(payload, {expiresIn: '1h'});
+        return token;
+    } catch(err){
+        console.log(err);
+    }
+}

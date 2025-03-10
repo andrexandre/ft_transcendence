@@ -1,4 +1,5 @@
 import Fastify from 'fastify'
+import { generateToken, prepareTokenData } from './decorators/prepareToken.js';
 import registerRoutes from './routes/auth/register.js';
 import loginRoutes from './routes/auth/login.js';
 import gameRoutes from './routes/game/player-data.js';
@@ -14,6 +15,9 @@ const fastify = Fastify({
     timestamp: true, 
   },
 });
+
+fastify.decorate('prepareTokenData', prepareTokenData);
+fastify.decorate('generateToken', generateToken);
 
 fastify.register(registerRoutes);
 fastify.register(loginRoutes);
