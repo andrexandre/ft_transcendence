@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 {
   "dependencies": {
     "@fastify/jwt": "^9.0.4"
   }
 }
+=======
+{}
+>>>>>>> origin/dev-alex
