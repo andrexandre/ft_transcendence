@@ -39,14 +39,7 @@ async function RegisterRoutes(server, opts) {
 
                 (err.status) ? 
                 response.status(err.status).send({message: `${err.message}`}) : response.status(500).send({message: `${err}`});
-                // if (err.status) {
-                //     // User ou email ja existe 409
-                //     // Ver se faco o schema depois
-                //     response.status(err.status).send({message: `${err.message}`});
-                // } else {
-                //     // Se uma das funcoes dar erro genSalt ou o hash 500
-                //     response.status(500).send({message: `${err}`})
-                // }
+				
             }
             // Ver se coloco a resosta dentro do throw
             response.status(201).send({message: `Successfully created user ${username} ${email}`});

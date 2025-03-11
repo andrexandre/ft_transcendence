@@ -2,6 +2,7 @@ import fastify from "fastify";
 import fastifySqlite from './plugins/db_plugin.js';
 import RegisterRoutes from "./routes/auth/registerRoutes.js";
 import LoginRoutes from "./routes/auth/loginRoutes.js";
+import {friendsRoutes1} from "./routes/friends/friends.js";
 import fs from 'fs/promises';
 import url from 'url';
 import path from 'path';
@@ -55,9 +56,8 @@ async function getUsers() {
 // 	"requestStatus": ["PENDING", "ACCEPTED", "REJECTED"]
 // },
 
-async function updateFriendsRequest(user1, user2, id) {
+async function createFriendRequest(user1, user2, id) {
 	return new Promise((resolve, reject) => {
-	//   const querieson = {};
 
 	  server.sqlite.run(`UPDATE users 
 		SET friends = json_insert(friends, '$[#]',
@@ -73,25 +73,25 @@ async function updateFriendsRequest(user1, user2, id) {
 }
 
 
-server.post('/friend-request', async (request, response) => {
+// server.post('/friend-request', async (request, response) => {
 
-	const { requesterUsername , requesteeUsername } = request.body;
+// 	const { requesterUsername , requesteeUsername } = request.body;
 
-	try {
-		const requestee = await server.getUserByUsername(requesteeUsername);
-		const requester = await server.getUserByUsername(requesterUsername);
+// 	try {
+// 		const requestee = await server.getUserByUsername(requesteeUsername);
+// 		const requester = await server.getUserByUsername(requesterUsername);
 
-		await updateFriendsRequest(requestee, requester, requestee.id);
-		await updateFriendsRequest(requestee, requester, requester.id);
+// 		await updateFriendsRequest(requestee, requester, requestee.id);
+// 		await updateFriendsRequest(requestee, requester, requester.id);
 		
-	} catch(err) {
-		console.log(err);
-		response.status(400).send({message: err});
-	}
+// 	} catch(err) {
+// 		console.log(err);
+// 		response.status(400).send({message: err});
+// 	}
 	
-	response.status(200).send({message: "Request was maid sucefful"});
-	// Tenho que colocar na base de dados dos dois que um pedido foi feito
-});
+// 	response.status(200).send({message: "Request was maid sucefful"});
+// 	// Tenho que colocar na base de dados dos dois que um pedido foi feito
+// });
 
 
 // Only for tests
@@ -120,6 +120,7 @@ async function start() {
 		await server.register(fastifySqlite, { dbPath: './user.db'});
 		await server.register(RegisterRoutes);
 		await server.register(LoginRoutes);
+		await server.register(friendsRoutes1);
 		
 		server.listen(listenOptions, async () => {
 			
