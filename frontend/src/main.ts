@@ -10,6 +10,19 @@ import "./entrypoint"
 // import "./styles"
 // import { lib } from "./utils"
 
+
+// cat file.html
+// <h1>Vite + TypeScript = {{component}}</h1>
+// import file from './file.html?raw';
+// function buildHtmlFile(content: string, args: Record<string,unknown>) {	
+// 	return content.replace(/{{(.*)}}/g, (_match, arg) => {
+// 		return `${args[arg as string] || "KEY NOT FOUND"}`
+// 	})
+// }
+// document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
+// 	<div>${buildHtmlFile(file, {component: "profit?"})}</div>`
+
+
 export function navigate(event: Event, path: string): void {
 	event.preventDefault();
 	history.pushState({}, "", path);
