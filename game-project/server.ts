@@ -17,69 +17,86 @@ gamefast.register(fastifyStatic, {
     prefix: "/",
 });
 
-// ✅ Define Fastify request type for query parameters
-interface GetUserRequest {
-    Querystring: {
-        username: string;
-    };
-}
-
-// ✅ Get or Create User (Fixed)
-gamefast.get<GetUserRequest>("/get-user", async (request, reply) => {
-    const { username } = request.query;
+// ✅ Get or Create User & Send Settings
+gamefast.get("/get-user", async (request, reply) => {
+    const username = request.cookies.username;
     
-    console.log(`🔍 Checking username in db_game: ${username}`);
+    console.log(`🔍 Checking user: ${username}`);
 
     if (!username) {
-        return reply.status(400).send({ error: "No username provided" });
+        return reply.status(400).send({ error: "No username found in cookies" });
     }
 
-    db_game.get(
-        "SELECT user_name FROM users WHERE user_name = ?",
-        [username],
-        (err, row) => {
+    db_game.get("SELECT * FROM users WHERE user_name = ?", [username], (err, row) => {
+        if (err) {
+            return reply.status(500).send({ error: "Database error", details: err.message });
+        }
+
+        if (!row) {
+            console.log(`🆕 User '${username}' not found. Creating...`);
+            db_game.run(
+                "INSERT INTO users (user_name, user_set_dificulty, user_set_tableSize, user_set_sound) VALUES (?, 'normal', 'medium', 1)",
+                [username],
+                function (err) {
+                    if (err) {
+                        return reply.status(500).send({ error: "Database error" });
+                    }
+
+                    console.log(`✅ New user '${username}' created.`);
+                    return reply.send({ 
+                        user_name: username, 
+                        user_set_dificulty: "normal", 
+                        user_set_tableSize: "medium", 
+                        user_set_sound: 1 
+                    });
+                }
+            );
+            return; // 🔴 FIX: Ensure we don't send two replies!
+        } 
+
+        console.log(`✅ User '${username}' found, sending settings.`);
+        return reply.send(row); // 🔴 FIX: Add `return` to prevent multiple responses
+    });
+});
+
+
+
+
+interface SaveSettingsRequest {
+    Body: {
+        username: string;
+        difficulty: string;
+        tableSize: string;
+        sound: number;
+    };
+}
+// ✅ Save Settings (Update DB)
+gamefast.post<SaveSettingsRequest>("/save-settings", async (request, reply) => {
+    const { username, difficulty, tableSize, sound } = request.body;
+
+    if (!username) {
+        return reply.status(400).send({ error: "Username is required" });
+    }
+
+    console.log(`🔄 Updating settings for ${username}`);
+
+    db_game.run(
+        `UPDATE users SET 
+            user_set_dificulty = ?, 
+            user_set_tableSize = ?, 
+            user_set_sound = ?
+         WHERE user_name = ?`,
+        [difficulty, tableSize, sound, username],
+        function (err) {
             if (err) {
-                console.error("❌ Database Error:", err.message);
                 return reply.status(500).send({ error: "Database error", details: err.message });
             }
-            if (!row) {
-                console.log(`🆕 User '${username}' not found. Creating...`);
-                db_game.run("INSERT INTO users (user_name) VALUES (?)", [username], (err) => {
-                    if (err) return reply.status(500).send({ error: "Database error" });
-                    console.log(`✅ User '${username}' created in db_game.`);
-                    return reply.send({ exists: false }); // User was created
-                });
-            } else {
-                console.log(`✅ User '${username}' already exists in db_game.`);
-                reply.send({ exists: true }); // User exists
-            }
+            reply.send({ message: "✅ Settings updated successfully!" });
         }
     );
 });
 
-// gamefast.post("/update-user-settings", async (request, reply) => {
-//     const { username } = request.query;
-//     const { difficulty, tableSize, sound } = request.body;
-
-//     if (!username) {
-//         return reply.status(400).send({ error: "No username provided" });
-//     }
-
-//     db_game.run(
-//         "UPDATE users SET user_set_dificulty = ?, user_set_tableSize = ?, user_set_sound = ? WHERE user_name = ?",
-//         [difficulty, tableSize, sound, username],
-//         (err) => {
-//             if (err) {
-//                 return reply.status(500).send({ error: "Database error", details: err.message });
-//             }
-//             console.log(`✅ Updated settings for ${username}`);
-//             reply.send({ success: true });
-//         }
-//     );
-// });
-
-
-// Serve `index.html`
+// ✅ Serve `index.html`
 gamefast.get("/", async (request, reply) => {
     return reply.sendFile("index.html");
 });
