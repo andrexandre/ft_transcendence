@@ -17,7 +17,12 @@ function loginRoute(fastify, options) {
         if(response.status == 200){
             const payload = await fastify.prepareTokenData(response);
             const token = await fastify.generateToken(payload);
-            reply.status(200).setCookie("token", token);
+            reply.status(200).setCookie("token", token, {
+                path: '/',
+                httpOnly: true,
+                secure: true,
+                sameSite: 'Strict'
+            });
         }
         else{
             reply.status(response.status);
