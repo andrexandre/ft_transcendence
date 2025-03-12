@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Friends Chat</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <div class="rooms-sidebar">
+      <div class="sidebar-top">
+        <h2>Online Friends</h2>
+        <button class="refresh-button" id="refresh-button">↻</button>
+        <div class="friend-list" id="friendList">
+          <!-- Friends will be added here -->
+        </div>
+      </div>
+      <div class="sidebar-bottom">
+        <button id="show-requests-btn" class="show-requests-btn">
+          <span class="request-icon">🔔</span> Friend Requests
+        </button>
+      </div>
+    </div>
+    
+    <!-- Friend Requests Overlay (initially hidden) -->
+    <div class="friend-requests-overlay" id="friendRequestsOverlay">
+      <div class="friend-requests-header">
+        <h3>Friend Requests</h3>
+        <button class="close-requests-btn" id="closeRequestsBtn">×</button>
+      </div>
+      <div class="friend-requests-list" id="friendRequestsList">
+        <!-- Friend requests will be added here dynamically -->
+        <div class="friend-request-item">
+          <div class="request-user">John Doe</div>
+          <div class="request-actions">
+            <button class="accept-request">✓</button>
+            <button class="decline-request">✗</button>
+          </div>
+        </div>
+        <div class="friend-request-item">
+          <div class="request-user">Jane Smith</div>
+          <div class="request-actions">
+            <button class="accept-request">✓</button>
+            <button class="decline-request">✗</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="chat-container">
+      <!-- Chat header with current friend name -->
+      <div class="chat-header">
+        <div class="current-friend" id="currentFriend">
+        </div>
+      </div>
+      
+      <!-- Messages container -->
+      <div class="messages-container" id="messages-container">
+        <ul id="messages">
+          <!-- Message examples (these will be created dynamically in your JS) -->
+        </ul>
+      </div>
+      
+      <!-- Message form -->
+      <form id="form" action="">
+        <input id="input" placeholder="Type a message" autocomplete="off" />
+        <button>Send</button>
+      </form>
+    </div>
+
+    <!-- New elements for online users bar -->
+    <div class="online-users-toggle">
+      Online Users
+    </div>
+
+    <div class="online-users-bar">
+      <button class="close-bar">×</button>
+      <h2>Online Users</h2>
+      <ul class="online-users-list">
+        <!-- More users can be added here -->
+      </ul>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="module" src="index.js"></script>
+  </body>
+</html>
