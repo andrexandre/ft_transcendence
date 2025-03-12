@@ -1,33 +1,79 @@
 import { addFriend, createUser, getFriends } from '../database/db.js';
-import { checkFriendOnline, getAllUsers, roomName } from '../rooms/user.js';
-import { storeChat, createMessage, loadMessages } from '../messages/messages.js';
+import { checkFriendOnline, getAllUsers, getTimeString, parseRoomName, roomName } from '../rooms/user.js';
+import { storeChat, createMessage, loadMessages, sendMessage } from '../messages/messages.js';
 
 export const users = new Map();
 export const sockets = new Map();
-let user;
 
 export function SocketHandler(io) {
-	io.on('connection', (socket) =>{
-		users.set(user, socket.id);
-		sockets.set(socket.id, user);
+	io.use((socket, next) => {
+		const username = socket.handshake.query.username;
+		
+		if (!username) {
+		  console.log('Connection attempt without username - rejected');
+		  return next(new Error('Authentication error - No username provided'));
+		}
+		socket.username = username;
+		next();
+	});
+
+	io.on('connection', async (socket) =>{
+		const username = socket.handshake.query.username;
+		if (!username)
+		{
+			console.log('Connection attempt without username');
+			socket.disconnect();
+			return;
+		}
+		users.set(socket.username, socket);
+		sockets.set(socket.id, socket.username);
 		console.log(`${sockets.get(socket.id)} connected`);
+		//check on the begining for online friends
+		const friends = await getFriends(sockets.get(socket.id));
+		const online_friends = await checkFriendOnline(friends);
+		socket.emit('get-friends-list', online_friends);
+		
 
 		socket.on('disconnect', () =>{
 			const username = sockets.get(socket.id);
 			users.delete(username, socket);
-			sockets.set(socket.id, username);
+			sockets.delete(socket, username);
 			console.log(`${username} disconnected`);
 		});
 	
-		socket.on('chat-message', (msg, room) => {
-			//check if he and his friend are in the room if not send the message to the friend to his computer but don't load it on his screen, only store it
-			if(socket.rooms.has('new_room'))
-				io.to('new_room').emit('chat-message', msg); //send message to everyone. io.broadcast.emit send message to everyone except sender
+		socket.on('chat-message', async (msg) => {
+			const allRooms = [...socket.rooms];
+			const isInRoom = (allRooms.length > 1) ? true : false;
+			if(isInRoom == true)
+			{
+				const room = allRooms[1];
+				let users_room = parseRoomName(room);
+				let friend;
+				if(users_room[0] == sockets.get(socket.id))
+					friend = users_room[1];
+				else
+					friend = users_room[0];
+				const message = await createMessage(sockets.get(socket.id), msg, getTimeString());
+				const call = await sendMessage(message, room, friend);
+				socket.emit(`message-emit`, message, sockets.get(socket.id));
+				if (call == 'emit')
+					socket.to(room).emit(`message-emit`, message, friend);
+			}
 		});
 	
-		socket.on('join-room', (friend) =>{
-			const nameRoom = roomName(socket.get(socket.id), friend);
-			socket.join(nameRoom);
+		socket.on('join-room', async (friend) =>{
+			const allRooms = [...socket.rooms];
+			const isInRoom = (allRooms.length > 1) ? true : false;
+			if(isInRoom == true)
+			{
+				for (let i = 1; i < allRooms.length; i++)
+					socket.leave(allRooms[i]);
+			}
+			const room = roomName(friend, sockets.get(socket.id));
+			socket.join(room);
+			const msg = await loadMessages(room);
+			if(msg && msg.length > 0)
+				socket.emit('load-messages', msg, sockets.get(socket.id));
 		});
 
 		socket.on('get-friends-list', async () =>{
@@ -44,11 +90,6 @@ export function SocketHandler(io) {
 		socket.on('add-friend', (friend) =>{
 			console.log(`Friend: ${friend}`);
 			addFriend(sockets.get(socket.id), friend);
-		});
-
-		socket.on('load-messages', (friend) =>{
-			const content = loadMessages(sockets(socket.id), friend);
-			socket.emit('load-messages', content, sockets(socket.id));
 		});
 	});
 }

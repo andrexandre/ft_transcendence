@@ -8,6 +8,14 @@ export function roomName(user1, user2)
 	return `private-${sortedUsers[0]}-${sortedUsers[1]}`;
 }
 
+export function parseRoomName(roomName)
+{
+	const usersString = roomName.substring(8);
+	const users = usersString.split('-');
+
+	return users;
+}
+
 export async function checkFriendOnline(friends)
 {
 	let online_friends = [];
@@ -18,7 +26,6 @@ export async function checkFriendOnline(friends)
 		if (users.get(friends[i].username))
 		{
 			online_friends[j] = friends[i].username;
-			console.log(`Friend found: ${online_friends[j]}`);
 			j++;
 		}
 	}
@@ -39,4 +46,11 @@ export async function getAllUsers(self)
 		}
 	}
 	return online_users;
+}
+
+export function getTimeString()
+{
+	const d = new Date();
+	return (d.getHours() < 10 ? '0' : '') + d.getHours() + ':' + 
+		   (d.getMinutes() < 10 ? '0' : '') + d.getMinutes();
 }

@@ -7,18 +7,48 @@
   </head>
   <body>
     <div class="rooms-sidebar">
-      <h2>Online Friends</h2>
-      <button class="refresh-button" id="refresh-button">↻</button>
-      <div class="friend-list" id="friendList">
-        <!-- Friends will be added here -->
+      <div class="sidebar-top">
+        <h2>Online Friends</h2>
+        <button class="refresh-button" id="refresh-button">↻</button>
+        <div class="friend-list" id="friendList">
+          <!-- Friends will be added here -->
+        </div>
+      </div>
+      <div class="sidebar-bottom">
+        <button id="show-requests-btn" class="show-requests-btn">
+          <span class="request-icon">🔔</span> Friend Requests
+        </button>
+      </div>
+    </div>
+    
+    <!-- Friend Requests Overlay (initially hidden) -->
+    <div class="friend-requests-overlay" id="friendRequestsOverlay">
+      <div class="friend-requests-header">
+        <h3>Friend Requests</h3>
+        <button class="close-requests-btn" id="closeRequestsBtn">×</button>
+      </div>
+      <div class="friend-requests-list" id="friendRequestsList">
+        <!-- Friend requests will be added here dynamically -->
+        <div class="friend-request-item">
+          <div class="request-user">John Doe</div>
+          <div class="request-actions">
+            <button class="accept-request">✓</button>
+            <button class="decline-request">✗</button>
+          </div>
+        </div>
+        <div class="friend-request-item">
+          <div class="request-user">Jane Smith</div>
+          <div class="request-actions">
+            <button class="accept-request">✓</button>
+            <button class="decline-request">✗</button>
+          </div>
+        </div>
       </div>
     </div>
     <div class="chat-container">
       <!-- Chat header with current friend name -->
       <div class="chat-header">
-        <div class="current-friend">
-          <span class="online-status"></span>
-          <span class="friend-name">Friend Name</span>
+        <div class="current-friend" id="currentFriend">
         </div>
       </div>
       
@@ -26,24 +56,6 @@
       <div class="messages-container" id="messages-container">
         <ul id="messages">
           <!-- Message examples (these will be created dynamically in your JS) -->
-          <li class="message received">
-            <div class="message-bubble">
-              <div class="message-text">Hey, how are you?</div>
-              <div class="message-time">10:05 AM</div>
-            </div>
-          </li>
-          <li class="message sent">
-            <div class="message-bubble">
-              <div class="message-text">I'm doing great! How about you?</div>
-              <div class="message-time">10:06 AM</div>
-            </div>
-          </li>
-          <li class="message received">
-            <div class="message-bubble">
-              <div class="message-text">Not bad at all. Just working on some coding projects.</div>
-              <div class="message-time">10:07 AM</div>
-            </div>
-          </li>
         </ul>
       </div>
       
@@ -67,6 +79,6 @@
       </ul>
     </div>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="index.js"></script>
+    <script type="module" src="index.js"></script>
   </body>
 </html>

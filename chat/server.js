@@ -26,13 +26,12 @@ async function setupServer()
 		console.log(`Incoming request: ${request.method} ${request.url}`);
 	}); */
 	
-	fastify.get('/chat', async (request, reply) => {
+	fastify.get('/', async (request, reply) => {
 		const username = request.query.user;
 
 		if(!username)
 			return reply.send('Please provide a username in the URL (e.g., /?user=Antony)');
-		createUser(username);
-		bindSocket(username);
+		await createUser(username);
 		return reply.sendFile('index.html');
 	});
 	
@@ -50,7 +49,7 @@ async function main()
 		const db = await initializeDatabase();
 		
 		await server.listen({port : port});
-		console.log(`Server running at http://localhost:${port}/chat`);
+		console.log(`Server running at http://localhost:${port}`);
 	}
 	catch (error) {
 		console.error("Error: ", error);
