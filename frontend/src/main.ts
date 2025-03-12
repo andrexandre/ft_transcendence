@@ -1,9 +1,9 @@
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import "./tw.css"
-import dashboard from "./index"
-import login from "./auth/login"
-import register from "./auth/register"
-import { showToast } from "./lib"
+import dashboard from "./pages/dashboard"
+import login from "./pages/login"
+import register from "./pages/register"
+import lib from "./lib"
 import "./entrypoint"
 
 // import { dashboard, login, register } from "./pages" // ./pages/index
@@ -37,27 +37,27 @@ function assignButtonNavigation(buttonName: string, path: string): void {
 
 function loadPage(path: string): void {
 	const content = document.getElementById("app") as HTMLElement;
-	// const navbarHTML = await navbar.getHTML();
+	// const navbarHTML = await navbar.getHtml();
 	// put this inside the innerHTML: ${navbarHTML}
 	// after changing the html, we can execute the js using: navbar.execJS();
 
 	switch (path) {
 		case "/login":
-			content.innerHTML = login.getHTML();
+			content.innerHTML = login.getHtml();
 			login.setSubmissionHandler('http://127.0.0.1:7000/login');
 			assignButtonNavigation('register-button', '/register');
 			assignButtonNavigation('dashboard-button', '/');
 			break;
 		case "/register":
-			content.innerHTML = register.getHTML();
+			content.innerHTML = register.getHtml();
 			register.setSubmissionHandler('http://127.0.0.1:7000/register');
 			assignButtonNavigation('login-button', '/login');
 			break;
 		default:
-			showToast(false, "404 - Page Not Found");
+			lib.showToast(false, "404 - Page Not Found");
 			history.replaceState(null, "", "/");
 		case "/":
-			content.innerHTML = dashboard.getHTML();
+			content.innerHTML = dashboard.getHtml();
 			document.getElementById("game-button")!.addEventListener("click", () => {
 				window.location.href = "http://127.0.0.1:5000";
 			});
