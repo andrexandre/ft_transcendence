@@ -4,17 +4,20 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "nodemon --env-file=./../conf/.env server.js"
+    "start": "nodemon server.js"
   },
   "author": "Alex",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "fastify": "^5.2.1",
     "fastify-plugin": "^5.0.1",
+    "pino": "^9.6.0",
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
-    "nodemon": "^3.1.9"
+    "nodemon": "^3.1.9",
+    "pino-pretty": "^13.0.0"
   }
 }
