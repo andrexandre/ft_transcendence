@@ -28,5 +28,5 @@ const lib = { showToast };
 
 export default lib;
 
-// after that put this in the file that needs importing:
+// put his in the beginning of a file to re-export:
 // export { default as lib } from "./lib"
