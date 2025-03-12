@@ -1,7 +1,7 @@
 
 
 
-export async function friendsRoutes1(server, opts) {
+export function friendRequestRoute(server, opts) {
 	
 	server.route({
 		method: 'POST',
@@ -29,7 +29,7 @@ export async function friendsRoutes1(server, opts) {
 	});
 }
 
-export async function friendsRoutes2(server, opts) {
+export async function processFriendRequestRoute(server, opts) {
 	
 	server.route({
 		method: 'POST',
