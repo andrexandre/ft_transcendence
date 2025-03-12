@@ -1,10 +1,11 @@
 {
   "name": "frontend",
   "version": "1.0.0",
-  "main": "index.js",
+  "type": "module",
   "scripts": {
-    "dev": "tsc --watch",
-    "prune": "rm -rf node_modules package-lock.json"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "keywords": [],
   "author": "",
@@ -12,6 +13,13 @@
   "description": "",
   "devDependencies": {
     "typescript": "^5.7.3",
-    "vite": "^6.1.1"
+    "vite": "^6.2.0"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.7.2",
+    "@tailwindcss/vite": "^4.0.9",
+    "@types/js-cookie": "^3.0.6",
+    "js-cookie": "^3.0.5",
+    "tailwindcss": "^4.0.12"
   }
 }

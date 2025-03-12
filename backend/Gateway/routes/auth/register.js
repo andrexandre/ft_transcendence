@@ -1,21 +1,19 @@
 function registerRoute(fastify, options){
-    fastify.post('/register', async (request, reply) =>{
-        const { username } = request.body;
-        const reqApelido = "test";
+    fastify.post('/register', async (request, reply) => {
+        const { username, email, password } = request.body;
         const payload = {
-            name : username,
-            apelido: reqApelido
+            username: username,
+            email: email,
+            password: password
         };
-
-        const response = await fetch('http://user_management:3000/create_user', {
+        const response = await fetch('http://user_management:3000/api/create', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(payload)
         });
-        reply.status(200).send(response);
+        reply.status(response.status);
     });
 }
-
-module.exports = registerRoute;
+export default registerRoute;

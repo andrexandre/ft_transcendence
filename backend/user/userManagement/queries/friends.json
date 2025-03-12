@@ -1,0 +1,18 @@
+
+[
+	{
+		"friendship": true,
+		"friendID": 789,
+		"friendshipStatus": "ACCEPTED"
+	},
+	
+	{
+		"request": true,
+		"requestorID": 123,
+		"requesteeID": 456,
+		"RequestStatus": ["PENDING", "ACCEPTED", "REJECTED"]
+	},
+	{
+		"blockedUserID": 213
+	}
+]

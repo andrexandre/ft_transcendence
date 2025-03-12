@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+#toast-default {
+	@apply flex w-xs p-4 bg-white rounded-lg shadow-lg fixed border-2 top-4 right-4 opacity-0;
+}
+
+.dash-component {
+	@apply gap-4 m-2.5 text-center border-2 border-dashed rounded-3xl text-stone-600 border-stone-400 hover:border-stone-800;
+}
+.sidebar-list {
+	@apply flex flex-col h-full;
+}
+.sidebar-component {
+	@apply flex p-3 rounded-2xl justify-between items-center w-full hover:text-stone-400 hover:bg-stone-800 transition-all;
+}
+
+.profile-header {
+	@apply flex gap-16;
+}
+
+img {
+	@apply pointer-events-none;
+}

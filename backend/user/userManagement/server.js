@@ -1,68 +1,148 @@
 import fastify from "fastify";
-import fastifySqlite from './database_plugin.js'
-
+import fastifySqlite from './plugins/db_plugin.js';
+import RegisterRoutes from "./routes/auth/registerRoutes.js";
+import LoginRoutes from "./routes/auth/loginRoutes.js";
+// import {friendsRoutes1} from "./routes/friends/friends.js";
+import fs from 'fs/promises';
+import url from 'url';
+import path from 'path';
+import bcrypt from 'bcrypt'
+import { compileFunction } from "vm";
 
 // Creation of the app  instance
-const server = fastify({logger: true });
+const server = fastify({ loger: true });
 
-server.register(fastifySqlite, { dbPath: './user.db'}).after((err) => {
-	if (err) {
-		console.log('Nao funcionou');
-		process.exit(1);
-	}
-	server.log.info('Database registred');
-});
-
-
-server.post('/create_user', (request, response) => {
-	console.log(request.body);
-	console.log(request.headers);
-	// const tmp = JSON.stringify(request.body)
-	const { name, apelido } = request.body;
-	server.sqlite.run(`INSERT INTO users (nome, apelido) VALUES ('${name}', '${apelido}');`);
-	
-	response.send({message: `Sucessifuly created ${name} ${apelido}`});
-});
+const __filename = url.fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+async function loadQueryFile(fileName) {
+	const filePath = path.join(__dirname, fileName);
+	// const content = fs.readFile(filePath, 'utf8').catch(err => {throw "File Not found";});
+	return fs.readFile(filePath, 'utf8');
+}  
 
 
-server.get('/', async (request, response) => {
-	
-	response.header('content-type', 'application/json');
-	await server.sqlite.each("SELECT id, nome, apelido FROM users", (err, row) => {
+
+async function getUsers() {
+	return new Promise((resolve, reject) => {
+	  const content = [];
+  
+	  server.sqlite.each("SELECT * FROM users", (err, row) => {
 		if (err) {
-			console.error(err);
+		  reject(err); // Rejeita a Promise em caso de erro
 		} else {
-			console.log(row.id + ": " + row.nome + ' ' + row.apelido);
+		  content.push({
+			id: `${row.id}`,
+			username: `${row.username}`,
+			email: `${row.email}`,
+			password: `${row.password}`,
+			is_online: `${row.is_online}`,
+			friends: JSON.parse(row.friends)
+		  });
 		}
-    });
-	response.send({message: `Everything okay`});
-
-	// server.sqlite.get("SELECT * FROM users", (err, row) => {
-	// 	if (err) {
-	// 		console.log(err);
-	// 	} else if (row) {
-	// 		console.table(row);
-	// 		response.send({message: " Now we are working"});
-	// 	} else {
-	// 		console.log("Esta empty");
-	// 	}
-	// });
-});
+	  }, (err, numRows) => {
+		if (err) {
+		  reject(err); // Se houver erro no processo, rejeita
+		} else {
+		  resolve(content); // Resolve a Promise com os dados quando terminar
+		}
+	  });
+	});
+}
 
 // {
-//     "name":"Alexsandro",
-//     "Apelido":"moreira",
-//     "username":"aleperei",
+// 	"request": true,
+// 	"requestorID": 123,
+// 	"requesteeID": 456,
+// 	"requestStatus": ["PENDING", "ACCEPTED", "REJECTED"]
+// },
+
+// async function createFriendRequest(user1, user2, id) {
+// 	return new Promise((resolve, reject) => {
+
+// 	  server.sqlite.run(`UPDATE users 
+// 		SET friends = json_insert(friends, '$[#]',
+// 		json_object('request', 'true', 'requestorID', '${user2.id}', 'requesteeID', '${user1.id}', 'requestStatus', "PENDING")) 
+// 		WHERE id = ?;`, [id], (err, row) => {
+// 		if (err) {
+// 		  reject(err); // Rejeita a Promise em caso de erro
+// 		} else {
+// 		  resolve('');
+// 		}
+// 	  });
+// 	});
 // }
 
 
+// server.post('/friend-request', async (request, response) => {
+
+// 	const { requesterUsername , requesteeUsername } = request.body;
+
+// 	try {
+// 		const requestee = await server.getUserByUsername(requesteeUsername);
+// 		const requester = await server.getUserByUsername(requesterUsername);
+
+// 		await updateFriendsRequest(requestee, requester, requestee.id);
+// 		await updateFriendsRequest(requestee, requester, requester.id);
+		
+// 	} catch(err) {
+// 		console.log(err);
+// 		response.status(400).send({message: err});
+// 	}
+	
+// 	response.status(200).send({message: "Request was maid sucefful"});
+// 	// Tenho que colocar na base de dados dos dois que um pedido foi feito
+// });
+
+
+// Only for tests
+server.get('/',  async(request, response) => {
+	
+	response.header('content-type', 'application/json');
+	// estudar o porque que isto funciona com a solucao do chatgpt
+	let content = await getUsers();
+
+	console.log('aqui');
+	// console.log(content);
+		
+	response.send(JSON.stringify(content, null, 2));
+});
 
 const listenOptions = {
 	port: `${3000}`,
 	host: '0.0.0.0'
 }
 
-server.listen(listenOptions, () => {
-	console.log(`Server is running on port: ${process.env.PORT}`);
-	server.sqlite.run("CREATE TABLE IF NOT EXISTS users ( id INTEGER PRIMARY KEY AUTOINCREMENT, nome TEXT NOT NULL, apelido TEXT);");
-});
+
+async function start() {
+	
+	try {
+		// Ver como registrar todas as routes com auto-load
+		await server.register(fastifySqlite, { dbPath: './user.db'});
+		await server.register(RegisterRoutes);
+		await server.register(LoginRoutes);
+		// await server.register(friendsRoutes1);
+		
+		server.listen(listenOptions, async () => {
+			
+			console.log(`Server is running on port: 3000`);
+			let content;
+			try {
+				content = await loadQueryFile('queries/create_tables.sql');
+			} catch(err) {
+				console.error(err);
+				process.exit(1);
+
+			}
+
+			console.log(content);
+			server.sqlite.run(content);
+		});
+
+	} catch(err) {
+		console.error('Entrou no cath do start');
+		console.error(err);
+	}
+}
+
+start();
+
