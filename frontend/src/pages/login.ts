@@ -1,12 +1,15 @@
 import lib from "../lib"
 import Page from "./Page"
+import { navigate, assignButtonNavigation } from "../utils/navigation";
 
 class Login extends Page {
 	constructor() {
 		super("login", '/login');
 	}
 	onMount(): void {
-		this.setSubmissionHandler('/login');
+		this.setSubmissionHandler('http://127.0.0.1:7000/login');
+		assignButtonNavigation('register-button', '/register');
+		assignButtonNavigation('dashboard-button', '/');
 	}
 	onCleanup(): void {}
 	getHtml(): string {
@@ -37,13 +40,10 @@ class Login extends Page {
 		const form = document.querySelector('form');
 		const handler = async (e: Event) => {
 			e.preventDefault();
-			const userData: { username: string; password: string; email?: string } = {
+			const userData: { username: string; password: string; } = {
 				username: (document.getElementById('username') as HTMLInputElement).value,
 				password: (document.getElementById('password') as HTMLInputElement).value
 			};
-			if (url.includes('register')) {
-				userData.email = (document.getElementById('email') as HTMLInputElement).value;
-			}
 			try {
 				const response = await fetch(url, {
 					method: 'POST',
@@ -57,7 +57,7 @@ class Login extends Page {
 					throw new Error(`${response.status} - ${response.statusText}`);
 				}
 				lib.showToast(true, `${response.status} - ${response.statusText}`);
-				window.location.href = "/"; // temp fix
+				navigate(e, "/");
 			} catch (error) {
 				console.log(error);
 				lib.showToast(false, error as string);

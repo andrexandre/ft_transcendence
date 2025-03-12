@@ -1,12 +1,14 @@
 import lib from "../lib"
 import Page from "./Page"
+import { navigate, assignButtonNavigation } from "../utils/navigation";
 
 class Register extends Page {
 	constructor() {
 		super("register", '/register');
 	}
 	onMount(): void {
-		this.setSubmissionHandler('/register');
+		this.setSubmissionHandler('http://127.0.0.1:7000/register');
+		assignButtonNavigation('login-button', '/login');
 	}
 	onCleanup(): void {}
 	getHtml(): string {
@@ -38,13 +40,11 @@ class Register extends Page {
 		const form = document.querySelector('form');
 		const handler = async (e: Event) => {
 			e.preventDefault();
-			const userData: { username: string; password: string; email?: string } = {
+			const userData: { username: string; password: string; email: string } = {
 				username: (document.getElementById('username') as HTMLInputElement).value,
-				password: (document.getElementById('password') as HTMLInputElement).value
+				password: (document.getElementById('password') as HTMLInputElement).value,
+				email: (document.getElementById('email') as HTMLInputElement).value
 			};
-			if (url.includes('register')) {
-				userData.email = (document.getElementById('email') as HTMLInputElement).value;
-			}
 			try {
 				const response = await fetch(url, {
 					method: 'POST',
@@ -58,12 +58,7 @@ class Register extends Page {
 					throw new Error(`${response.status} - ${response.statusText}`);
 				}
 				lib.showToast(true, `${response.status} - ${response.statusText}`);
-				window.location.href = "/login"; // temp fix
-				// if (url.includes('register')) {
-				// 	navigate(e, '/login');
-				// } else {
-				// 	navigate(e, '/');
-				// }
+				navigate(e, "/login");
 			} catch (error) {
 				console.log(error);
 				lib.showToast(false, error as string);

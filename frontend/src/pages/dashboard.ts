@@ -1,5 +1,6 @@
 import lib from "../lib"
 import Page from "./Page"
+import { assignButtonNavigation } from "../utils/navigation";
 
 class Dashboard extends Page {
 	constructor() {
@@ -7,6 +8,13 @@ class Dashboard extends Page {
 	}
 	onMount(): void {
 		this.setSidebarToggler();
+		document.getElementById("game-button")!.addEventListener("click", () => {
+			window.location.href = "http://127.0.0.1:5000";
+		});
+		document.getElementById("chat-button")!.addEventListener("click", () => {
+			window.location.href = "http://127.0.0.1:2000";
+		});
+		assignButtonNavigation('settings-button', '/login');
 	}
 	onCleanup(): void {}
 	getHtml(): string {

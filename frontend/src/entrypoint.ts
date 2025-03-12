@@ -20,5 +20,3 @@ document.addEventListener('keydown', (event: KeyboardEvent) => {
 		});
 	}
 });
-
-console.log("Entrypoint executed.");
