@@ -87,3 +87,12 @@ system-prune:
 rm-rf:
 	@read -p "rm -rf $$PWD/" folder;\
 	docker run --rm -v ./$$folder:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
+
+
+
+
+
+
+alex:
+#	docker compose build user_management
+	docker compose up user_management

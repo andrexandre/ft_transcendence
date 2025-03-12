@@ -16,5 +16,4 @@ function registerRoute(fastify, options){
         reply.status(response.status);
     });
 }
-
-module.exports = registerRoute;
+export default registerRoute;

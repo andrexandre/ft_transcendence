@@ -1,12 +1,36 @@
-const fastify = require('fastify')({ logger: true });
-const registerRoutes = require('./routes/auth/register');
-const loginRoutes = require('./routes/auth/login');
-const gameRoutes = require('./routes/game/player-data');
-const cors = require('@fastify/cors');
+import Fastify from 'fastify'
+import { generateToken, prepareTokenData, verifyToken } from './decorators/prepareToken.js';
+import registerRoutes from './routes/auth/register.js';
+import loginRoutes from './routes/auth/login.js';
+import gameRoutes from './routes/game/player-data.js';
+import fastifyJwt from '@fastify/jwt';
+import fastifyCookie from '@fastify/cookie';
+import cors from '@fastify/cors';
+import dotenv from 'dotenv';
+
+dotenv.config();
+const fastify = Fastify({
+  logger: {
+    level: 'debug',
+    timestamp: true, 
+  },
+});
+
+fastify.decorate('prepareTokenData', prepareTokenData);
+fastify.decorate('generateToken', generateToken);
+fastify.decorate('verifyToken', verifyToken);
 
 fastify.register(registerRoutes);
 fastify.register(loginRoutes);
 fastify.register(gameRoutes);
+fastify.register(fastifyCookie);
+fastify.register(fastifyJwt, {
+  secret: process.env.JWT_SECRET_KEY,
+  cookie: {
+    cookieName: 'token',
+    signed: false
+  }
+});
 
 fastify.register(cors, {
   origin: ['http://127.0.0.1:5500', 'http://pongify:5000'], // Allow frontend origin
@@ -14,12 +38,11 @@ fastify.register(cors, {
   credentials: true // Allow cookies if needed
 });
 
-// Define a basic route
-fastify.get('/', async (request, reply) => {
-  return { message: 'Hello, Fastify!' };
-});
-
 // Start the server
-fastify.listen({ port: 7000, host: '0.0.0.0' }, () => {
+fastify.listen({ port: 7000, host: '0.0.0.0' }, (err) => {
+  if(err){
+    fastify.log.error(err);
+    process.exit(1);
+  }
   console.log('🚀 Server running at http://localhost:7000');
 });
