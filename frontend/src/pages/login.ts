@@ -57,6 +57,7 @@ class Login extends Page {
 					throw new Error(`${response.status} - ${response.statusText}`);
 				}
 				lib.showToast(true, `${response.status} - ${response.statusText}`);
+				window.location.href = "/"; // temp fix
 			} catch (error) {
 				console.log(error);
 				lib.showToast(false, error as string);

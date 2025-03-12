@@ -1,8 +1,5 @@
-const fastifyCookie = require('@fastify/cookie')
 
 function loginRoute(fastify, options) {
-    
-    fastify.register(fastifyCookie);
 
     fastify.post('/login', async (request, reply) => {
         const { username, password } = request.body;
@@ -18,15 +15,19 @@ function loginRoute(fastify, options) {
             body: JSON.stringify(payload)
         });
         if(response.status == 200){
-            reply.status(response.status).setCookie('username', payload.username, {
+            const payload = await fastify.prepareTokenData(response);
+            const token = await fastify.generateToken(payload);
+            reply.status(200).setCookie("token", token, {
                 path: '/',
                 httpOnly: true,
-                maxAge: 3600,
+                secure: true,
+                sameSite: 'Strict'
             });
-            return ;
         }
-        reply.status(response.status);
+        else{
+            reply.status(response.status);
+        }
     });
 }
 
-module.exports = loginRoute;
+export default loginRoute;

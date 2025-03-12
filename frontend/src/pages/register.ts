@@ -58,6 +58,12 @@ class Register extends Page {
 					throw new Error(`${response.status} - ${response.statusText}`);
 				}
 				lib.showToast(true, `${response.status} - ${response.statusText}`);
+				window.location.href = "/login"; // temp fix
+				// if (url.includes('register')) {
+				// 	navigate(e, '/login');
+				// } else {
+				// 	navigate(e, '/');
+				// }
 			} catch (error) {
 				console.log(error);
 				lib.showToast(false, error as string);
