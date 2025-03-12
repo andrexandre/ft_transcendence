@@ -84,7 +84,7 @@
 
 // const dash: Dashboard = new Dashboard();
 
-import { showToast } from "./lib"
+import { showToast } from "../lib"
 
 const dashboard = {
 	getHTML: () => /*html*/`
