@@ -8,19 +8,18 @@ export const sockets = new Map();
 export function SocketHandler(io) {
 	io.use((socket, next) => {
 		const username = socket.handshake.query.username;
-		
+
 		if (!username) {
-		  console.log('Connection attempt without username - rejected');
-		  return next(new Error('Authentication error - No username provided'));
+			console.log('Connection attempt without username - rejected');
+			return next(new Error('Authentication error - No username provided'));
 		}
 		socket.username = username;
 		next();
 	});
 
-	io.on('connection', async (socket) =>{
+	io.on('connection', async (socket) => {
 		const username = socket.handshake.query.username;
-		if (!username)
-		{
+		if (!username) {
 			console.log('Connection attempt without username');
 			socket.disconnect();
 			return;
@@ -32,24 +31,23 @@ export function SocketHandler(io) {
 		const friends = await getFriends(sockets.get(socket.id));
 		const online_friends = await checkFriendOnline(friends);
 		socket.emit('get-friends-list', online_friends);
-		
 
-		socket.on('disconnect', () =>{
+
+		socket.on('disconnect', () => {
 			const username = sockets.get(socket.id);
 			users.delete(username, socket);
 			sockets.delete(socket, username);
 			console.log(`${username} disconnected`);
 		});
-	
+
 		socket.on('chat-message', async (msg) => {
 			const allRooms = [...socket.rooms];
 			const isInRoom = (allRooms.length > 1) ? true : false;
-			if(isInRoom == true)
-			{
+			if (isInRoom == true) {
 				const room = allRooms[1];
 				let users_room = parseRoomName(room);
 				let friend;
-				if(users_room[0] == sockets.get(socket.id))
+				if (users_room[0] == sockets.get(socket.id))
 					friend = users_room[1];
 				else
 					friend = users_room[0];
@@ -60,41 +58,39 @@ export function SocketHandler(io) {
 					socket.to(room).emit(`message-emit`, message, friend);
 			}
 		});
-	
-		socket.on('join-room', async (friend) =>{
+
+		socket.on('join-room', async (friend) => {
 			const allRooms = [...socket.rooms];
 			const isInRoom = (allRooms.length > 1) ? true : false;
-			if(isInRoom == true)
-			{
+			if (isInRoom == true) {
 				for (let i = 1; i < allRooms.length; i++)
 					socket.leave(allRooms[i]);
 			}
 			const room = roomName(friend, sockets.get(socket.id));
 			socket.join(room);
 			const msg = await loadMessages(room);
-			if(msg && msg.length > 0)
+			if (msg && msg.length > 0)
 				socket.emit('load-messages', msg, sockets.get(socket.id));
 		});
 
-		socket.on('get-friends-list', async () =>{
+		socket.on('get-friends-list', async () => {
 			const friends = await getFriends(sockets.get(socket.id));
 			const online_friends = await checkFriendOnline(friends);
 			socket.emit('get-friends-list', online_friends);
 		});
 
-		socket.on('get-online-users', async () =>{
+		socket.on('get-online-users', async () => {
 			const online_users = await getAllUsers(sockets.get(socket.id));
 			socket.emit('get-online-users', online_users);
 		});
-		
-		socket.on('add-friend', (friend) =>{
+
+		socket.on('add-friend', (friend) => {
 			console.log(`Friend: ${friend}`);
 			addFriend(sockets.get(socket.id), friend);
 		});
 	});
 }
 
-export function bindSocket(username)
-{
+export function bindSocket(username) {
 	user = username;
 }

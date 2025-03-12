@@ -61,6 +61,9 @@ function loadPage(path: string): void {
 			document.getElementById("game-button")!.addEventListener("click", () => {
 				window.location.href = "http://127.0.0.1:5000";
 			});
+			document.getElementById("chat-button")!.addEventListener("click", () => {
+				window.location.href = "http://127.0.0.1:2000/?user=Antony";
+			});
 			dashboard.setSidebarToggler();
 			assignButtonNavigation('settings-button', '/login');
 			break;
