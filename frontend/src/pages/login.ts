@@ -1,7 +1,8 @@
-import { showToast } from "../lib"
+import lib from "../lib"
+import Page from "./Page"
 
 const login = {
-	getHTML: () => /*html*/`
+	getHtml: () => /*html*/`
 		<div class="m-auto h-fit max-w-xs p-9 bg-white border border-gray-200 rounded-lg shadow-sm">
 			<form class="space-y-6" action="#">
 				<h5 class="text-center text-3xl font-medium text-gray-900">Login</h5>
@@ -45,7 +46,7 @@ const login = {
 				if (!response.ok) {
 					throw new Error(`${response.status} - ${response.statusText}`);
 				}
-				showToast(true, `${response.status} - ${response.statusText}`);
+				lib.showToast(true, `${response.status} - ${response.statusText}`);
 				// if (url.includes('register')) {
 				// 	navigate(e, '/login');
 				// } else {
@@ -54,7 +55,7 @@ const login = {
 			}
 			catch (error) {
 				console.log(error);
-				showToast(false, error as string);
+				lib.showToast(false, error as string);
 			}
 		})
 	}

@@ -1,7 +1,8 @@
-import { showToast } from "../lib"
+import lib from "../lib"
+import Page from "./Page"
 
 const register = {
-	getHTML: () => /*html*/`
+	getHtml: () => /*html*/`
 		<div class="m-auto h-fit max-w-xs p-9 bg-white border border-gray-200 rounded-lg shadow-sm">
 			<form class="space-y-6" action="#">
 				<h5 class="text-center text-2xl font-medium text-gray-900">Register an account</h5>
@@ -46,7 +47,7 @@ const register = {
 				if (!response.ok) {
 					throw new Error(`${response.status} - ${response.statusText}`);
 				}
-				showToast(true, `${response.status} - ${response.statusText}`);
+				lib.showToast(true, `${response.status} - ${response.statusText}`);
 				// if (url.includes('register')) {
 				// 	navigate(e, '/login');
 				// } else {
@@ -55,7 +56,7 @@ const register = {
 			}
 			catch (error) {
 				console.log(error);
-				showToast(false, error as string);
+				lib.showToast(false, error as string);
 			}
 		})
 	}

@@ -1,5 +1,5 @@
-// import Cookies from 'js-cookie';
-// Cookies.set("username", "JohnDoe");
+import Cookies from 'js-cookie';
+Cookies.set("jscookieImported", "true");
 
 export function showToast(success: boolean, message: string | null): void {
 	const displayDuration = 2000;
@@ -24,9 +24,9 @@ export function showToast(success: boolean, message: string | null): void {
 	}, displayDuration);
 }
 
-// const lib = { showToast };
+const lib = { showToast };
 
-// export default lib;
+export default lib;
 
 // after that put this in the file that needs importing:
 // export { default as lib } from "./lib"
