@@ -47,6 +47,7 @@ const register = {
 					throw new Error(`${response.status} - ${response.statusText}`);
 				}
 				showToast(true, `${response.status} - ${response.statusText}`);
+				window.location.href = "/"; // temp fix
 				// if (url.includes('register')) {
 				// 	navigate(e, '/login');
 				// } else {
