@@ -20,7 +20,7 @@ upd:
 	docker compose up -d
 
 down:
-	docker compose down -v
+	-docker compose down -v
 
 status:
 	@echo "$(GREEN)Containers status$(END)\n"
@@ -36,9 +36,14 @@ status:
 	@echo
 
 destroy: down rmi
+	find . -type f -iname '*.db' -delete
+	docker run --rm -v ./backend/user/userManagement/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
+	docker run --rm -v ./backend/Gateway/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
+	docker run --rm -v ./game-project/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
+	docker run --rm -v ./chat/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
 
 rmi:
-	docker rmi -f $$(docker images -a -q)
+	-docker rmi -f $$(docker images -a -q)
 
 rmv:
 	docker volume rm $$(docker volume ls -q)

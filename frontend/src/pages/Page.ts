@@ -1,4 +1,19 @@
 
+// Code i might need later :)
+// const navbarHTML = await navbar.getHtml();
+// put this inside the innerHTML: ${navbarHTML}
+// after changing the html, we can execute the js using: navbar.execJS();
+// cat file.html
+// <h1>Vite + TypeScript = {{component}}</h1>
+// import file from './file.html?raw';
+// function buildHtmlFile(content: string, args: Record<string,unknown>) {	
+// 	return content.replace(/{{(.*)}}/g, (_match, arg) => {
+// 		return `${args[arg as string] || "KEY NOT FOUND"}`
+// 	})
+// }
+// document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
+// 	<div>${buildHtmlFile(file, {component: "profit?"})}</div>`
+
 export default abstract class Page {
 	protected root: HTMLElement | undefined = undefined;
 	public mounted: boolean = false;
@@ -29,9 +44,32 @@ export default abstract class Page {
 		// this.root.id = `page-${this.name}`;
 		// this.root.classList.add('w-full', 'h-full');
 		// this.root.innerHTML = content;
-		console.log(`${this.name} mounted!`)
 		this.mounted = true;
 		this.onMount();
 		return this.root;
 	}
 }
+
+// Example code to add a page!
+/*
+class CustomPage extends Page {
+	constructor() {
+		super("custompage", '/custompage');
+	}
+	onMount(): void {
+		this.setCustomHandler();
+	}
+	onCleanup(): void {}
+	getHtml(): string {
+		return `<p>Hi</p>`;
+	}
+	setCustomHandler() {
+		const customElement = document.querySelector('customElement');
+		const handler = () => {
+			// handler code
+		}
+		customElement?.addEventListener('submit', handler);
+		this.addCleanupHandler(() => customElement?.removeEventListener('submit', handler));
+	}
+}
+*/
