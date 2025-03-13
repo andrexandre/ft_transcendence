@@ -1,5 +1,5 @@
-import Cookies from 'js-cookie';
-Cookies.set("jscookieImported", "true");
+// import Cookies from 'js-cookie';
+// Cookies.set("sidebarOpened", "true");
 
 export function showToast(success: boolean, message: string | null): void {
 	const displayDuration = 2000;
