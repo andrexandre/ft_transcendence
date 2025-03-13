@@ -50,6 +50,18 @@ services:
     networks:
       - ft_transcendence
 
+  vite:
+    image: vite
+    container_name: vite
+    build:
+      context: ./frontend
+    ports:
+      - "5500:5500"
+    volumes:
+      - ./frontend:/frontend:rw
+    networks:
+      - ft_transcendence
+
 #   nginx:
 #     image: nginx
 #     container_name: nginx
