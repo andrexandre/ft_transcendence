@@ -41,6 +41,7 @@ destroy: down rmi
 	docker run --rm -v ./backend/Gateway/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
 	docker run --rm -v ./game-project/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
 	docker run --rm -v ./chat/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
+	docker run --rm -v ./frontend/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
 
 rmi:
 	-docker rmi -f $$(docker images -a -q)
@@ -60,16 +61,13 @@ frontend/node_modules:
 	cd frontend ; npm install
 
 server-up: frontend/node_modules
-	cd frontend ; npx vite
+	cd frontend ; npx vite --host 127.0.0.1 --port 5500
 
 server-upd: frontend/node_modules
-	cd frontend ; npx vite &
+	cd frontend ; npx vite --host 127.0.0.1 --port 5500 &
 
 server-down:
 	pkill -2 -f '/.bin/vite'
-
-server-clean:
-	rm -rf frontend/node_modules frontend/build
 
 db-clean:
 	sqlite3 $(DB-PATH) "delete from $(DB-NAME);"
