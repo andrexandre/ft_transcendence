@@ -1,18 +1,22 @@
 {
     "compilerOptions": {
-      "outDir": "./",
-      "rootDir": "./",
-      "allowJs": true,
-      "target": "ES6",
-      "module": "NodeNext",
-      "moduleResolution": "NodeNext",
-      "strict": false,
-      "noImplicitAny": false,
+      // "outDir": "./",
+      // "rootDir": "./",
+      // "allowJs": true,
+      // "noImplicitAny": false,
+      // "noEmitOnError": false,
+      "target": "ESNext",
+      "module": "ESNext",
+      "moduleResolution": "bundler",
+      "strict": true,
       "skipLibCheck": true,
-      "noEmitOnError": false,
+      
+      // "allowImportingTsExtensions": true, // lines for vite
+      // "noEmit": true, // lines for vite
     },
-    "include": ["**/*.ts", "public/**/*.ts"], 
+    // "include": ["**/*.ts", "public/**/*.ts"], 
     "exclude": ["node_modules"]
 }
 
 // change **/*.ts from server.ts
+// ESNext
