@@ -4,7 +4,7 @@ import { setPayload } from './decorators/prepareData.js';
 import registerRoutes from './routes/auth/register.js';
 import loginRoutes from './routes/auth/login.js';
 import logoutRoute from './routes/auth/logout.js';
-import gameRoutes from './routes/game/player-data.js';
+import gameData from './routes/game/player-data.js';
 import fastifyJwt from '@fastify/jwt';
 import fastifyCookie from '@fastify/cookie';
 import cors from '@fastify/cors';
@@ -25,7 +25,7 @@ fastify.decorate('setPayload', setPayload);
 
 fastify.register(registerRoutes);
 fastify.register(loginRoutes);
-fastify.register(gameRoutes);
+fastify.register(gameData);
 fastify.register(fastifyCookie);
 fastify.register(logoutRoute);
 fastify.register(fastifyJwt, {

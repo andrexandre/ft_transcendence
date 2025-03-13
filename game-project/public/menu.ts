@@ -36,6 +36,7 @@ function toggleMenu(selectedMenu: HTMLDivElement) {
             menu.classList.add("hidden"); // 🔹 Hide other menus
         }
     });
+    
 
     if (selectedMenu.classList.contains("expanded")) {
         console.log("🔽 Closed");
@@ -69,37 +70,22 @@ settingsBtn.addEventListener("click", () => toggleMenu(settingsMenu));
 document.addEventListener("DOMContentLoaded", async () => {
     console.log("📌 Menu Loaded, checking user...");
 
-    const username = getCookie("username");
-    if (!username) {
-        console.error("❌ No username found in cookies.");
-        return;
-    }
-
     try {
-        const response = await fetch("/get-user", { credentials: "include" });
-        if (!response.ok) throw new Error("Failed to fetch user data");
+        const response = await fetch("/get-user-data", { credentials: "include" });
+
+        if (!response.ok) throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
 
         const userData = await response.json();
         console.log("✅ User & Settings Loaded:", userData);
 
-        // ✅ Store username in sessionStorage
+        // ✅ Store user info in sessionStorage
         sessionStorage.setItem("username", userData.user_name);
-
-        // ✅ Apply settings to menu
-        difficultySelect.value = userData.user_set_dificulty;
-        tableSizeSelect.value = userData.user_set_tableSize;
-        soundSelect.value = userData.user_set_sound ? "on" : "off";
+        sessionStorage.setItem("userId", userData.user_id.toString());
 
     } catch (error) {
         console.error("❌ Error loading user data:", error);
     }
 });
-
-// ✅ Helper function to get cookies
-function getCookie(name: string): string | null {
-    const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`));
-    return match ? match[2] : null;
-}
 
 
 // ✅ Check if the user exists in `db_game`, if not create it
@@ -135,41 +121,41 @@ classicBtn.addEventListener("click", (event) => {
 
 // ✅ Save Settings (For now, just logs the values)
 // ✅ Save Settings (Optimized - No Extra User Fetch)
-saveSettingsBtn.addEventListener("click", async () => {
-    const username = sessionStorage.getItem("username");
-    if (!username) {
-        console.error("❌ No username found! Cannot save settings.");
-        return;
-    }
+// saveSettingsBtn.addEventListener("click", async () => {
+//     const username = sessionStorage.getItem("username");
+//     if (!username) {
+//         console.error("❌ No username found! Cannot save settings.");
+//         return;
+//     }
 
-    // ✅ Read settings from dropdowns
-    const difficulty = difficultySelect.value;
-    const tableSize = tableSizeSelect.value;
-    const sound = soundSelect.value === "on" ? 1 : 0;
+//     // ✅ Read settings from dropdowns
+//     const difficulty = difficultySelect.value;
+//     const tableSize = tableSizeSelect.value;
+//     const sound = soundSelect.value === "on" ? 1 : 0;
 
-    console.log(`🎮 Saving settings for: ${username}`);
-    console.log("➡ Difficulty:", difficulty);
-    console.log("➡ Table Size:", tableSize);
-    console.log("➡ Sound:", sound);
+//     console.log(`🎮 Saving settings for: ${username}`);
+//     console.log("➡ Difficulty:", difficulty);
+//     console.log("➡ Table Size:", tableSize);
+//     console.log("➡ Sound:", sound);
 
-    // ✅ Save settings in sessionStorage (Frontend)
-    sessionStorage.setItem("user_set_dificulty", difficulty);
-    sessionStorage.setItem("user_set_tableSize", tableSize);
-    sessionStorage.setItem("user_set_sound", sound.toString());
+//     // ✅ Save settings in sessionStorage (Frontend)
+//     sessionStorage.setItem("user_set_dificulty", difficulty);
+//     sessionStorage.setItem("user_set_tableSize", tableSize);
+//     sessionStorage.setItem("user_set_sound", sound.toString());
 
-    // ✅ Send settings update to the database (Backend)
-    try {
-        const response = await fetch("/save-settings", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, difficulty, tableSize, sound }),
-        });
+//     // ✅ Send settings update to the database (Backend)
+//     try {
+//         const response = await fetch("/save-settings", {
+//             method: "POST",
+//             headers: { "Content-Type": "application/json" },
+//             body: JSON.stringify({ username, difficulty, tableSize, sound }),
+//         });
 
-        if (!response.ok) throw new Error("Failed to save settings");
+//         if (!response.ok) throw new Error("Failed to save settings");
 
-        console.log("✅ Settings saved successfully!");
+//         console.log("✅ Settings saved successfully!");
 
-    } catch (error) {
-        console.error("❌ Error saving settings:", error);
-    }
-});
+//     } catch (error) {
+//         console.error("❌ Error saving settings:", error);
+//     }
+// });

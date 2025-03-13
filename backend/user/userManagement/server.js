@@ -12,6 +12,7 @@ import { compileFunction } from "vm";
 // Creation of the app  instance
 const server = fastify({ loger: true });
 
+
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 async function loadQueryFile(fileName) {
