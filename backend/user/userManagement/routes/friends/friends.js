@@ -44,8 +44,8 @@ export async function processFriendRequestRoute(server, opts) {
 				// nem sera preciso porque o user id ou useranem ja esta no token 
 				const requester = await server.getUserByUsername(requesterUsername);
 
-				await server.createFriendRequest(requestee, requester, requestee.id);
-				await server.createFriendRequest(requestee, requester, requester.id);
+				await server.acceptFriendRequest(requestee, requester, requestee.id);
+				await server.acceptFriendRequest(requestee, requester, requester.id);
 				
 			} catch(err) {
 				console.log(err);
