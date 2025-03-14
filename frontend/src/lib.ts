@@ -1,28 +1,32 @@
 // import Cookies from 'js-cookie';
 // Cookies.set("sidebarOpened", "true");
 
-export function showToast(success: boolean, message: string | null): void {
-	const displayDuration = 2000;
-	const fadeOutDuration = 1000;
-	const toast = document.getElementById('toast-default') as HTMLInputElement;
-	toast.style.transition = `opacity ${fadeOutDuration}ms`;
-	toast.style.opacity = '1';
+export function showToast(message?: string, type: string = ""): void {
+	const toast = document.createElement('div');
+	toast.id = 'toast';
+	if (!message)
+		message = "Bro, you just got Toasted!"
+	toast.innerText = message;
+	document.getElementById('toast-container')!.appendChild(toast);
 
-	if (success) {
+	if (type == 'success') {
 		toast.style.borderColor = 'darkgreen';
 		toast.style.color = 'darkgreen';
 		toast.style.backgroundColor = 'lightgreen';
-		toast.textContent = message || 'Operation successful!';
-	} else {
+	} else if (type == 'failure') {
 		toast.style.borderColor = 'darkred';
 		toast.style.color = 'darkred';
 		toast.style.backgroundColor = 'lightcoral';
-		toast.textContent = message || 'Operation failed!';
+	} else if (!type) {
+		toast.className = "text-stone-800 bg-stone-100 border-stone-400";
+	} else {
+		toast.className = `text-${type}-800 bg-${type}-100 border-${type}-400`;
 	}
-	setTimeout(() => {
-		toast.style.opacity = '0';
-	}, displayDuration);
+	toast.textContent = message;
+	setTimeout(() => toast.remove(), 2100);
 }
+showToast.success = (message?: string) => showToast(message, "success");
+showToast.failure = (message?: string) => showToast(message, "failure");
 
 const lib = { showToast };
 

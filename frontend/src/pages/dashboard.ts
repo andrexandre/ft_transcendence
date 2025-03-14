@@ -14,6 +14,9 @@ class Dashboard extends Page {
 		document.getElementById("chat-button")!.addEventListener("click", () => {
 			window.location.href = "http://127.0.0.1:2000/?user=Antony";
 		});
+		document.getElementById("notifications-button")!.addEventListener("click", () => {
+			lib.showToast();
+		});
 		assignButtonNavigation('settings-button', '/login');
 	}
 	onCleanup(): void {}
@@ -110,7 +113,7 @@ class Dashboard extends Page {
 		const handler = () => {
 			const pElements = sidebar?.querySelectorAll('p');
 			if (!sidebar || !sidebarList)
-				return lib.showToast(false, null);
+				return lib.showToast.failure();
 			pElements?.forEach(p => {
 				if (p.style.display === 'none') {
 					p.previousElementSibling?.classList.replace('fa-bars', 'fa-arrow-left');

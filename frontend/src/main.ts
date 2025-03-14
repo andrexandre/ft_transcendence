@@ -22,7 +22,7 @@ function loadPage(path: string): void {
 			content.innerHTML = register.getHtml();
 			break;
 		default:
-			lib.showToast(false, "404 - Page Not Found");
+			lib.showToast.failure("404 - Page Not Found");
 			history.replaceState(null, "", "/");
 		case "/":
 			CurrentPage = dashboard;

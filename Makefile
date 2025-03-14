@@ -42,6 +42,7 @@ destroy: down rmi
 	docker run --rm -v ./game-project/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
 	docker run --rm -v ./chat/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
 	docker run --rm -v ./frontend/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
+	find . -type d -iname 'node_modules' -delete
 
 rmi:
 	-docker rmi -f $$(docker images -a -q)
