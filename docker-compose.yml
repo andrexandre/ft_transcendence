@@ -55,6 +55,13 @@ services:
     container_name: vite
     build:
       context: ./frontend
+    command:
+      sh -c "
+      npm config set fund false;
+      npm config set update-notifier false;
+      npm install;
+      exec npm run dev
+      "
     ports:
       - "5500:5500"
     volumes:
