@@ -1,5 +1,4 @@
-// import Cookies from 'js-cookie';
-// Cookies.set("sidebarOpened", "true");
+export { default as Cookies } from 'js-cookie';
 
 export function showToast(message?: string, type: string = ""): void {
 	const toast = document.createElement('div');

@@ -8,7 +8,6 @@ import register from "./pages/register"
 import * as lib from "./utils"
 
 function loadPage(path: string): void {
-	const content = document.getElementById("app") as HTMLElement;
 	let CurrentPage: Page = dashboard;
 
 	switch (path) {
@@ -25,8 +24,12 @@ function loadPage(path: string): void {
 			CurrentPage = dashboard;
 			break;
 	}
-	content.innerHTML = CurrentPage.getHtml();
+	document.getElementById("app")!.innerHTML = CurrentPage.getHtml();
 	CurrentPage.mount();
+	if (lib.Cookies.get('outline')) {
+		document.dispatchEvent(new KeyboardEvent('keydown', { key: ' ' }));
+		lib.Cookies.set('outline', 'true');
+	}
 }
 
 // fix circular dependency for navigate function
