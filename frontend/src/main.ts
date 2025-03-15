@@ -1,12 +1,11 @@
-import '@fortawesome/fontawesome-free/css/all.min.css';
+import '@fortawesome/fontawesome-free/css/all.min.css'
 import "./tw.css"
+import "./entrypoint"
 import Page from "./pages/Page"
 import dashboard from "./pages/dashboard"
 import login from "./pages/login"
 import register from "./pages/register"
-import lib from "./lib"
-import "./entrypoint"
-import { navigate, assignButtonNavigation } from "./utils/navigation";
+import * as lib from "./utils"
 
 function loadPage(path: string): void {
 	const content = document.getElementById("app") as HTMLElement;
@@ -15,20 +14,18 @@ function loadPage(path: string): void {
 	switch (path) {
 		case "/login":
 			CurrentPage = login;
-			content.innerHTML = login.getHtml();
 			break;
 		case "/register":
 			CurrentPage = register;
-			content.innerHTML = register.getHtml();
 			break;
 		default:
 			lib.showToast.failure("404 - Page Not Found");
 			history.replaceState(null, "", "/");
 		case "/":
 			CurrentPage = dashboard;
-			content.innerHTML = dashboard.getHtml();
 			break;
 	}
+	content.innerHTML = CurrentPage.getHtml();
 	CurrentPage.mount();
 }
 
@@ -42,5 +39,3 @@ window.addEventListener("popstate", () => {
 });
 
 loadPage(location.pathname);
-
-export { navigate, assignButtonNavigation };

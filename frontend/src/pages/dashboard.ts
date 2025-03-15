@@ -1,6 +1,5 @@
-import lib from "../lib"
 import Page from "./Page"
-import { assignButtonNavigation } from "../utils/navigation";
+import * as lib from "../utils"
 
 class Dashboard extends Page {
 	constructor() {
@@ -17,7 +16,7 @@ class Dashboard extends Page {
 		document.getElementById("notifications-button")!.addEventListener("click", () => {
 			lib.showToast();
 		});
-		assignButtonNavigation('settings-button', '/login');
+		lib.assignButtonNavigation('settings-button', '/login');
 	}
 	onCleanup(): void {}
 	getHtml(): string {
