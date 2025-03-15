@@ -19,7 +19,7 @@ function loadPage(path: string): void {
 			CurrentPage = register;
 			break;
 		default:
-			lib.showToast.failure("404 - Page Not Found");
+			lib.showToast.red("404 - Page Not Found");
 			history.replaceState(null, "", "/");
 		case "/":
 			CurrentPage = dashboard;

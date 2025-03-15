@@ -4,33 +4,28 @@
 export function showToast(message?: string, type: string = ""): void {
 	const toast = document.createElement('div');
 	toast.id = 'toast';
-	if (!message)
-		message = "Bro, you just got Toasted!"
-	toast.innerText = message;
+	toast.textContent = message || "Bro, you just got Toasted!";
 	document.getElementById('toast-container')!.appendChild(toast);
 
-	if (type == 'success') {
-		toast.style.borderColor = 'darkgreen';
-		toast.style.color = 'darkgreen';
-		toast.style.backgroundColor = 'lightgreen';
-	} else if (type == 'failure') {
-		toast.style.borderColor = 'darkred';
-		toast.style.color = 'darkred';
-		toast.style.backgroundColor = 'lightcoral';
-	} else if (!type) {
-		toast.className = "text-stone-800 bg-stone-100 border-stone-400";
-	} else {
-		toast.className = `text-${type}-800 bg-${type}-100 border-${type}-400`;
+	switch (type) {
+		case "green":
+			toast.className = "bg-green-100 border-green-400 text-green-800 hover:border-green-800";
+			break;
+		case "red":
+			toast.className = "bg-red-100 border-red-400 text-red-800 hover:border-red-800";
+			break;
+		case "blue":
+			toast.className = "bg-blue-100 border-blue-400 text-blue-800 hover:border-blue-800";
+			break;
+		case "yellow":
+			toast.className = "bg-yellow-100 border-yellow-400 text-yellow-800 hover:border-yellow-800";
+			break;
+		default:
+			toast.className = "bg-lighter border-light text-darker hover:border-darker";
 	}
-	toast.textContent = message;
 	setTimeout(() => toast.remove(), 2100);
 }
-showToast.success = (message?: string) => showToast(message, "success");
-showToast.failure = (message?: string) => showToast(message, "failure");
-
-const lib = { showToast };
-
-export default lib;
-
-// put his in the beginning of a file to re-export:
-// export { default as lib } from "./lib"
+showToast.green = (message?: string) => showToast(message, "green");
+showToast.red = (message?: string) => showToast(message, "red");
+showToast.blue = (message?: string) => showToast(message, "blue");
+showToast.yellow = (message?: string) => showToast(message, "yellow");

@@ -55,11 +55,11 @@ class Login extends Page {
 				if (!response.ok) {
 					throw new Error(`${response.status} - ${response.statusText}`);
 				}
-				lib.showToast.success(`${response.status} - ${response.statusText}`);
+				lib.showToast.green(`${response.status} - ${response.statusText}`);
 				lib.navigate(e, "/");
 			} catch (error) {
 				console.log(error);
-				lib.showToast.failure(error as string);
+				lib.showToast.red(error as string);
 			}
 		};
 		form?.addEventListener('submit', handler);
