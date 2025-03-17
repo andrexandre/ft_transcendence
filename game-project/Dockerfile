@@ -16,4 +16,3 @@ ENTRYPOINT [ "/bin/setup.sh"]
 
 CMD ["npm", "run", "watch"] 
 
-# dev / start

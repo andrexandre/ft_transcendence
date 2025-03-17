@@ -1,6 +1,6 @@
 function gameData(fastify, options) {
-    fastify.get('/set-cookie',{onRequest: [fastify.verifyToken]}, async (request, reply) => {
-        reply.status(200).setCookie('username', 'Manel');
+    fastify.get("/userData", async (request, reply) => {
+        reply.status(200).send(await fastify.setPayload(request.cookies.token));
     });
 }
 
