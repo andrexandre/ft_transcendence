@@ -1,5 +1,6 @@
 import _fastify from 'fastify'
 import fastifyStatic from '@fastify/static';
+import fastifyWebsocket from '@fastify/websocket';
 import path, { join } from 'path';
 import { createUser, initializeDatabase } from './database/db.js';
 import { SocketHandler } from './socket/socket_handler.js';
@@ -39,8 +40,9 @@ async function setupServer() {
 		return reply.sendFile('index.html');
 	});
 
-	const io = new Server(fastify.server);
-	SocketHandler(io);
+	fastify.get('/ws', { websocket: true }, (connection, req) => {
+        SocketHandler(connection, req);
+    });
 
 	return fastify;
 }

@@ -4,8 +4,9 @@ import { storeChat, createMessage, loadMessages, sendMessage } from '../messages
 
 export const users = new Map();
 export const sockets = new Map();
+export const rooms = new Map();
 
-export function SocketHandler(io) {
+export function SocketHandler(connection, req) {
 	io.use((socket, next) => {
 		const username = socket.handshake.query.username;
 
