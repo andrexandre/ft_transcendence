@@ -1,13 +1,14 @@
-export function startSingleClassic(username: string) {
-    console.log(`🎯 Game started for: ${username}`);
+export function startSingleClassic(username: string, settings: { difficulty: string, tableSize: string, sound: boolean }) {
+    console.log(`🎮 Game started for: ${username}`);
+    console.log("🛠 Settings:", settings);
+
     const gameCanvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
     const ctx = gameCanvas.getContext("2d");
     const menu = document.getElementById("menu") as HTMLDivElement;
 
-
     // Hide menu, show game
     menu.classList.add("hidden");
-    menu.classList.remove("visible");
+    menu.classList.remove("visible"); // check to remove
     gameCanvas.style.visibility = "visible";
 
     // Create elements scoreboard
@@ -20,26 +21,45 @@ export function startSingleClassic(username: string) {
     }
     scoreboard.style.display = "block";
 
-    gameCanvas.width = 800;
-    gameCanvas.height = 400;
+    // Set table size based on settings
+     if (settings.tableSize === "small") {
+        gameCanvas.width = 400;
+        gameCanvas.height = 200;
+    } else if (settings.tableSize === "medium") {
+        gameCanvas.width = 800;
+        gameCanvas.height = 400;
+    } else if (settings.tableSize === "large") {
+        gameCanvas.width = 1600;
+        gameCanvas.height = 800;
+    }
 
+    // Game Objects
     let playerY = gameCanvas.height / 2 - 40;
     let aiY = gameCanvas.height / 2 - 40;
-    let ballX = gameCanvas.width / 2;
-    let ballY = gameCanvas.height / 2;
+    let ballX = gameCanvas.width / 10; /// wtf?
+    let ballY = gameCanvas.height / 10;
     let ballSpeedX = 0;
     let ballSpeedY = 0;
     const initialSpeedX = 5;
     const initialSpeedY = 3;
     const paddleSpeed = 2.5;
     const paddleHeight = 80;
-
     let playerScore = 0;
+    
     let aiScore = 0;
-    let aiError = 50;
+    let aiError: number;
+    // Set Dificulty
+    if (settings.difficulty === "easy") {
+        aiError = 80;
+    } else if (settings.difficulty === "normal") {
+        aiError = 50;
+    } else if (settings.difficulty === "hard") {
+        aiError = 20;
+    }
+
     let gameOver = false;
     let countdownValue = 0;
-
+    
     let upPressed = false;
     let downPressed = false;
 
@@ -93,7 +113,8 @@ export function startSingleClassic(username: string) {
             checkWinCondition();
             resetGame();
         }
-
+        
+        // ai error logic
         const errorFactor = Math.random() * aiError - aiError / 2;
         if (aiY + 70 < ballY + errorFactor) aiY += paddleSpeed;
         if (aiY + 70 > ballY + errorFactor) aiY -= paddleSpeed;
@@ -102,13 +123,13 @@ export function startSingleClassic(username: string) {
         if (aiY > gameCanvas.height - 80) aiY = gameCanvas.height - 80;
     }
 
-    function checkWinCondition() {
-        if (playerScore === 5) {
+    function checkWinCondition() { /// Change condition
+        if (playerScore === 1) {
             gameOver = true;
-            setTimeout(() => endGame("Player 1 Wins!", "blue"), 1000); // need change to variable.
-        } else if (aiScore === 5) {
+            setTimeout(() => endGame(`${username} Wins!`, "blue"), 1000);
+        } else if (aiScore === 1) {
             gameOver = true;
-            setTimeout(() => endGame("BoTony Wins!", "red"), 1000);
+            setTimeout(() => endGame("YOU Suck!", "red"), 1000); // CHANGE Final stage
         }
     }
     

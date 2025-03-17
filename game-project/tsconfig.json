@@ -14,7 +14,7 @@
       // "allowImportingTsExtensions": true, // lines for vite
       // "noEmit": true, // lines for vite
     },
-    // "include": ["**/*.ts", "public/**/*.ts"], 
+    "include": ["**/*.ts", "public/**/*.ts"], 
     "exclude": ["node_modules"]
 }
 

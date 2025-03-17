@@ -14,18 +14,16 @@ gamefast.register(fastifyStatic, {
     root: path.join(process.cwd(), "public"),
     prefix: "/",
 });
-gamefast.register(fastifyJwt, { secret: "supersecret" });  // ✅ Register JWT plugin
+gamefast.register(fastifyJwt, { secret: "supersecret" });
 
-
-// ✅ Fetch user data from Gateway (127.0.0.1:7000/userData)
+// Fetch user data from Gateway
 async function fetchUserDataFromGateway(token: string | undefined) {
     try {
-        
         const response = await fetch("http://gateway-api:7000/userData", {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
-                "Cookie": `token=${token}`,  // ✅ Forward cookies to the other server
+                "Cookie": `token=${token}`,
             },
             credentials: "include"
         });
@@ -33,72 +31,141 @@ async function fetchUserDataFromGateway(token: string | undefined) {
         if (!response.ok) {
             throw new Error(`Failed to fetch user from Gateway: ${response.status} ${response.statusText}`);
         }
-        // const { username, userId } = response.body;
+
         console.log(response);
-        // console.log( await response.json());
-        return await response.json(); // ✅ Return user data from Gateway
+        return await response.json();
     } catch (error) {
         console.error("❌ Error fetching user from Gateway:", error);
         return null;
     }
 }
 
-
-// ✅ Route: Check or Create User
+// Route: Check or Create User
 gamefast.get("/get-user-data", async (request, reply) => {
-    // const authHeader = request.headers.authorization;
-    // if (!authHeader) {
-    //     return reply.status(401).send({ error: "Unauthorized: No token provided" });
-    // }
-
-    // const token = authHeader.split(" ")[1]; // ✅ Extract token from `Bearer <token>`
     const token: string | undefined = request.cookies.token;
-    const userData = await fetchUserDataFromGateway(token); // ✅ Fetch from Gateway
 
+    console.log(`📌 Received GET /get-user-data request`);
+    console.log(`🔍 Token from cookies:`, token);
 
-    console.log(userData);
+    if (!token) {
+        console.log("❌ No token provided.");
+        return reply.status(401).send({ error: "No token provided" });
+    }
+
+    const userData = await fetchUserDataFromGateway(token);
+
+    console.log("📌 Received user data from Gateway:", userData);
+
     if (!userData) {
+        console.log("❌ Failed to fetch user from Gateway.");
         return reply.status(401).send({ error: "Failed to fetch user from Gateway" });
     }
 
     const { username, userId } = userData;
-    console.log(`🔍 Checking user: ${username} (ID: ${userId})`);
+    console.log(`🔍 Checking user in DB: ${username} (ID: ${userId})`);
+    // Use Promise to avoid multiple `reply.send()` calls FFFFFFFFFFDDDDDXXXXXXXXXXX
+    const getUserFromDb = () =>
+        new Promise((resolve, reject) => {
+            db_game.get("SELECT * FROM users WHERE user_id = ?", [userId], (err, row) => {
+                if (err) {
+                    console.error("❌ Database error:", err.message);
+                    return reject({ status: 500, error: "Database error", details: err.message });
+                }
+                resolve(row);
+            });
+        });
 
-
-    db_game.get("SELECT * FROM users WHERE user_id = ?", [userId], (err, row) => {
-        if (err) {
-            return reply.status(500).send({ error: "Database error", details: err.message });
-        }
+    try {
+        let row = await getUserFromDb();
 
         if (!row) {
             console.log(`🆕 User '${username}' not found. Creating...`);
-            db_game.run(
-                "INSERT INTO users (user_id, user_name, user_set_dificulty, user_set_tableSize, user_set_sound) VALUES (?, ?, 'normal', 'medium', 1)",
-                [userId, username],
-                function (err) {
-                    if (err) {
-                        return reply.status(500).send({ error: "Database error" });
+            // Insert new user with Promise FFFFFFFFFFDDDDDDDXXXXXXXXXXXXXXX
+            await new Promise((resolve, reject) => {
+                db_game.run(
+                    "INSERT INTO users (user_id, user_name, user_set_dificulty, user_set_tableSize, user_set_sound) VALUES (?, ?, 'normal', 'medium', 1)",
+                    [userId, username],
+                    function (err) {
+                        if (err) {
+                            console.error("❌ Error inserting user:", err.message);
+                            return reject({ status: 500, error: "Database error" });
+                        }
+                        console.log(`✅ New user '${username}' created.`);
+                        resolve(null);
                     }
-
-                    console.log(`✅ New user '${username}' created.`);
-                    return reply.send({
-                        user_id: userId,
-                        user_name: username,
-                        user_set_dificulty: "normal",
-                        user_set_tableSize: "medium",
-                        user_set_sound: 1,
-                    });
-                }
-            );
-            return; // ✅ Prevents multiple `reply.send()` calls
+                );
+            });
+            row = {
+                user_id: userId,
+                user_name: username,
+                user_set_dificulty: "normal",
+                user_set_tableSize: "medium",
+                user_set_sound: 1,
+            };
         }
-
         console.log(`✅ User '${username}' found, sending settings.`);
-        reply.send(row);
-    });
+        console.log("📌 Sending user data:", row);
+        return reply.send(row);
+
+    } catch (err: unknown) {
+        console.error("❌ Error processing user data:", err);
+        if (err instanceof Error) {
+            return reply.status(500).send({ error: err.message });
+        } else {
+            return reply.status(500).send({ error: "An unknown error occurred" });
+        }
+    }
 });
 
-// ✅ Start the Server
+interface SaveSettingsRequest {
+    Body: {
+        username: string;
+        difficulty: string;
+        tableSize: string;
+        sound: number;
+    };
+}
+
+// Route: Save user settings (with Promises)
+gamefast.post<SaveSettingsRequest>("/save-settings", async (request, reply) => {
+    const { username, difficulty, tableSize, sound } = request.body;
+
+    if (!username) {
+        return reply.status(400).send({ error: "Username is required" });
+    }
+
+    console.log(`🔄 Updating settings for ${username}`);
+
+    try {
+        await new Promise<void>((resolve, reject) => {
+            db_game.run(
+                `UPDATE users SET 
+                    user_set_dificulty = ?, 
+                    user_set_tableSize = ?, 
+                    user_set_sound = ?
+                 WHERE user_name = ?`,
+                [difficulty, tableSize, sound, username],
+                function (err) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve();
+                    }
+                }
+            );
+        });
+
+        console.log(`✅ Settings successfully updated for ${username}`);
+        reply.send({ message: "✅ Settings updated successfully!" });
+
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Unknown database error";
+        console.error("❌ Database error:", errorMessage);
+        reply.status(500).send({ error: "Database error", details: errorMessage });
+    }
+});
+
+// Start the Server
 const start = async () => {
     try {
         await gamefast.listen({ port: 5000, host: "0.0.0.0" });

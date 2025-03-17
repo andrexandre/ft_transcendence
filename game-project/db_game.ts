@@ -13,7 +13,7 @@ const db_game = new sqlite3.Database("/pong_vol/game-project/db_game.db", (err) 
 db_game.serialize(() => {
     db_game.run(`
         CREATE TABLE IF NOT EXISTS users (
-            user_id INTEGER PRIMARY KEY1,
+            user_id INTEGER PRIMARY KEY,
             user_name TEXT UNIQUE NOT NULL,
             user_xp INTEGER DEFAULT 0,
             user_set_dificulty TEXT DEFAULT 'normal',
