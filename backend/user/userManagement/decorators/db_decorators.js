@@ -1,4 +1,4 @@
-
+import { loadQueryFile } from "../utils/utils_1.js";
 
 export async function registerUsersDecorator(username, email, password) {
     
@@ -54,7 +54,7 @@ export async function createFriendRequestDecorator(user1, user2, id) {
 
 	  this.sqlite.run(`UPDATE users 
 		SET friends = json_insert(friends, '$[#]',
-		json_object('request', 'true', 'requestorID', '${user2.id}', 'requesteeID', '${user1.id}', 'requestStatus', "PENDING")) 
+		json_object('request', 'true', 'requestorID', ${user2.id}, 'requesteeID', ${user1.id}, 'requestStatus', "PENDING")) 
 		WHERE id = ?;`, [id], (err, row) => {
 		if (err) {
 		  reject(err); // Rejeita a Promise em caso de erro
@@ -65,32 +65,33 @@ export async function createFriendRequestDecorator(user1, user2, id) {
 	});
 }
 
-export async function acceptFriendRequestDecorator(user1, user2, id) {
+export async function acceptFriendRequestDecorator(requestee, requester, id) {
 	return new Promise((resolve, reject) => {
 		
-		this.sqlite.serialize(() => {
-			
-			const indice = this.sqlite.get(`
-				SELECT key, value
-				FROM json_each((SELECT friends FROM users WHERE username = ${user1.username}))
-				WHERE json_extract(value, '$.requestorID') = '${user1.id}';`
-			);
-			console.table(indice);
-
-
-			// this.sqlite.run(`UPDATE users 
-			// SET friends = json_set
-			// (
-			// 	friends, '$[#]',	
-			// 	json_object('request', 'true', 'requestorID', '${user2.id}', 'requesteeID', '${user1.id}', 'requestStatus', "PENDING")
-			// ) 
-			// WHERE id = ?;`, [id], (err, row) => {
-			// if (err) {
-			// reject(err); // Rejeita a Promise em caso de erro
-			// } else {
-			// resolve('');
-			// }
+		this.sqlite.serialize(async () => {
+			let query;
+			try {
+				query = await loadQueryFile('../queries/acceptFriends.sql');
+			} catch(err) {
+				reject(err);
+			}
+			console.log(query);
+			// const params = {
+			// 	requesteeID: requestee.id,
+			// 	requesterID: requester.id
+			// };
+			// console.log(requestee, requester);
+			// this.sqlite.get(query, [], (err, row) => {
+			// 	if (err) {
+			// 		console.log(err);
+			// 		reject(err);
+			// 	} else {
+			// 		console.table(row);
+			// 		console.log('Funcionou caralho');
+			// 	}
 			// });
+
+			resolve('');
 
 		});
 	});

@@ -4,7 +4,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "nodemon --watch user.db server.js"
+    "start": "nodemon server.js"
   },
   "author": "Alex",
   "license": "ISC",

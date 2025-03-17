@@ -10,6 +10,20 @@ only show tables matching LIKE pattern TABLE
 
 .show - Show the current values for various settings
 
-
-
 .exit - Exit SQLite prompt
+
+project-root/
+├── src/
+│   ├── config/             # Configuration files (e.g., database, JWT)
+│   ├── controllers/        # Request-handling logic
+│   ├── plugins/            # Fastify plugins (e.g., Prisma, Helmet)
+│   ├── routes/             # API routes
+│   ├── schemas/            # Data validation schemas
+│   ├── services/           # Business logic
+│   ├── utils/              # Utility functions/helpers
+│   ├── index.ts            # Main application entry point
+├── prisma/
+│   ├── schema.prisma       # Prisma schema
+├── .env                    # Environment variables
+├── tsconfig.json           # TypeScript configuration
+├── package.json            # Dependencies and scripts
