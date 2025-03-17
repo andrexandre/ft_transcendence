@@ -40,15 +40,15 @@ export function startSingleClassic(username: string, settings: { difficulty: str
     let ballY = gameCanvas.height / 10;
     let ballSpeedX = 0;
     let ballSpeedY = 0;
-    const initialSpeedX = 5;
-    const initialSpeedY = 3;
-    const paddleSpeed = 2.5;
+    // const initialSpeedX = 5;
+    // const initialSpeedY = 3;
+    const paddleSpeed = 3;
     const paddleHeight = 80;
     let playerScore = 0;
-    
     let aiScore = 0;
-    let aiError: number;
+    
     // Set Dificulty
+    let aiError: number;
     if (settings.difficulty === "easy") {
         aiError = 80;
     } else if (settings.difficulty === "normal") {
@@ -93,9 +93,11 @@ export function startSingleClassic(username: string, settings: { difficulty: str
     function update() {
         if (gameOver) return;
 
+        // Player moves
         if (upPressed && playerY > 0) playerY -= paddleSpeed;
         if (downPressed && playerY < gameCanvas.height - paddleHeight) playerY += paddleSpeed;
 
+        // Ball moves
         ballX += ballSpeedX;
         ballY += ballSpeedY;
 
@@ -114,7 +116,7 @@ export function startSingleClassic(username: string, settings: { difficulty: str
             resetGame();
         }
         
-        // ai error logic
+        // AI moves + error logic
         const errorFactor = Math.random() * aiError - aiError / 2;
         if (aiY + 70 < ballY + errorFactor) aiY += paddleSpeed;
         if (aiY + 70 > ballY + errorFactor) aiY -= paddleSpeed;
@@ -172,8 +174,19 @@ export function startSingleClassic(username: string, settings: { difficulty: str
             if (countdownValue <= 0) {
                 clearInterval(countdownInterval);
                 if (!gameOver) {
-                    ballSpeedX = initialSpeedX;
-                    ballSpeedY = initialSpeedY;
+                    // 🎯 Generate a random angle (between -45° and 45° OR 135° to 225°)
+                const angleOptions = [Math.random() * 90 - 45, Math.random() * 90 + 135];
+                const randomAngle = angleOptions[Math.floor(Math.random() * angleOptions.length)];
+                
+                // Convert degrees to radians
+                const angleRad = randomAngle * (Math.PI / 180);
+
+                // 🎯 Set randomized speed
+                const speed = 7;
+                ballSpeedX = speed * Math.cos(angleRad);
+                ballSpeedY = speed * Math.sin(angleRad);
+
+                console.log(`🎾 Ball starts at angle: ${randomAngle}°`);
                 }
             }
         }, 1000);
