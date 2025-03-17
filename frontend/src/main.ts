@@ -2,20 +2,24 @@ import '@fortawesome/fontawesome-free/css/all.min.css'
 import "./tw.css"
 import "./entrypoint"
 import Page from "./pages/Page"
-import dashboard from "./pages/dashboard"
-import login from "./pages/login"
 import register from "./pages/register"
+import login from "./pages/login"
+import dashboard from "./pages/dashboard"
+import game from "./pages/game/game"
 import * as lib from "./utils"
 
 function loadPage(path: string): void {
 	let CurrentPage: Page = dashboard;
 
 	switch (path) {
+		case "/register":
+			CurrentPage = register;
+			break;
 		case "/login":
 			CurrentPage = login;
 			break;
-		case "/register":
-			CurrentPage = register;
+		case "/game":
+			CurrentPage = game;
 			break;
 		default:
 			lib.showToast.red("404 - Page Not Found");
