@@ -36,7 +36,6 @@ fastify.register(gameRoutes);
 fastify.register(matchHistory);
 fastify.register(fastifyCookie);
 fastify.register(logoutRoute);
-fas
 
 fastify.register(fastifyJwt, {
   secret: process.env.JWT_SECRET_KEY,
