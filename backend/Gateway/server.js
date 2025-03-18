@@ -15,6 +15,7 @@ import registerRoutes from './routes/auth/register.js';
 import loginRoutes from './routes/auth/login.js';
 import logoutRoute from './routes/auth/logout.js';
 import gameRoutes from './routes/game/player-data.js';
+import matchHistory from './routes/game/match-history.js';
 
 dotenv.config();
 const fastify = Fastify({
@@ -31,9 +32,11 @@ fastify.decorate('setPayload', setPayload);
 
 fastify.register(registerRoutes);
 fastify.register(loginRoutes);
-fastify.register(gameData);
+fastify.register(gameRoutes);
+fastify.register(matchHistory);
 fastify.register(fastifyCookie);
 fastify.register(logoutRoute);
+fas
 
 fastify.register(fastifyJwt, {
   secret: process.env.JWT_SECRET_KEY,
