@@ -69,27 +69,56 @@ export async function acceptFriendRequestDecorator(requestee, requester, id) {
 	return new Promise((resolve, reject) => {
 		
 		this.sqlite.serialize(async () => {
-			let query;
+
+			let content;
 			try {
-				query = await loadQueryFile('../queries/acceptFriends.sql');
+				content = await loadQueryFile('../queries/acceptFriends.sql');
 			} catch(err) {
 				reject(err);
 			}
-			console.log(query);
-			// const params = {
-			// 	requesteeID: requestee.id,
-			// 	requesterID: requester.id
-			// };
+			console.log(content);
+			const queries = content.split(/\r?\n\r?\n/);
+
+			const params = {
+				$requesteeID: requestee.id,
+				$requesterID: requester.id,
+				$status: 'ACCEPTED'
+			};
+
+			console.log(queries);
+
+			this.sqlite.run(queries[0], (err) => {
+				if (err) {
+					console.log(err);
+					reject(err);
+				}
+			});
+
+			this.sqlite.run(queries[1], params,(err) => {
+				if (err) {
+					console.log(err);
+					// Fazer rollback ou ter ele no try cath depois
+					reject(err);
+				}
+			});
+
+			this.sqlite.run(queries[2], params,(err) => {
+				if (err) {
+					console.log(err);
+					// Fazer rollback ou ter ele no try cath depois
+					reject(err);
+				}
+			});
+
+			this.sqlite.run(queries[3], (err) => {
+				if (err) {
+					console.log(err);
+					// Fazer rollback ou ter ele no try cath depois
+					reject(err);
+				}
+			});
 			// console.log(requestee, requester);
-			// this.sqlite.get(query, [], (err, row) => {
-			// 	if (err) {
-			// 		console.log(err);
-			// 		reject(err);
-			// 	} else {
-			// 		console.table(row);
-			// 		console.log('Funcionou caralho');
-			// 	}
-			// });
+
 
 			resolve('');
 
