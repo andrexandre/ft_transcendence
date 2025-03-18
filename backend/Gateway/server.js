@@ -31,7 +31,7 @@ fastify.decorate('setPayload', setPayload);
 
 fastify.register(registerRoutes);
 fastify.register(loginRoutes);
-fastify.register(gameRoutes);
+fastify.register(gameData);
 fastify.register(fastifyCookie);
 fastify.register(logoutRoute);
 
