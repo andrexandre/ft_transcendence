@@ -39,23 +39,6 @@ db_game.serialize(() => {
     `);
 
     console.log("Tables ensured.");
-    
-    // // remove after API request
-    // db_game.run(
-    //     `INSERT OR IGNORE INTO users (user_name, user_xp, user_set_dificulty, user_set_tableSize, user_set_sound)
-    //      VALUES 
-    //      ('Player1', 100, 'hard', 'large', 1),
-    //      ('Player2', 50, 'normal', 'medium', 1),
-    //      ('Player3', 30, 'easy', 'small', 0),
-    //      ('Player4', 80, 'hard', 'medium', 1);`,
-    //     (err) => {
-    //         if (err) {
-    //             console.error("❌ Error inserting default users:", err.message);
-    //         } else {
-    //             console.log("✅ Default users added to the database.");
-    //         }
-    //     }
-    // );
 });
 
 export default db_game;

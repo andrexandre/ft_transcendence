@@ -23,7 +23,7 @@ async function fetchUserDataFromGateway(token: string | undefined) {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
-                "Cookie": `token=${token}`,
+                "Cookie": `token=${token}`, /// test wihout
             },
             credentials: "include"
         });
@@ -126,10 +126,10 @@ interface SaveSettingsRequest {
     };
 }
 
-// Route: Save user settings (with Promises)
+// Route: Save user settings
 gamefast.post<SaveSettingsRequest>("/save-settings", async (request, reply) => {
     const { username, difficulty, tableSize, sound } = request.body;
-
+// patch / put / delete/ check what is? instead of post
     if (!username) {
         return reply.status(400).send({ error: "Username is required" });
     }
@@ -164,6 +164,121 @@ gamefast.post<SaveSettingsRequest>("/save-settings", async (request, reply) => {
         reply.status(500).send({ error: "Database error", details: errorMessage });
     }
 });
+
+// Function to Send Match Data to Main API
+async function sendMatchToAPI(matchData: any) {
+    try {
+        const response = await fetch("http://gateway-api:7000/matchHistory", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(matchData),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to send match: ${response.status} ${response.statusText}`);
+        }
+
+        console.log("✅ Match successfully sent to API:", matchData);
+        return true;  // Success
+    } catch (error) {
+        console.error("❌ Error sending match to API:", error);
+        return false; // Failure
+    }
+}
+
+interface SaveMatchRequest {
+    Body: {
+        player1Id: number;
+        player2Id: number;
+        player1Score: number;
+        player2Score: number;
+        gameMode: string;
+        winnerId: number;
+    };
+}
+
+
+// ✅ Save match and Send to API
+gamefast.post<SaveMatchRequest>("/save-match", async (request, reply) => {
+    const { gameMode, player1Id, player2Id, player1Score, player2Score, winnerId } = request.body;
+
+    if (!player1Id || !player2Id) {
+        return reply.status(400).send({ error: "Missing player IDs" });
+    }
+
+    console.log(`🔄 Saving match: ${player1Id} vs ${player2Id} | Mode: ${gameMode}`);
+
+    db_game.run(
+        `INSERT INTO games (game_mode, game_player1_id, game_player2_id, game_player1_score, game_player2_score, game_winner) 
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        [gameMode, player1Id, player2Id, player1Score, player2Score, winnerId],
+        async function (err) {
+            if (err) {
+                return reply.status(500).send({ error: "Database error", details: err.message });
+            }
+
+            const matchId = this.lastID;
+            const matchData = {
+                matchId,
+                gameMode,
+                player1Id,
+                player2Id,
+                player1Score,
+                player2Score,
+                winnerId
+            };
+
+            console.log("📡 Sending match data to API:", matchData);
+
+            // ✅ Try sending match to API
+            const success = await sendMatchToAPI(matchData);
+
+            if (success) {
+                reply.send({ message: "✅ Match saved & sent successfully!", matchId });
+            } else {
+                reply.send({ message: "⚠ Match saved, but failed to sync with API.", matchId });
+            }
+        }
+    );
+});
+
+// gamefast.post<SaveMatchRequest>("/save-match", async (request, reply) => {
+//     const { player1Id, player2Id, player1Score, player2Score, gameMode, winnerId } = request.body;
+
+//     if (!player1Id || !player2Id || !gameMode) {
+//         return reply.status(400).send({ error: "Missing required match data" });
+//     }
+
+//     console.log(`📌 Saving match result: ${player1Id} vs ${player2Id}, Mode: ${gameMode}`);
+
+//     try {
+//         await new Promise<void>((resolve, reject) => {
+//             db_game.run(
+//                 `INSERT INTO games 
+//                     (game_mode, game_player1_id, game_player2_id, game_player1_score, game_player2_score, game_winner) 
+//                  VALUES (?, ?, ?, ?, ?, ?)`,
+//                 [gameMode, player1Id, player2Id, player1Score, player2Score, winnerId],
+//                 function (err) {
+//                     if (err) {
+//                         console.error("❌ Error saving match:", err.message);
+//                         reject(err);
+//                     } else {
+//                         console.log("✅ Match saved successfully!");
+//                         resolve();
+//                     }
+//                 }
+//             );
+//         });
+
+//         reply.send({ message: "Match saved successfully!" });
+
+//     } catch (error) {
+//         console.error("❌ Database error:", error);
+//         reply.status(500).send({ error: "Database error" });
+//     }
+// });
+
+
 
 // Start the Server
 const start = async () => {
