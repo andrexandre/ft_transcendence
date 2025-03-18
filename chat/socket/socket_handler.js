@@ -7,16 +7,16 @@ export const sockets = new Map();
 export const rooms = new Map();
 
 export function SocketHandler(connection, req) {
-	io.use((socket, next) => {
-		const username = socket.handshake.query.username;
+	// io.use((socket, next) => {
+	// 	const username = socket.handshake.query.username;
 
-		if (!username) {
-			console.log('Connection attempt without username - rejected');
-			return next(new Error('Authentication error - No username provided'));
-		}
-		socket.username = username;
-		next();
-	});
+	// 	if (!username) {
+	// 		console.log('Connection attempt without username - rejected');
+	// 		return next(new Error('Authentication error - No username provided'));
+	// 	}
+	// 	socket.username = username;
+	// 	next();
+	// });
 
 	io.on('connection', async (socket) => {
 		const username = socket.handshake.query.username;
@@ -90,6 +90,38 @@ export function SocketHandler(connection, req) {
 			addFriend(sockets.get(socket.id), friend);
 		});
 	});
+}
+
+export function SocketHandler(connection, req)
+{
+	connection.socket.on('message', async (message) => {
+		let data;
+		try {
+			data = JSON.parse(message);
+		}
+		catch (error) {
+			console.error('Invalid message format: ' + message);
+			return;
+		}
+		switch (data.type){
+			case 'chat-message':
+				handleChatMessage(username, data.message, connection.socket);
+				break;
+			case 'join-room':
+				joinRoom(username, data.friend, connection.socket);
+				break;
+			case 'get-friends-list':
+				sendFriendList(username, connection.socket);
+				break;
+			case 'get-friends-list':
+				sendOnlineUsers(username, connection.socket);
+				break;
+			case 'add-friend':
+				addFriend(username, data.friend);
+				break;
+		}
+	});
+	con
 }
 
 export function bindSocket(username) {

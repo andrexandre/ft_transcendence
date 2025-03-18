@@ -40,7 +40,7 @@ async function setupServer() {
 		return reply.sendFile('index.html');
 	});
 
-	fastify.get('/ws', { websocket: true }, (connection, req) => {
+	fastify.get('/chat-ws', { websocket: true }, (connection, req) => {
         SocketHandler(connection, req);
     });
 
