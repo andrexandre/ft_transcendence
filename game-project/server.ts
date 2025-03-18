@@ -165,6 +165,55 @@ gamefast.post<SaveSettingsRequest>("/save-settings", async (request, reply) => {
     }
 });
 
+interface SaveMatchRequest {
+    Body: {
+        player1Id: number;
+        player2Id: number;
+        player1Score: number;
+        player2Score: number;
+        gameMode: string;
+        winnerId: number;
+    };
+}
+
+gamefast.post<SaveMatchRequest>("/save-match", async (request, reply) => {
+    const { player1Id, player2Id, player1Score, player2Score, gameMode, winnerId } = request.body;
+
+    if (!player1Id || !player2Id || !gameMode) {
+        return reply.status(400).send({ error: "Missing required match data" });
+    }
+
+    console.log(`📌 Saving match result: ${player1Id} vs ${player2Id}, Mode: ${gameMode}`);
+
+    try {
+        await new Promise<void>((resolve, reject) => {
+            db_game.run(
+                `INSERT INTO games 
+                    (game_mode, game_player1_id, game_player2_id, game_player1_score, game_player2_score, game_winner) 
+                 VALUES (?, ?, ?, ?, ?, ?)`,
+                [gameMode, player1Id, player2Id, player1Score, player2Score, winnerId],
+                function (err) {
+                    if (err) {
+                        console.error("❌ Error saving match:", err.message);
+                        reject(err);
+                    } else {
+                        console.log("✅ Match saved successfully!");
+                        resolve();
+                    }
+                }
+            );
+        });
+
+        reply.send({ message: "Match saved successfully!" });
+
+    } catch (error) {
+        console.error("❌ Database error:", error);
+        reply.status(500).send({ error: "Database error" });
+    }
+});
+
+
+
 // Start the Server
 const start = async () => {
     try {

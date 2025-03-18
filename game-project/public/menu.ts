@@ -80,6 +80,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // Store settings in sessionStorage
         sessionStorage.setItem("username", userData.user_name);
+        sessionStorage.setItem("user_id", userData.user_id);
         sessionStorage.setItem("user_set_dificulty", userData.user_set_dificulty);
         sessionStorage.setItem("user_set_tableSize", userData.user_set_tableSize);
         sessionStorage.setItem("user_set_sound", userData.user_set_sound.toString());
