@@ -1,5 +1,10 @@
 /* const { ItemAssignmentContextImpl } = require("twilio/lib/rest/numbers/v2/regulatoryCompliance/bundle/itemAssignment");
 const { SupportingDocumentContextImpl } = require("twilio/lib/rest/trusthub/v1/supportingDocument"); */
+import Fastify from 'fastify';
+import fastifyWebsocket from '@fastify/websocket';
+
+const fastify = Fastify();
+fastify.register(fastifyWebsocket);
 
 const form = document.getElementById('form');
 const input = document.getElementById('input');
@@ -11,11 +16,32 @@ const refreshButton = document.getElementById('refresh-button');
 const urlParams = new URLSearchParams(window.location.search);
 const username = urlParams.get('user');
 
-const socket = io({
-query: {
-	username: username
+const socket = new WebSocket(`ws://localhost:3000/chat-ws?user=${username}`);
+
+socket.onopen = () => {
+	console.log('Connected to Fastify WebSocket');
 }
-});
+
+socket.onerror = (error) => {
+	console.error('WebSocket error:', error);
+};
+
+socket.onclose = (event) => {
+	console.log('WebSocket connection closed:', event.code, event.reason);
+	// Maybe add some reconnection logic here
+};
+
+socket.onmessage = (event) => {
+	const data = JSON.parse(event.data);
+	if (data.type === 'message-emit')
+		addMessage(data.data.from, data.data.message, data.data.timestamp);
+	else if (data.type === 'load-messages')
+		data.data.forEach(msg => addMessage(msg.from, msg.message, msg.timestamp));
+	else if (data.type === 'get-friends-list')
+		data.data.forEach(friend => createFriendList(friend));
+	else if (data.type === 'get-online-users')
+		data.data.forEach(user => addOnlineUser(user));
+};
 
 //Send messages
 
@@ -24,7 +50,10 @@ form.addEventListener('submit', (e) =>{
 
 	if(input.value)
 	{
-		socket.emit('chat-message', input.value);
+		socket.send(JSON.stringify({
+			type: 'chat-message',
+			message: input.value
+		}));
 		input.value = '';
 	}
 });
@@ -36,10 +65,10 @@ form.addEventListener('submit', (e) =>{
 	window.scrollTo(0, document.body.scrollHeight);
 }); */
 
-socket.on('message-emit', (msg, user) =>{
-	const { from, message, timestamp } = msg;
-	addMessage(user, from, message, timestamp);
-});
+// socket.on('message-emit', (msg, user) =>{
+// 	const { from, message, timestamp } = msg;
+// 	addMessage(user, from, message, timestamp);
+// });
 
 
 //Handle messages
@@ -73,13 +102,13 @@ function addMessage(user, from, message, timestamp)
 		messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
-socket.on('load-messages', (content, user) =>{
+// socket.on('load-messages', (content, user) =>{
 	
-	content.forEach(msg => {
-		const { from, message, timestamp } = msg;
-		addMessage(user, from, message, timestamp);
-	});
-});
+// 	content.forEach(msg => {
+// 		const { from, message, timestamp } = msg;
+// 		addMessage(user, from, message, timestamp);
+// 	});
+// });
 
 //Handle online users
 
@@ -114,8 +143,11 @@ function createFriendList (friendName)
 		divFriend.appendChild(currentFriend);
 
 		clearChatContainer();
-		//socket.emit('load-messages', friendName);
-		socket.emit('join-room', friendName);
+		socket.send(JSON.stringify({
+			type: 'join-room',
+			friend: friendName
+		}));
+		// socket.emit('join-room', friendName);
 	});
 
 	friendList.appendChild(roomButton);
@@ -131,12 +163,15 @@ function clearChatContainer()
 refreshButton.addEventListener('click', () =>{
 	const friendList = document.getElementById('friendList');
 	friendList.innerHTML = '';
-	socket.emit('get-friends-list');
+	socket.send(JSON.stringify({
+		type: 'get-friends-list'
+	}));
+	// socket.emit('get-friends-list');
 });
 
-socket.on('get-friends-list', (friends) =>{
-	friends.forEach(friend => createFriendList(friend));
-});
+// socket.on('get-friends-list', (friends) =>{
+// 	friends.forEach(friend => createFriendList(friend));
+// });
 
 function addOnlineUser (user)
 {
@@ -163,7 +198,11 @@ function addOnlineUser (user)
 
 		addButton.textContent = 'Friend Added';
 		addButton.disabled = true;
-		socket.emit('add-friend', nameSpan.textContent);
+		socket.send(JSON.stringify({
+			type: 'add-friend',
+			friend: nameSpan.textContent
+		}));
+		// socket.emit('add-friend', nameSpan.textContent);
 	});
 	
 	userInfo.appendChild(status);
@@ -180,12 +219,15 @@ document.querySelector('.online-users-toggle').addEventListener('click', () =>{
 	userList.innerHTML = '';
 
 	document.querySelector('.online-users-bar').classList.toggle('active');
-	socket.emit('get-online-users');
+	socket.send(JSON.stringify({
+		type: 'get-online-users'
+	}));
+	// socket.emit('get-online-users');
 });
 
-socket.on('get-online-users', (users) =>{
-	users.forEach(user => addOnlineUser(user));
-});
+// socket.on('get-online-users', (users) =>{
+// 	users.forEach(user => addOnlineUser(user));
+// });
 
 document.querySelector('.close-bar').addEventListener('click', () =>{
 	document.querySelector('.online-users-bar').classList.remove('active');

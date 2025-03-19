@@ -1,1 +1,3 @@
 - Adicionar pedido de amizade só é aceite se o outro aceitar o pedido
+- mudar esta função "export async function sendMessage(msg, room, friend)" para fastify
+- procurar se existe mais alguma coisa the socket.io no projeto
