@@ -27,7 +27,7 @@ body {
 	@apply flex flex-col h-full;
 }
 .sidebar-component {
-	@apply flex p-3 rounded-2xl justify-between items-center w-full hover:text-light hover:bg-darker transition-all;
+	@apply flex p-3 rounded-2xl justify-between items-center w-full  hover:bg-light transition-all;
 }
 
 .profile-header {

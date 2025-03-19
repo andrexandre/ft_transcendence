@@ -62,6 +62,7 @@ services:
       npm install;
       exec npm run dev
       "
+    working_dir: /frontend
     ports:
       - "5500:5500"
     volumes:

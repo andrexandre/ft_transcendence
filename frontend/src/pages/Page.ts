@@ -47,32 +47,32 @@ export default abstract class Page {
 	}
 }
 
-// Example code to add a page!
-/*
-import Page from "./Page"
-import * as lib from "../utils"
+// Sample code to add a page:
 
-class CustomPage extends Page {
-	constructor() {
-		super("custompage", '/custompage');
-	}
-	onMount(): void {
-		this.setCustomHandler();
-	}
-	onCleanup(): void {}
-	getHtml(): string {
-		return `<p>Custom page html</p>`;
-	}
-	setCustomHandler() {
-		const customElement = document.querySelector('customElement');
-		const handler = () => {
-			// handler code
-		}
-		customElement?.addEventListener('submit', handler);
-		this.addCleanupHandler(() => customElement?.removeEventListener('submit', handler));
-	}
-}
+// import Page from "./Page"
+// import * as lib from "../utils"
 
-const custompage: CustomPage = new CustomPage();
-export default custompage;
-*/
+// class CustomPage extends Page {
+// 	constructor() {
+// 		super("custompage", '/custompage');
+// 	}
+// 	onMount(): void {
+// 		this.setCustomHandler();
+// 	}
+// 	onCleanup(): void {}
+// 	getHtml(): string {
+// 		return /*html*/`
+// 			<h1>Custom page html</h1>
+// 		`;
+// 	}
+// 	setCustomHandler() {
+// 		const customElement = document.querySelector('customElement');
+// 		const handler = () => {
+// 		}
+// 		customElement?.addEventListener('submit', handler);
+// 		this.addCleanupHandler(() => customElement?.removeEventListener('submit', handler));
+// 	}
+// }
+
+// const custompage: CustomPage = new CustomPage();
+// export default custompage;

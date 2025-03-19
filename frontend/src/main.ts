@@ -9,7 +9,7 @@ import game from "./pages/game/game"
 import * as lib from "./utils"
 
 function loadPage(path: string): void {
-	let CurrentPage: Page = dashboard;
+	let CurrentPage: Page;
 
 	switch (path) {
 		case "/register":
