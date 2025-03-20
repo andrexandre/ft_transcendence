@@ -7,9 +7,9 @@ import cors from '@fastify/cors';
 import dotenv from 'dotenv';
 
 //Decorators
-import { generateToken, prepareTokenData, verifyToken } from './decorators/prepareToken.js';
-import { parseToReadableData } from './decorators/prepareData.js';
-import { parseToReadableOAuth } from './decorators/prepareGoogleAuthData.js';
+import { generateToken, prepareTokenData, verifyToken } from './decorators/login/prepareToken.js';
+import { parseToReadableData } from './decorators/login/prepareData.js';
+import { parseToReadableOAuth } from './decorators/google/prepareGoogleAuthData.js';
 //Routes
 import registerRoutes from './routes/auth/register.js';
 import loginRoutes from './routes/auth/login.js';
