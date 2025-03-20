@@ -8,8 +8,8 @@ import dotenv from 'dotenv';
 
 //Decorators
 import { generateToken, prepareTokenData, verifyToken } from './decorators/prepareToken.js';
-import { setPayload } from './decorators/prepareData.js';
-
+import { parseToReadableData } from './decorators/prepareData.js';
+import { parseToReadableOAuth } from './decorators/prepareGoogleAuthData.js';
 //Routes
 import registerRoutes from './routes/auth/register.js';
 import loginRoutes from './routes/auth/login.js';
@@ -45,7 +45,8 @@ fastify.register(fastifyOAuth, {
 fastify.decorate('prepareTokenData', prepareTokenData);
 fastify.decorate('generateToken', generateToken);
 fastify.decorate('verifyToken', verifyToken);
-fastify.decorate('setPayload', setPayload);
+fastify.decorate('parseToReadableData', parseToReadableData);
+fastify.decorate('parseToReadableOAuth', parseToReadableOAuth);
 
 fastify.register(registerRoutes);
 fastify.register(loginRoutes);
