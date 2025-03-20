@@ -23,12 +23,13 @@ const dropdown = {
 		}
 		button?.addEventListener('click', handler);
 	},
-	addOption: (componentId: string, optionText: string, onClickHandler: () => void) => {
-		const option = document.createElement('button');
-		option.className = 'm-1 px-4 py-2 border-2 border-light hover:border-darker';
-		option.textContent = optionText;
-		option.addEventListener('click', onClickHandler);
-		document.getElementById(`dropdownMenu-${componentId}`)?.appendChild(option);
+	addComponent: (componentId: string, componentName: string, componentClasses: string, html: string, onClickHandler?: () => void) => {
+		const component = document.createElement(componentName);
+		component.className = componentClasses;
+		component.innerHTML = html;
+		if (onClickHandler)
+			component.addEventListener('click', onClickHandler);
+		document.getElementById(`dropdownMenu-${componentId}`)?.appendChild(component);
 	}
 }
 
