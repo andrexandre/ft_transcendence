@@ -17,9 +17,19 @@ export async function registerUsersDecorator(username, email, password) {
     });
 }
 
+export const createUser = function (username, email, password) {
+	const querie = `INSERT INTO 
+					users (username, email, password, is_online, friends) 
+					VALUES (?, ?, ?, 'FALSE', json_array());`;
+	return this.db.run(querie, [ username, email, password ]);
+}
+
+export const getUserByUsername = function (username) {
+	const querie = 'SELECT * FROM users WHERE username = ?';
+	return this.db.get(querie, [ username ]);
+}
 
 export async function getUserByUsernameDecorator(username) {
-    
     return new Promise((resolve, reject) => {
         this.sqlite.get("SELECT * FROM users WHERE username = ?", [username], (err, row) => {
             if (err) {

@@ -6,51 +6,25 @@ import { friendRequestRoute, processFriendRequestRoute } from "./routes/friends/
 import { loadQueryFile } from "./utils/utils_1.js";
 import bcrypt from 'bcrypt'
 import { compileFunction } from "vm";
+import db_test from './plugins/db_plugin2.js';
 
 // Creation of the app  instance
 const server = fastify({ loger: true });
-
-
-
-async function getUsers() {
-	return new Promise((resolve, reject) => {
-	  const content = [];
-  
-	  server.sqlite.each("SELECT * FROM users", (err, row) => {
-		if (err) {
-		  reject(err); // Rejeita a Promise em caso de erro
-		} else {
-		  content.push({
-			id: `${row.id}`,
-			username: `${row.username}`,
-			email: `${row.email}`,
-			password: `${row.password}`,
-			is_online: `${row.is_online}`,
-			friends: JSON.parse(row.friends)
-		  });
-		}
-	  }, (err, numRows) => {
-		if (err) {
-		  reject(err); // Se houver erro no processo, rejeita
-		} else {
-		  resolve(content); // Resolve a Promise com os dados quando terminar
-		}
-	  });
-	});
-}
 
 
 // Only for tests
 server.get('/',  async(request, response) => {
 	
 	response.header('content-type', 'application/json');
-	// estudar o porque que isto funciona com a solucao do chatgpt
-	let content = await getUsers();
+	let tmp = await server.db.all('SELECT * FROM users');
+	if (tmp.length > 0 ) {
+		tmp = tmp.map(item => ({
+		...item,
+		friends: JSON.parse(item.friends)
+		}));
+	}
 
-	console.log('aqui');
-	// console.log(content);
-		
-	response.send(JSON.stringify(content, null, 2));
+	response.send(JSON.stringify(tmp, null, 2));
 });
 
 const listenOptions = {
@@ -64,6 +38,7 @@ async function start() {
 	try {
 		// Ver como registrar todas as routes com auto-load
 		await server.register(fastifySqlite, { dbPath: './user.db'});
+		await server.register(db_test, { dbPath: './user.db'});
 		await server.register(RegisterRoutes);
 		await server.register(LoginRoutes);
 		await server.register(friendRequestRoute);
@@ -80,9 +55,8 @@ async function start() {
 				process.exit(1);
 
 			}
-
 			console.log(content);
-			server.sqlite.run(content);
+			server.db.run(content);
 		});
 
 	} catch(err) {

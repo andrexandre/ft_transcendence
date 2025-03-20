@@ -1,12 +1,12 @@
 import {open} from 'sqlite';
 import sqlite3 from 'sqlite3';
 import fp from 'fastify-plugin';
+import {createUser} from '../decorators/db_decorators.js'
 
 async function dbtest(fastify, options) {
 
-
 	const modes = sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE;
-	const connection =  open({
+	const connection = await open({
 		filename: options.dbPath,
 		driver: (sqlite3.verbose().Database),
 		mode: modes
@@ -16,7 +16,7 @@ async function dbtest(fastify, options) {
 	if (!fastify.db) {
 		fastify.decorate('db', connection);
 		// (name, function, 'decorators dependencies')
-		// fastify.decorate('registerUsers', registerUsersDecorator, ['sqlite']);
+		fastify.decorate('createUser', createUser, ['db']);
 		// fastify.decorate('getUserByUsername', getUserByUsernameDecorator, ['sqlite']);
 		// fastify.decorate('updateUserStatus', updateUserStatusDecorator, ['sqlite']);
 		// fastify.decorate('createFriendRequest', createFriendRequestDecorator, ['sqlite']);
