@@ -1,17 +1,33 @@
 @import "tailwindcss";
 
-#toast-default {
-	@apply flex w-xs p-4 bg-white rounded-lg shadow-lg fixed border-2 top-4 right-4 opacity-0;
+@theme static {
+	--color-lighter: theme(colors.stone.100);
+	--color-light: theme(colors.stone.400);
+	--color-dark: theme(colors.stone.600);
+	--color-darker: theme(colors.stone.800);
 }
 
+body {
+	@apply bg-lighter select-none;
+}
+
+#toast-container {
+	@apply flex flex-col-reverse gap-2 w-xs fixed -top-4 right-4 pt-8;
+}
+
+#toast {
+	@apply flex p-4 rounded-lg shadow-lg border-2;
+	animation: toast-animation 2000ms forwards;
+	/* animation: name duration timing-function delay iteration-count direction fill-mode play-state; */
+}
 .dash-component {
-	@apply gap-4 m-2.5 text-center border-2 border-dashed rounded-3xl text-stone-600 border-stone-400 hover:border-stone-800;
+	@apply gap-4 m-2.5 text-center border-2 border-dashed rounded-3xl text-dark border-light hover:border-darker;
 }
 .sidebar-list {
 	@apply flex flex-col h-full;
 }
 .sidebar-component {
-	@apply flex p-3 rounded-2xl justify-between items-center w-full hover:text-stone-400 hover:bg-stone-800 transition-all;
+	@apply flex p-3 rounded-2xl justify-between items-center w-full hover:text-light hover:bg-darker transition-all;
 }
 
 .profile-header {
@@ -20,4 +36,9 @@
 
 img {
 	@apply pointer-events-none;
+}
+
+@keyframes toast-animation {
+	0%, 100% { opacity: 0; transform: translateY(-30px); }
+	10%, 90% { opacity: 1; transform: translateY(0); }
 }

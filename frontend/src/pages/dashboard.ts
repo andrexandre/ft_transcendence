@@ -1,6 +1,5 @@
-import lib from "../lib"
 import Page from "./Page"
-import { assignButtonNavigation } from "../utils/navigation";
+import * as lib from "../utils"
 
 class Dashboard extends Page {
 	constructor() {
@@ -14,7 +13,10 @@ class Dashboard extends Page {
 		document.getElementById("chat-button")!.addEventListener("click", () => {
 			window.location.href = "http://127.0.0.1:2000/?user=Antony";
 		});
-		assignButtonNavigation('settings-button', '/login');
+		document.getElementById("notifications-button")!.addEventListener("click", () => {
+			lib.showToast();
+		});
+		lib.assignButtonNavigation('settings-button', '/login');
 	}
 	onCleanup(): void {}
 	getHtml(): string {
@@ -62,7 +64,7 @@ class Dashboard extends Page {
 			<main class="grid grid-cols-2 grid-rows-2 flex-1">
 				<div id="profile" class="dash-component p-10 grid">
 					<div class="profile-header">
-						<img class="rounded-full size-48 shadow-xl shadow-stone-400 border-2" src="https://picsum.photos/id/237/200">
+						<img class="rounded-full size-48 shadow-xl shadow-neutral-400 border-2" src="https://picsum.photos/id/237/200">
 						<div class="justify-center self-center">
 							<h1 class="text-3xl font-bold">Sir Barkalot</h1>
 							<p class="text-xl">The mighty tail-wagger</p>
@@ -110,7 +112,7 @@ class Dashboard extends Page {
 		const handler = () => {
 			const pElements = sidebar?.querySelectorAll('p');
 			if (!sidebar || !sidebarList)
-				return lib.showToast(false, null);
+				return lib.showToast.red();
 			pElements?.forEach(p => {
 				if (p.style.display === 'none') {
 					p.previousElementSibling?.classList.replace('fa-bars', 'fa-arrow-left');

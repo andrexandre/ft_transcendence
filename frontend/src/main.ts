@@ -1,35 +1,35 @@
-import '@fortawesome/fontawesome-free/css/all.min.css';
+import '@fortawesome/fontawesome-free/css/all.min.css'
 import "./tw.css"
+import "./entrypoint"
 import Page from "./pages/Page"
 import dashboard from "./pages/dashboard"
 import login from "./pages/login"
 import register from "./pages/register"
-import lib from "./lib"
-import "./entrypoint"
-import { navigate, assignButtonNavigation } from "./utils/navigation";
+import * as lib from "./utils"
 
 function loadPage(path: string): void {
-	const content = document.getElementById("app") as HTMLElement;
 	let CurrentPage: Page = dashboard;
 
 	switch (path) {
 		case "/login":
 			CurrentPage = login;
-			content.innerHTML = login.getHtml();
 			break;
 		case "/register":
 			CurrentPage = register;
-			content.innerHTML = register.getHtml();
 			break;
 		default:
-			lib.showToast(false, "404 - Page Not Found");
+			lib.showToast.red("404 - Page Not Found");
 			history.replaceState(null, "", "/");
 		case "/":
 			CurrentPage = dashboard;
-			content.innerHTML = dashboard.getHtml();
 			break;
 	}
+	document.getElementById("app")!.innerHTML = CurrentPage.getHtml();
 	CurrentPage.mount();
+	if (lib.Cookies.get('outline')) {
+		document.dispatchEvent(new KeyboardEvent('keydown', { key: ' ' }));
+		lib.Cookies.set('outline', 'true');
+	}
 }
 
 // fix circular dependency for navigate function
@@ -42,5 +42,3 @@ window.addEventListener("popstate", () => {
 });
 
 loadPage(location.pathname);
-
-export { navigate, assignButtonNavigation };

@@ -1,6 +1,5 @@
-import lib from "../lib"
 import Page from "./Page"
-import { navigate, assignButtonNavigation } from "../utils/navigation";
+import * as lib from "../utils"
 
 class Register extends Page {
 	constructor() {
@@ -8,7 +7,7 @@ class Register extends Page {
 	}
 	onMount(): void {
 		this.setSubmissionHandler('http://127.0.0.1:7000/register');
-		assignButtonNavigation('login-button', '/login');
+		lib.assignButtonNavigation('login-button', '/login');
 	}
 	onCleanup(): void {}
 	getHtml(): string {
@@ -57,11 +56,11 @@ class Register extends Page {
 				if (!response.ok) {
 					throw new Error(`${response.status} - ${response.statusText}`);
 				}
-				lib.showToast(true, `${response.status} - ${response.statusText}`);
-				navigate(e, "/login");
+				lib.showToast.green(`${response.status} - ${response.statusText}`);
+				lib.navigate(e, "/login");
 			} catch (error) {
 				console.log(error);
-				lib.showToast(false, error as string);
+				lib.showToast.red(error as string);
 			}
 		};
 		form?.addEventListener('submit', handler);
