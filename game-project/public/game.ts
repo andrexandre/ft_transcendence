@@ -21,6 +21,11 @@ export function startSingleClassic(username: string, settings: { difficulty: str
     }
     scoreboard.style.display = "block";
 
+    const player1Id = parseInt(sessionStorage.getItem("user_id") || "0", 10); // Get user_id from session
+    const player2Id = 9999; // AI Player ID 
+
+    console.log(`🔍 Player 1 ID: ${player1Id}, Player 2 ID: ${player2Id}`);
+
     // Set table size based on settings
      if (settings.tableSize === "small") {
         gameCanvas.width = 400;
@@ -36,25 +41,23 @@ export function startSingleClassic(username: string, settings: { difficulty: str
     // Game Objects
     let playerY = gameCanvas.height / 2 - 40;
     let aiY = gameCanvas.height / 2 - 40;
-    let ballX = gameCanvas.width / 10; /// wtf?
-    let ballY = gameCanvas.height / 10;
+    let ballX = gameCanvas.width / 2;
+    let ballY = gameCanvas.height / 2;
     let ballSpeedX = 0;
     let ballSpeedY = 0;
-    const initialSpeedX = 5;
-    const initialSpeedY = 3;
-    const paddleSpeed = 2.5;
+    const paddleSpeed = 5;
     const paddleHeight = 80;
     let playerScore = 0;
-    
     let aiScore = 0;
-    let aiError: number;
+    
     // Set Dificulty
+    let aiError = 0;
     if (settings.difficulty === "easy") {
-        aiError = 80;
-    } else if (settings.difficulty === "normal") {
         aiError = 50;
-    } else if (settings.difficulty === "hard") {
+    } else if (settings.difficulty === "normal") {
         aiError = 20;
+    } else if (settings.difficulty === "hard") {
+        aiError = 5;
     }
 
     let gameOver = false;
@@ -93,15 +96,17 @@ export function startSingleClassic(username: string, settings: { difficulty: str
     function update() {
         if (gameOver) return;
 
+        // Player moves
         if (upPressed && playerY > 0) playerY -= paddleSpeed;
         if (downPressed && playerY < gameCanvas.height - paddleHeight) playerY += paddleSpeed;
 
+        // Ball moves
         ballX += ballSpeedX;
         ballY += ballSpeedY;
 
-        if (ballY <= 0 || ballY >= gameCanvas.height) ballSpeedY *= -1;
-        if (ballX <= 20 && ballY > playerY && ballY < playerY + paddleHeight) ballSpeedX *= -1;
-        if (ballX >= gameCanvas.width - 20 && ballY > aiY && ballY < aiY + paddleHeight) ballSpeedX *= -1;
+        if (ballY <= 10 || ballY >= gameCanvas.height - 10) ballSpeedY *= -1;
+        if (ballX <= 10 && ballY > playerY && ballY < playerY + paddleHeight) ballSpeedX *= -1;
+        if (ballX >= gameCanvas.width - 10 && ballY > aiY && ballY < aiY + paddleHeight) ballSpeedX *= -1;
 
         if (ballX < 0) {
             aiScore++;
@@ -114,25 +119,52 @@ export function startSingleClassic(username: string, settings: { difficulty: str
             resetGame();
         }
         
-        // ai error logic
-        const errorFactor = Math.random() * aiError - aiError / 2;
+        // AI moves + error logic
+        const errorFactor = (Math.random() * aiError) - (aiError / 2);
         if (aiY + 70 < ballY + errorFactor) aiY += paddleSpeed;
         if (aiY + 70 > ballY + errorFactor) aiY -= paddleSpeed;
+
+        // AI reaction delay based on wait
+        // const reactionThreshold = 20 + aiError; 
+        // if (Math.abs(ballX - gameCanvas.width + 100) < reactionThreshold) {
+            // const errorFactor = (Math.random() * aiError) - (aiError / 2);
+        
+            // if (aiY + paddleHeight / 2 < ballY + errorFactor) aiY += paddleSpeed;
+            // if (aiY + paddleHeight / 2 > ballY + errorFactor) aiY -= paddleSpeed;
+        // }
+
 
         if (aiY < 0) aiY = 0;
         if (aiY > gameCanvas.height - 80) aiY = gameCanvas.height - 80;
     }
 
-    function checkWinCondition() { /// Change condition
-        if (playerScore === 1) {
+    function checkWinCondition() { /// Change condition score and Winning msg ///
+        if (playerScore === 2) {
             gameOver = true;
             setTimeout(() => endGame(`${username} Wins!`, "blue"), 1000);
-        } else if (aiScore === 1) {
+        } else if (aiScore === 2) {
             gameOver = true;
-            setTimeout(() => endGame("YOU Suck!", "red"), 1000); // CHANGE Final stage
+            setTimeout(() => endGame("YOU Suck!", "red"), 1000);
         }
     }
     
+    async function saveMatchToDatabase(player1Id: number, player2Id: number, player1Score: number, player2Score: number, gameMode: string, winnerId: number) {
+        try {
+            const response = await fetch("/save-match", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ player1Id, player2Id, player1Score, player2Score, gameMode, winnerId }),
+            });
+    
+            if (!response.ok) throw new Error("Failed to save match");
+    
+            console.log("✅ Match saved successfully!");
+    
+        } catch (error) {
+            console.error("❌ Error saving match:", error);
+        }
+    }
+
     function endGame(message: string, color: string) {
         countdownValue = 0; 
         gameOver = true;
@@ -148,7 +180,13 @@ export function startSingleClassic(username: string, settings: { difficulty: str
         ctx.font = "50px 'Press Start 2P'";
         ctx.textAlign = "center";
         ctx.fillText(message, gameCanvas.width / 2, gameCanvas.height / 2);
-    
+        
+        // Determine winner
+        const winnerId = playerScore > aiScore ? player1Id : player2Id;
+        
+        // Send match data to DB
+        saveMatchToDatabase(player1Id, player2Id, playerScore, aiScore, "classic", winnerId);
+
         setTimeout(() => {
             returnToMenu();
         }, 5000);
@@ -172,8 +210,14 @@ export function startSingleClassic(username: string, settings: { difficulty: str
             if (countdownValue <= 0) {
                 clearInterval(countdownInterval);
                 if (!gameOver) {
-                    ballSpeedX = initialSpeedX;
-                    ballSpeedY = initialSpeedY;
+                const angleOptions = [Math.random() * 90 - 45, Math.random() * 90 + 135];
+                const randomAngle = angleOptions[Math.floor(Math.random() * angleOptions.length)];
+                
+                const angleRad = randomAngle * (Math.PI / 180);
+
+                const speed = 7;
+                ballSpeedX = speed * Math.cos(angleRad);
+                ballSpeedY = speed * Math.sin(angleRad);
                 }
             }
         }, 1000);
