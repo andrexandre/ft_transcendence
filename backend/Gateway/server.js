@@ -5,6 +5,7 @@ import fastifyCookie from '@fastify/cookie';
 import fastifyOAuth from '@fastify/oauth2';
 import cors from '@fastify/cors';
 import dotenv from 'dotenv';
+import fs from 'fs';
 
 //Decorators
 import { generateToken, prepareTokenData, verifyToken } from './decorators/login/prepareToken.js';
@@ -24,6 +25,10 @@ const fastify = Fastify({
     level: 'debug',
     timestamp: true, 
   },
+  // https: {
+  //   key: fs.readFileSync('private-key.pem'),
+  //   cert: fs.readFileSync('certificate.pem')
+  // }
 });
 
 fastify.register(fastifyCookie);
@@ -64,7 +69,7 @@ fastify.register(fastifyJwt, {
 });
 
 fastify.register(cors, {
-  origin: ['http://127.0.0.1:5500', 'http://pongify:5000'], // Allow frontend origin
+  origin: ['http://vite:5500', 'http://pongify:5000'], // Allow frontend origin
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true // Allow cookies if needed
 });

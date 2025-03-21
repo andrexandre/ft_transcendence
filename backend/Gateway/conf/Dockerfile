@@ -10,7 +10,7 @@ RUN apt update && \
 
 WORKDIR /backend
 
-#ENTRYPOINT [ "/bin/setup.sh" ]
+ENTRYPOINT [ "/bin/setup.sh" ]
 
 CMD [ "npm" , "run", "dev"]
 # CMD ["tail", "-f", "/dev/null"]
