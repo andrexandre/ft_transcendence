@@ -1,5 +1,9 @@
 export { default as Cookies } from 'js-cookie';
 
+export var userInfo = {
+	username: ""
+}
+
 export function showToast(message?: string, type: string = ""): void {
 	const toast = document.createElement('div');
 	toast.id = 'toast';

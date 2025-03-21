@@ -57,6 +57,8 @@ class Login extends Page {
 				}
 				lib.showToast.green(`${response.status} - ${response.statusText}`);
 				lib.navigate(e, "/");
+				let loginResponseData = await response.json();
+				lib.userInfo.username = loginResponseData.username
 			} catch (error) {
 				console.log(error);
 				lib.showToast.red(error as string);
