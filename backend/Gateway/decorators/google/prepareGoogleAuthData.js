@@ -7,7 +7,7 @@ export async function parseToReadableOAuth(token) {
         const payload = {
             username : data.name,
             email : data.email,
-            auth_method : "GOOGLE",
+            method : "google",
         }
         return payload;
     }catch(err){

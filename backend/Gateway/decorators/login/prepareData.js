@@ -3,7 +3,7 @@ export async function parseToReadableData(token) {
     const payload = {
         username: data.username,
         userId: data.userId,
-        auth_method: data.auth_method,
+        method: data.auth_method,
     };
     return payload;
 }

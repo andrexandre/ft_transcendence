@@ -15,7 +15,7 @@ function loginRoute(fastify, options) {
             body: JSON.stringify(payload)
         });
         if(response.status == 200){
-            const payload = await fastify.prepareTokenData(response, "default");
+            const payload = await fastify.prepareTokenData(response, "email");
             const token = await fastify.generateToken(payload);
             reply.status(200).setCookie("token", token, {
                 path: '/',
