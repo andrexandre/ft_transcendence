@@ -1,5 +1,9 @@
 export { default as Cookies } from 'js-cookie';
 
+export var userInfo = {
+	username: ""
+}
+
 export function showToast(message?: string, type: string = ""): void {
 	const toast = document.createElement('div');
 	toast.id = 'toast';
@@ -22,7 +26,7 @@ export function showToast(message?: string, type: string = ""): void {
 		default:
 			toast.className = "bg-lighter border-light text-darker hover:border-darker";
 	}
-	setTimeout(() => toast.remove(), 2100);
+	setTimeout(() => toast.remove(), 3100);
 }
 showToast.green = (message?: string) => showToast(message, "green");
 showToast.red = (message?: string) => showToast(message, "red");
