@@ -34,7 +34,7 @@ async function RegisterRoutes(server, opts) {
                 // Password hashing
                 const salt = await bcrypt.genSalt(10);
                 const hashedPassword = await bcrypt.hash(password, salt);
-				await server.createUser(username, email, password);
+				await server.createUser(username, email, hashedPassword);
             } catch(err) {
 				// console.log(err);
 				// console.log(err.name);

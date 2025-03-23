@@ -1,7 +1,11 @@
 import {open} from 'sqlite';
 import sqlite3 from 'sqlite3';
 import fp from 'fastify-plugin';
-import {createUser} from '../decorators/db_decorators.js'
+import {
+	createUser, 
+	getUserByUsername,
+	updateUserStatus
+} from '../decorators/db_decorators.js'
 
 async function dbtest(fastify, options) {
 
@@ -17,8 +21,8 @@ async function dbtest(fastify, options) {
 		fastify.decorate('db', connection);
 		// (name, function, 'decorators dependencies')
 		fastify.decorate('createUser', createUser, ['db']);
-		// fastify.decorate('getUserByUsername', getUserByUsernameDecorator, ['sqlite']);
-		// fastify.decorate('updateUserStatus', updateUserStatusDecorator, ['sqlite']);
+		fastify.decorate('getUserByUsername', getUserByUsername, ['db']);
+		fastify.decorate('updateUserStatus', updateUserStatus, ['db']);
 		// fastify.decorate('createFriendRequest', createFriendRequestDecorator, ['sqlite']);
 		// fastify.decorate('acceptFriendRequest', acceptFriendRequestDecorator, ['sqlite']);
 	}
