@@ -92,65 +92,68 @@ export const rooms = new Map();
 // 	});
 // }
 
-export async function SocketHandler(connection, req)
+export async function SocketHandler(connection, req, username)
 {
-	const url = new URL(req.url, `http://${req.headers.host}`);
-	const username = url.searchParams.get('username');
+	try {
 
-	if (!username) {
-		console.log('Connection attempt without username - rejected');
-		connection.socket.send('Error: No username provided');
-		connection.socket.close();
-		return;
-	}
-	users.set(username, connection.socket);
-	sockets.set(connection.socket, username);
-	console.log(`${username} connected`);
-
-	const friends = await getFriends(username);
-	const online_friends = await checkFriendOnline(friends);
-	connection.socket.send(JSON.stringify({ type: 'get-friends-list', data: online_friends }));
-
-	connection.socket.on('message', async (message) => {
-		let data;
-		try {
-			data = JSON.parse(message);
-		}
-		catch (error) {
-			console.error('Invalid message format: ' + message);
-			return;
-		}
-		switch (data.type){
-			case 'chat-message':
-				handleChatMessage(username, data.message, connection.socket);
-				break;
-			case 'join-room':
-				joinRoom(username, data.friend, connection.socket);
-				break;
-			case 'get-friends-list':
-				sendFriendList(username, connection.socket);
-				break;
-			case 'get-friends-list':
-				sendOnlineUsers(username, connection.socket);
-				break;
-			case 'add-friend':
-				addFriend(username, data.friend);
-				break;
-		}
-	});
-	connection.socket.on('close', () =>{
-		console.log(`${username} disconnected`);
-		users.delete(username);
-		sockets.delete(connection.socket);
-
-		for (const [room, clients] of rooms.entries()) {
-			if (clients.has(connection.socket)) {
-				clients.delete(connection.socket);
-				if(clients.size === 0)
-					rooms.delete(room);
+		users.set(username, connection.socket);
+		sockets.set(connection.socket, username);
+		console.log(`${username} connected`);
+	
+		const friends = await getFriends(username);
+		const online_friends = await checkFriendOnline(friends);
+		connection.socket.send(JSON.stringify({ type: 'get-friends-list', data: online_friends }));
+	
+		connection.socket.on('message', async (message) => {
+			let data;
+			try {
+				data = JSON.parse(message);
 			}
-		}
-	});
+			catch (error) {
+				console.error('Invalid message format: ' + message);
+				return;
+			}
+			switch (data.type){
+				case 'chat-message':
+					await handleChatMessage(username, data.message, connection.socket);
+					break;
+				case 'join-room':
+					await joinRoom(username, data.friend, connection.socket);
+					break;
+				case 'get-friends-list':
+					await sendFriendList(username, connection.socket);
+					break;
+				case 'get-online-users':
+					await sendOnlineUsers(username, connection.socket);
+					break;
+				case 'add-friend':
+					await addFriend(username, data.friend);
+					break;
+			}
+		});
+		connection.socket.on('close', () =>{
+			console.log(`${username} disconnected`);
+			users.delete(username);
+			sockets.delete(connection.socket);
+	
+			for (const [room, clients] of rooms.entries()) {
+				if (clients.has(connection.socket)) {
+					clients.delete(connection.socket);
+					if(clients.size === 0)
+						rooms.delete(room);
+				}
+			}
+		});
+	}
+	catch (error) {
+		console.error(`Error handling socket for ${username}:`, error);
+        // Maybe try to close the connection cleanly
+        try {
+            connection.socket.close();
+        } catch (e) {
+            console.error('Error closing socket:', e);
+        }
+	}
 }
 
 async function handleChatMessage(username, msg, socket)

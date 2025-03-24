@@ -1,10 +1,10 @@
 /* const { ItemAssignmentContextImpl } = require("twilio/lib/rest/numbers/v2/regulatoryCompliance/bundle/itemAssignment");
 const { SupportingDocumentContextImpl } = require("twilio/lib/rest/trusthub/v1/supportingDocument"); */
-import Fastify from 'fastify';
-import fastifyWebsocket from '@fastify/websocket';
+// import Fastify from 'fastify';
+// import fastifyWebsocket from '@fastify/websocket';
 
-const fastify = Fastify();
-fastify.register(fastifyWebsocket);
+// const fastify = Fastify();
+// fastify.register(fastifyWebsocket);
 
 const form = document.getElementById('form');
 const input = document.getElementById('input');
@@ -16,7 +16,8 @@ const refreshButton = document.getElementById('refresh-button');
 const urlParams = new URLSearchParams(window.location.search);
 const username = urlParams.get('user');
 
-const socket = new WebSocket(`ws://localhost:3000/chat-ws?user=${username}`);
+const host = `ws://localhost:2000/chat-ws?user=${username}`;
+const socket = new WebSocket(host);
 
 socket.onopen = () => {
 	console.log('Connected to Fastify WebSocket');

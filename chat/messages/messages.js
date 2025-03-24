@@ -1,8 +1,8 @@
-import { users,sockets } from '../socket/socket_handler.js';
-import { roomName } from '../rooms/user.js';
+import { sockets, rooms } from '../socket/socket_handler.js';
+// import { roomName } from '../rooms/user.js';
 import * as fs from 'fs';
 import * as path from 'path';
-import { Socket } from 'dgram';
+// import { Socket } from 'dgram';
 
 export async function storeChat(room, message)
 {
@@ -60,9 +60,16 @@ export async function loadMessages(room)
 
 export async function sendMessage(msg, room, friend)
 {
-	const isInRoom = (users.get(friend).rooms.has(room)) ? true : false;
+	if(!rooms.has(room))
+	{
+		storeChat(room, from);
+		return ;
+	}
 
-	if(isInRoom == true)
+	// const isInRoom = (users.get(friend).rooms.has(room)) ? true : false;
+	const isFriendInRoom = [...rooms.get(room)].some(socket => sockets.get(socket) === friend);
+
+	if(isFriendInRoom)
 	{
 		storeChat(room, msg);
 		return 'emit';

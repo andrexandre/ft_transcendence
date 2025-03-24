@@ -20,19 +20,22 @@ import { Server } from 'socket.io';
 
 const fastify = _fastify();
 const port = 2000;
+let username;
 
-async function setupServer() {
+async function setupServer() {	
 	await fastify.register(fastifyStatic, {
 		root: join(import.meta.dirname, 'public'),
 		prefix: '/'
 	});
+
+	await fastify.register(fastifyWebsocket);
 
 	/* fastify.addHook('onRequest', async (request, reply) => {
 		console.log(`Incoming request: ${request.method} ${request.url}`);
 	}); */
 
 	fastify.get('/', async (request, reply) => {
-		const username = request.query.user;
+		username = request.query.user;
 
 		if (!username)
 			return reply.send('Please provide a username in the URL (e.g., /?user=Antony)');
@@ -41,7 +44,14 @@ async function setupServer() {
 	});
 
 	fastify.get('/chat-ws', { websocket: true }, async (connection, req) => {
-        await SocketHandler(connection, req);
+		try {
+			const wsUsername = req.query.user; // Get username from WebSocket request
+    		console.log("WebSocket connection received for user:", wsUsername);
+			await SocketHandler(connection, req, wsUsername);
+		} catch (error) {
+			console.error('Error in WebSocket handler:', error);
+			connection.socket.close();
+		}
     });
 
 	return fastify;
