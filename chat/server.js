@@ -1,10 +1,10 @@
-import _fastify from 'fastify'
+import fastify from 'fastify'
 import fastifyStatic from '@fastify/static';
 import fastifyWebsocket from '@fastify/websocket';
-import path, { join } from 'path';
+import path, { join, dirname } from 'path';
 import { createUser, initializeDatabase } from './database/db.js';
 import { SocketHandler } from './socket/socket_handler.js';
-import { Server } from 'socket.io';
+import { fileURLToPath } from 'url';
 // const fastify = require('fastify')();
 // const { createServer } = require('node:http');
 // const { join } = require('node:path');
@@ -18,23 +18,26 @@ import { Server } from 'socket.io';
 // const { users, sockets } = require('./socket/socket_handler.js');
 // const { bindSocket } = require('./socket/socket_handler.js');
 
-const fastify = _fastify();
+const server_chat = fastify();
 const port = 2000;
 let username;
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 async function setupServer() {	
-	await fastify.register(fastifyStatic, {
-		root: join(import.meta.dirname, 'public'),
+	await server_chat.register(fastifyStatic, {
+		root: join(__dirname, 'public'),
 		prefix: '/'
 	});
 
-	await fastify.register(fastifyWebsocket);
+	await server_chat.register(fastifyWebsocket);
 
-	/* fastify.addHook('onRequest', async (request, reply) => {
+	/* server_chat.addHook('onRequest', async (request, reply) => {
 		console.log(`Incoming request: ${request.method} ${request.url}`);
 	}); */
 
-	fastify.get('/', async (request, reply) => {
+	server_chat.get('/', async (request, reply) => {
 		username = request.query.user;
 
 		if (!username)
@@ -43,27 +46,24 @@ async function setupServer() {
 		return reply.sendFile('index.html');
 	});
 
-	fastify.get('/chat-ws', { websocket: true }, async (connection, req) => {
+	server_chat.get('/chat-ws', { websocket: true }, async (connection, req) => {
 		try {
-			const wsUsername = req.query.user; // Get username from WebSocket request
-    		console.log("WebSocket connection received for user:", wsUsername);
-			await SocketHandler(connection, req, wsUsername);
+			SocketHandler(connection, username);
 		} catch (error) {
 			console.error('Error in WebSocket handler:', error);
 			connection.socket.close();
 		}
     });
 
-	return fastify;
 }
 
 async function main() {
 
 	try {
-		const server = await setupServer();
+		await setupServer();
 		const db = await initializeDatabase();
 
-		await server.listen({ port: port });
+		await server_chat.listen({ port: port });
 		console.log(`Server running at http://localhost:${port}`);
 	}
 	catch (error) {
