@@ -1,10 +1,5 @@
 {
     "compilerOptions": {
-      // "outDir": "./",
-      // "rootDir": "./",
-      // "allowJs": true,
-      // "noImplicitAny": false,
-      // "noEmitOnError": false,
       "target": "ESNext",
       "module": "ESNext",
       "moduleResolution": "bundler",
@@ -17,6 +12,3 @@
     "include": ["**/*.ts", "public/**/*.ts"], 
     "exclude": ["node_modules"]
 }
-
-// change **/*.ts from server.ts
-// ESNext

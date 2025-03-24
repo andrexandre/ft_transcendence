@@ -7,6 +7,7 @@ import path from "path";
 import db_game from "./db_game.js";
 
 const gamefast = fastify({ logger: true });
+const rooms: Record<string, { players: any[]; usernames: string[] }> = {};
 
 gamefast.register(fastifyWebsocket);
 gamefast.register(fastifyCookie);
@@ -15,6 +16,61 @@ gamefast.register(fastifyStatic, {
     prefix: "/",
 });
 gamefast.register(fastifyJwt, { secret: "supersecret" });
+
+// WebSocket Route
+gamefast.register(async function (fastify) {
+    gamefast.get('/ws', { websocket: true }, (connection, req) => {
+        console.log("🔌 New WebSocket connection!");
+        
+        connection.socket.on('message', (message: Buffer) => {
+            console.log("📩 Raw WebSocket message received:", message.toString());
+            
+        connection.socket.on("close", () => {
+            console.log("🔴 WebSocket connection closed.");
+        });
+            try {
+                const data = JSON.parse(message.toString());
+                console.log("🧠 Parsed WebSocket data:", data);
+    
+                if (data.type === "join-room") {
+                    console.log(`🚪 User '${data.username}' attempting to join room '${data.roomId}'`);
+    
+                    if (!rooms[data.roomId]) {
+                        rooms[data.roomId] = { players: [], usernames: [] };
+                    }
+    
+                    rooms[data.roomId].players.push(connection.socket);
+                    rooms[data.roomId].usernames.push(data.username);
+    
+                    console.log(`✅ ${data.username} joined room '${data.roomId}'. Players:`, rooms[data.roomId].usernames);
+    
+                    // Start game if room has 2 players
+                    if (rooms[data.roomId].players.length === 2) {
+                        console.log("🎮 Starting game for room", data.roomId);
+    
+                        rooms[data.roomId].players.forEach((sock, index) => {
+                            sock.send(JSON.stringify({
+                                type: "start-game",
+                                username: rooms[data.roomId].usernames[index],
+                                opponent: rooms[data.roomId].usernames[1 - index],
+                                playerIndex: index
+                            }));
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error("❌ Error processing WebSocket message:", error);
+            }
+        });
+    
+        connection.socket.on("close", () => {
+            console.log("❌ WebSocket connection closed");
+        });
+    });    
+});
+
+
+
 
 // Fetch user data from Gateway
 async function fetchUserDataFromGateway(token: string | undefined) {
@@ -39,6 +95,7 @@ async function fetchUserDataFromGateway(token: string | undefined) {
         return null;
     }
 }
+
 
 // Route: Check or Create User
 gamefast.get("/get-user-data", async (request, reply) => {
@@ -197,8 +254,7 @@ interface SaveMatchRequest {
     };
 }
 
-
-// ✅ Save match and Send to API
+// Save match and Send to API
 gamefast.post<SaveMatchRequest>("/save-match", async (request, reply) => {
     const { gameMode, player1Id, player2Id, player1Score, player2Score, winnerId } = request.body;
 
@@ -241,44 +297,6 @@ gamefast.post<SaveMatchRequest>("/save-match", async (request, reply) => {
         }
     );
 });
-
-// gamefast.post<SaveMatchRequest>("/save-match", async (request, reply) => {
-//     const { player1Id, player2Id, player1Score, player2Score, gameMode, winnerId } = request.body;
-
-//     if (!player1Id || !player2Id || !gameMode) {
-//         return reply.status(400).send({ error: "Missing required match data" });
-//     }
-
-//     console.log(`📌 Saving match result: ${player1Id} vs ${player2Id}, Mode: ${gameMode}`);
-
-//     try {
-//         await new Promise<void>((resolve, reject) => {
-//             db_game.run(
-//                 `INSERT INTO games 
-//                     (game_mode, game_player1_id, game_player2_id, game_player1_score, game_player2_score, game_winner) 
-//                  VALUES (?, ?, ?, ?, ?, ?)`,
-//                 [gameMode, player1Id, player2Id, player1Score, player2Score, winnerId],
-//                 function (err) {
-//                     if (err) {
-//                         console.error("❌ Error saving match:", err.message);
-//                         reject(err);
-//                     } else {
-//                         console.log("✅ Match saved successfully!");
-//                         resolve();
-//                     }
-//                 }
-//             );
-//         });
-
-//         reply.send({ message: "Match saved successfully!" });
-
-//     } catch (error) {
-//         console.error("❌ Database error:", error);
-//         reply.status(500).send({ error: "Database error" });
-//     }
-// });
-
-
 
 // Start the Server
 const start = async () => {

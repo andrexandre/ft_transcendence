@@ -1,4 +1,5 @@
 import { startSingleClassic } from "./game.js";
+import { startFreeForAll} from "./freeForAll.js"
 
 const menu = document.getElementById("menu") as HTMLDivElement;
 const gameCanvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
@@ -18,6 +19,7 @@ const settingsMenu = document.getElementById("settings-menu") as HTMLDivElement;
 // Submenu buttons
 const classicBtn = document.getElementById("classic") as HTMLButtonElement;
 const infinityBtn = document.getElementById("infinity") as HTMLButtonElement;
+const freeForAllBtn = document.getElementById("freeforall") as HTMLButtonElement;
 const saveSettingsBtn = document.getElementById("save-settings") as HTMLButtonElement;
 
 // Settings fields
@@ -62,7 +64,6 @@ singleBtn.addEventListener("click", () => toggleMenu(singleMenu));
 multiBtn.addEventListener("click", () => toggleMenu(multiMenu));
 coopBtn.addEventListener("click", () => toggleMenu(coopMenu));
 settingsBtn.addEventListener("click", () => toggleMenu(settingsMenu));
-
 
 // Fetch user data when menu loads
 document.addEventListener("DOMContentLoaded", async () => {
@@ -120,6 +121,32 @@ classicBtn.addEventListener("click", (event) => {
     gameCanvas.classList.add("visible");
 
     startSingleClassic(username, { difficulty, tableSize, sound });
+});
+
+freeForAllBtn.addEventListener("click", () => {
+    const username = sessionStorage.getItem("username");
+    if (!username) {
+        console.error("❌ No username found in sessionStorage!");
+        return;
+    }
+    console.log(`🆕 Free For All button clicked by ${username}`);
+
+    const ws = new WebSocket("ws://localhost:5000/ws");
+    const roomId = "ffa"; // Create a IdGen layter ///////////////
+    console.log(`📡 WebSocket readyState: ${ws.readyState}`);
+
+    if (ws.readyState === WebSocket.OPEN) {
+        const message = JSON.stringify({
+            type: "join-room",
+            username,
+            roomId
+        });
+
+        console.log("📤 Sending WebSocket message:", message);
+        ws.send(message);
+    } else {
+        console.error("⚠️ WebSocket is not open. Current state:", ws.readyState);
+    }
 });
 
 // Save Settings to sessionStorage & DB
