@@ -4,7 +4,8 @@ import fp from 'fastify-plugin';
 import {
 	createUser, 
 	getUserByUsername,
-	updateUserStatus
+	updateUserStatus,
+	createFriendRequest
 } from '../decorators/db_decorators.js'
 
 async function dbtest(fastify, options) {
@@ -23,7 +24,7 @@ async function dbtest(fastify, options) {
 		fastify.decorate('createUser', createUser, ['db']);
 		fastify.decorate('getUserByUsername', getUserByUsername, ['db']);
 		fastify.decorate('updateUserStatus', updateUserStatus, ['db']);
-		// fastify.decorate('createFriendRequest', createFriendRequestDecorator, ['sqlite']);
+		fastify.decorate('createFriendRequest', createFriendRequest, ['db']);
 		// fastify.decorate('acceptFriendRequest', acceptFriendRequestDecorator, ['sqlite']);
 	}
 	fastify.addHook('onClose', (fastify, done) => connection.end().then(done).catch(done));

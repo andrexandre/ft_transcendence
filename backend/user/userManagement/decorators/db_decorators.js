@@ -18,22 +18,30 @@ export const updateUserStatus = function (username) {
 	return this.db.get(querie, [ username ]);
 }
 
-
-export async function createFriendRequestDecorator(user1, user2, id) {
-	return new Promise((resolve, reject) => {
-
-	  this.sqlite.run(`UPDATE users 
+export const createFriendRequest = function (user1, user2, id) {
+	const querie = `UPDATE users 
 		SET friends = json_insert(friends, '$[#]',
 		json_object('request', 'true', 'requestorID', ${user2.id}, 'requesteeID', ${user1.id}, 'requestStatus', "PENDING")) 
-		WHERE id = ?;`, [id], (err, row) => {
-		if (err) {
-		  reject(err); // Rejeita a Promise em caso de erro
-		} else {
-		  resolve('');
-		}
-	  });
-	});
+		WHERE id = ?;`
+	console.log("ELE usou esta funcao aqui");
+	return this.db.run(querie, [ id ])
 }
+
+// export async function createFriendRequestDecorator(user1, user2, id) {
+// 	return new Promise((resolve, reject) => {
+
+// 	  this.sqlite.run(`UPDATE users 
+// 		SET friends = json_insert(friends, '$[#]',
+// 		json_object('request', 'true', 'requestorID', ${user2.id}, 'requesteeID', ${user1.id}, 'requestStatus', "PENDING")) 
+// 		WHERE id = ?;`, [id], (err, row) => {
+// 		if (err) {
+// 		  reject(err); // Rejeita a Promise em caso de erro
+// 		} else {
+// 		  resolve('');
+// 		}
+// 	  });
+// 	});
+// }
 
 export async function acceptFriendRequestDecorator(requestee, requester, id) {
 	return new Promise((resolve, reject) => {
