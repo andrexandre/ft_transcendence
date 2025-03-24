@@ -5,7 +5,8 @@ import {
 	createUser, 
 	getUserByUsername,
 	updateUserStatus,
-	createFriendRequest
+	createFriendRequest,
+	acceptFriendRequest
 } from '../decorators/db_decorators.js'
 
 async function dbtest(fastify, options) {
@@ -25,8 +26,8 @@ async function dbtest(fastify, options) {
 		fastify.decorate('getUserByUsername', getUserByUsername, ['db']);
 		fastify.decorate('updateUserStatus', updateUserStatus, ['db']);
 		fastify.decorate('createFriendRequest', createFriendRequest, ['db']);
-		// fastify.decorate('acceptFriendRequest', acceptFriendRequestDecorator, ['sqlite']);
-	}
+		// fastify.decorate('acceptFriendRequest', acceptFriendRequest, ['db']);
+	}	
 	fastify.addHook('onClose', (fastify, done) => connection.end().then(done).catch(done));
 	
 }
