@@ -1,12 +1,2 @@
 - Adicionar pedido de amizade só é aceite se o outro aceitar o pedido
-- quando mando mensagem nao funciona, nem quando da load das mensagens foda-se - (TypeError: rooms.value is not a function or its return value is not iterable
-    at joinRoom (file:///home/fsantos2/Code/ft_transcendence/chat/socket/socket_handler.js:106:30)
-    at WebSocket.<anonymous> (file:///home/fsantos2/Code/ft_transcendence/chat/socket/socket_handler.js:37:12)
-    at WebSocket.emit (node:events:524:28)
-    at Receiver.receiverOnMessage (/home/fsantos2/Code/ft_transcendence/chat/node_modules/ws/lib/websocket.js:1211:20)
-    at Receiver.emit (node:events:524:28)
-    at Receiver.dataMessage (/home/fsantos2/Code/ft_transcendence/chat/node_modules/ws/lib/receiver.js:594:14)
-    at Receiver.getData (/home/fsantos2/Code/ft_transcendence/chat/node_modules/ws/lib/receiver.js:496:10)
-    at Receiver.startLoop (/home/fsantos2/Code/ft_transcendence/chat/node_modules/ws/lib/receiver.js:167:16)
-    at Receiver._write (/home/fsantos2/Code/ft_transcendence/chat/node_modules/ws/lib/receiver.js:94:10)
-    at writeOrBuffer (node:internal/streams/writable:572:12))
+- quando o client esta numa sala sozinho as mensagens nao aparecem para ele

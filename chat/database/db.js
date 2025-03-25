@@ -1,14 +1,14 @@
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
 
+const dbPath = './database/chat.db';
+const db = await open({
+	filename: dbPath,
+	driver: sqlite3.Database
+});
+
 export async function initializeDatabase()
 {
-	const dbPath = './database/chat.db';
-	const db = await open({
-		filename: dbPath,
-		driver: sqlite3.Database
-	});
-
 	await db.exec(`
 		CREATE TABLE IF NOT EXISTS users (
 			user_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -47,12 +47,6 @@ export async function initializeDatabase()
 
 export async function createUser(username)
 {
-	const dbPath = './database/chat.db';
-	const db = await open({
-			filename: dbPath,
-			driver: sqlite3.Database
-		});
-
 	const user = await db.get('SELECT username FROM users WHERE username = ?', [username]);
 
 	if(user)
@@ -71,12 +65,6 @@ export async function createUser(username)
 
 export async function addFriend(username, friend_username)
 {
-	const dbPath = './database/chat.db';
-	const db = await open({
-		filename: dbPath,
-		driver: sqlite3.Database
-	});
-
 	const user = await db.get('SELECT user_id FROM users WHERE username = ?', [username]);
 	const friend = await db.get('SELECT user_id FROM users WHERE username = ?', [friend_username]);
 
@@ -100,13 +88,7 @@ export async function addFriend(username, friend_username)
 
 export async function getFriends(username)
 {
-	try{
-		const dbPath = './database/chat.db';
-		const db = await open({
-				filename: dbPath,
-				driver: sqlite3.Database
-			});
-	
+	try {
 		const user = await db.get(`SELECT user_id FROM users WHERE username = ?`, [username]);
 	
 		const query = `
@@ -128,12 +110,6 @@ export async function getFriends(username)
 
 export async function checkFriend (username, friend_username)
 {
-	const dbPath = './database/chat.db';
-	const db = await open({
-		filename: dbPath,
-		driver: sqlite3.Database
-	});
-
 	const user = await db.get(`SELECT user_id FROM users WHERE username = ?`, [username]);
 
 	const friend = await db.get(`SELECT user_id FROM users WHERE username = ?`, [friend_username]);

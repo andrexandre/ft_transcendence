@@ -5,18 +5,6 @@ import path, { join, dirname } from 'path';
 import { createUser, initializeDatabase } from './database/db.js';
 import { SocketHandler } from './socket/socket_handler.js';
 import { fileURLToPath } from 'url';
-// const fastify = require('fastify')();
-// const { createServer } = require('node:http');
-// const { join } = require('node:path');
-// const { Server } = require('socket.io');
-// const { mainModule } = require('node:process');
-// const { initializeDatabase } = require('./database/db.js');
-// const fastifyStatic = require('@fastify/static');
-// const { publicDecrypt } = require('node:crypto');
-// const { createUser } = require('./database/db.js');
-// const { Socket } = require('node:dgram');
-// const { users, sockets } = require('./socket/socket_handler.js');
-// const { bindSocket } = require('./socket/socket_handler.js');
 
 const server_chat = fastify();
 const port = 2000;

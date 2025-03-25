@@ -1,11 +1,3 @@
-/* const { ItemAssignmentContextImpl } = require("twilio/lib/rest/numbers/v2/regulatoryCompliance/bundle/itemAssignment");
-const { SupportingDocumentContextImpl } = require("twilio/lib/rest/trusthub/v1/supportingDocument"); */
-// import Fastify from 'fastify';
-// import fastifyWebsocket from '@fastify/websocket';
-
-// const fastify = Fastify();
-// fastify.register(fastifyWebsocket);
-
 const form = document.getElementById('form');
 const input = document.getElementById('input');
 const roomButton = document.getElementById('roomButton');
@@ -35,9 +27,9 @@ socket.onclose = (event) => {
 socket.onmessage = (event) => {
 	const data = JSON.parse(event.data);
 	if (data.type === 'message-emit')
-		addMessage(data.data.from, data.data.message, data.data.timestamp);
+		addMessage(data.user, data.data.from, data.data.message, data.data.timestamp);
 	else if (data.type === 'load-messages')
-		data.data.forEach(msg => addMessage(msg.from, msg.message, msg.timestamp));
+		data.data.forEach(msg => addMessage(data.user, msg.from, msg.message, msg.timestamp));
 	else if (data.type === 'get-friends-list')
 		data.data.forEach(friend => createFriendList(friend));
 	else if (data.type === 'get-online-users')
@@ -76,6 +68,7 @@ form.addEventListener('submit', (e) =>{
 
 function addMessage(user, from, message, timestamp)
 {
+	// console.log(user);
 	const item = document.createElement('li');
 	item.className = `message ${user == from ? 'sent' : 'received'}`;
 	
@@ -197,12 +190,17 @@ function addOnlineUser (user)
 	addButton.addEventListener('click', () =>{
 		console.log(`Friend added: ${nameSpan.textContent}`);
 
-		addButton.textContent = 'Friend Added';
+		// addButton.textContent = 'Friend Added';
+		addButton.textContent = 'Request Sent';
 		addButton.disabled = true;
 		socket.send(JSON.stringify({
 			type: 'add-friend',
 			friend: nameSpan.textContent
 		}));
+		// socket.send(JSON.stringify({
+		// 	type: 'request-friendship',
+		// 	friend: nameSpan.textContent
+		// }));
 		// socket.emit('add-friend', nameSpan.textContent);
 	});
 	
@@ -251,3 +249,19 @@ function setupFriendRequestsScroll() {
 	  }, { passive: false });
 	}
 }
+
+function showFriendRequests() {
+    const overlay = document.getElementById('friendRequestsOverlay');
+    overlay.classList.add('active');
+}
+
+function closeFriendRequests() {
+    const overlay = document.getElementById('friendRequestsOverlay');
+    overlay.classList.remove('active');
+}
+
+const showRequestsBtn = document.getElementById('show-requests-btn');
+showRequestsBtn.addEventListener('click', showFriendRequests);
+
+const closeRequestsBtn = document.getElementById('closeRequestsBtn');
+closeRequestsBtn.addEventListener('click', closeFriendRequests);
