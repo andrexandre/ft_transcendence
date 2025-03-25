@@ -7,7 +7,7 @@ class Login extends Page {
 	}
 	onMount(): void {
 		this.setSubmissionHandler();
-		this.setGoogleAuthHandler();
+		//this.setGoogleAuthHandler();
 		lib.assignButtonNavigation('register-button', '/register');
 		lib.assignButtonNavigation('dashboard-button', '/');
 	}
@@ -31,6 +31,7 @@ class Login extends Page {
 						<i class="fa-brands fa-google mr-2"></i>
 						Continue with Google
 					</button>
+					<a href="http://127.0.0.1:7000/loginOAuth" target="_blank" rel="noopener noreferrer">Open in New Tab</a>
 					<div class="text-sm font-medium text-gray-500">
 						Not registered? 
 						<button id="register-button" class="text-blue-700 hover:underline hover:cursor-pointer">Create account</button>
@@ -41,26 +42,26 @@ class Login extends Page {
 			</div>
 		`;
 	}
-	setGoogleAuthHandler() {
-		const authBtn = document.getElementById('authBtn');
-		const handler = async (e: Event) => {
-			try {
-				const response = await fetch("http://127.0.0.1:7000/loginOAuth", {
-					method: 'GET'
-				});
-				if (!response.ok) {
-					throw new Error(`${response.status} - ${response.statusText}`);
-				}
-				lib.showToast.green(`${response.status} - ${response.statusText}`);
-				lib.navigate(e, "/");
-			} catch (error) {
-				console.log(error);
-				lib.showToast.red(error as string);
-			}
-		};
-		authBtn?.addEventListener('click', handler);
-		this.addCleanupHandler(() => authBtn?.removeEventListener('click', handler));
-	}
+	// setGoogleAuthHandler() {
+	// 	const authBtn = document.getElementById('authBtn');
+	// 	const handler = async (e: Event) => {
+	// 		try {
+	// 			const response = await fetch("http://127.0.0.1:7000/loginOAuth", {
+	// 				method: 'GET'
+	// 			});
+	// 			if (!response.ok) {
+	// 				throw new Error(`${response.status} - ${response.statusText}`);
+	// 			}
+	// 			lib.showToast.green(`${response.status} - ${response.statusText}`);
+	// 			lib.navigate(e, "/");
+	// 		} catch (error) {
+	// 			console.log(error);
+	// 			lib.showToast.red(error as string);
+	// 		}
+	// 	};
+	// 	authBtn?.addEventListener('click', handler);
+	// 	this.addCleanupHandler(() => authBtn?.removeEventListener('click', handler));
+	// }
 	setSubmissionHandler() {
 		const form = document.querySelector('form');
 		const handler = async (e: Event) => {
