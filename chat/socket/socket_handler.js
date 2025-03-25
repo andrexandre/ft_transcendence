@@ -1,4 +1,4 @@
-import { addFriend, createUser, getFriends } from '../database/db.js';
+import { addFriend, addRequest, createUser, getFriends, getRequests } from '../database/db.js';
 import { checkFriendOnline, getAllUsers, getTimeString, parseRoomName, roomName } from '../rooms/user.js';
 import { storeChat, createMessage, loadMessages, sendMessage } from '../messages/messages.js';
 
@@ -43,9 +43,11 @@ export async function SocketHandler(socket, username)
 				case 'add-friend':
 					await addFriend(username, data.friend);
 					break;
-				case 'request-friendship':
-					await handleFriendRequests(username, data.friend);
+				case 'add-friend-request':
+					await addRequest(username, data.receiver);
 					break;
+				case 'get-friend-request':
+					await sendRequests(data.receiver);
 			}
 		});
 		socket.on('close', () =>{
@@ -147,7 +149,12 @@ async function sendOnlineUsers(username, socket)
 	}));
 }
 
-async function handleFriendRequests(username, friend)
+async function sendRequests(receiver)
 {
+	const requests = await getRequests(receiver)
 
+	requests.forEach(request => socket.send(JSON.stringify({
+		type: 'add-request',
+		data: request
+	})))
 }

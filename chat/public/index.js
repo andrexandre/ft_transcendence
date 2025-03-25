@@ -193,14 +193,14 @@ function addOnlineUser (user)
 		// addButton.textContent = 'Friend Added';
 		addButton.textContent = 'Request Sent';
 		addButton.disabled = true;
-		socket.send(JSON.stringify({
-			type: 'add-friend',
-			friend: nameSpan.textContent
-		}));
 		// socket.send(JSON.stringify({
-		// 	type: 'request-friendship',
+		// 	type: 'add-friend',
 		// 	friend: nameSpan.textContent
 		// }));
+		socket.send(JSON.stringify({
+			type: 'add-friend-request',
+			receiver: nameSpan.textContent
+		}));
 		// socket.emit('add-friend', nameSpan.textContent);
 	});
 	

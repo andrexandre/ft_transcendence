@@ -39,6 +39,15 @@ export async function initializeDatabase()
 			FOREIGN KEY (user_id) REFERENCES users(user_id),
 			FOREIGN KEY (blocked_user) REFERENCES users(user_id)
 		);
+		CREATE TABLE IF NOT EXISTS friend_requests (
+			request_id INTEGER PRIMARY KEY AUTOINCREMENT,
+			sender_id INTEGER,
+			receiver_id INTEGER,
+			sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			FOREIGN KEY (sender_id) REFERENCES users(user_id),
+			FOREIGN KEY (receiver_id) REFERENCES users(user_id),
+			CHECK (sender_id != receiver_id)
+		);
 	`);
 	console.log("Database created!");
 
@@ -123,4 +132,50 @@ export async function checkFriend (username, friend_username)
 		`, [user.user_id, friend.user_id]);
 
 	return friendship;
+}
+
+export async function addRequest(sender, receiver)
+{
+	const sender_id = await db.get(`SELECT user_id FROM users WHERE username = ?`, [sender])
+	const receiver_id = await db.get(`SELECT user_id FROM users WHERE username = ?`, [receiver])
+
+	const request = await db.get(`
+		SELECT * from friend_requests
+		WHERE (sender_id = ? AND receiver_id = ?)
+		`, [sender_id.user_id, receiver_id.user_id])
+
+	if(!request)
+	{
+		await db.run(`
+		INSERT INTO friend_requests (sender_id, receiver_id)
+		`, [sender_id.user_id, receiver_id.user_id])
+	}
+}
+
+export async function getRequests(receiver)
+{
+	try {
+		const receiver_id = await db.get(`SELECT user_id FROM users WHERE username = ?`, [receiver])
+
+		const requests = await db.all(`
+            SELECT 
+                fr.request_id, 
+                u.username AS sender, 
+                fr.sent_at
+            FROM 
+                friend_requests fr
+            JOIN 
+                users u ON fr.sender_id = u.user_id
+            WHERE 
+                fr.receiver_id = ? 
+            ORDER BY fr.sent_at DESC
+        `, [receiver_id.user_id]);
+
+        return requests;
+	}
+	catch(error)
+	{
+		console.error('Error getting friend requests: ', error)
+		return [];
+	}
 }
