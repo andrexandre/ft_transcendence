@@ -1,11 +1,10 @@
-import { addFriend, addRequest, createUser, getFriends, getRequests } from '../database/db.js';
+import { addFriend, addRequest, getFriends, getRequests, deleteFriendRequest, addBlock } from '../database/db.js';
 import { checkFriendOnline, getAllUsers, getTimeString, parseRoomName, roomName } from '../rooms/user.js';
-import { storeChat, createMessage, loadMessages, sendMessage } from '../messages/messages.js';
+import { createMessage, loadMessages, sendMessage } from '../messages/messages.js';
 
 export const users = new Map();
 export const sockets = new Map();
 export const rooms = new Map();
-export const requests = new Map();
 
 export async function SocketHandler(socket, username)
 {
@@ -40,14 +39,20 @@ export async function SocketHandler(socket, username)
 				case 'get-online-users':
 					await sendOnlineUsers(username, socket);
 					break;
-				case 'add-friend':
-					await addFriend(username, data.friend);
+				case 'friend-request-response':
+					if (data.response === 'accept')
+						await addFriend(username, data.sender);
+					await deleteFriendRequest(username, data.sender);
 					break;
 				case 'add-friend-request':
 					await addRequest(username, data.receiver);
 					break;
 				case 'get-friend-request':
-					await sendRequests(data.receiver);
+					await sendRequests(data.receiver, socket);
+					break;
+				case 'block-user':
+					await addBlock(username, data.friend);
+					break;
 			}
 		});
 		socket.on('close', () =>{
@@ -149,12 +154,12 @@ async function sendOnlineUsers(username, socket)
 	}));
 }
 
-async function sendRequests(receiver)
+async function sendRequests(receiver, socket)
 {
 	const requests = await getRequests(receiver)
 
-	requests.forEach(request => socket.send(JSON.stringify({
-		type: 'add-request',
-		data: request
-	})))
+	socket.send(JSON.stringify({
+		type: 'add-requests',
+		data: requests
+	}))
 }

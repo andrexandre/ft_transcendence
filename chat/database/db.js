@@ -101,12 +101,17 @@ export async function getFriends(username)
 		const user = await db.get(`SELECT user_id FROM users WHERE username = ?`, [username]);
 	
 		const query = `
-			SELECT u.username
-			FROM users u
-			INNER JOIN friendships f ON u.user_id = f.friend_id
-			WHERE f.user_id = ?
-		`;
-	
+            SELECT u.username
+            FROM users u
+            INNER JOIN friendships f ON u.user_id = f.friend_id
+            WHERE f.user_id = ?
+            AND NOT EXISTS (
+                SELECT 1 
+                FROM users_blocked b
+                WHERE (b.user_id = f.user_id AND b.blocked_user = f.friend_id)
+                   OR (b.user_id = f.friend_id AND b.blocked_user = f.user_id)
+            )
+        `;
 		const friends = await db.all(query, [user.user_id]);
 		
 		return friends;
@@ -148,6 +153,7 @@ export async function addRequest(sender, receiver)
 	{
 		await db.run(`
 		INSERT INTO friend_requests (sender_id, receiver_id)
+		VALUES (?, ?)
 		`, [sender_id.user_id, receiver_id.user_id])
 	}
 }
@@ -177,5 +183,45 @@ export async function getRequests(receiver)
 	{
 		console.error('Error getting friend requests: ', error)
 		return [];
+	}
+}
+
+export async function deleteFriendRequest(receiver, sender)
+{
+	try {
+        const sender_id = await db.get(`SELECT user_id FROM users WHERE username = ?`, [sender]);
+        const receiver_id = await db.get(`SELECT user_id FROM users WHERE username = ?`, [receiver]);
+        
+        if (!sender_id || !receiver_id) {
+            console.error('User not found');
+            return false;
+        }
+        
+        await db.run(`
+            DELETE FROM friend_requests 
+            WHERE sender_id = ? AND receiver_id = ?
+        `, [sender_id.user_id, receiver_id.user_id]);
+        
+        return true;
+    } catch (error) {
+        console.error('Error deleting friend request:', error);
+        return false;
+    }
+}
+
+export async function addBlock(user, friend)
+{
+	try {
+		const user_id = await db.get(`SELECT user_id FROM users WHERE username = ?`, [user]);
+		const friend_id = await db.get(`SELECT user_id FROM users WHERE username = ?`, [friend]);
+
+		await db.run(`
+			INSERT INTO users_blocked (user_id, blocked_user)
+			VALUES (?, ?)
+		`, [user_id.user_id, friend_id.user_id]);
+	}
+	catch (error) {
+		console.error('Error adding blocked user: ', error);
+		return ;
 	}
 }
