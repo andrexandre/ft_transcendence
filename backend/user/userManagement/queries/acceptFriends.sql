@@ -26,4 +26,4 @@ SET friends = json_set(
 )
 WHERE id = $requesterID;
 
-COMMIT; 
+COMMIT;

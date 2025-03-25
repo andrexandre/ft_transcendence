@@ -26,7 +26,7 @@ async function dbtest(fastify, options) {
 		fastify.decorate('getUserByUsername', getUserByUsername, ['db']);
 		fastify.decorate('updateUserStatus', updateUserStatus, ['db']);
 		fastify.decorate('createFriendRequest', createFriendRequest, ['db']);
-		// fastify.decorate('acceptFriendRequest', acceptFriendRequest, ['db']);
+		fastify.decorate('acceptFriendRequest', acceptFriendRequest, ['db']);
 	}	
 	fastify.addHook('onClose', (fastify, done) => connection.end().then(done).catch(done));
 	

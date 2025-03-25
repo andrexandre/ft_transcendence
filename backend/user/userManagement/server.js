@@ -11,6 +11,12 @@ import db_test from './plugins/db_plugin2.js';
 // Creation of the app  instance
 const server = fastify({ loger: true });
 
+server.addHook('onRequest', (request, reply, done) => {
+    console.log(`[${request.method}] ${request.url}`);
+    done();
+});
+
+
 
 // Only for tests
 server.get('/',  async(request, response) => {

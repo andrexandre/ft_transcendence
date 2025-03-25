@@ -20,7 +20,7 @@ async function fastifySqlite(fastify, options) {
   if (!fastify.sqlite) {
     fastify.decorate('sqlite', connection);
     // (name, function, 'decorators dependencies')
-    fastify.decorate('acceptFriendRequest', acceptFriendRequestDecorator, ['sqlite']);
+    // fastify.decorate('acceptFriendRequest', acceptFriendRequestDecorator, ['sqlite']);
   }
 
 
