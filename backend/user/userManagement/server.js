@@ -1,22 +1,18 @@
 import fastify from "fastify";
-import fastifySqlite from './plugins/db_plugin.js';
 import RegisterRoutes from "./routes/auth/registerRoutes.js";
 import LoginRoutes from "./routes/auth/loginRoutes.js";
 import { friendRequestRoute, processFriendRequestRoute } from "./routes/friends/friends.js";
 import { loadQueryFile } from "./utils/utils_1.js";
-import bcrypt from 'bcrypt'
-import { compileFunction } from "vm";
-import db_test from './plugins/db_plugin2.js';
+import db_test from './plugins/db_plugin.js';
 
 // Creation of the app  instance
 const server = fastify({ loger: true });
 
+// Only for tests
 server.addHook('onRequest', (request, reply, done) => {
     console.log(`[${request.method}] ${request.url}`);
     done();
 });
-
-
 
 // Only for tests
 server.get('/',  async(request, response) => {
@@ -43,7 +39,6 @@ async function start() {
 	
 	try {
 		// Ver como registrar todas as routes com auto-load
-		await server.register(fastifySqlite, { dbPath: './user.db'});
 		await server.register(db_test, { dbPath: './user.db'});
 		await server.register(RegisterRoutes);
 		await server.register(LoginRoutes);

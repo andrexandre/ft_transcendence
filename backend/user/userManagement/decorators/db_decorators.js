@@ -104,37 +104,37 @@ export const acceptFriendRequest = async function (requestee, requester, id) {
 // 	});
 // }
 
-export async function acceptFriendRequestDecorator(requestee, requester, id) {
-	return new Promise((resolve, reject) => {
-		this.sqlite.serialize(async () => {
+// export async function acceptFriendRequestDecorator(requestee, requester, id) {
+// 	return new Promise((resolve, reject) => {
+// 		this.sqlite.serialize(async () => {
 
-			let content;
-			try {
-				content = await loadQueryFile('../queries/acceptFriends.sql');
-			} catch(err) {
-				reject(err);
-			}
-			console.log(content);
-			const queries = content.split(/\r?\n\r?\n/);
+// 			let content;
+// 			try {
+// 				content = await loadQueryFile('../queries/acceptFriends.sql');
+// 			} catch(err) {
+// 				reject(err);
+// 			}
+// 			console.log(content);
+// 			const queries = content.split(/\r?\n\r?\n/);
 
-			const params = {
-				$requesteeID: requestee.id,
-				$requesterID: requester.id,
-				$status: 'ACCEPTED'
-			};
-			console.log(queries);
-			function f(err) {
-				if (err) {
-					console.log(err);
-					reject(err);
-				}
-			}
-			this.sqlite.run(queries[0], f);
-			this.sqlite.run(queries[1], params, f);
-			this.sqlite.run(queries[2], params, f);
-			this.sqlite.run(queries[3], f);
-			resolve('');
+// 			const params = {
+// 				$requesteeID: requestee.id,
+// 				$requesterID: requester.id,
+// 				$status: 'ACCEPTED'
+// 			};
+// 			console.log(queries);
+// 			function f(err) {
+// 				if (err) {
+// 					console.log(err);
+// 					reject(err);
+// 				}
+// 			}
+// 			this.sqlite.run(queries[0], f);
+// 			this.sqlite.run(queries[1], params, f);
+// 			this.sqlite.run(queries[2], params, f);
+// 			this.sqlite.run(queries[3], f);
+// 			resolve('');
 
-		});
-	});
-}
+// 		});
+// 	});
+// }
