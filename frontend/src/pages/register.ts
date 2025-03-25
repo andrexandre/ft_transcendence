@@ -7,8 +7,10 @@ class Register extends Page {
 	}
 	onMount(): void {
 		this.setSubmissionHandler();
-		this.setGoogleAuthHandler();
 		lib.assignButtonNavigation('login-button', '/login');
+		document.getElementById("google-auth-button")!.addEventListener("click", () => {
+			window.open("http://127.0.0.1:7000/loginOAuth");
+		});
 	}
 	onCleanup(): void {}
 	getHtml(): string {
@@ -30,7 +32,7 @@ class Register extends Page {
 					</div>
 					<button type="submit" class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Submit</button>
 					<hr class="text-neutral-400">
-					<button type="button" id="authBtn" class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+					<button type="button" id="google-auth-button" class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
 						<i class="fa-brands fa-google mr-2"></i>
 						Continue with Google
 					</button>
@@ -40,26 +42,6 @@ class Register extends Page {
 				</form>
 			</div>
 		`;
-	}
-	setGoogleAuthHandler() {
-		const authBtn = document.getElementById('authBtn');
-		const handler = async (e: Event) => {
-			try {
-				const response = await fetch("http://127.0.0.1:7000/loginOAuth", {
-					method: 'GET'
-				});
-				if (!response.ok) {
-					throw new Error(`${response.status} - ${response.statusText}`);
-				}
-				lib.showToast.green(`${response.status} - ${response.statusText}`);
-				lib.navigate(e, "/");
-			} catch (error) {
-				console.log(error);
-				lib.showToast.red(error as string);
-			}
-		};
-		authBtn?.addEventListener('click', handler);
-		this.addCleanupHandler(() => authBtn?.removeEventListener('click', handler));
 	}
 	setSubmissionHandler() {
 		const form = document.querySelector('form');
