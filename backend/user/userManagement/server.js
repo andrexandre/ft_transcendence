@@ -19,7 +19,7 @@ server.addHook('onRequest', (request, reply, done) => {
 server.get('/',  async(request, response) => {
 	
 	response.header('content-type', 'application/json');
-	let tmp = await server.db.all('SELECT * FROM users');
+	let tmp = await server.sqlite.all('SELECT * FROM users');
 	if (tmp.length > 0 ) {
 		tmp = tmp.map(item => ({
 		...item,
@@ -59,7 +59,7 @@ async function start() {
 
 			}
 			console.log(content);
-			server.db.run(content);
+			server.sqlite.run(content);
 		});
 
 	} catch(err) {
