@@ -3,7 +3,7 @@ async function callbackOAuth(fastify, options) {
         try {
           const { token } = await fastify.google.getAccessTokenFromAuthorizationCodeFlow(req);
           const payload = await fastify.parseToReadableOAuth(token.access_token);
-          const jwtToken = await fastify.generateToken(payload);
+          const jwtToken = await fastify.generateToken(await setPayload(payload));
           reply.setCookie('token', jwtToken, {
             path: '/',
             httpOnly: true,
@@ -15,6 +15,20 @@ async function callbackOAuth(fastify, options) {
           reply.status(500).send(err);
         }
     });   
+}
+
+async function setPayload(payload){
+  const response = await fetch('http://user_management:3000/api/login/googleSign', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  });
+  const data = await response.json();
+  payload.id = data.userID;
+  delete payload.email;
+  return payload;
 }
 
 export default callbackOAuth;
