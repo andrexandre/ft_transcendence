@@ -1,11 +1,21 @@
 import { loadQueryFile } from "../utils/utils_1.js";
 
 
-export const createUser = function (username, email, password) {
-	const querie = `INSERT INTO 
-					users (username, email, password, is_online, friends) 
-					VALUES (?, ?, ?, 'FALSE', json_array());`;
-	return this.db.run(querie, [ username, email, password ]);
+export const createUser = function (username, email, password, auth_method) {
+	
+	let columns = "username, email, auth_method, is_online, friends";
+	let values = "?, ?, ?, 'FALSE', json_array()";
+	let params = [username, email, auth_method];
+
+	if (password) {
+		columns = "username, email, password, auth_method, is_online, friends";
+		values = "?, ?, ?, ?, 'FALSE', json_array()";
+		params.splice(2, 0, password); // Insere a senha na posição correta
+	}
+
+	const query = `--sql
+					INSERT INTO users (${columns}) VALUES (${values});`;
+	return this.db.run(query, params);
 }
 
 export const getUserByUsername = function (username) {

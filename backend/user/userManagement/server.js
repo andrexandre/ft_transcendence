@@ -1,6 +1,7 @@
 import fastify from "fastify";
 import RegisterRoutes from "./routes/auth/registerRoutes.js";
 import LoginRoutes from "./routes/auth/loginRoutes.js";
+import googleSignRoutes from "./routes/auth/googleSign.js";
 import { friendRequestRoute, processFriendRequestRoute } from "./routes/friends/friends.js";
 import { loadQueryFile } from "./utils/utils_1.js";
 import db_test from './plugins/db_plugin.js';
@@ -42,6 +43,7 @@ async function start() {
 		await server.register(db_test, { dbPath: './user.db'});
 		await server.register(RegisterRoutes);
 		await server.register(LoginRoutes);
+		await server.register(googleSignRoutes);
 		await server.register(friendRequestRoute);
 		await server.register(processFriendRequestRoute);
 		
