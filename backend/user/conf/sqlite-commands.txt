@@ -10,6 +10,15 @@ only show tables matching LIKE pattern TABLE
 
 .show - Show the current values for various settings
 
-
-
 .exit - Exit SQLite prompt
+
+project-root/
+├── src/
+│   ├── decorators/         # Functions to extend the server
+│   ├── controllers/        # Request-handling logic
+│   ├── plugins/            # Fastify plugins (e.g., sqlite plugin)
+│   ├── routes/             # API routes
+│   ├── schemas/            # Data validation schemas
+│   ├── utils/              # Utility functions/helpers
+│   ├── server.ts            # Main application entry point
+├── package.json            # Dependencies and scripts
