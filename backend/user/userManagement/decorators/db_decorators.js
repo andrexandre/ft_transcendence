@@ -10,7 +10,7 @@ export const createUser = function (username, email, password, auth_method) {
 	if (password) {
 		columns = "username, email, password, auth_method, is_online, friends";
 		values = "?, ?, ?, ?, 'FALSE', json_array()";
-		params.splice(2, 0, password); // Insere a senha na posição correta
+		params.splice(2, 0, password);
 	}
 
 	const query = `--sql
@@ -74,22 +74,21 @@ const transactionQuery = {
 export const acceptFriendRequest = async function (requestee, requester, id) {
 
 	try {
-		const content = await loadQueryFile('../queries/acceptFriends.sql');
-		const queries = content.split(/\r?\n\r?\n/);
+		// const content = await loadQueryFile('../queries/acceptFriends.sql');
+		// const queries = content.split(/\r?\n\r?\n/);
 		const params = {
 			$requesteeID: requestee.id,
 			$requesterID: requester.id,
 			$status: 'ACCEPTED'
 		};
-		console.log("ELE usou esta funcao aqui");
-		await this.sqlite.run(queries[0]);
+
+		await this.sqlite.run(transactionQuery['BEGIN']);
 		console.log("BEGIN done");
 		
-		await this.sqlite.run(queries[1], params);
-		console.log("FIRST update done");
-		await this.sqlite.run(queries[2], params);
-		console.log("SECOND update done");
-		await this.sqlite.run(queries[3]);
+		await this.sqlite.run(transactionQuery['FIRST_UPDATE'], params);
+		await this.sqlite.run(transactionQuery['SECOND_UPDATE'], params);
+
+		await this.sqlite.run(transactionQuery['COMMIT']);
 		console.log("COMMIT");
 
 	} catch(err) {

@@ -1,6 +1,6 @@
 
 
-async function googleSignRoutes(server, opts) {
+async function googleSignRoute(server, opts) {
 	
 	server.route({
 		method: 'POST',
@@ -66,4 +66,4 @@ async function googleSignRoutes(server, opts) {
 	});
 }
 
-export default googleSignRoutes;
+export default googleSignRoute;
