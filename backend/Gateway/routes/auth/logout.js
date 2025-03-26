@@ -1,5 +1,5 @@
 function logoutRoute(fastify) {
-    fastify.post('/logout', (request, reply) => {
+    fastify.get('/logout', (request, reply) => {
         reply.clearCookie('token', {path: '/'});
         reply.send("OK!");
     });

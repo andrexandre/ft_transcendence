@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# npm install
+npm install
 
 # node -e "
 # const key = require('crypto').randomBytes(64).toString('hex')
