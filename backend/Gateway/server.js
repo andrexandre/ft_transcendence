@@ -18,6 +18,7 @@ import logoutRoute from './routes/auth/logout.js';
 import gameRoutes from './routes/game/player-data.js';
 import matchHistory from './routes/game/match-history.js';
 import callbackOAuthRoute from './routes/auth/OAuth/callbackOAuth.js';
+import googleControler from './routes/auth/OAuth/googleControler.js';
 
 dotenv.config();
 const fastify = Fastify({
@@ -59,6 +60,7 @@ fastify.register(gameRoutes);
 fastify.register(matchHistory);
 fastify.register(logoutRoute);
 fastify.register(callbackOAuthRoute);
+fastify.register(googleControler);
 
 fastify.register(fastifyJwt, {
   secret: process.env.JWT_SECRET_KEY,
