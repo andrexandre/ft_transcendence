@@ -10,7 +10,7 @@ class Login extends Page {
 		lib.assignButtonNavigation('register-button', '/register');
 		lib.assignButtonNavigation('dashboard-button', '/');
 		document.getElementById("google-auth-button")!.addEventListener("click", () => {
-			window.open("http://127.0.0.1:7000/loginOAuth");
+			window.location.href = "http://127.0.0.1:7000/loginOAuth";
 		});
 	}
 	onCleanup(): void {}
