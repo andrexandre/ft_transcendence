@@ -34,6 +34,12 @@ const sidebar = {
 						<p>Notifications</p>
 					</button>
 				</li>
+				<li>
+					<button id="link-to-game-button" class="sidebar-component">
+						<i class="fa-solid fa-link"></i>
+						<p>Link to game</p>
+					</button>
+				</li>
 				<li class="mt-auto">
 					<button id="settings-button" class="sidebar-component">
 						<i class="fa-solid fa-gear"></i>
