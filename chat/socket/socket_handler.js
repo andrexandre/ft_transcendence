@@ -35,6 +35,8 @@ export async function SocketHandler(socket, username)
 					break;
 				case 'get-friends-list':
 					await sendFriendList(username, socket);
+					if (data.friend)
+						await sendFriendList(data.friend, users.get(data.friend));
 					break;
 				case 'get-online-users':
 					await sendOnlineUsers(username, socket);
@@ -52,6 +54,10 @@ export async function SocketHandler(socket, username)
 					break;
 				case 'block-user':
 					await addBlock(username, data.friend);
+					socket.send(JSON.stringify({
+						type: 'block-completed',
+						friend: data.friend
+					}));
 					break;
 			}
 		});

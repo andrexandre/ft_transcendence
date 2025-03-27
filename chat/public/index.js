@@ -35,6 +35,13 @@ socket.onmessage = (event) => {
 		data.data.forEach(user => addOnlineUser(user));
 	else if	(data.type === 'add-requests')
 		showFriendRequests(data.data);
+    else if(data.type === 'block-completed')
+    {
+        socket.send(JSON.stringify({
+            type: 'get-friends-list',
+            friend: data.friend
+        }));
+    }
 };
 
 //Send messages
@@ -87,6 +94,8 @@ function addMessage(user, from, message, timestamp)
 //Handle online users
 function createFriendList(friendName) {
     const friendList = document.getElementById('friendList');
+    if (friendList)
+        friendList.innerHTML = '';
 
     const roomButton = document.createElement('button');
     roomButton.className = 'friend-room';
@@ -172,22 +181,24 @@ function createFriendList(friendName) {
             // Add your profile ality => here
         });
         
+        
+        divFriend.appendChild(onlineStatus);
+        divFriend.appendChild(currentFriend);
+        divFriend.appendChild(userDropdown);
+        
         blockItem.addEventListener('click', () => {
             console.log('Block clicked for', friendName);
+            divFriend.innerHTML = '';
+            clearChatContainer();
+            showNotification(`User ${friendName} has been blocked`);
             socket.send(JSON.stringify({
                 type: 'block-user',
                 friend: friendName
             }));
-            divFriend.innerHTML = '';
-
-            showNotification(`User ${friendName} has been blocked`);
         });
 
-        divFriend.appendChild(onlineStatus);
-        divFriend.appendChild(currentFriend);
-        divFriend.appendChild(userDropdown);
-
         clearChatContainer();
+
         socket.send(JSON.stringify({
             type: 'join-room',
             friend: friendName
