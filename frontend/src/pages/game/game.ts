@@ -2,13 +2,18 @@ import Page from "../Page"
 import * as lib from "../../utils"
 import sidebar from "../../components/sidebar"
 import dropdown from "../../components/dropdown"
+import * as menu from "./menu"
 
 function tempInitializeDropdown(id: string, option1: string, option2: string) {
 	dropdown.setDropdownToggler(id);
+	if (id == 'Single' && option1 == 'Classic')
+		dropdown.addComponent(id, 'button', 'game-component', 
+			option1, menu.classicBtnHandler);
+	else
+		dropdown.addComponent(id, 'button', 'game-component', 
+			option1, () => { lib.showToast(`${id} ${option1} clicked`); });
 	dropdown.addComponent(id, 'button', 'game-component', 
-		option1, () => {lib.showToast(`${id} ${option1} clicked`); });
-	dropdown.addComponent(id, 'button', 'game-component', 
-		option2, () => {lib.showToast(`${id} ${option2} clicked`); });
+		option2, () => { lib.showToast(`${id} ${option2} clicked`); });
 }
 
 class Game extends Page {
@@ -16,7 +21,6 @@ class Game extends Page {
 		super("game", '/game');
 	}
 	onMount(): void {
-		// this.setCustomHandler();
 		sidebar.setSidebarToggler();
 		tempInitializeDropdown('Single', 'Classic', 'Infinity');
 		tempInitializeDropdown('Multi', 'Tournament', 'Don\'t click');
@@ -47,41 +51,12 @@ class Game extends Page {
 				</select>
 			</div>
 			<button id="save-settings" type="button" class="game-component">Save</button>
-			`);
-		document.getElementById('save-settings')!.addEventListener('click', () => {
-			const difficulty = (document.getElementById('difficulty') as HTMLSelectElement).value;
-			const tableSize = (document.getElementById('table-size') as HTMLSelectElement).value;
-			const sound = (document.getElementById('sound') as HTMLSelectElement).value;
-
-			lib.showToast.yellow(`Sound - ${sound}`);
-			lib.showToast.blue(`Table Size - ${tableSize}\n`);
-			lib.showToast.red(`Difficulty - ${difficulty}\n`);
-			lib.showToast.green(`Settings saved:\n`);
-			console.log(
-				`Settings saved:\n` +
-				`Difficulty - ${difficulty}\n` +
-				`Table Size - ${tableSize}\n` +
-				`Sound - ${sound}`
-			);
-		});
-		document.getElementById('game-main-menu')!.addEventListener('click', (event) => {
-			const target = event.target as HTMLElement;
-			if (target.id.startsWith('dropdownButton-')) {
-				const menus = document.querySelectorAll('[id^="dropdownMenu-"]');
-				menus.forEach(menuI => {
-					let menuElem = menuI as HTMLElement;
-					if (!menuElem.classList.contains('hidden') && menuElem != target.nextElementSibling) {
-						menuElem?.classList.toggle('hidden');
-						menuElem?.classList.toggle('flex');
-						const icon = menuElem.previousElementSibling?.querySelector('i');
-						icon?.classList.toggle("fa-chevron-up");
-						icon?.classList.toggle("fa-chevron-down");
-					}
-				});
-			}
-		});
+		`);
+		document.getElementById('save-settings')!.addEventListener('click', menu.saveSettingsHandler);
+		menu.initGameMenu();
+		document.getElementById('game-main-menu')!.addEventListener('click', (event) => this.setGameMenuToggler(event));
 	}
-	onCleanup(): void { }
+	onCleanup() {}
 	getHtml(): string {
 		return /*html*/`
 			${sidebar.getHtml()}
@@ -93,16 +68,26 @@ class Game extends Page {
 					${dropdown.getHtml('Co-Op')}
 					${dropdown.getHtml('Settings')}
 				</div>
+				<canvas id="game-canvas" class="hidden"></canvas>
 			</main>
 		`;
 	}
-	setCustomHandler() {
-		const customElement = document.querySelector('customElement');
-		const handler = () => {
-			// handler code
+	setGameMenuToggler(e: Event) {
+		const target = e.target as HTMLElement;
+		if (target.id.startsWith('dropdownButton-')) {
+			const menus = document.querySelectorAll('[id^="dropdownMenu-"]');
+			menus.forEach(menuI => {
+				let menuElem = menuI as HTMLElement;
+				if (!menuElem.classList.contains('hidden') && menuElem != target.nextElementSibling) {
+					menuElem?.classList.toggle('hidden');
+					menuElem?.classList.toggle('flex');
+					const icon = menuElem.previousElementSibling?.querySelector('i');
+					icon?.classList.toggle("fa-chevron-up");
+					icon?.classList.toggle("fa-chevron-down");
+				}
+			});
 		}
-		customElement?.addEventListener('submit', handler);
-		this.addCleanupHandler(() => customElement?.removeEventListener('submit', handler));
+
 	}
 }
 
