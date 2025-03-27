@@ -5,6 +5,7 @@ import path, { join, dirname } from 'path';
 import { createUser, initializeDatabase } from './database/db.js';
 import { SocketHandler } from './socket/socket_handler.js';
 import { fileURLToPath } from 'url';
+import fastifyCookie from "@fastify/cookie";
 
 const server_chat = fastify();
 const port = 2000;
@@ -20,13 +21,17 @@ async function setupServer() {
 	});
 
 	await server_chat.register(fastifyWebsocket);
+	await server_chat.register(fastifyCookie);
 
 	/* server_chat.addHook('onRequest', async (request, reply) => {
 		console.log(`Incoming request: ${request.method} ${request.url}`);
 	}); */
-
+	
 	server_chat.get('/', async (request, reply) => {
-		username = request.query.user;
+		const token = request.cookies.token;
+		const userData = await fetchUserDataFromGateway(token);
+		username = userData.username;
+		console.log(userData.userId);
 
 		if (!username)
 			return reply.send('Please provide a username in the URL (e.g., /?user=Antony)');
@@ -45,13 +50,36 @@ async function setupServer() {
 
 }
 
+async function fetchUserDataFromGateway(token) {
+    try {
+        const response = await fetch("http://gateway-api:7000/userData", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Cookie": `token=${token}`, /// test wihout
+            },
+            credentials: "include"
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch user from Gateway: ${response.status} ${response.statusText}`);
+        }
+
+        console.log(response);
+        return await response.json();
+    } catch (error) {
+        console.error("❌ Error fetching user from Gateway:", error);
+        return null;
+    }
+}
+
 async function main() {
 
 	try {
 		await setupServer();
 		const db = await initializeDatabase();
 
-		await server_chat.listen({ port: port });
+		await server_chat.listen({ port: port, host: '0.0.0.0' });
 		console.log(`Server running at http://localhost:${port}`);
 	}
 	catch (error) {

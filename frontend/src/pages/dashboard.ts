@@ -10,7 +10,7 @@ class Dashboard extends Page {
 		sidebar.setSidebarToggler();
 		lib.assignButtonNavigation('game-button', '/game');
 		document.getElementById("chat-button")!.addEventListener("click", () => {
-			window.location.href = "http://127.0.0.1:2000/?user=Antony";
+			window.location.href = "http://127.0.0.1:2000/";
 		});
 		document.getElementById("notifications-button")!.addEventListener("click", () => {
 			lib.showToast();
