@@ -8,14 +8,6 @@ class Dashboard extends Page {
 	}
 	onMount(): void {
 		sidebar.setSidebarToggler();
-		lib.assignButtonNavigation('game-button', '/game');
-		document.getElementById("chat-button")!.addEventListener("click", () => {
-			window.location.href = "http://127.0.0.1:2000/";
-		});
-		document.getElementById("notifications-button")!.addEventListener("click", () => {
-			lib.showToast();
-		});
-		lib.assignButtonNavigation('settings-button', '/login');
 	}
 	onCleanup(): void {}
 	getHtml(): string {
