@@ -28,13 +28,16 @@ async function LoginRoutes(server, opts) {
         },
     
         handler:  async (request, response) => {
-
+            
             const { username, password } = request.body;
 			let resContent;
             // let user;
             // let hash;
             try {
                 const user = await server.getUserByUsername(username);
+                if (!user) {
+                    throw({status: 404, message: 'User not found!'});
+                }
                 const login = await bcrypt.compare(password, user.password);
 
                 if (login != true) {
