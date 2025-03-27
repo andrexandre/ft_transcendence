@@ -8,17 +8,6 @@ class Dashboard extends Page {
 	}
 	onMount(): void {
 		sidebar.setSidebarToggler();
-		lib.assignButtonNavigation('game-button', '/game');
-		document.getElementById("chat-button")!.addEventListener("click", () => {
-			window.location.href = "http://127.0.0.1:2000/";
-		});
-		document.getElementById("notifications-button")!.addEventListener("click", () => {
-			lib.showToast();
-		});
-		document.getElementById("link-to-game-button")!.addEventListener("click", () => {
-			window.location.href = "http://127.0.0.1:5000/";
-		});
-		lib.assignButtonNavigation('settings-button', '/login');
 	}
 	onCleanup(): void {}
 	getHtml(): string {

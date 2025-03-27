@@ -18,10 +18,6 @@ class Game extends Page {
 	onMount(): void {
 		// this.setCustomHandler();
 		sidebar.setSidebarToggler();
-		lib.assignButtonNavigation('home-button', '/');
-		document.getElementById("notifications-button")!.addEventListener("click", () => {
-			lib.showToast();
-		});
 		tempInitializeDropdown('Single', 'Classic', 'Infinity');
 		tempInitializeDropdown('Multi', 'Tournament', 'Don\'t click');
 		tempInitializeDropdown('Co-Op', 'Soccer', 'Free for all');
@@ -56,6 +52,7 @@ class Game extends Page {
 			const difficulty = (document.getElementById('difficulty') as HTMLSelectElement).value;
 			const tableSize = (document.getElementById('table-size') as HTMLSelectElement).value;
 			const sound = (document.getElementById('sound') as HTMLSelectElement).value;
+
 			lib.showToast.yellow(`Sound - ${sound}`);
 			lib.showToast.blue(`Table Size - ${tableSize}\n`);
 			lib.showToast.red(`Difficulty - ${difficulty}\n`);
