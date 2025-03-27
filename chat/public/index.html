@@ -29,26 +29,24 @@
       </div>
       <div class="friend-requests-list" id="friendRequestsList">
         <!-- Friend requests will be added here dynamically -->
-        <div class="friend-request-item">
-          <div class="request-user">John Doe</div>
-          <div class="request-actions">
-            <button class="accept-request">✓</button>
-            <button class="decline-request">✗</button>
-          </div>
-        </div>
-        <div class="friend-request-item">
-          <div class="request-user">Jane Smith</div>
-          <div class="request-actions">
-            <button class="accept-request">✓</button>
-            <button class="decline-request">✗</button>
-          </div>
-        </div>
       </div>
     </div>
     <div class="chat-container">
       <!-- Chat header with current friend name -->
       <div class="chat-header">
         <div class="current-friend" id="currentFriend">
+        </div>
+        <div class="user-dropdown" id="userDropdown">
+          <div class="dropdown-item">
+            <div class="person-icon">
+              <div class="person-head"></div>
+              <div class="person-body"></div>
+            </div>
+            <span>Profile</span>
+          </div>
+          <div class="dropdown-item">
+            <span>Block</span>
+          </div>
         </div>
       </div>
       
@@ -78,7 +76,7 @@
         <!-- More users can be added here -->
       </ul>
     </div>
-    <script src="/socket.io/socket.io.js"></script>
+    <div id="notification-container" class="notification-container"></div>
     <script type="module" src="index.js"></script>
   </body>
 </html>
