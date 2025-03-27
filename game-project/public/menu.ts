@@ -27,6 +27,31 @@ const difficultySelect = document.getElementById("difficulty") as HTMLSelectElem
 const tableSizeSelect = document.getElementById("table-size") as HTMLSelectElement;
 const soundSelect = document.getElementById("sound") as HTMLSelectElement;
 
+// TESTE
+
+document.addEventListener('keydown', (event: KeyboardEvent) => {
+	if (document.activeElement instanceof HTMLInputElement || 
+		document.activeElement instanceof HTMLTextAreaElement || 
+		(document.activeElement && document.activeElement.getAttribute("contenteditable") === "true")) {
+	  return;
+	}  
+	if (event.key === " ") {
+		event.preventDefault();
+		const allElements = document.querySelectorAll('*');
+		allElements.forEach(element => {
+			const htmlElement = element as HTMLElement;
+			if (htmlElement.style.outline === '1px solid red' || htmlElement.style.outlineOffset === '-1px') {
+				htmlElement.style.outline = '';
+				htmlElement.style.outlineOffset = '';
+			} else {
+				htmlElement.style.outline = '1px solid red';
+				htmlElement.style.outlineOffset = '-1px';
+			}
+		});
+	}
+});
+
+
 // Function to toggle a submenu 
 function toggleMenu(selectedMenu: HTMLDivElement) {
     console.log("Toggling menu:", selectedMenu.id);
@@ -123,29 +148,55 @@ classicBtn.addEventListener("click", (event) => {
     startSingleClassic(username, { difficulty, tableSize, sound });
 });
 
+
+let socket: WebSocket | null = null;
+
+// ✅ Join Free For All Game
 freeForAllBtn.addEventListener("click", () => {
     const username = sessionStorage.getItem("username");
-    if (!username) {
-        console.error("❌ No username found in sessionStorage!");
-        return;
-    }
+    const userId = sessionStorage.getItem("user_id");
+
     console.log(`🆕 Free For All button clicked by ${username}`);
 
-    const ws = new WebSocket("ws://localhost:5000/ws");
-    const roomId = "ffa"; // Create a IdGen layter ///////////////
-    console.log(`📡 WebSocket readyState: ${ws.readyState}`);
+    if (!username || !userId) {
+        console.error("❌ No username found! Cannot join Free For All.");
+        return;
+    }
 
-    if (ws.readyState === WebSocket.OPEN) {
-        const message = JSON.stringify({
-            type: "join-room",
-            username,
-            roomId
-        });
+    // ✅ Open WebSocket connection if not already open
+    if (!socket || socket.readyState !== WebSocket.OPEN) {
+        socket = new WebSocket("ws://localhost:5000/ws");
 
-        console.log("📤 Sending WebSocket message:", message);
-        ws.send(message);
-    } else {
-        console.error("⚠️ WebSocket is not open. Current state:", ws.readyState);
+        socket.onopen = () => {
+            console.log("📡 WebSocket connected. Sending join request...");
+            socket!.send(JSON.stringify({ type: "join", username, userId }));
+        };
+
+        socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            console.log("📩 WebSocket Message:", data);
+
+            if (data.type === "waiting") {
+                console.log("⌛ Waiting for another player...");
+            }
+
+            if (data.type === "start") {
+                console.log(`🎮 Match started against ${data.opponent}`);
+                startFreeForAll(username, data.opponent);
+            }
+
+            if (data.type === "full") {
+                console.error("🚫 Match is full. Try again later.");
+            }
+        };
+
+        socket.onerror = (error) => {
+            console.error("❌ WebSocket error:", error);
+        };
+
+        socket.onclose = () => {
+            console.warn("🔴 WebSocket connection closed.");
+        };
     }
 });
 
@@ -175,7 +226,7 @@ saveSettingsBtn.addEventListener("click", async () => {
     // Send settings update to the database
     try {
         const response = await fetch("/save-settings", {
-            method: "POST",
+            method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username, difficulty, tableSize, sound }),
         });

@@ -4,6 +4,7 @@ game-project/server.js
 game-project/db_game.js
 game-project/public/game.js
 game-project/public/menu.js
+game-project/public/*.js
 *.db
 
 # Logs
