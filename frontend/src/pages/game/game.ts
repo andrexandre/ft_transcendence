@@ -5,9 +5,9 @@ import dropdown from "../../components/dropdown"
 
 function tempInitializeDropdown(id: string, option1: string, option2: string) {
 	dropdown.setDropdownToggler(id);
-	dropdown.addComponent(id, 'button', 'm-1 px-4 py-2 border-2 border-light hover:border-darker', 
+	dropdown.addComponent(id, 'button', 'game-component', 
 		option1, () => {lib.showToast(`${id} ${option1} clicked`); });
-	dropdown.addComponent(id, 'button', 'm-1 px-4 py-2 border-2 border-light hover:border-darker', 
+	dropdown.addComponent(id, 'button', 'game-component', 
 		option2, () => {lib.showToast(`${id} ${option2} clicked`); });
 }
 
@@ -26,11 +26,47 @@ class Game extends Page {
 		tempInitializeDropdown('Multi', 'Tournament', 'Don\'t click');
 		tempInitializeDropdown('Co-Op', 'Soccer', 'Free for all');
 		dropdown.setDropdownToggler('Settings');
-		dropdown.addComponent('Settings', 'select', 'm-1 px-4 py-2 border-2 border-light hover:border-darker focus:outline-none ', /*html*/`
-					<option value="easy">Easy</option>
-					<option value="normal">Normal</option>
-					<option value="hard">Hard</option>
-			`)
+		dropdown.addComponent('Settings', 'div', 'flex flex-col', /*html*/`
+			<div class="grid grid-cols-[1fr_2fr] items-center">
+				<label for="difficulty">Difficulty</label>
+				<select id="difficulty" class="game-component justify-center">
+					<option>Easy</option>
+					<option>Normal</option>
+					<option>Hard</option>
+				</select>
+			</div>
+			<div class="grid grid-cols-[1fr_2fr] items-center">
+				<label for="table-size">Table Size</label>
+				<select id="table-size" class="game-component justify-center">
+					<option>Small</option>
+					<option>Medium</option>
+					<option>Large</option> 
+				</select>
+			</div>
+			<div class="grid grid-cols-[1fr_2fr] items-center">
+				<label for="sound">Sound</label>
+				<select id="sound" class="game-component justify-center">
+					<option>On</option>
+					<option>Off</option>
+				</select>
+			</div>
+			<button id="save-settings" type="button" class="game-component">Save</button>
+			`);
+		document.getElementById('save-settings')!.addEventListener('click', () => {
+			const difficulty = (document.getElementById('difficulty') as HTMLSelectElement).value;
+			const tableSize = (document.getElementById('table-size') as HTMLSelectElement).value;
+			const sound = (document.getElementById('sound') as HTMLSelectElement).value;
+			lib.showToast.yellow(`Sound - ${sound}`);
+			lib.showToast.blue(`Table Size - ${tableSize}\n`);
+			lib.showToast.red(`Difficulty - ${difficulty}\n`);
+			lib.showToast.green(`Settings saved:\n`);
+			console.log(
+				`Settings saved:\n` +
+				`Difficulty - ${difficulty}\n` +
+				`Table Size - ${tableSize}\n` +
+				`Sound - ${sound}`
+			);
+		});
 		document.getElementById('game-main-menu')!.addEventListener('click', (event) => {
 			const target = event.target as HTMLElement;
 			if (target.id.startsWith('dropdownButton-')) {

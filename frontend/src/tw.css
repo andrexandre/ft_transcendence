@@ -42,3 +42,8 @@ img {
 	0%, 100% { opacity: 0; transform: translateY(-30px); }
 	10%, 90% { opacity: 1; transform: translateY(0); }
 }
+
+/* game */
+.game-component {
+	@apply m-1 px-4 py-2 border-2 border-light hover:border-darker focus:outline-none;
+}

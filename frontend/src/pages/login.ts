@@ -64,9 +64,9 @@ class Login extends Page {
 					throw new Error(`${response.status} - ${response.statusText}`);
 				}
 				lib.showToast.green(`${response.status} - ${response.statusText}`);
-				lib.navigate(e, "/");
 				let loginResponseData = await response.json();
 				lib.userInfo.username = loginResponseData.username
+				lib.navigate(e, "/");
 			} catch (error) {
 				console.log(error);
 				lib.showToast.red(error as string);
