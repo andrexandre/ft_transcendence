@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt'
 import { json } from 'stream/consumers';
 
 
-async function RegisterRoutes(server, opts) {
+async function RegisterRoute(server, opts) {
     
     server.route({
         method: 'POST',
@@ -58,4 +58,4 @@ async function RegisterRoutes(server, opts) {
 }
 
 
-export default RegisterRoutes;
+export default RegisterRoute;

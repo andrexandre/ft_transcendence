@@ -19,14 +19,14 @@ async function dbtest(fastify, options) {
 	});
 	
 	fastify.log.info('Sucessful connection to database!');
-	if (!fastify.db) {
-		fastify.decorate('db', connection);
+	if (!fastify.sqlite) {
+		fastify.decorate('sqlite', connection);
 		// (name, function, 'decorators dependencies')
-		fastify.decorate('createUser', createUser, ['db']);
-		fastify.decorate('getUserByUsername', getUserByUsername, ['db']);
-		fastify.decorate('updateUserStatus', updateUserStatus, ['db']);
-		fastify.decorate('createFriendRequest', createFriendRequest, ['db']);
-		fastify.decorate('acceptFriendRequest', acceptFriendRequest, ['db']);
+		fastify.decorate('createUser', createUser, ['sqlite']);
+		fastify.decorate('getUserByUsername', getUserByUsername, ['sqlite']);
+		fastify.decorate('updateUserStatus', updateUserStatus, ['sqlite']);
+		fastify.decorate('createFriendRequest', createFriendRequest, ['sqlite']);
+		fastify.decorate('acceptFriendRequest', acceptFriendRequest, ['sqlite']);
 	}	
 	fastify.addHook('onClose', (fastify, done) => connection.end().then(done).catch(done));
 	

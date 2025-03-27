@@ -1,10 +1,18 @@
+// Dependencies
 import fastify from "fastify";
-import RegisterRoutes from "./routes/auth/registerRoutes.js";
-import LoginRoutes from "./routes/auth/loginRoutes.js";
-import googleSignRoutes from "./routes/auth/googleSign.js";
+
+// Routes
+import LoginRoute from "./routes/auth/loginRoutes.js";
+import googleSignRoute from "./routes/auth/googleSign.js";
+import RegisterRoute from "./routes/auth/registerRoutes.js";
 import { friendRequestRoute, processFriendRequestRoute } from "./routes/friends/friends.js";
+
+// Utils
 import { loadQueryFile } from "./utils/utils_1.js";
+
+// Plugins
 import db_test from './plugins/db_plugin.js';
+
 
 // Creation of the app  instance
 const server = fastify({ loger: true });
@@ -19,7 +27,7 @@ server.addHook('onRequest', (request, reply, done) => {
 server.get('/',  async(request, response) => {
 	
 	response.header('content-type', 'application/json');
-	let tmp = await server.db.all('SELECT * FROM users');
+	let tmp = await server.sqlite.all('SELECT * FROM users');
 	if (tmp.length > 0 ) {
 		tmp = tmp.map(item => ({
 		...item,
@@ -41,9 +49,9 @@ async function start() {
 	try {
 		// Ver como registrar todas as routes com auto-load
 		await server.register(db_test, { dbPath: './user.db'});
-		await server.register(RegisterRoutes);
-		await server.register(LoginRoutes);
-		await server.register(googleSignRoutes);
+		await server.register(RegisterRoute);
+		await server.register(LoginRoute);
+		await server.register(googleSignRoute);
 		await server.register(friendRequestRoute);
 		await server.register(processFriendRequestRoute);
 		
@@ -59,7 +67,7 @@ async function start() {
 
 			}
 			console.log(content);
-			server.db.run(content);
+			server.sqlite.run(content);
 		});
 
 	} catch(err) {
