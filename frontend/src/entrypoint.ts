@@ -1,3 +1,4 @@
+import * as lib from "./utils"
 
 document.addEventListener('keydown', (event: KeyboardEvent) => {
 	if (document.activeElement instanceof HTMLInputElement || 
@@ -13,9 +14,11 @@ document.addEventListener('keydown', (event: KeyboardEvent) => {
 			if (htmlElement.style.outline === '1px solid blue' || htmlElement.style.outlineOffset === '-1px') {
 				htmlElement.style.outline = '';
 				htmlElement.style.outlineOffset = '';
+				lib.Cookies.remove('outline');
 			} else {
 				htmlElement.style.outline = '1px solid blue';
 				htmlElement.style.outlineOffset = '-1px';
+				lib.Cookies.set('outline', 'true');
 			}
 		});
 	}

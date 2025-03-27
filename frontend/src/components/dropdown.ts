@@ -1,0 +1,102 @@
+import * as lib from "../utils"
+
+const dropdown = {
+	getHtml: (componentId: string) => /*html*/`
+		<div class="text-left my-1 w-50">
+			<button id="dropdownButton-${componentId}" class="flex justify-between px-5 items-center w-full shadow-sm py-2 border-2 border-light hover:border-darker">
+				${componentId}
+				<i class="fa-solid fa-chevron-down"></i>
+			</button>
+
+			<div id="dropdownMenu-${componentId}" class="hidden flex-col"></div>
+		</div>
+	`,
+	setDropdownToggler: (componentId: string) => {
+		const button = document.getElementById(`dropdownButton-${componentId}`);
+		const menu = document.getElementById(`dropdownMenu-${componentId}`);
+		const handler = () => {
+			menu?.classList.toggle('hidden');
+			menu?.classList.toggle('flex');
+			const icon = document.querySelector(`#dropdownButton-${componentId} i`);
+			icon?.classList.toggle("fa-chevron-up");
+			icon?.classList.toggle("fa-chevron-down");
+		}
+		button?.addEventListener('click', handler);
+	},
+	addComponent: (componentId: string, componentName: string, componentClasses: string, html: string, onClickHandler?: () => void) => {
+		const component = document.createElement(componentName);
+		component.className = componentClasses;
+		component.innerHTML = html;
+		if (onClickHandler)
+			component.addEventListener('click', onClickHandler);
+		document.getElementById(`dropdownMenu-${componentId}`)?.appendChild(component);
+	}
+}
+
+export default dropdown;
+
+/* 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Simple Accordion Example</title>
+  <style>
+    .hidden {
+      display: none;
+	}
+    .accordion-icon {
+      transition: transform 0.2s ease;
+    }
+  </style>
+</head>
+<body>
+  <div data-accordion>
+    <h2>
+      <button type="button"
+              data-accordion-target="#panel1"
+              aria-expanded="false">
+        Accordion Header
+        <!-- The icon will rotate when toggled -->
+        <svg data-accordion-icon class="accordion-icon" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+          <polyline points="1,3 5,7 9,3" stroke="black" fill="none"/>
+        </svg>
+      </button>
+    </h2>
+    <div id="panel1" class="hidden">
+      <p>This is the accordion content. It can include any HTML elements.</p>
+    </div>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Find all buttons that control accordion panels
+      const accordionButtons = document.querySelectorAll('[data-accordion-target]');
+
+      accordionButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          // Get the corresponding content panel using the selector from the data attribute
+          const targetSelector = button.getAttribute('data-accordion-target');
+          const targetPanel = document.querySelector(targetSelector);
+
+          // Check if the accordion is expanded
+          const isExpanded = button.getAttribute('aria-expanded') === 'true';
+          // Toggle the aria-expanded attribute
+          button.setAttribute('aria-expanded', !isExpanded);
+
+          // Toggle the hidden class to show/hide the panel
+          if (targetPanel) {
+            targetPanel.classList.toggle('hidden', isExpanded);
+          }
+
+          // Rotate the icon based on the state
+          const icon = button.querySelector('[data-accordion-icon]');
+          if (icon) {
+            icon.style.transform = isExpanded ? 'rotate(0deg)' : 'rotate(180deg)';
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
+ */

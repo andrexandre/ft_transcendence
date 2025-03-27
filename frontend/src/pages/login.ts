@@ -1,15 +1,17 @@
-import lib from "../lib"
 import Page from "./Page"
-import { navigate, assignButtonNavigation } from "../utils/navigation";
+import * as lib from "../utils"
 
 class Login extends Page {
 	constructor() {
 		super("login", '/login');
 	}
 	onMount(): void {
-		this.setSubmissionHandler('http://127.0.0.1:7000/login');
-		assignButtonNavigation('register-button', '/register');
-		assignButtonNavigation('dashboard-button', '/');
+		this.setSubmissionHandler();
+		lib.assignButtonNavigation('register-button', '/register');
+		lib.assignButtonNavigation('dashboard-button', '/');
+		document.getElementById("google-auth-button")!.addEventListener("click", () => {
+			window.location.href = "http://127.0.0.1:7000/loginOAuth";
+		});
 	}
 	onCleanup(): void {}
 	getHtml(): string {
@@ -26,6 +28,11 @@ class Login extends Page {
 						<input type="password" id="password" placeholder="Enter password" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required />
 					</div>
 					<button type="submit" class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Submit</button>
+					<hr class="text-neutral-400">
+					<button type="button" id="google-auth-button" class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+						<i class="fa-brands fa-google mr-2"></i>
+						Continue with Google
+					</button>
 					<div class="text-sm font-medium text-gray-500">
 						Not registered? 
 						<button id="register-button" class="text-blue-700 hover:underline hover:cursor-pointer">Create account</button>
@@ -36,7 +43,7 @@ class Login extends Page {
 			</div>
 		`;
 	}
-	setSubmissionHandler(url: string) {
+	setSubmissionHandler() {
 		const form = document.querySelector('form');
 		const handler = async (e: Event) => {
 			e.preventDefault();
@@ -45,7 +52,7 @@ class Login extends Page {
 				password: (document.getElementById('password') as HTMLInputElement).value
 			};
 			try {
-				const response = await fetch(url, {
+				const response = await fetch('http://127.0.0.1:7000/login', {
 					method: 'POST',
 					credentials: "include",
 					headers: {
@@ -56,11 +63,13 @@ class Login extends Page {
 				if (!response.ok) {
 					throw new Error(`${response.status} - ${response.statusText}`);
 				}
-				lib.showToast(true, `${response.status} - ${response.statusText}`);
-				navigate(e, "/");
+				lib.showToast.green(`${response.status} - ${response.statusText}`);
+				let loginResponseData = await response.json();
+				lib.userInfo.username = loginResponseData.username
+				lib.navigate(e, "/");
 			} catch (error) {
 				console.log(error);
-				lib.showToast(false, error as string);
+				lib.showToast.red(error as string);
 			}
 		};
 		form?.addEventListener('submit', handler);

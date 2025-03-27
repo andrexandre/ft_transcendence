@@ -41,9 +41,11 @@ destroy: down rmi
 	docker run --rm -v ./backend/Gateway/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
 	docker run --rm -v ./game-project/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
 	docker run --rm -v ./chat/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
+	docker run --rm -v ./frontend/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
+	find . -type d -iname 'node_modules' -delete
 
 rmi:
-	-docker rmi -f $$(docker images -a -q)
+	docker-compose down --rmi all
 
 rmv:
 	docker volume rm $$(docker volume ls -q)
@@ -60,16 +62,13 @@ frontend/node_modules:
 	cd frontend ; npm install
 
 server-up: frontend/node_modules
-	cd frontend ; npx vite
+	cd frontend ; npx vite --host 127.0.0.1 --port 5500
 
 server-upd: frontend/node_modules
-	cd frontend ; npx vite &
+	cd frontend ; npx vite --host 127.0.0.1 --port 5500 &
 
 server-down:
 	pkill -2 -f '/.bin/vite'
-
-server-clean:
-	rm -rf frontend/node_modules frontend/build
 
 db-clean:
 	sqlite3 $(DB-PATH) "delete from $(DB-NAME);"
@@ -93,6 +92,7 @@ system-prune:
 # this is useful when root permissions are required to delete files
 # note: this removes the contents of the specified folder
 rm-rf:
+	docker pull public.ecr.aws/docker/library/busybox:stable
 	@read -p "rm -rf $$PWD/" folder;\
 	docker run --rm -v ./$$folder:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
 

@@ -1,8 +1,5 @@
 
 // Code i might need later :)
-// const navbarHTML = await navbar.getHtml();
-// put this inside the innerHTML: ${navbarHTML}
-// after changing the html, we can execute the js using: navbar.execJS();
 // cat file.html
 // <h1>Vite + TypeScript = {{component}}</h1>
 // import file from './file.html?raw';
@@ -50,26 +47,32 @@ export default abstract class Page {
 	}
 }
 
-// Example code to add a page!
-/*
-class CustomPage extends Page {
-	constructor() {
-		super("custompage", '/custompage');
-	}
-	onMount(): void {
-		this.setCustomHandler();
-	}
-	onCleanup(): void {}
-	getHtml(): string {
-		return `<p>Hi</p>`;
-	}
-	setCustomHandler() {
-		const customElement = document.querySelector('customElement');
-		const handler = () => {
-			// handler code
-		}
-		customElement?.addEventListener('submit', handler);
-		this.addCleanupHandler(() => customElement?.removeEventListener('submit', handler));
-	}
-}
-*/
+// Sample code to add a page:
+
+// import Page from "./Page"
+// import * as lib from "../utils"
+
+// class CustomPage extends Page {
+// 	constructor() {
+// 		super("custompage", '/custompage');
+// 	}
+// 	onMount(): void {
+// 		this.setCustomHandler();
+// 	}
+// 	onCleanup(): void {}
+// 	getHtml(): string {
+// 		return /*html*/`
+// 			<h1>Custom page html</h1>
+// 		`;
+// 	}
+// 	setCustomHandler() {
+// 		const customElement = document.querySelector('customElement');
+// 		const handler = () => {
+// 		}
+// 		customElement?.addEventListener('submit', handler);
+// 		this.addCleanupHandler(() => customElement?.removeEventListener('submit', handler));
+// 	}
+// }
+
+// const custompage: CustomPage = new CustomPage();
+// export default custompage;

@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt'
+import { json } from 'stream/consumers';
 
 
 async function RegisterRoutes(server, opts) {
@@ -33,12 +34,21 @@ async function RegisterRoutes(server, opts) {
                 // Password hashing
                 const salt = await bcrypt.genSalt(10);
                 const hashedPassword = await bcrypt.hash(password, salt);
-
-                await server.registerUsers(username, email, hashedPassword);
+				await server.createUser(username, email, hashedPassword, 'email');
             } catch(err) {
-
-                (err.status) ? 
-                response.status(err.status).send({message: `${err.message}`}) : response.status(500).send({message: `${err}`});
+				// console.log(err);
+				// console.log(err.name);
+				// console.log(err.message);
+				// console.log(err.code);
+				// console.log(err.errno);
+				// console.log(err.stack);
+				// console.log(JSON.stringify(err));
+                if (err.code === 'SQLITE_CONSTRAINT') {
+					const msg = (err.message.includes("email")) ? 'Email' : 'Username'; // true
+					response.status(409).send({message: `${msg} already exist!`});
+				} else {
+					response.status(500).send({message: `${err}`});
+				} 
 				
             }
             // Ver se coloco a resosta dentro do throw

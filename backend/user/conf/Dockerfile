@@ -1,5 +1,6 @@
 
-FROM node
+# FROM node:alpine
+FROM node:slim
 
 EXPOSE 3000
 

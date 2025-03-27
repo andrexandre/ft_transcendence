@@ -1,8 +1,8 @@
-export async function prepareTokenData(requestData) {
+export async function prepareTokenData(requestData, auth_method) {
     const data = await requestData.json();
     const username = data.username;
     const userId = data.userID;
-    const payload = {username, userId};
+    const payload = {username, userId, auth_method};
     return payload;
 }
 

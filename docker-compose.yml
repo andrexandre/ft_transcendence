@@ -50,6 +50,26 @@ services:
     networks:
       - ft_transcendence
 
+  vite:
+    image: vite
+    container_name: vite
+    build:
+      context: ./frontend
+    command:
+      sh -c "
+      npm config set fund false;
+      npm config set update-notifier false;
+      npm install;
+      exec npm run dev
+      "
+    working_dir: /frontend
+    ports:
+      - "5500:5500"
+    volumes:
+      - ./frontend:/frontend:rw
+    networks:
+      - ft_transcendence
+
 #   nginx:
 #     image: nginx
 #     container_name: nginx
