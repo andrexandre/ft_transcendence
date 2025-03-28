@@ -16,6 +16,20 @@ const registerSchema = {
 				message: { type: 'string' },
 			}
 		},
+		409: {
+			type: 'object',
+			properties: {
+				statusCode: { type: 'number', default: 409 },
+				error: { type: 'string' },
+			}
+		},
+		500: {
+			type: 'object',
+			properties: {
+				statusCode: { type: 'number', default: 500 },
+				error: { type: 'string' },
+			}
+		},
 	},
 };
 
