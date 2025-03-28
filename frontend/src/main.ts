@@ -8,28 +8,31 @@ import dashboard from "./pages/dashboard"
 import game from "./pages/game/game"
 import * as lib from "./utils"
 
+let currentPage: Page | undefined;
+
 function loadPage(path: string): void {
-	let CurrentPage: Page;
+	let newPage: Page;
 
 	switch (path) {
 		case "/register":
-			CurrentPage = register;
+			newPage = register;
 			break;
 		case "/login":
-			CurrentPage = login;
+			newPage = login;
 			break;
 		case "/game":
-			CurrentPage = game;
+			newPage = game;
 			break;
 		default:
 			lib.showToast.red("404 - Page Not Found");
 			history.replaceState(null, "", "/");
 		case "/":
-			CurrentPage = dashboard;
+			newPage = dashboard;
 			break;
 	}
-	document.getElementById("app")!.innerHTML = CurrentPage.getHtml();
-	CurrentPage.mount();
+	currentPage?.cleanup();
+	document.getElementById("app")!.innerHTML = newPage.getHtml();
+	newPage.mount();
 	if (lib.Cookies.get('outline')) {
 		document.dispatchEvent(new KeyboardEvent('keydown', { key: ' ' }));
 		lib.Cookies.set('outline', 'true');

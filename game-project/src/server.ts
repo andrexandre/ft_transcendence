@@ -8,6 +8,14 @@ import db_game from "./db_game.js";
 
 const gamefast = fastify({ logger: true });
 
+// The cors import and use is temporary
+import cors from '@fastify/cors';
+gamefast.register(cors, {
+	origin: ['http://127.0.0.1:5500'],
+	methods: ['GET', 'POST', 'PUT', 'DELETE'],
+	credentials: true
+});
+
 gamefast.register(fastifyWebsocket);
 gamefast.register(fastifyCookie);
 gamefast.register(fastifyStatic, {
