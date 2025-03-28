@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt'
+import registerSchema from '../../schemas/auth/registerSchema.js';
 import { json } from 'stream/consumers';
 
 
@@ -7,25 +8,7 @@ async function RegisterRoute(server, opts) {
     server.route({
         method: 'POST',
         url: '/api/create',
-        schema: {
-            body: {
-                type: 'object',
-                required: [ 'username', 'email', 'password' ],
-                properties: {
-                    username: { type: 'string' },
-                    email: { type: 'string', format: 'email' },
-                    password: { type: 'string' },
-                }
-            },
-            response: {
-                201: {
-                    type: 'object',
-                    properties: {
-                        message: { type: 'string' },
-                    }
-                },
-            },
-        },
+        schema: registerSchema,
     
         handler:  async (request, response) => {
            
