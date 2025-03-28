@@ -11,7 +11,7 @@ const gamefast = fastify({ logger: true });
 gamefast.register(fastifyWebsocket);
 gamefast.register(fastifyCookie);
 gamefast.register(fastifyStatic, {
-    root: path.join(process.cwd(), "src"),
+    root: path.join(process.cwd(), "src"), //../src
     prefix: "/",
 });
 gamefast.register(fastifyJwt, { secret: "supersecret" });
