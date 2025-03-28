@@ -8,7 +8,7 @@ export async function initGameMenu() {
 	const soundSelect = document.getElementById('sound') as HTMLSelectElement;
 
 	try {
-		const response = await fetch("http://127.0.0.1:5000/get-user-data", { credentials: "include" });
+		const response = await fetch("http://127.0.0.1:5000/src/get-user-data", { credentials: "include" });
 
 		if (!response.ok) {
 			throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
@@ -63,7 +63,7 @@ export async function saveSettingsHandler() {
 
 	// Send settings update to the database
 	try {
-		const response = await fetch("http://127.0.0.1:5000/save-settings", {
+		const response = await fetch("http://127.0.0.1:5000/src/save-settings", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			credentials: 'include',
