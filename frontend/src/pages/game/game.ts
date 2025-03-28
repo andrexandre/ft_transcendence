@@ -3,16 +3,33 @@ import * as lib from "../../utils"
 import sidebar from "../../components/sidebar"
 import dropdown from "../../components/dropdown"
 import * as menu from "./menu"
+import * as logic from "./single"
 
 function tempInitializeDropdown(id: string, option1: string, option2: string) {
 	dropdown.setDropdownToggler(id);
-	if (id == 'Single' && option1 == 'Classic')
-		dropdown.addComponent(id, 'button', 'game-component', 
-			option1, menu.classicBtnHandler);
-	else
-		dropdown.addComponent(id, 'button', 'game-component', 
-			option1, () => { lib.showToast(`${id} ${option1} clicked`); });
-	dropdown.addComponent(id, 'button', 'game-component', 
+	if (id == 'Single' && option1 == 'Classic') {
+		const username = sessionStorage.getItem("username");
+		if (!username) {
+			console.error("❌ No username found in sessionStorage!");
+			return;
+		}
+		dropdown.addComponent(id, 'button', 'game-component',
+			option1,
+			() => {
+				const difficulty = sessionStorage.getItem("user_set_dificulty") || "Normal";
+				const tableSize = sessionStorage.getItem("user_set_tableSize") || "Medium";
+				const sound = sessionStorage.getItem("user_set_sound") === "1";
+				logic.startSingleClassic(username, { difficulty, tableSize, sound })
+			});
+	}
+	else {
+		dropdown.addComponent(
+			id, 'button', 'game-component',
+			option1,
+			() => lib.showToast(`${id} ${option1} clicked`)
+		);
+	}
+	dropdown.addComponent(id, 'button', 'game-component',
 		option2, () => { lib.showToast(`${id} ${option2} clicked`); });
 }
 
@@ -23,7 +40,7 @@ class Game extends Page {
 	onMount(): void {
 		sidebar.setSidebarToggler();
 		tempInitializeDropdown('Single', 'Classic', 'Infinity');
-		tempInitializeDropdown('Multi', 'Tournament', 'Don\'t click');
+		tempInitializeDropdown('Multi', 'Tournament', "Don't click");
 		tempInitializeDropdown('Co-Op', 'Soccer', 'Free for all');
 		dropdown.setDropdownToggler('Settings');
 		dropdown.addComponent('Settings', 'div', 'flex flex-col', /*html*/`
@@ -56,7 +73,7 @@ class Game extends Page {
 		menu.initGameMenu();
 		document.getElementById('game-main-menu')!.addEventListener('click', (event) => this.setGameMenuToggler(event));
 	}
-	onCleanup() {}
+	onCleanup() { }
 	getHtml(): string {
 		return /*html*/`
 			${sidebar.getHtml()}
@@ -68,7 +85,8 @@ class Game extends Page {
 					${dropdown.getHtml('Co-Op')}
 					${dropdown.getHtml('Settings')}
 				</div>
-				<canvas id="game-canvas" class="hidden"></canvas>
+				<canvas id="gameCanvas" class="hidden"></canvas>
+				<div id="scoreboard" class="hidden"></div>
 			</main>
 		`;
 	}

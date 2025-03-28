@@ -49,7 +49,7 @@ export async function saveSettingsHandler() {
 
 	const difficulty = difficultySelect.value;
 	const tableSize = tableSizeSelect.value;
-	const sound = soundSelect.value === "on" ? 1 : 0;
+	const sound = soundSelect.value === "On" ? 1 : 0;
 
 	console.log(`🎮 Saving settings for: ${username}`);
 	console.log("➡ Difficulty:", difficulty);
@@ -66,6 +66,7 @@ export async function saveSettingsHandler() {
 		const response = await fetch("http://127.0.0.1:5000/save-settings", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
+			credentials: 'include',
 			body: JSON.stringify({ username, difficulty, tableSize, sound }),
 		});
 
