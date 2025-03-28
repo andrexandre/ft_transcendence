@@ -2,10 +2,10 @@
   "name": "pongify_ftw",
   "version": "1.0.7",
   "description": "You got to get Ponging...",
-  "main": "server.js",
+  "main": "src/server.js",
   "scripts": {
     "start": "tsc",
-    "dev": "node server.ts",
+    "dev": "node src/server.ts",
     "watch": "nodemon --ext ts --exec 'npm run start && npm run dev || exit 1'"
   },
   "type": "module",
