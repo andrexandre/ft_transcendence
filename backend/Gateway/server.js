@@ -5,20 +5,20 @@ import fastifyCookie from '@fastify/cookie';
 import fastifyOAuth from '@fastify/oauth2';
 import cors from '@fastify/cors';
 import dotenv from 'dotenv';
-import fs from 'fs';
+
+//plugins
+import setProtectedRoutes from './plugins/setProtectedRoutes.js';
 
 //Decorators
 import { generateToken, prepareTokenData, verifyToken } from './decorators/login/prepareToken.js';
 import { parseToReadableData } from './decorators/login/prepareData.js';
 import { parseToReadableOAuth } from './decorators/google/prepareGoogleAuthData.js';
+
 //Routes
 import registerRoutes from './routes/auth/register.js';
 import loginRoutes from './routes/auth/login.js';
 import logoutRoute from './routes/auth/logout.js';
-import gameRoutes from './routes/game/player-data.js';
-import matchHistory from './routes/game/match-history.js';
 import callbackOAuthRoute from './routes/auth/OAuth/callbackOAuth.js';
-import googleControler from './routes/auth/OAuth/googleControler.js';
 
 dotenv.config();
 const fastify = Fastify({
@@ -26,10 +26,6 @@ const fastify = Fastify({
     level: 'debug',
     timestamp: true, 
   },
-  // https: {
-  //   key: fs.readFileSync('private-key.pem'),
-  //   cert: fs.readFileSync('certificate.pem')
-  // }
 });
 
 fastify.register(fastifyCookie);
@@ -54,13 +50,11 @@ fastify.decorate('verifyToken', verifyToken);
 fastify.decorate('parseToReadableData', parseToReadableData);
 fastify.decorate('parseToReadableOAuth', parseToReadableOAuth);
 
+fastify.register(setProtectedRoutes);
 fastify.register(registerRoutes);
 fastify.register(loginRoutes);
-fastify.register(gameRoutes);
-fastify.register(matchHistory);
 fastify.register(logoutRoute);
 fastify.register(callbackOAuthRoute);
-fastify.register(googleControler);
 
 fastify.register(fastifyJwt, {
   secret: process.env.JWT_SECRET_KEY,
