@@ -243,7 +243,7 @@ export function startSingleClassic(username: string, settings: { difficulty: str
 	function returnToMenu() {
 		gameCanvas.classList.add("hidden")
         menu.classList.remove("hidden");
-        // scoreboard.style.display = "none";
+        scoreboard.style.display = "none";
     }
     
     document.addEventListener("keydown", keyDownHandler);

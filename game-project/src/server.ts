@@ -19,10 +19,37 @@ gamefast.register(cors, {
 gamefast.register(fastifyWebsocket);
 gamefast.register(fastifyCookie);
 gamefast.register(fastifyStatic, {
-    root: path.join(process.cwd(), "public"),
+    root: path.join(process.cwd(), "src"), //../src
     prefix: "/",
 });
 gamefast.register(fastifyJwt, { secret: "supersecret" });
+
+// lobbys
+const lobbies: Record<string, { 
+    lobbyId: string;
+    gameType: string; 
+    tournamentId?: string;
+    maxPlayers: number;
+    players: { id: string; username: string }[];
+    hostId: string;
+}> = {};
+
+// WebSocket Route 
+gamefast.get("/ws", { websocket: true }, (connection, req) => {
+    console.log("🔌 New WebSocket connection!");
+
+    connection.on("message", (message: string) => {
+        console.log("📩 Received message:", message.toString());
+    });
+
+    connection.on("close", () => {
+        console.log("🔌 WebSocket disconnected");
+    });
+    connection.on("error", (err: string) => {
+        console.error("⚠ WebSocket error:", err);
+    });
+    
+});
 
 // Fetch user data from Gateway
 async function fetchUserDataFromGateway(token: string | undefined) {
@@ -40,7 +67,7 @@ async function fetchUserDataFromGateway(token: string | undefined) {
             throw new Error(`Failed to fetch user from Gateway: ${response.status} ${response.statusText}`);
         }
 
-        console.log(response);
+        // console.log(response);
         return await response.json();
     } catch (error) {
         console.error("❌ Error fetching user from Gateway:", error);
@@ -71,7 +98,7 @@ gamefast.get("/get-user-data", async (request, reply) => {
 
     const { username, userId } = userData;
     console.log(`🔍 Checking user in DB: ${username} (ID: ${userId})`);
-    // Use Promise to avoid multiple `reply.send()` calls FFFFFFFFFFDDDDDXXXXXXXXXXX
+
     const getUserFromDb = () =>
         new Promise((resolve, reject) => {
             db_game.get("SELECT * FROM users WHERE user_id = ?", [userId], (err, row) => {
@@ -115,13 +142,8 @@ gamefast.get("/get-user-data", async (request, reply) => {
         console.log("📌 Sending user data:", row);
         return reply.send(row);
 
-    } catch (err: unknown) {
-        console.error("❌ Error processing user data:", err);
-        if (err instanceof Error) {
-            return reply.status(500).send({ error: err.message });
-        } else {
-            return reply.status(500).send({ error: "An unknown error occurred" });
-        }
+    } catch (err: any) {
+        return reply.status(err.status || 500).send({ error: err.error || "❌ Unknown error" });
     }
 });
 
@@ -135,13 +157,12 @@ interface SaveSettingsRequest {
 }
 
 // Route: Save user settings
-gamefast.post<SaveSettingsRequest>("/save-settings", async (request, reply) => {
+gamefast.patch<SaveSettingsRequest>("/save-settings", async (request, reply) => {
     const { username, difficulty, tableSize, sound } = request.body;
-// patch / put / delete/ check what is? instead of post
+
     if (!username) {
         return reply.status(400).send({ error: "Username is required" });
     }
-
     console.log(`🔄 Updating settings for ${username}`);
 
     try {
@@ -162,14 +183,12 @@ gamefast.post<SaveSettingsRequest>("/save-settings", async (request, reply) => {
                 }
             );
         });
-
         console.log(`✅ Settings successfully updated for ${username}`);
         reply.send({ message: "✅ Settings updated successfully!" });
 
     } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Unknown database error";
-        console.error("❌ Database error:", errorMessage);
-        reply.status(500).send({ error: "Database error", details: errorMessage });
+        reply.status(500).send({ error: "Database error", details: error instanceof Error ? error.message : "Unknown error" });
+        console.error("❌ Database error:");
     }
 });
 
@@ -187,10 +206,10 @@ async function sendMatchToAPI(matchData: any) {
         }
 
         console.log("✅ Match successfully sent to API:", matchData);
-        return true;  // Success
+        return true;
     } catch (error) {
         console.error("❌ Error sending match to API:", error);
-        return false; // Failure
+        return false;
     }
 }
 
@@ -205,88 +224,26 @@ interface SaveMatchRequest {
     };
 }
 
-
-// ✅ Save match and Send to API
+// Save match and Send to API
 gamefast.post<SaveMatchRequest>("/save-match", async (request, reply) => {
     const { gameMode, player1Id, player2Id, player1Score, player2Score, winnerId } = request.body;
-
-    if (!player1Id || !player2Id) {
-        return reply.status(400).send({ error: "Missing player IDs" });
-    }
-
-    console.log(`🔄 Saving match: ${player1Id} vs ${player2Id} | Mode: ${gameMode}`);
+    if (!player1Id || !player2Id) return reply.status(400).send({ error: "Missing player IDs" });
 
     db_game.run(
-        `INSERT INTO games (game_mode, game_player1_id, game_player2_id, game_player1_score, game_player2_score, game_winner) 
-         VALUES (?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO games (game_mode, game_player1_id, game_player2_id, game_player1_score, game_player2_score, game_winner) VALUES (?, ?, ?, ?, ?, ?)`,
         [gameMode, player1Id, player2Id, player1Score, player2Score, winnerId],
         async function (err) {
-            if (err) {
-                return reply.status(500).send({ error: "Database error", details: err.message });
-            }
+            if (err) return reply.status(500).send({ error: "Database error", details: err.message });
 
-            const matchId = this.lastID;
-            const matchData = {
-                matchId,
-                gameMode,
-                player1Id,
-                player2Id,
-                player1Score,
-                player2Score,
-                winnerId
-            };
+            const matchData = { matchId: this.lastID, gameMode, player1Id, player2Id, player1Score, player2Score, winnerId };
 
             console.log("📡 Sending match data to API:", matchData);
-
-            // ✅ Try sending match to API
             const success = await sendMatchToAPI(matchData);
 
-            if (success) {
-                reply.send({ message: "✅ Match saved & sent successfully!", matchId });
-            } else {
-                reply.send({ message: "⚠ Match saved, but failed to sync with API.", matchId });
-            }
+            reply.send({ message: success ? "✅ Match saved & sent!" : "⚠ Match saved, but API sync failed.", matchId: this.lastID });
         }
     );
 });
-
-// gamefast.post<SaveMatchRequest>("/save-match", async (request, reply) => {
-//     const { player1Id, player2Id, player1Score, player2Score, gameMode, winnerId } = request.body;
-
-//     if (!player1Id || !player2Id || !gameMode) {
-//         return reply.status(400).send({ error: "Missing required match data" });
-//     }
-
-//     console.log(`📌 Saving match result: ${player1Id} vs ${player2Id}, Mode: ${gameMode}`);
-
-//     try {
-//         await new Promise<void>((resolve, reject) => {
-//             db_game.run(
-//                 `INSERT INTO games 
-//                     (game_mode, game_player1_id, game_player2_id, game_player1_score, game_player2_score, game_winner) 
-//                  VALUES (?, ?, ?, ?, ?, ?)`,
-//                 [gameMode, player1Id, player2Id, player1Score, player2Score, winnerId],
-//                 function (err) {
-//                     if (err) {
-//                         console.error("❌ Error saving match:", err.message);
-//                         reject(err);
-//                     } else {
-//                         console.log("✅ Match saved successfully!");
-//                         resolve();
-//                     }
-//                 }
-//             );
-//         });
-
-//         reply.send({ message: "Match saved successfully!" });
-
-//     } catch (error) {
-//         console.error("❌ Database error:", error);
-//         reply.status(500).send({ error: "Database error" });
-//     }
-// });
-
-
 
 // Start the Server
 const start = async () => {

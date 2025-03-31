@@ -1,9 +1,6 @@
 ### miguel ignore ###
 game-project/node_modules
-game-project/server.js
-game-project/db_game.js
-game-project/public/game.js
-game-project/public/menu.js
+game-project/src/*.js
 *.db
 
 # Logs

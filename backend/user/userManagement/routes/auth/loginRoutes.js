@@ -1,8 +1,6 @@
 import bcrypt from 'bcrypt';
-import * as crypto from 'crypto';
 
-
-async function LoginRoutes(server, opts) {
+async function LoginRoute(server, opts) {
     
     server.route({
         method: 'POST',
@@ -49,13 +47,6 @@ async function LoginRoutes(server, opts) {
 						userID: `${user.id}`,
 						username: `${user.username}`
 					};
-					
-					// const data = JSON.stringify(Object.keys(tmpRes).sort());
-					// hash = crypto.createHash('sha256').update(data).digest('hex');
-
-					// console.log(hash);
-					// Ter que mudar o status do online para TRUE
-                    // Criar os token aqui e colocar eles nas cookies
                 }
 
             } catch(err) {
@@ -73,4 +64,4 @@ async function LoginRoutes(server, opts) {
     });
 }
 
-export default LoginRoutes;
+export default LoginRoute;
