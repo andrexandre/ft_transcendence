@@ -43,7 +43,6 @@ const listenOptions = {
 	host: '0.0.0.0'
 }
 
-
 async function start() {
 	
 	try {

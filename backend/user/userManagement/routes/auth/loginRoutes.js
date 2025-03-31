@@ -1,29 +1,12 @@
 import bcrypt from 'bcrypt';
+import loginSchema from '../../schemas/auth/loginSchema.js';
 
 async function LoginRoute(server, opts) {
     
     server.route({
         method: 'POST',
         url: '/api/login',
-        schema: {
-            body: {
-                type: 'object',
-                required: [ 'username', 'password' ],
-                properties: {
-                    username: { type: 'string' },
-                    password: { type: 'string' },
-                }
-            },
-            response: {
-                200: {
-                    type: 'object',
-                    properties: {
-                        userID: { type: 'string' },
-                        username: { type: 'string' },
-                    }
-                },
-            },
-        },
+        schema: loginSchema,
     
         handler:  async (request, response) => {
             

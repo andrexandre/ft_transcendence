@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt'
+import registerSchema from '../../schemas/auth/registerSchema.js';
 import { json } from 'stream/consumers';
 
 
@@ -7,26 +8,7 @@ async function RegisterRoute(server, opts) {
     server.route({
         method: 'POST',
         url: '/api/create',
-        schema: {
-            body: {
-                type: 'object',
-                required: [ 'username', 'email', 'password' ],
-                properties: {
-                    username: { type: 'string' },
-                    email: { type: 'string', format: 'email' },
-                    password: { type: 'string' },
-                }
-            },
-            response: {
-                201: {
-                    type: 'object',
-                    properties: {
-                        message: { type: 'string' },
-                    }
-                },
-            },
-        },
-    
+        schema: registerSchema,
         handler:  async (request, response) => {
            
             const { username, email, password } = request.body;
@@ -36,23 +18,22 @@ async function RegisterRoute(server, opts) {
                 const hashedPassword = await bcrypt.hash(password, salt);
 				await server.createUser(username, email, hashedPassword, 'email');
             } catch(err) {
-				// console.log(err);
-				// console.log(err.name);
-				// console.log(err.message);
-				// console.log(err.code);
-				// console.log(err.errno);
-				// console.log(err.stack);
-				// console.log(JSON.stringify(err));
+				console.log(err);
+
                 if (err.code === 'SQLITE_CONSTRAINT') {
-					const msg = (err.message.includes("email")) ? 'Email' : 'Username'; // true
-					response.status(409).send({message: `${msg} already exist!`});
+
+					const msg = (err.message.includes("email")) ? 'Email' : 'Username';
+					response.status(409).send({
+						error: `${msg} already exist!`
+					});
 				} else {
-					response.status(500).send({message: `${err}`});
+					response.status(500).send({statusCode: 409, error: `Internel server error`});
 				} 
 				
             }
             // Ver se coloco a resosta dentro do throw
             response.status(201).send({message: `Successfully created user ${username} ${email}`});
+			return response;
         },
     });
 }
