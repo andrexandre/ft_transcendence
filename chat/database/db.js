@@ -161,11 +161,13 @@ export async function addRequest(sender, receiver)
 export async function getRequests(receiver)
 {
 	try {
+		console.log(receiver)
 		const receiver_id = await db.get(`SELECT user_id FROM users WHERE username = ?`, [receiver])
+		console.log(receiver_id)
 
 		const requests = await db.all(`
             SELECT 
-                fr.request_id, 
+                fr.request_id,
                 u.username AS sender, 
                 fr.sent_at
             FROM 
