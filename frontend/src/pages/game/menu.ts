@@ -8,7 +8,7 @@ export async function initGameMenu() {
 	const soundSelect = document.getElementById('sound') as HTMLSelectElement;
 
 	try {
-		const response = await fetch("http://127.0.0.1:5000/src/get-user-data", { credentials: "include" });
+		const response = await fetch("http://127.0.0.1:5000/get-user-data", { credentials: "include" });
 
 		if (!response.ok) {
 			throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
@@ -63,8 +63,8 @@ export async function saveSettingsHandler() {
 
 	// Send settings update to the database
 	try {
-		const response = await fetch("http://127.0.0.1:5000/src/save-settings", {
-			method: "POST",
+		const response = await fetch("http://127.0.0.1:5000/save-settings", {
+			method: "PATCH",
 			headers: { "Content-Type": "application/json" },
 			credentials: 'include',
 			body: JSON.stringify({ username, difficulty, tableSize, sound }),
@@ -95,11 +95,11 @@ export function classicBtnHandler() {
 	console.log("➡ Table Size:", tableSize);
 	console.log("➡ Sound:", sound ? "On" : "Off");
 
-    // Hide menu, show game
+	// Hide menu, show game
 	const menu = document.getElementById('game-main-menu') as HTMLElement;
 	const gameCanvas = document.getElementById('game-canvas') as HTMLElement;
 
-	menu.classList.add("hidden"); 
+	menu.classList.add("hidden");
 	gameCanvas.classList.remove("hidden");
 	showToast.yellow('Brotha refresh tha page, the connection is not done yet!')
 	// gameCanvas.classList.add("visible");

@@ -12,7 +12,7 @@ const gamefast = fastify({ logger: true });
 import cors from '@fastify/cors';
 gamefast.register(cors, {
 	origin: ['http://127.0.0.1:5500'],
-	methods: ['GET', 'POST', 'PUT', 'DELETE'],
+	methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
 	credentials: true
 });
 
@@ -118,7 +118,7 @@ gamefast.get("/get-user-data", async (request, reply) => {
             // Insert new user with Promise FFFFFFFFFFDDDDDDDXXXXXXXXXXXXXXX
             await new Promise((resolve, reject) => {
                 db_game.run(
-                    "INSERT INTO users (user_id, user_name, user_set_dificulty, user_set_tableSize, user_set_sound) VALUES (?, ?, 'normal', 'medium', 1)",
+                    "INSERT INTO users (user_id, user_name, user_set_dificulty, user_set_tableSize, user_set_sound) VALUES (?, ?, 'Normal', 'Medium', 1)",
                     [userId, username],
                     function (err) {
                         if (err) {
@@ -133,8 +133,8 @@ gamefast.get("/get-user-data", async (request, reply) => {
             row = {
                 user_id: userId,
                 user_name: username,
-                user_set_dificulty: "normal",
-                user_set_tableSize: "medium",
+                user_set_dificulty: "Normal",
+                user_set_tableSize: "Medium",
                 user_set_sound: 1,
             };
         }
