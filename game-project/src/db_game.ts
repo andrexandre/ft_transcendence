@@ -37,8 +37,6 @@ db_game.serialize(() => {
             FOREIGN KEY (game_player2_id) REFERENCES users(user_id)
         );
     `);
-
-    console.log("Tables ensured.");
 });
 
 export default db_game;

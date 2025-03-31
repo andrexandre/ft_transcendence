@@ -115,7 +115,6 @@ gamefast.get("/get-user-data", async (request, reply) => {
 
         if (!row) {
             console.log(`🆕 User '${username}' not found. Creating...`);
-            // Insert new user with Promise FFFFFFFFFFDDDDDDDXXXXXXXXXXXXXXX
             await new Promise((resolve, reject) => {
                 db_game.run(
                     "INSERT INTO users (user_id, user_name, user_set_dificulty, user_set_tableSize, user_set_sound) VALUES (?, ?, 'Normal', 'Medium', 1)",

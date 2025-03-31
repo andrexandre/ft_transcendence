@@ -5,7 +5,7 @@ import Page from "./pages/Page"
 import register from "./pages/register"
 import login from "./pages/login"
 import dashboard from "./pages/dashboard"
-import game from "./pages/game/game"
+import game from "./pages/game/page"
 import * as lib from "./utils"
 
 let currentPage: Page | undefined;
