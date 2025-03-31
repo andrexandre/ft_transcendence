@@ -4,10 +4,12 @@ const roomButton = document.getElementById('roomButton');
 const refreshButton = document.getElementById('refresh-button');
 //Handle connections
 
-const urlParams = new URLSearchParams(window.location.search);
-const username = urlParams.get('user');
+// const urlParams = new URLSearchParams(window.location.search);
+// const token = request.cookies.token;
+// const userData = await fetchUserDataFromGateway(token);
+// const username = userData.username;
 
-const host = `ws://localhost:2000/chat-ws?user=${username}`;
+const host = `ws://localhost:2000/chat-ws`;
 const socket = new WebSocket(host);
 
 socket.onopen = () => {
@@ -376,7 +378,7 @@ const showRequestsBtn = document.getElementById('show-requests-btn');
 showRequestsBtn.addEventListener('click', () => {
 	socket.send(JSON.stringify({
 		type: 'get-friend-request',
-		receiver: username
+		// receiver: username
 	}));
 });
 

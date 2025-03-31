@@ -50,7 +50,7 @@ export async function SocketHandler(socket, username)
 					await addRequest(username, data.receiver);
 					break;
 				case 'get-friend-request':
-					await sendRequests(data.receiver, socket);
+					await sendRequests(username, socket);
 					break;
 				case 'block-user':
 					await addBlock(username, data.friend);
