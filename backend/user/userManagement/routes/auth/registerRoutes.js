@@ -27,7 +27,7 @@ async function RegisterRoute(server, opts) {
 						error: `${msg} already exist!`
 					});
 				} else {
-					response.status(500).send({statusCode: 409, error: `Internel server error`});
+					response.status(500).send({statusCode: 500, error: `Internel server error`});
 				} 
 				
             }

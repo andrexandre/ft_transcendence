@@ -12,13 +12,15 @@ async function LoginRoute(server, opts) {
             
             const { username, password } = request.body;
 			let resContent;
-            // let user;
-            // let hash;
             try {
                 const user = await server.getUserByUsername(username);
                 if (!user) {
                     throw({status: 404, message: 'User not found!'});
                 }
+
+				if (user.auth_method === 'google') {
+					throw({statusCode: 403, error: 'Can only sign with google!'});
+				}
                 const login = await bcrypt.compare(password, user.password);
 
                 if (login != true) {
@@ -34,12 +36,11 @@ async function LoginRoute(server, opts) {
 
             } catch(err) {
 
+				if (err.statusCode === 403) 
+					response.status(409).send(err);
+				
 				(err.status) ? 
                 response.status(err.status).send({message: `${err.message}`}) : response.status(500).send({message: `${err}`});
-                // ver depois o erro para ver a mensagem e o status
-                // 404 user dont exist
-                // erro no compare "Error: data and hash arguments required"
-                // response.status(404).send({message: err});
             }
 
             response.status(200).send(resContent);
