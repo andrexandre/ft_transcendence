@@ -35,6 +35,9 @@ status:
 	@docker network ls
 	@echo
 
+env:
+	curl -s https://gist.githubusercontent.com/andrexandre/8c011820a35117d005016151cfd46207/raw/83a0d67fbf775a78355dd617e6502d9c03f496ad/.env > backend/Gateway/.env
+
 destroy: down rmi
 	find . -type f -iname '*.db' -delete
 	docker run --rm -v ./backend/user/userManagement/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
