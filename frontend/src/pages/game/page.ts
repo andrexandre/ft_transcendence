@@ -40,7 +40,17 @@ class Game extends Page {
 	onMount(): void {
 		sidebar.setSidebarToggler();
 		tempInitializeDropdown('Single', 'Classic', 'Infinity');
-		tempInitializeDropdown('Multi', 'Tournament', "Don't click");
+		// tempInitializeDropdown('Multi', 'Tournament', "Don't click");
+		// Insane set Multi dropdown handler
+		dropdown.setDropdownToggler('Multi', () => {
+			const lobby = document.getElementById('lobby');
+			lobby?.classList.toggle('hidden');
+		});
+		dropdown.addComponent('Multi', 'button', 'game-component',
+			'Tournament', () => { lib.showToast(`${'Multi'} ${'Tournament'} clicked`); });
+		dropdown.addComponent('Multi', 'button', 'game-component',
+			"Don't click", () => { lib.showToast(`${'Multi'} ${"Don't click"} clicked`); });
+
 		tempInitializeDropdown('Co-Op', 'Soccer', 'Free for all');
 		dropdown.setDropdownToggler('Settings');
 		dropdown.addComponent('Settings', 'div', 'flex flex-col', /*html*/`
@@ -87,7 +97,7 @@ class Game extends Page {
 							${dropdown.getHtml('Co-Op')}
 							${dropdown.getHtml('Settings')}
 						</div>
-						<div id="lobby" class="flex-col items-center justify-center">
+						<div id="lobby" class="hidden flex-col items-center justify-center">
 							<h2 class="text-2xl font-bold mb-4">Lobby</h2>
 							<ul id="lobby-list" class="w-full flex flex-col gap-2">
 								<li class="p-2 bg-white rounded shadow">Player 1</li>
