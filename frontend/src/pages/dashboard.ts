@@ -14,7 +14,7 @@ class Dashboard extends Page {
 		return /*html*/`
 			${sidebar.getHtml()}
 			<main class="grid grid-cols-2 grid-rows-2 flex-1">
-				<div id="profile" class="dash-component p-10 grid">
+				<div id="profile" class="dash-component p-10 grid overflow-scroll">
 					<div class="profile-header">
 						<img class="rounded-full size-48 shadow-xl shadow-neutral-400 border-2" src="https://picsum.photos/id/237/200">
 						<div class="justify-center self-center">
@@ -22,7 +22,7 @@ class Dashboard extends Page {
 							<p class="text-xl">The mighty tail-wagger</p>
 						</div>
 					</div>
-					<p class="max-lg:truncate">Champion of belly rubs, fetch, and fierce squirrel chases. Sir Barkalot is the first to answer the doorbell with a royal bark. His hobbies include digging to China and chewing shoes.</p>
+					<p>Champion of belly rubs, fetch, and fierce squirrel chases. Sir Barkalot is the first to answer the doorbell with a royal bark. His hobbies include digging to China and chewing shoes.</p>
 				</div>
 				<div id="ad" class="dash-component p-10">
 					<h1 class="text-xl font-bold">Let's Play Pong</h1>
@@ -35,7 +35,7 @@ class Dashboard extends Page {
 					<div class="dash-component"></div>
 					<div class="dash-component"></div>
 				</div>
-				<div id="friends" class="dash-component p-10 flex flex-col justify-around">
+				<div id="friends" class="dash-component p-10 flex flex-col justify-around overflow-scroll">
 					<h1 class="text-xl font-bold">Active friends</h1>
 					<div class="dash-component p-3 flex">
 						<img src="https://api.dicebear.com/9.x/avataaars-neutral/svg?seed=Brian" class="size-10 rounded-4xl">

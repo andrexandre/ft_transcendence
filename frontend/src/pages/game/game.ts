@@ -79,11 +79,23 @@ class Game extends Page {
 			${sidebar.getHtml()}
 			<main class="dash-component flex flex-1 justify-around items-center">
 				<div id="game-main-menu" class="flex flex-col items-center">
-					<h1 class="font-bold text-9xl mb-8">Gamify</h1>
-					${dropdown.getHtml('Single')}
-					${dropdown.getHtml('Multi')}
-					${dropdown.getHtml('Co-Op')}
-					${dropdown.getHtml('Settings')}
+					<h1 class="font-bold text-9xl mb-20">Pongify</h1>
+					<div class="flex gap-10">
+						<div class="flex flex-col">
+							${dropdown.getHtml('Single')}
+							${dropdown.getHtml('Multi')}
+							${dropdown.getHtml('Co-Op')}
+							${dropdown.getHtml('Settings')}
+						</div>
+						<div id="lobby" class="flex-col items-center justify-center">
+							<h2 class="text-2xl font-bold mb-4">Lobby</h2>
+							<ul id="lobby-list" class="w-full flex flex-col gap-2">
+								<li class="p-2 bg-white rounded shadow">Player 1</li>
+								<li class="p-2 bg-white rounded shadow">Player 2</li>
+							</ul>
+							<button id="start-game" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Start Game</button>
+						</div>
+					</div>
 				</div>
 				<canvas id="gameCanvas" class="hidden"></canvas>
 				<div id="scoreboard" class="hidden"></div>

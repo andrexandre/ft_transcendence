@@ -86,8 +86,8 @@ export function classicBtnHandler() {
 		return;
 	}
 
-	const difficulty = sessionStorage.getItem("user_set_dificulty") || "normal";
-	const tableSize = sessionStorage.getItem("user_set_tableSize") || "medium";
+	const difficulty = sessionStorage.getItem("user_set_dificulty") || "Normal";
+	const tableSize = sessionStorage.getItem("user_set_tableSize") || "Medium";
 	const sound = sessionStorage.getItem("user_set_sound") === "1";
 
 	console.log(`🎯 Starting game for: ${username}`);
