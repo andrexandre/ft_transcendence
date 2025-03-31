@@ -41,6 +41,10 @@ const sidebar = {
 					</button>
 				</li>
 				<li class="mt-auto">
+					<button id="logout-button" class="sidebar-component">
+						<i class="fa-solid fa-right-from-bracket"></i>
+						<p>Logout</p>
+					</button>
 					<button id="settings-button" class="sidebar-component">
 						<i class="fa-solid fa-gear"></i>
 						<p>Settings</p>
@@ -84,6 +88,24 @@ const sidebar = {
 		});
 		document.getElementById("link-to-game-button")!.addEventListener("click", () => {
 			window.location.href = "http://127.0.0.1:5000/";
+		});
+		document.getElementById("logout-button")!.addEventListener("click", () => {
+			const Logout = async () => {
+				try {
+					const response = await fetch('http://127.0.0.1:7000/logout', {
+						credentials: 'include',
+					});
+					if (!response.ok) {
+						throw new Error(`${response.status} - ${response.statusText}`);
+					}
+					lib.showToast.green(`${response.status} - ${response.statusText}`);
+					lib.navigate('/login');
+				} catch (error) {
+					console.log(error);
+					lib.showToast.red(error as string);
+				}
+			}
+			Logout()
 		});
 		lib.assignButtonNavigation('settings-button', '/login');
 	}

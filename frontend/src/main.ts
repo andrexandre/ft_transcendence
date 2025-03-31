@@ -10,9 +10,26 @@ import * as lib from "./utils"
 
 let currentPage: Page | undefined;
 
+const checkLogin = async () => {
+	try {
+		const response = await fetch('http://127.0.0.1:7000/fetchDashboardData', {
+			credentials: 'include',
+		});
+		if (!response.ok) {
+			lib.navigate('/login');
+			throw new Error(`${response.status} - ${response.statusText}`);
+		}
+	} catch (error) {
+		console.log(error);
+		lib.showToast.red(error as string);
+	}
+}
+
 function loadPage(path: string): void {
 	let newPage: Page;
 
+	if (path != "/register" && path != "/login")
+		checkLogin();
 	switch (path) {
 		case "/register":
 			newPage = register;
