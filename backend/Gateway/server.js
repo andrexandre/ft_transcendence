@@ -10,7 +10,7 @@ import dotenv from 'dotenv';
 import setProtectedRoutes from './plugins/setProtectedRoutes.js';
 
 //Decorators
-import { generateToken, prepareTokenData, verifyToken } from './decorators/login/prepareToken.js';
+import { generateToken, prepareTokenData } from './decorators/login/prepareToken.js';
 import { parseToReadableData } from './decorators/login/prepareData.js';
 import { parseToReadableOAuth } from './decorators/google/prepareGoogleAuthData.js';
 
@@ -46,7 +46,6 @@ fastify.register(fastifyOAuth, {
 
 fastify.decorate('prepareTokenData', prepareTokenData);
 fastify.decorate('generateToken', generateToken);
-fastify.decorate('verifyToken', verifyToken);
 fastify.decorate('parseToReadableData', parseToReadableData);
 fastify.decorate('parseToReadableOAuth', parseToReadableOAuth);
 
@@ -65,7 +64,7 @@ fastify.register(fastifyJwt, {
 });
 
 fastify.register(cors, {
-  origin: ['http://127.0.0.1:5500', 'http://pongify:5000', 'http://chat:2000'], // Allow frontend origin
+  origin: ['http://127.0.0.1:5500', 'http://127.0.0.1:5000', 'http://chat:2000'], // Allow frontend origin
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true // Allow cookies if needed
 });
