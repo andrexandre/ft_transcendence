@@ -4,6 +4,9 @@ import sidebar from "../../components/sidebar"
 import dropdown from "../../components/dropdown"
 import * as menu from "./menu"
 import * as logic from "./single"
+import {startMultiplayer} from "./game_render"
+
+const socket = new WebSocket("ws://localhost:5000/ws");
 
 function tempInitializeDropdown(id: string, option1: string, option2: string) {
 	dropdown.setDropdownToggler(id);
@@ -20,9 +23,13 @@ function tempInitializeDropdown(id: string, option1: string, option2: string) {
 				const tableSize = sessionStorage.getItem("user_set_tableSize") || "Medium";
 				const sound = sessionStorage.getItem("user_set_sound") === "1";
 				logic.startSingleClassic(username, { difficulty, tableSize, sound })
-				const closeButton = document.getElementById('hide-button');
-				closeButton?.click();
 			});
+	}
+	else if (id == 'Co-Op' && option1 == 'Soccer') {
+		dropdown.addComponent("Co-Op", "button", "game-component", "Soccer", () => {
+			lib.showToast("Connecting to multiplayer game...");
+			startMultiplayer();
+		});
 	}
 	else {
 		dropdown.addComponent(
@@ -55,6 +62,7 @@ class Game extends Page {
 
 		tempInitializeDropdown('Co-Op', 'Soccer', 'Free for all');
 		dropdown.setDropdownToggler('Settings');
+		
 		dropdown.addComponent('Settings', 'div', 'flex flex-col', /*html*/`
 			<div class="grid grid-cols-[1fr_2fr] items-center">
 				<label for="difficulty">Difficulty</label>

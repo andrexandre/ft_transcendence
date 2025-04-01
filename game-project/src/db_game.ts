@@ -37,6 +37,7 @@ db_game.serialize(() => {
             FOREIGN KEY (game_player2_id) REFERENCES users(user_id)
         );
     `);
+    
 });
 
 export default db_game;

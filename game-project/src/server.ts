@@ -1,14 +1,22 @@
 import fastify from "fastify";
 import fastifyWebsocket from "@fastify/websocket";
-import fastifyStatic from "@fastify/static";
 import fastifyCookie from "@fastify/cookie";
 import fastifyJwt from "@fastify/jwt"
-import path from "path";
 import db_game from "./db_game.js";
+import { GameEngine } from "./gameEngine.js";
+
 
 const gamefast = fastify({ logger: true });
 
-// The cors import and use is temporary
+const game = new GameEngine();
+const clients = new Map();
+
+gamefast.register(fastifyWebsocket);
+gamefast.register(fastifyCookie);
+gamefast.register(fastifyJwt, { secret: "supersecret" });
+
+
+///////////////// The cors import and use is temporary /////////////
 import cors from '@fastify/cors';
 gamefast.register(cors, {
 	origin: ['http://127.0.0.1:5500'],
@@ -16,40 +24,30 @@ gamefast.register(cors, {
 	credentials: true
 });
 
-gamefast.register(fastifyWebsocket);
-gamefast.register(fastifyCookie);
-gamefast.register(fastifyStatic, {
-    root: path.join(process.cwd(), "src"), //../src
-    prefix: "/",
+gamefast.get("/ws", { websocket: true }, (connection) => {
+    connection.on("message", (message:string) => {
+        const data = JSON.parse(message.toString());
+
+        if (data.type === "join") {
+            clients.set(connection, data.player);
+            console.log(`🔗 ${data.player} joined the game`);
+        }
+
+        if (data.type === "move") {
+            game.updatePaddle(data.player, data.direction);
+        }
+    });
+
+    connection.socket.on("close", () => {
+        clients.delete(connection);
+    });
 });
-gamefast.register(fastifyJwt, { secret: "supersecret" });
 
-// lobbys
-const lobbies: Record<string, { 
-    lobbyId: string;
-    gameType: string; 
-    tournamentId?: string;
-    maxPlayers: number;
-    players: { id: string; username: string }[];
-    hostId: string;
-}> = {};
-
-// WebSocket Route 
-gamefast.get("/ws", { websocket: true }, (connection, req) => {
-    console.log("🔌 New WebSocket connection!");
-
-    connection.on("message", (message: string) => {
-        console.log("📩 Received message:", message.toString());
-    });
-
-    connection.on("close", () => {
-        console.log("🔌 WebSocket disconnected");
-    });
-    connection.on("error", (err: string) => {
-        console.error("⚠ WebSocket error:", err);
-    });
-    
-});
+setInterval(() => {
+    game.update();
+    const state = game.getState();
+    clients.forEach((_, client) => client.socket.send(JSON.stringify({ type: "update", state })));
+}, 16);
 
 // Fetch user data from Gateway
 async function fetchUserDataFromGateway(token: string | undefined) {
