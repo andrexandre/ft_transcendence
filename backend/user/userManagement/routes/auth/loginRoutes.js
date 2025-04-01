@@ -1,5 +1,10 @@
 import bcrypt from 'bcrypt';
 import loginSchema from '../../schemas/auth/loginSchema.js';
+import {
+	UserNotFoundError,
+	WrongPasswordError,
+	GoogleDefaulLoginError
+} from '../../utils/error.js'
 
 async function LoginRoute(server, opts) {
     
@@ -14,33 +19,25 @@ async function LoginRoute(server, opts) {
 			let resContent;
             try {
                 const user = await server.getUserByUsername(username);
-                if (!user) {
-                    throw({status: 404, message: 'User not found!'});
-                }
+                if (!user)
+                    throw new UserNotFoundError();
+				else if (user.auth_method === 'google')
+					throw new GoogleDefaulLoginError();
+                
+				const login = await bcrypt.compare(password, user.password);
+                if (login != true) 
+                    throw new WrongPasswordError();
 
-				if (user.auth_method === 'google') {
-					throw({statusCode: 403, error: 'Can only sign with google!'});
-				}
-                const login = await bcrypt.compare(password, user.password);
+				await server.updateUserStatus(user.username);
 
-                if (login != true) {
-                    throw({status: 401, message: 'Wrong password!'});
-                } else {
-					await server.updateUserStatus(user.username);
-
-					resContent = {
-						userID: `${user.id}`,
-						username: `${user.username}`
-					};
-                }
+				resContent = {
+					userID: `${user.id}`,
+					username: `${user.username}`
+				};
 
             } catch(err) {
-
-				if (err.statusCode === 403) 
-					response.status(409).send(err);
-				
 				(err.status) ? 
-                response.status(err.status).send({message: `${err.message}`}) : response.status(500).send({message: `${err}`});
+                response.status(err.status).send(err.formatError()) : response.status(500).send({statusCode: 500, errorMessage: 'Internal server error!'});
             }
 
             response.status(200).send(resContent);

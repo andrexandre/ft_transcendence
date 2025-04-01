@@ -7,7 +7,8 @@ import googleSignRoute from "./routes/auth/googleSign.js";
 import RegisterRoute from "./routes/auth/registerRoutes.js";
 
 // Utils
-import { loadQueryFile } from "./utils/utils_1.js";
+import { loadQueryFile } from './utils/utils_1.js'
+import { errorResponseSchema } from "./utils/error.js";
 
 // Plugins
 import db_test from './plugins/db_plugin.js';
@@ -46,6 +47,7 @@ async function start() {
 	
 	try {
 		// Ver como registrar todas as routes com auto-load
+		server.addSchema(errorResponseSchema);
 		await server.register(db_test, { dbPath: './user.db'});
 		await server.register(RegisterRoute);
 		await server.register(LoginRoute);
