@@ -13,7 +13,7 @@ class Login extends Page {
 			window.location.href = "http://127.0.0.1:7000/loginOAuth";
 		});
 	}
-	onCleanup(): void {}
+	onCleanup(): void { }
 	getHtml(): string {
 		return /*html*/`
 			<div class="m-auto h-fit max-w-xs p-9 bg-white border border-gray-200 rounded-lg shadow-sm">
@@ -66,7 +66,7 @@ class Login extends Page {
 				lib.showToast.green(`${response.status} - ${response.statusText}`);
 				let loginResponseData = await response.json();
 				lib.userInfo.username = loginResponseData.username
-				lib.navigate(e, "/");
+				lib.navigate("/", e);
 			} catch (error) {
 				console.log(error);
 				lib.showToast.red(error as string);

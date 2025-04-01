@@ -14,11 +14,3 @@ export async function generateToken(payload){
         console.log(err);
     }
 }
-
-export async function verifyToken(request){
-    try{
-        await request.jwtVerify();
-    }catch(err){
-        return err;
-    }
-}
