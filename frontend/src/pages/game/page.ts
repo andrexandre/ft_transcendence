@@ -20,6 +20,8 @@ function tempInitializeDropdown(id: string, option1: string, option2: string) {
 				const tableSize = sessionStorage.getItem("user_set_tableSize") || "Medium";
 				const sound = sessionStorage.getItem("user_set_sound") === "1";
 				logic.startSingleClassic(username, { difficulty, tableSize, sound })
+				const closeButton = document.getElementById('hide-button');
+				closeButton?.click();
 			});
 	}
 	else {

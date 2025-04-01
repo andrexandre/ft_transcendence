@@ -3,7 +3,7 @@ import * as lib from "../utils"
 const dropdown = {
 	getHtml: (componentId: string) => /*html*/`
 		<div class="text-left my-1 w-50">
-			<button id="dropdownButton-${componentId}" class="flex justify-between px-5 items-center w-full shadow-sm py-2 border-2 border-light hover:border-darker">
+			<button id="dropdownButton-${componentId}" class="flex justify-between items-center w-full game-component !m-0">
 				${componentId}
 				<i class="fa-solid fa-chevron-down"></i>
 			</button>
@@ -20,6 +20,9 @@ const dropdown = {
 			const icon = document.querySelector(`#dropdownButton-${componentId} i`);
 			icon?.classList.toggle("fa-chevron-up");
 			icon?.classList.toggle("fa-chevron-down");
+			const lobby = document.getElementById('lobby');
+			if (!lobby?.classList.contains('hidden') && !optionalHandler)
+				lobby?.classList.toggle('hidden');
 		}
 		button?.addEventListener('click', handler);
 		if (optionalHandler) {

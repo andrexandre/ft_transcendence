@@ -72,7 +72,7 @@ export async function saveSettingsHandler() {
 
 		if (!response.ok)
 			throw new Error(`Failed to save settings (${response.status})`);
-		console.log("✅ Settings saved successfully!");
+		showToast.green('Settings saved');
 
 	} catch (error) {
 		console.error("❌ Error saving settings:", error);
