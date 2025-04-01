@@ -20,14 +20,19 @@ body {
 	animation: toast-animation 3000ms forwards;
 	/* animation: name duration timing-function delay iteration-count direction fill-mode play-state; */
 }
+
+.theme {
+	@apply text-dark border-light hover:border-darker focus:outline-none;
+}
+
 .dash-component {
-	@apply gap-4 m-2.5 text-center border-2 border-dashed rounded-3xl text-dark border-light hover:border-darker;
+	@apply gap-4 m-2.5 text-center border-dashed rounded-3xl border-2 text-dark border-light hover:border-darker focus:outline-none;
 }
 .sidebar-list {
 	@apply flex flex-col h-full;
 }
 .sidebar-component {
-	@apply flex p-3 rounded-2xl justify-between items-center w-full  hover:bg-light transition-all;
+	@apply flex p-3 rounded-2xl justify-between items-center w-full hover:bg-light transition-all;
 }
 
 .profile-header {
@@ -45,24 +50,24 @@ img {
 
 /* game */
 .game-component {
-	@apply m-1 px-4 py-2 border-2 border-light hover:border-darker focus:outline-none;
+	@apply m-1 px-4 py-2 border-2 text-dark border-light hover:border-darker focus:outline-none;
 }
 
 canvas {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 10;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	z-index: 10;
 	@apply border-2 border-dark;
 }
 
 #scoreboard {
-    position: absolute;
-    top: 5%;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 30px;
-    font-weight: bold;
+	position: absolute;
+	top: 5%;
+	left: 50%;
+	transform: translateX(-50%);
+	font-size: 30px;
+	font-weight: bold;
 	@apply text-dark;
 }
