@@ -10,51 +10,51 @@ let lobbyid = 0;
 let rmlobbyid = 0;
 
 function initializeGameMainMenu(page: Game) {
-		// Set Single dropdown
-		dropdown.setDropdownToggler('Single');
-		const username = sessionStorage.getItem("username");
-		if (!username) {
-			console.error("❌ No username found in sessionStorage!");
-			return;
-		}
-		dropdown.addComponent('Single', 'button', 'game-component',
+	// Set Single dropdown
+	dropdown.initialize('Single');
+	const username = sessionStorage.getItem("username");
+	if (!username) {
+		console.error("❌ No username found in sessionStorage!");
+		return;
+	}
+	dropdown.addElement('Single', 'button', 'game-component',
 		'Classic', () => {
 			const difficulty = sessionStorage.getItem("user_set_dificulty") || "Normal";
 			const tableSize = sessionStorage.getItem("user_set_tableSize") || "Medium";
 			const sound = sessionStorage.getItem("user_set_sound") === "1";
 			logic.startSingleClassic(username, { difficulty, tableSize, sound })
-			document.getElementById('hide-button')?.click();	
+			document.getElementById('hide-button')?.click();
 		});
-		dropdown.addComponent('Single', 'button', 'game-component',
-			'Infinity', () => lib.showToast(`Single Infinity clicked`));
-		
-		// Set Multi dropdown
-		dropdown.setDropdownToggler('Multi', () => {
-			const lobby = document.getElementById('lobby');
-			lobby?.classList.toggle('hidden');
-		});
-		dropdown.addComponent('Multi', 'button', 'game-component', 'Tournament',
-			() => {
-				//* TEMP
-				page.addLobbyEntry(lobbyid.toString(), 'me', 'multi', "5");
-				lobbyid++;
-			});
-		dropdown.addComponent('Multi', 'button', 'game-component', "Don't click",
-			() => {
-				//* TEMP
-				page.removeLobbyEntry(rmlobbyid.toString());
-				rmlobbyid++;
-			});
-		// * TEMP
-		// document.getElementById('dropdownButton-Multi')?.click();
-		// this.addLobbyEntry(lobbyid.toString(), 'me', 'multi', "5");
+	dropdown.addElement('Single', 'button', 'game-component',
+		'Infinity', () => lib.showToast(`Single Infinity clicked`));
 
-		// Set Co-Op dropdown
-		dropdown.setDropdownToggler('Co-Op');
-		dropdown.addComponent('Co-Op', 'button', 'game-component', 'Soccer',
-			() => lib.showToast(`Co-Op Soccer clicked`));
-		dropdown.addComponent('Co-Op', 'button', 'game-component', 'Don\'t click',
-			() => lib.showToast(`Co-Op Don't click clicked`));
+	// Set Multi dropdown
+	dropdown.initialize('Multi', () => {
+		const lobby = document.getElementById('lobby');
+		lobby?.classList.toggle('hidden');
+	});
+	dropdown.addElement('Multi', 'button', 'game-component', 'Tournament',
+		() => {
+			//* TEMP
+			page.addLobbyEntry(lobbyid.toString(), 'me', 'multi', "5");
+			lobbyid++;
+		});
+	dropdown.addElement('Multi', 'button', 'game-component', "Don't click",
+		() => {
+			//* TEMP
+			page.removeLobbyEntry(rmlobbyid.toString());
+			rmlobbyid++;
+		});
+	// * TEMP
+	// document.getElementById('dropdownButton-Multi')?.click();
+	// this.addLobbyEntry(lobbyid.toString(), 'me', 'multi', "5");
+
+	// Set Co-Op dropdown
+	dropdown.initialize('Co-Op');
+	dropdown.addElement('Co-Op', 'button', 'game-component', 'Soccer',
+		() => lib.showToast(`Co-Op Soccer clicked`));
+	dropdown.addElement('Co-Op', 'button', 'game-component', 'Don\'t click',
+		() => lib.showToast(`Co-Op Don't click clicked`));
 }
 
 class Game extends Page {
@@ -66,8 +66,8 @@ class Game extends Page {
 		initializeGameMainMenu(this)
 
 		// Set Settings dropdown
-		dropdown.setDropdownToggler('Settings');
-		dropdown.addComponent('Settings', 'div', 'flex flex-col', /*html*/`
+		dropdown.initialize('Settings');
+		dropdown.addElement('Settings', 'div', 'flex flex-col', /*html*/`
 			<div class="grid grid-cols-[1fr_2fr] items-center">
 				<label for="difficulty">Difficulty</label>
 				<select id="difficulty" class="game-component justify-center">
@@ -152,13 +152,16 @@ class Game extends Page {
 		entry.innerHTML = `${gameOption}`;
 		lobby?.appendChild(entry);
 	}
-	addLobbyEntry(id: string, userName: string, gameType: string, maxPlayer: string) {
+	addLobbyEntry(id: string, userName: string, gameType: string, maxPlayer: string, onClickHandler?: () => void) {
 		this.addLobbyBlock(id, userName);
 		this.addLobbyBlock(id, gameType);
 		this.addLobbyBlock(id, maxPlayer);
 		this.addLobbyBlock(id, /*html*/`
-			<button class="text-blue-500 hover:text-blue-800 hover:underline">JOIN</button>
+			<button id="join-button-${id}" class="text-blue-500 hover:text-blue-800 hover:underline">JOIN</button>
 		`);
+		if (onClickHandler) {
+			document.getElementById(`join-button-${id}`)?.addEventListener('click', onClickHandler);
+		}
 		lib.showToast.blue(`Lobby entry n: ${id} added`);
 	}
 	removeLobbyEntry(id: string) {

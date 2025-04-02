@@ -11,7 +11,7 @@ const dropdown = {
 			<div id="dropdownMenu-${componentId}" class="hidden flex-col"></div>
 		</div>
 	`,
-	setDropdownToggler: (componentId: string, optionalHandler?: () => void) => {
+	initialize: (componentId: string, optionalHandler?: () => void) => {
 		const button = document.getElementById(`dropdownButton-${componentId}`);
 		const menu = document.getElementById(`dropdownMenu-${componentId}`);
 		const handler = () => {
@@ -29,13 +29,13 @@ const dropdown = {
 			button?.addEventListener('click', optionalHandler);
 		}
 	},
-	addComponent: (componentId: string, componentName: string, componentClasses: string, html: string, onClickHandler?: () => void) => {
-		const component = document.createElement(componentName);
-		component.className = componentClasses;
-		component.innerHTML = html;
-		if (onClickHandler)
-			component.addEventListener('click', onClickHandler);
-		document.getElementById(`dropdownMenu-${componentId}`)?.appendChild(component);
+	addElement: (elementId: string, elementName: string, elementClasses: string, elementHtml: string, elementOnClickHandler?: () => void) => {
+		const component = document.createElement(elementName);
+		component.className = elementClasses;
+		component.innerHTML = elementHtml;
+		if (elementOnClickHandler)
+			component.addEventListener('click', elementOnClickHandler);
+		document.getElementById(`dropdownMenu-${elementId}`)?.appendChild(component);
 	}
 }
 
