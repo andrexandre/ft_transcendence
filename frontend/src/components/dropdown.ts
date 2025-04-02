@@ -2,8 +2,8 @@ import * as lib from "../utils"
 
 const dropdown = {
 	getHtml: (componentId: string) => /*html*/`
-		<div class="text-left my-1 w-50">
-			<button id="dropdownButton-${componentId}" class="flex justify-between items-center w-full game-component !m-0">
+		<div class="text-left my-1 flex flex-col w-full">
+			<button id="dropdownButton-${componentId}" class="flex justify-between items-center game-component !m-0">
 				${componentId}
 				<i class="fa-solid fa-chevron-down"></i>
 			</button>

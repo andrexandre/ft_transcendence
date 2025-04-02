@@ -103,9 +103,9 @@ class Game extends Page {
 			${sidebar.getHtml()}
 			<main class="dash-component flex flex-1 justify-around items-center">
 				<div id="game-main-menu" class="flex flex-col items-center">
-					<h1 class="font-bold text-9xl mb-20">Pongify</h1>
+					<h1 class="font-bold text-9xl mb-20">PONGIFY</h1>
 					<div class="flex gap-5">
-						<div class="flex flex-col">
+						<div class="flex flex-col w-50">
 							${dropdown.getHtml('Single')}
 							${dropdown.getHtml('Multi')}
 							${dropdown.getHtml('Co-Op')}
