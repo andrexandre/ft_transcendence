@@ -4,9 +4,8 @@ import sidebar from "../../components/sidebar"
 import dropdown from "../../components/dropdown"
 import * as menu from "./menu"
 import * as logic from "./single"
-import {startMultiplayer} from "./game_render"
+import {startMultiplayerClient} from "./client"
 
-const socket = new WebSocket("ws://localhost:5000/ws");
 
 function tempInitializeDropdown(id: string, option1: string, option2: string) {
 	dropdown.setDropdownToggler(id);
@@ -28,7 +27,7 @@ function tempInitializeDropdown(id: string, option1: string, option2: string) {
 	else if (id == 'Co-Op' && option1 == 'Soccer') {
 		dropdown.addComponent("Co-Op", "button", "game-component", "Soccer", () => {
 			lib.showToast("Connecting to multiplayer game...");
-			startMultiplayer();
+			startMultiplayerClient();
 		});
 	}
 	else {

@@ -102,5 +102,4 @@ export function classicBtnHandler() {
 	menu.classList.add("hidden");
 	gameCanvas.classList.remove("hidden");
 	showToast.yellow('Brotha refresh tha page, the connection is not done yet!')
-	// startSingleClassic(username, { difficulty, tableSize, sound });
 }
