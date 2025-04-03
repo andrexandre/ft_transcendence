@@ -2,19 +2,18 @@ import fastify from "fastify";
 import fastifyWebsocket from "@fastify/websocket";
 import fastifyCookie from "@fastify/cookie";
 import fastifyJwt from "@fastify/jwt"
+import cors from '@fastify/cors';
 import { userRoutes } from "./userSet.js";
 
-
-const UPDATE_INTERVAL = 1000 / 60;
+const UPDATE_INTERVAL = 1000 / 1;
 const PORT = 5000;
 const gamefast = fastify({ logger: true });
 
-gamefast.register(fastifyWebsocket);
+await gamefast.register(fastifyWebsocket);
 gamefast.register(fastifyCookie);
 gamefast.register(fastifyJwt, { secret: "supersecret" });
 gamefast.register(userRoutes);
 ///////////////// The cors import and use is temporary /////////////
-import cors from '@fastify/cors';
 gamefast.register(cors, {
     origin: ['http://127.0.0.1:5500'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
@@ -22,68 +21,83 @@ gamefast.register(cors, {
 });
 ////////////////////////////////////////////////////////////////////
 
-interface Player {
-	id: string;
-	username: string;
-	position: number;
-  }
-const clients = new Map<WebSocket, Player>();
+type Player = { id: string; username: string; position: number };
+const clients = new Map<any, Player>();
 
-gamefast.get('/ws', { websocket: true }, (connection, req) => {
-	const socket = connection.socket;
-	console.log("🧠 WebSocket /ws handler triggered");
-  
-	socket.on('message', (message: string | Buffer) => {
-		console.log("📩 Message received:", message.toString());
-		const raw = message.toString();
+let ball = { x: 400, y: 300, vx: 3, vy: 2 };
+
+
+gamefast.get("/ws", { websocket: true }, (connection, req) => {
+	const socket = connection;
+	console.log("🧠🧠🧠", Object.getOwnPropertyNames(connection));
+	console.log("🧠 /ws handler triggered | 🔌WebSocket connected");
+
+
+	socket.on("message", (raw: string) => {
 		try {
-			const data = JSON.parse(raw);
+			const data = JSON.parse(raw.toString());
 	
 			if (data.type === "join") {
-			const player: Player = {
-				id: `Player-${Math.random().toString(36).slice(2, 6)}`,
-				username: data.username ?? "Unknown",
-				position: 50,
-			};
+				if (clients.size >= 2) {
+					socket.send(JSON.stringify({ type: "full" }));
+					socket.close();
+					return;
+				}
+				const player: Player = {
+					id: `P${Math.random().toString(36).slice(2, 5)}`,
+					username: data.username || "Guest",
+					position: 50,
+				};
+				clients.set(socket, player);
+				console.log(`✅ ${player.username} joined`);
 	
-			clients.set(socket, player);
-			console.log(`✅ ${player.username} joined as ${player.id}`);
-	
-			socket.send(JSON.stringify({ type: "welcome", player }));
+				socket.send(JSON.stringify({ type: "welcome", playerId: player.id }));
 			}
 	
 			if (data.type === "move") {
-			const player = clients.get(socket);
-			if (player) {
-				if (data.direction === "up") player.position = Math.max(0, player.position - 5);
-				if (data.direction === "down") player.position = Math.min(100, player.position + 5);
+				const p = clients.get(socket);
+				if (p) {
+					if (data.direction === "up") p.position = Math.max(0, p.position - 5);
+					if (data.direction === "down") p.position = Math.min(100, p.position + 5);
+				}
 			}
-			}
-	
-		} catch (err) {
-			console.error("❌ Failed to parse message:", raw);
+		} catch (e) {
+			console.error("❌ Invalid message", e);
 		}
-		});
+	});
 	
-		socket.on("close", () => {
-		const player = clients.get(socket);
-		if (player) {
-			console.log(`❌ ${player.username} (${player.id}) disconnected`);
-		}
+	socket.on("close", () => {
 		clients.delete(socket);
-		});
+		console.log("❌ Player disconnected");
+	});
 });
 
-  setInterval(() => {
-	const state = Array.from(clients.values());
-	for (const [socket] of clients) {
-	  if (socket.readyState === socket.OPEN) {
-		socket.send(JSON.stringify({ type: "update", state }));
-	  }
-	}
-  }, UPDATE_INTERVAL);
+// Broadcast state
+setInterval(() => {
+	if (clients.size < 2) return;
 
-// Start server
+	// Simple ball update
+	ball.x += ball.vx;
+	ball.y += ball.vy;
+
+	if (ball.x <= 0 || ball.x >= 800 - 10) ball.vx *= -1;
+	if (ball.y <= 0 || ball.y >= 600 - 10) ball.vy *= -1;
+
+	const state = {
+		players: Array.from(clients.values()),
+		ball,
+	};
+
+	for (const [socket] of clients) {
+		if (socket.readyState === WebSocket.OPEN) {
+			socket.send(JSON.stringify({ type: "update", state }));
+		}
+	}
+	console.log("📤 Sending state to", clients.size, "clients");
+	console.log("🎯 Ball:", ball.x, ball.y);
+
+}, UPDATE_INTERVAL);
+
 gamefast.listen({ port: PORT, host: "0.0.0.0" }, () => {
-	console.log(`🚀 Multiplayer server running on ws://localhost:${PORT}`);
-  });
+	console.log(`🚀 Game server running on ws://localhost:${PORT}`);
+});

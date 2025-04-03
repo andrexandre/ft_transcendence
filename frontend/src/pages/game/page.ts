@@ -4,8 +4,8 @@ import sidebar from "../../components/sidebar"
 import dropdown from "../../components/dropdown"
 import * as menu from "./menu"
 import * as logic from "./single"
-import {startMultiplayerClient} from "./client"
-
+// import {startGameClient} from "./client"
+import { startGameClient, initGameCanvas } from "./gameClient";
 
 //* TEMP
 let lobbyid = 0;
@@ -56,7 +56,7 @@ function initializeGameMainMenu(page: Game) {
 	dropdown.addElement('Co-Op', 'button', 'game-component', 'Soccer',
 		() => {
 			lib.showToast("Connecting to multiplayer game...");
-			startMultiplayerClient();
+			startGameClient();
 		});
 		
 	dropdown.addElement('Co-Op', 'button', 'game-component', 'Don\'t click',
@@ -101,6 +101,7 @@ class Game extends Page {
 		`);
 		document.getElementById('save-settings')!.addEventListener('click', menu.saveSettingsHandler);
 		menu.initGameMenu();
+		initGameCanvas();
 		document.getElementById('game-main-menu')!.addEventListener('click', (event) => this.setGameMenuToggler(event));
 	}
 	onCleanup() { }

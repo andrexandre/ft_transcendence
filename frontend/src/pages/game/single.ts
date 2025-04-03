@@ -1,9 +1,11 @@
+import { gameCanvas, ctx, initGameCanvas } from "./gameClient";
+
 export function startSingleClassic(username: string, settings: { difficulty: string, tableSize: string, sound: boolean }) {
     console.log(`🎮 Game started for: ${username}`);
     console.log("🛠 Settings:", settings);
 
-    const gameCanvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
-    const ctx = gameCanvas.getContext("2d");
+    // const gameCanvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
+    // const ctx = gameCanvas.getContext("2d");
     const menu = document.getElementById("game-main-menu") as HTMLDivElement;
 
     // Hide menu, show game
@@ -171,8 +173,8 @@ export function startSingleClassic(username: string, settings: { difficulty: str
         if (!ctx) return;
     
         ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-        ctx.fillStyle = "black";
-        ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+        // ctx.fillStyle = "black";
+        // ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
     
         // Draw Winning Message
         ctx.fillStyle = color;
