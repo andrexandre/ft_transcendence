@@ -1,10 +1,19 @@
 @import "tailwindcss";
 
+/* Closest to 0 = lighter, closest to 1000 = darker */
 @theme static {
-	--color-lighter: theme(colors.stone.100);
-	--color-light: theme(colors.stone.400);
-	--color-dark: theme(colors.stone.600);
-	--color-darker: theme(colors.stone.800);
+	--color-lighter: var(--color-d-lighter); /* background */
+	--color-light: var(--color-d-light); /* border */
+	--color-dark: var(--color-d-dark); /* text */
+	--color-darker: var(--color-d-darker); /* border hover */
+	--color-d-lighter: theme(colors.stone.100);
+	--color-d-light: theme(colors.stone.400);
+	--color-d-dark: theme(colors.stone.600);
+	--color-d-darker: theme(colors.stone.800);
+	--color-g-lighter: theme(colors.black);
+	--color-g-light: theme(colors.green.800);
+	--color-g-dark: theme(colors.green.600);
+	--color-g-darker: theme(colors.green.400);
 }
 
 body {
@@ -70,4 +79,14 @@ canvas {
 	font-size: 30px;
 	font-weight: bold;
 	@apply text-dark;
+}
+
+#main-menu-title {
+	animation: glow 2s infinite alternate;
+	text-shadow: 0 0 10px green, 0 0 20px lime, 0 0 30px lime, 0 0 40px lime;
+}
+
+@keyframes glow {
+	0% { text-shadow: 0 0 10px black, 0 0 20px lime, 0 0 30px lime; }
+	100% { text-shadow: 0 0 20px black, 0 0 30px lime, 0 0 40px lime; }
 }

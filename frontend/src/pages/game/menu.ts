@@ -51,10 +51,7 @@ export async function saveSettingsHandler() {
 	const tableSize = tableSizeSelect.value;
 	const sound = soundSelect.value === "On" ? 1 : 0;
 
-	console.log(`🎮 Saving settings for: ${username}`);
-	console.log("➡ Difficulty:", difficulty);
-	console.log("➡ Table Size:", tableSize);
-	console.log("➡ Sound:", sound);
+	console.log(`🎮 Saving settings for: ${{username, difficulty, tableSize, sound}}`);
 
 	// Save settings in sessionStorage
 	sessionStorage.setItem("user_set_dificulty", difficulty);
