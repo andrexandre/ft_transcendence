@@ -1,3 +1,22 @@
+import { showToast } from "../../utils";
+
+function GameMessageVisibility(visible: string) {
+	const countdownElement = document.getElementById("game-message") as HTMLDivElement;
+	if (visible === "show") {
+		countdownElement.classList.remove("hidden");
+	} else {
+		countdownElement.classList.add("hidden");
+	}
+}
+
+function drawGameMessage(gameMessage: string, color?: string) {
+	const countdownElement = document.getElementById("game-message") as HTMLDivElement;
+	countdownElement.classList.remove("hidden");
+	countdownElement.textContent = gameMessage;
+	if (color)
+		countdownElement.style.color = color;
+}
+
 export function startSingleClassic(username: string, settings: { difficulty: string, tableSize: string, sound: boolean }) {
     console.log(`🎮 Game started for: ${username}`);
     console.log("🛠 Settings:", settings);
@@ -12,12 +31,6 @@ export function startSingleClassic(username: string, settings: { difficulty: str
 
     // Create elements scoreboard
     let scoreboard = document.getElementById("scoreboard") as HTMLDivElement;
-    if (!scoreboard) {
-        scoreboard = document.createElement("div");
-        scoreboard.id = "scoreboard";
-        // scoreboard.classList.add("scoreboard");
-        document.body.appendChild(scoreboard);
-    }
     scoreboard.style.display = "block";
 
     const player1Id = parseInt(sessionStorage.getItem("user_id") || "0", 10); // Get user_id from session
@@ -84,11 +97,8 @@ export function startSingleClassic(username: string, settings: { difficulty: str
         // Draw scoreboard
         scoreboard.innerHTML = `<span style="color: blue;">${username}</span> ${playerScore} - ${aiScore} <span style="color: red;">BoTony</span>`;
         // Draw Countdown Before Game/Reset
-        if (countdownValue > 0) {
-            ctx.fillStyle = "green";
-            ctx.font = "100px 'Press Start 2P'";
-            ctx.textAlign = "center";
-            ctx.fillText(countdownValue.toString(), gameCanvas.width / 2, gameCanvas.height / 2);
+		if (countdownValue > 0) {
+			drawGameMessage(countdownValue.toString());
         }
     }
 
@@ -171,15 +181,10 @@ export function startSingleClassic(username: string, settings: { difficulty: str
         if (!ctx) return;
     
         ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-        ctx.fillStyle = "black";
-        ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
     
         // Draw Winning Message
-        ctx.fillStyle = color;
-        ctx.font = "50px 'Press Start 2P'";
-        ctx.textAlign = "center";
-        ctx.fillText(message, gameCanvas.width / 2, gameCanvas.height / 2);
-        
+		drawGameMessage(message, color);
+       
         // Determine winner
         const winnerId = playerScore > aiScore ? player1Id : player2Id;
         
@@ -209,14 +214,15 @@ export function startSingleClassic(username: string, settings: { difficulty: str
             if (countdownValue <= 0) {
                 clearInterval(countdownInterval);
                 if (!gameOver) {
-                const angleOptions = [Math.random() * 90 - 45, Math.random() * 90 + 135];
-                const randomAngle = angleOptions[Math.floor(Math.random() * angleOptions.length)];
-                
-                const angleRad = randomAngle * (Math.PI / 180);
+                    const angleOptions = [Math.random() * 90 - 45, Math.random() * 90 + 135];
+                    const randomAngle = angleOptions[Math.floor(Math.random() * angleOptions.length)];
+                    
+                    const angleRad = randomAngle * (Math.PI / 180);
 
-                const speed = 7;
-                ballSpeedX = speed * Math.cos(angleRad);
-                ballSpeedY = speed * Math.sin(angleRad);
+                    const speed = 7;
+                    ballSpeedX = speed * Math.cos(angleRad);
+                    ballSpeedY = speed * Math.sin(angleRad);
+                    GameMessageVisibility("hide");
                 }
             }
         }, 1000);
@@ -241,10 +247,11 @@ export function startSingleClassic(username: string, settings: { difficulty: str
     }
     
 	function returnToMenu() {
-		gameCanvas.classList.add("hidden")
+		GameMessageVisibility("hide");
+		gameCanvas.classList.add("hidden");
         menu.classList.remove("hidden");
         scoreboard.style.display = "none";
-		document.getElementById('hide-button')?.click();
+		document.getElementById('sidebar')?.classList.toggle('hidden');
 	}
     
     document.addEventListener("keydown", keyDownHandler);

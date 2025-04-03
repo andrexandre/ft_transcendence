@@ -8,7 +8,7 @@ export async function prepareTokenData(requestData, auth_method) {
 
 export async function generateToken(payload){
     try{
-        const token = this.jwt.sign(payload, {expiresIn: '1h'});
+        const token = this.jwt.sign(payload, {expiresIn: '10h'});
         return token;
     } catch(err){
         console.log(err);

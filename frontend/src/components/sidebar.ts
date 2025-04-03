@@ -2,7 +2,7 @@ import * as lib from "../utils"
 
 const sidebar = {
 	getHtml: () => /*html*/`
-			<aside id="sidebar" class="dash-component transition-all p-3 w-[200px]">
+		<aside id="sidebar" class="dash-component transition-all p-3 w-[200px]">
 			<ul id="sidebar-list" class="sidebar-list">
 				<li>
 					<button id="hide-button" class="sidebar-component">
