@@ -4,7 +4,8 @@ import sidebar from "../../components/sidebar"
 import dropdown from "../../components/dropdown"
 import * as menu from "./menu"
 import * as logic from "./single"
-import { startMultiplayerClient } from "./client"
+import {startMultiplayerClient} from "./client"
+
 
 //* TEMP
 let lobbyid = 0;
@@ -57,6 +58,7 @@ function initializeGameMainMenu(page: Game) {
 			lib.showToast("Connecting to multiplayer game...");
 			startMultiplayerClient();
 		});
+		
 	dropdown.addElement('Co-Op', 'button', 'game-component', 'Don\'t click',
 		() => lib.showToast(`Co-Op Don't click clicked`));
 }

@@ -1,6 +1,7 @@
 ### miguel ignore ###
 game-project/node_modules
 game-project/src/*.js
+game-project/tmpDel/*.js
 *.db
 
 # Logs
