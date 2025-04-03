@@ -5,7 +5,7 @@ import fastifyJwt from "@fastify/jwt"
 import cors from '@fastify/cors';
 import { userRoutes } from "./userSet.js";
 
-const UPDATE_INTERVAL = 1000 / 1;
+const UPDATE_INTERVAL = 1000 / 30; //change to 60 for 60 fps layter
 const PORT = 5000;
 const gamefast = fastify({ logger: true });
 

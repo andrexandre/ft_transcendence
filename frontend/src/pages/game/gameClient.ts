@@ -1,14 +1,13 @@
 const SERVER_URL = "ws://127.0.0.1:5000/ws";
 
-
 export let gameCanvas: HTMLCanvasElement;
 export let ctx: CanvasRenderingContext2D;
 
 export function initGameCanvas() {
-    gameCanvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
-    ctx = gameCanvas.getContext("2d")!;
-    gameCanvas.width = 800;
-    gameCanvas.height = 600;
+	gameCanvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
+	ctx = gameCanvas.getContext("2d")!;
+	gameCanvas.width = 800;
+	gameCanvas.height = 600;
 };
 
 const PADDLE_WIDTH = 10;
@@ -19,20 +18,32 @@ let socket: WebSocket;
 let currentPlayerId = "";
 let players: { id: string; position: number }[] = [];
 let ball = { x: 400, y: 300 };
+let gameStarted = false;
 
-let waiting = true;
+function GameMessageVisibility(visible: string) {
+	const el = document.getElementById("game-message") as HTMLDivElement;
+	el.classList.toggle("hidden", visible !== "show");
+}
 
+function drawGameMessage(msg: string, color?: string) {
+	const el = document.getElementById("game-message") as HTMLDivElement;
+	el.textContent = msg;
+	if (color) el.style.color = color;
+	el.classList.remove("hidden");
+}
 
-function drawWaiting() {
-	ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-	ctx.fillStyle = "#ccc";
-	ctx.font = "36px Arial";
-	ctx.fillText("Waiting for another player...", 200, 300);
-	requestAnimationFrame(drawWaiting);
+function updateScoreboard(players: any[], ball: any) {
+	const el = document.getElementById("scoreboard") as HTMLDivElement;
+	const score = `${players[0]?.username ?? "Player1"} vs ${players[1]?.username ?? "Player2"}`;
+	el.innerHTML = `<span style='color:blue;'>${score}</span>  |  Ball: ${ball.x.toFixed(1)}, ${ball.y.toFixed(1)}`;
+	el.style.display = "block";
 }
 
 function drawGame() {
 	ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+
+	ctx.fillStyle = "#ccc";
+	ctx.fillRect(gameCanvas.width / 2 - 1, 0, 2, gameCanvas.height);
 
 	players.forEach((p, i) => {
 		const x = i === 0 ? 30 : gameCanvas.width - 40;
@@ -44,7 +55,7 @@ function drawGame() {
 	ctx.fillStyle = "#3b82f6";
 	ctx.fillRect(ball.x, ball.y, BALL_SIZE, BALL_SIZE);
 
-	requestAnimationFrame(drawGame);
+	updateScoreboard(players, ball);
 }
 
 function setupControls() {
@@ -55,10 +66,15 @@ function setupControls() {
 	});
 }
 
+function hideMainMenuAndShowCanvas() {
+	document.getElementById("game-main-menu")?.classList.add("hidden");
+	document.getElementById("gameCanvas")?.classList.remove("hidden");
+	document.getElementById("scoreboard")!.style.display = "block";
+}
+
 function connectWebSocket(username: string) {
 	socket = new WebSocket(SERVER_URL);
 	console.log("📡 Connecting to", SERVER_URL);
-
 
 	socket.onopen = () => {
 		console.log("✅ Connected to server");
@@ -69,16 +85,20 @@ function connectWebSocket(username: string) {
 		const data = JSON.parse(event.data);
 		console.log("📩 Message from server:", data);
 
-
 		if (data.type === "welcome") {
 			currentPlayerId = data.playerId;
 			console.log("🎮 Player ID:", currentPlayerId);
 		}
 
 		if (data.type === "update") {
-			waiting = false;
+			if (!gameStarted) {
+				gameStarted = true;
+				GameMessageVisibility("hide");
+				hideMainMenuAndShowCanvas();
+			}
 			players = data.state.players;
 			ball = data.state.ball;
+			drawGame();
 		}
 
 		if (data.type === "full") {
@@ -91,14 +111,9 @@ function connectWebSocket(username: string) {
 
 export function startGameClient() {
 	const username = sessionStorage.getItem("username") || "Guest";
+	initGameCanvas();
 	connectWebSocket(username);
 	setupControls();
-	drawWaiting();
-	setTimeout(() => {
-		const waitLoop = () => {
-			if (!waiting) drawGame();
-			else requestAnimationFrame(waitLoop);
-		};
-		waitLoop();
-	}, 2000);
+	drawGameMessage("Waiting for another player...", "gray");
+	GameMessageVisibility("show");
 }
