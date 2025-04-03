@@ -6,6 +6,7 @@ import register from "./pages/register"
 import login from "./pages/login"
 import dashboard from "./pages/dashboard"
 import game from "./pages/game/page"
+import chat from "./pages/chat/page"
 import * as lib from "./utils"
 
 let currentPage: Page | undefined;
@@ -19,6 +20,10 @@ const checkLogin = async () => {
 			lib.navigate('/login');
 			throw new Error(`${response.status} - ${response.statusText}`);
 		}
+		let dashData = await response.json();
+		lib.userInfo.username = dashData.username
+		lib.userInfo.userId = dashData.userId
+		lib.userInfo.auth_method = dashData.auth_method
 	} catch (error) {
 		console.log(error);
 		lib.showToast.red(error as string);
@@ -39,6 +44,9 @@ function loadPage(path: string): void {
 			break;
 		case "/game":
 			newPage = game;
+			break;
+		case "/chat":
+			newPage = chat;
 			break;
 		default:
 			lib.showToast.red("404 - Page Not Found");

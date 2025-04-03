@@ -7,38 +7,60 @@ import * as logic from "./single"
 import {startMultiplayerClient} from "./client"
 
 
-function tempInitializeDropdown(id: string, option1: string, option2: string) {
-	dropdown.setDropdownToggler(id);
-	if (id == 'Single' && option1 == 'Classic') {
-		const username = sessionStorage.getItem("username");
-		if (!username) {
-			console.error("❌ No username found in sessionStorage!");
-			return;
-		}
-		dropdown.addComponent(id, 'button', 'game-component',
-			option1,
-			() => {
-				const difficulty = sessionStorage.getItem("user_set_dificulty") || "Normal";
-				const tableSize = sessionStorage.getItem("user_set_tableSize") || "Medium";
-				const sound = sessionStorage.getItem("user_set_sound") === "1";
-				logic.startSingleClassic(username, { difficulty, tableSize, sound })
-			});
+//* TEMP
+let lobbyid = 0;
+let rmlobbyid = 0;
+
+function initializeGameMainMenu(page: Game) {
+	// Set Single dropdown
+	dropdown.initialize('Single');
+	const username = sessionStorage.getItem("username");
+	if (!username) {
+		console.error("❌ No username found in sessionStorage!");
+		return;
 	}
-	else if (id == 'Co-Op' && option1 == 'Soccer') {
-		dropdown.addComponent("Co-Op", "button", "game-component", "Soccer", () => {
+	dropdown.addElement('Single', 'button', 'game-component',
+		'Classic', () => {
+			const difficulty = sessionStorage.getItem("user_set_dificulty") || "Normal";
+			const tableSize = sessionStorage.getItem("user_set_tableSize") || "Medium";
+			const sound = sessionStorage.getItem("user_set_sound") === "1";
+			logic.startSingleClassic(username, { difficulty, tableSize, sound })
+			document.getElementById('hide-button')?.click();
+		});
+	dropdown.addElement('Single', 'button', 'game-component',
+		'Infinity', () => lib.showToast(`Single Infinity clicked`));
+
+	// Set Multi dropdown
+	dropdown.initialize('Multi', () => {
+		const lobby = document.getElementById('lobby');
+		lobby?.classList.toggle('hidden');
+	});
+	dropdown.addElement('Multi', 'button', 'game-component', 'Tournament',
+		() => {
+			//* TEMP
+			page.addLobbyEntry(lobbyid.toString(), 'me', 'multi', "5");
+			lobbyid++;
+		});
+	dropdown.addElement('Multi', 'button', 'game-component', "Don't click",
+		() => {
+			//* TEMP
+			page.removeLobbyEntry(rmlobbyid.toString());
+			rmlobbyid++;
+		});
+	// * TEMP
+	// document.getElementById('dropdownButton-Multi')?.click();
+	// this.addLobbyEntry(lobbyid.toString(), 'me', 'multi', "5");
+
+	// Set Co-Op dropdown
+	dropdown.initialize('Co-Op');
+	dropdown.addElement('Co-Op', 'button', 'game-component', 'Soccer',
+		() => {
 			lib.showToast("Connecting to multiplayer game...");
 			startMultiplayerClient();
 		});
-	}
-	else {
-		dropdown.addComponent(
-			id, 'button', 'game-component',
-			option1,
-			() => lib.showToast(`${id} ${option1} clicked`)
-		);
-	}
-	dropdown.addComponent(id, 'button', 'game-component',
-		option2, () => { lib.showToast(`${id} ${option2} clicked`); });
+		
+	dropdown.addElement('Co-Op', 'button', 'game-component', 'Don\'t click',
+		() => lib.showToast(`Co-Op Don't click clicked`));
 }
 
 class Game extends Page {
@@ -47,22 +69,11 @@ class Game extends Page {
 	}
 	onMount(): void {
 		sidebar.setSidebarToggler();
-		tempInitializeDropdown('Single', 'Classic', 'Infinity');
-		// tempInitializeDropdown('Multi', 'Tournament', "Don't click");
-		// Insane set Multi dropdown handler
-		dropdown.setDropdownToggler('Multi', () => {
-			const lobby = document.getElementById('lobby');
-			lobby?.classList.toggle('hidden');
-		});
-		dropdown.addComponent('Multi', 'button', 'game-component',
-			'Tournament', () => { lib.showToast(`${'Multi'} ${'Tournament'} clicked`); });
-		dropdown.addComponent('Multi', 'button', 'game-component',
-			"Don't click", () => { lib.showToast(`${'Multi'} ${"Don't click"} clicked`); });
+		initializeGameMainMenu(this)
 
-		tempInitializeDropdown('Co-Op', 'Soccer', 'Free for all');
-		dropdown.setDropdownToggler('Settings');
-		
-		dropdown.addComponent('Settings', 'div', 'flex flex-col', /*html*/`
+		// Set Settings dropdown
+		dropdown.initialize('Settings');
+		dropdown.addElement('Settings', 'div', 'flex flex-col', /*html*/`
 			<div class="grid grid-cols-[1fr_2fr] items-center">
 				<label for="difficulty">Difficulty</label>
 				<select id="difficulty" class="game-component justify-center">
@@ -98,21 +109,24 @@ class Game extends Page {
 			${sidebar.getHtml()}
 			<main class="dash-component flex flex-1 justify-around items-center">
 				<div id="game-main-menu" class="flex flex-col items-center">
-					<h1 class="font-bold text-9xl mb-20">Pongify</h1>
-					<div class="flex gap-10">
-						<div class="flex flex-col">
+					<h1 class="font-bold text-9xl mb-20">PONGIFY</h1>
+					<div class="flex gap-5">
+						<div class="flex flex-col w-50">
 							${dropdown.getHtml('Single')}
 							${dropdown.getHtml('Multi')}
 							${dropdown.getHtml('Co-Op')}
 							${dropdown.getHtml('Settings')}
 						</div>
-						<div id="lobby" class="hidden flex-col items-center justify-center">
-							<h2 class="text-2xl font-bold mb-4">Lobby</h2>
-							<ul id="lobby-list" class="w-full flex flex-col gap-2">
-								<li class="p-2 bg-white rounded shadow">Player 1</li>
-								<li class="p-2 bg-white rounded shadow">Player 2</li>
+						<div id="lobby" class="hidden flex-col items-center justify-center w-80 space-y-3">
+							<h2 class="text-3xl font-bold">Lobby</h2>
+							<ul class="grid grid-cols-4">
+								<li class="text-light">Host</li>
+								<li class="text-light">Mode</li>
+								<li class="text-light w-22">Max Players</li>
+								<li class="text-light"></li>
 							</ul>
-							<button id="start-game" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Start Game</button>
+							<ul id="lobby-list" class="grid grid-cols-4 gap-2 overflow-scroll max-h-65">
+							</ul>
 						</div>
 					</div>
 				</div>
@@ -136,7 +150,31 @@ class Game extends Page {
 				}
 			});
 		}
-
+	}
+	addLobbyBlock(gameOptionId: string, gameOption: string | number) {
+		const lobby = document.getElementById('lobby-list');
+		const entry = document.createElement('li') as HTMLElement;
+		entry.id = `entry-${gameOptionId}-${gameOption}`;
+		entry.innerHTML = `${gameOption}`;
+		lobby?.appendChild(entry);
+	}
+	addLobbyEntry(id: string, userName: string, gameType: string, maxPlayer: string, onClickHandler?: () => void) {
+		this.addLobbyBlock(id, userName);
+		this.addLobbyBlock(id, gameType);
+		this.addLobbyBlock(id, maxPlayer);
+		this.addLobbyBlock(id, /*html*/`
+			<button id="join-button-${id}" class="text-blue-500 hover:text-blue-800 hover:underline">JOIN</button>
+		`);
+		if (onClickHandler) {
+			document.getElementById(`join-button-${id}`)?.addEventListener('click', onClickHandler);
+		}
+		lib.showToast.blue(`Lobby entry n: ${id} added`);
+	}
+	removeLobbyEntry(id: string) {
+		const lobby = document.getElementById('lobby-list');
+		const entries = lobby?.querySelectorAll(`[id^="entry-${id}-"]`);
+		entries?.forEach(entry => entry.remove());
+		lib.showToast.yellow(`Lobby entry n: ${id} removed`);
 	}
 }
 

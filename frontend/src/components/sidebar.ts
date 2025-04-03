@@ -35,6 +35,12 @@ const sidebar = {
 					</button>
 				</li>
 				<li>
+					<button id="link-to-chat-button" class="sidebar-component">
+						<i class="fa-solid fa-comment-dots"></i>
+						<p>Link to chat</p>
+					</button>
+				</li>
+				<li>
 					<button id="link-to-game-button" class="sidebar-component">
 						<i class="fa-solid fa-link"></i>
 						<p>Link to game</p>
@@ -79,7 +85,8 @@ const sidebar = {
 		closeButton?.addEventListener('click', handler);
 
 		lib.assignButtonNavigation('home-button', '/');
-		document.getElementById("chat-button")!.addEventListener("click", () => {
+		lib.assignButtonNavigation('chat-button', '/chat');
+		document.getElementById("link-to-chat-button")!.addEventListener("click", () => {
 			window.location.href = "http://127.0.0.1:2000/";
 		});
 		lib.assignButtonNavigation('game-button', '/game');

@@ -57,8 +57,14 @@ class Dashboard extends Page {
 		`
 	}
 	showUsername(): string {
-		if (lib.userInfo.username)
-			return lib.userInfo.username;
+		let line: string = '';
+		if (lib.userInfo.username) {
+			if (lib.userInfo.auth_method === "google")
+				line = "G. ";
+			else if (lib.userInfo.auth_method === "email")
+				line = "E. ";
+			return line + lib.userInfo.username;
+		}
 		else
 			return "Sir Barkalot";
 	}

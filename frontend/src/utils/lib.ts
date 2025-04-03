@@ -1,7 +1,9 @@
 export { default as Cookies } from 'js-cookie';
 
 export var userInfo = {
-	username: ""
+	username: "",
+	userId: "",
+	auth_method: "",
 }
 
 export function showToast(message?: string, type: string = ""): void {
