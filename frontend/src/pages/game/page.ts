@@ -24,8 +24,8 @@ function initializeGameMainMenu(page: Game) {
 			const difficulty = sessionStorage.getItem("user_set_dificulty") || "Normal";
 			const tableSize = sessionStorage.getItem("user_set_tableSize") || "Medium";
 			const sound = sessionStorage.getItem("user_set_sound") === "1";
+			document.getElementById('sidebar')?.classList.toggle('hidden');
 			logic.startSingleClassic(username, { difficulty, tableSize, sound })
-			document.getElementById('hide-button')?.click();
 		});
 	dropdown.addElement('Single', 'button', 'game-component',
 		'Infinity', () => lib.showToast(`Single Infinity clicked`));
@@ -108,17 +108,17 @@ class Game extends Page {
 	getHtml(): string {
 		return /*html*/`
 			${sidebar.getHtml()}
-			<main class="dash-component flex flex-1 justify-around items-center">
+			<main class="dash-component flex flex-1 justify-around items-center font-['Press_Start_2P']">
 				<div id="game-main-menu" class="flex flex-col items-center">
 					<h1 class="font-bold text-9xl mb-20">PONGIFY</h1>
 					<div class="flex gap-5">
-						<div class="flex flex-col w-50">
+						<div class="flex flex-col w-80">
 							${dropdown.getHtml('Single')}
 							${dropdown.getHtml('Multi')}
 							${dropdown.getHtml('Co-Op')}
 							${dropdown.getHtml('Settings')}
 						</div>
-						<div id="lobby" class="hidden flex-col items-center justify-center w-80 space-y-3">
+						<div id="lobby" class="hidden flex-col items-center justify-center w-100 space-y-3">
 							<h2 class="text-3xl font-bold">Lobby</h2>
 							<ul class="grid grid-cols-4">
 								<li class="text-light">Host</li>
@@ -133,6 +133,7 @@ class Game extends Page {
 				</div>
 				<canvas id="gameCanvas" class="hidden"></canvas>
 				<div id="scoreboard" class="hidden"></div>
+				<div id="game-message" class="hidden z-1000 text-7xl"></div>
 			</main>
 		`;
 	}
