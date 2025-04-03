@@ -33,8 +33,21 @@ const checkLogin = async () => {
 function loadPage(path: string): void {
 	let newPage: Page;
 
-	if (path != "/register" && path != "/login")
+	if (path != "/register" && path != "/login") {
 		checkLogin();
+	}
+	if (path === "/game") {
+		document.documentElement.style.setProperty('--color-lighter', 'var(--color-g-lighter)');
+		document.documentElement.style.setProperty('--color-light', 'var(--color-g-light)');
+		document.documentElement.style.setProperty('--color-dark', 'var(--color-g-dark)');
+		document.documentElement.style.setProperty('--color-darker', 'var(--color-g-darker)');
+	}
+	else {
+		document.documentElement.style.setProperty('--color-lighter', 'var(--color-d-lighter)');
+		document.documentElement.style.setProperty('--color-light', 'var(--color-d-light)');
+		document.documentElement.style.setProperty('--color-dark', 'var(--color-d-dark)');
+		document.documentElement.style.setProperty('--color-darker', 'var(--color-d-darker)');
+	}
 	switch (path) {
 		case "/register":
 			newPage = register;

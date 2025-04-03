@@ -108,9 +108,9 @@ class Game extends Page {
 	getHtml(): string {
 		return /*html*/`
 			${sidebar.getHtml()}
-			<main class="dash-component flex flex-1 justify-around items-center font-['Press_Start_2P']">
+			<main class="game-component flex flex-1 justify-around items-center font-['Press_Start_2P']">
 				<div id="game-main-menu" class="flex flex-col items-center">
-					<h1 class="font-bold text-9xl mb-20">PONGIFY</h1>
+					<h1 id="main-menu-title" class="font-bold text-8xl mb-20">PONGIFY</h1>
 					<div class="flex gap-5">
 						<div class="flex flex-col w-80">
 							${dropdown.getHtml('Single')}
@@ -146,9 +146,6 @@ class Game extends Page {
 				if (!menuElem.classList.contains('hidden') && menuElem != target.nextElementSibling) {
 					menuElem?.classList.toggle('hidden');
 					menuElem?.classList.toggle('flex');
-					const icon = menuElem.previousElementSibling?.querySelector('i');
-					icon?.classList.toggle("fa-chevron-up");
-					icon?.classList.toggle("fa-chevron-down");
 				}
 			});
 		}
