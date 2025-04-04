@@ -30,13 +30,8 @@ const checkLogin = async () => {
 	}
 }
 
-function loadPage(path: string): void {
-	let newPage: Page;
-
-	if (path != "/register" && path != "/login") {
-		checkLogin();
-	}
-	if (path === "/game") {
+function setTheme(theme: string, color?: string) {
+	if (theme === "game") {
 		document.documentElement.style.setProperty('--color-lighter', 'var(--color-g-lighter)');
 		document.documentElement.style.setProperty('--color-light', 'var(--color-g-light)');
 		document.documentElement.style.setProperty('--color-dark', 'var(--color-g-dark)');
@@ -47,6 +42,19 @@ function loadPage(path: string): void {
 		document.documentElement.style.setProperty('--color-light', 'var(--color-d-light)');
 		document.documentElement.style.setProperty('--color-dark', 'var(--color-d-dark)');
 		document.documentElement.style.setProperty('--color-darker', 'var(--color-d-darker)');
+	}
+}
+
+function loadPage(path: string): void {
+	let newPage: Page;
+
+	if (path != "/register" && path != "/login") {
+		checkLogin();
+	}
+	if (path === "/game") {
+		setTheme("game");
+	} else {
+		setTheme("light", "stone");
 	}
 	switch (path) {
 		case "/register":
