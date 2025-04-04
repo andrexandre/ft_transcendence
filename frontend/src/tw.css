@@ -1,4 +1,5 @@
 @import "tailwindcss";
+/* @config "../tailwind.config.js"; */
 
 /* theme */
 @theme static {
@@ -9,15 +10,29 @@
 	--color-darker: var(--color-d-darker); /* border hover */
 	--color-d-lighter: theme(colors.stone.100);
 	--color-d-light: theme(colors.stone.400);
-	--color-d-dark: theme(colors.stone.600);
-	--color-d-darker: theme(colors.stone.800);
+	--color-d-dark: theme(colors.stone.800);
+	--color-d-darker: theme(colors.stone.600);
 	--color-g-lighter: theme(colors.black);
 	--color-g-light: theme(colors.green.800);
 	--color-g-dark: theme(colors.green.600);
 	--color-g-darker: theme(colors.green.400);
 }
 
-@layer components {}
+@layer components {
+	.t-border {
+		@apply border-2 text-dark border-light hover:border-darker;
+	}
+	.t-dashed { /* dashed rounded border */
+		@apply border-2 text-dark border-light hover:border-darker border-dashed rounded-3xl;
+	}
+	.item {
+		@apply m-1 p-2;
+	}
+	.card {
+		@apply gap-4 m-2.5 p-10 text-center;
+	}
+	/* .tab {} */
+}
 
 /* global */
 body {
@@ -29,25 +44,8 @@ img {
 }
 
 /* other */
-.t-border {
-	@apply border-2 text-dark border-light hover:border-darker;
-}
-.t-dashed {
-	@apply border-dashed rounded-3xl;
-}
-
-.dash-component {
-	@apply gap-4 m-2.5 text-center border-dashed rounded-3xl border-2 text-dark border-light hover:border-darker;
-}
-.sidebar-list {
-	@apply flex flex-col h-full;
-}
 .sidebar-component {
 	@apply flex p-3 rounded-2xl justify-between items-center w-full hover:bg-light transition-all;
-}
-
-.profile-header {
-	@apply flex gap-16;
 }
 
 /* toast */
@@ -67,14 +65,6 @@ img {
 }
 
 /* game */
-.game-menu-item {
-	@apply m-1 px-4 py-2;
-}
-
-.game-component {
-	@apply m-1 px-4 py-2 border-2 text-dark border-light hover:border-darker;
-}
-
 canvas {
 	position: absolute;
 	top: 50%;

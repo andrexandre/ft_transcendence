@@ -36,11 +36,11 @@ class Chat extends Page {
 		// document.getElementById('chat-box-block')?.addEventListener('click',
 		// 	() => lib.showToast.red('Blocking user...'));
 	}
-	onCleanup(): void {}
+	onCleanup(): void { }
 	getHtml(): string {
 		return /*html*/`
 			${sidebar.getHtml()}
-			<main class="dash-component flex w-full **:p-5 **:border **:border-stone-300">
+			<main class="card p-5 t-dashed flex w-full **:p-5 **:border **:border-stone-300">
 				<div id="friends" class="grid grid-rows-2">
 					<div id="online-friends" class="flex flex-col w-75">
 						<div id="online-friends-header" class="flex justify-around">

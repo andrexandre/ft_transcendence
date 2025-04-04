@@ -2,8 +2,8 @@ import * as lib from "../utils"
 
 const sidebar = {
 	getHtml: () => /*html*/`
-		<aside id="sidebar" class="dash-component transition-all p-3 w-[200px]">
-			<ul id="sidebar-list" class="sidebar-list">
+		<aside id="sidebar" class="card t-dashed transition-all p-3 w-50">
+			<ul id="sidebar-list" class="flex flex-col h-full">
 				<li>
 					<button id="hide-button" class="sidebar-component">
 						<i class="fa-solid fa-arrow-left"></i>

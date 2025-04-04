@@ -4,7 +4,7 @@ import sidebar from "../../components/sidebar"
 import dropdown from "../../components/dropdown"
 import * as menu from "./menu"
 import * as logic from "./single"
-import {startMultiplayerClient} from "./client"
+import { startMultiplayerClient } from "./client"
 
 
 //* TEMP
@@ -19,7 +19,7 @@ function initializeGameMainMenu(page: Game) {
 		console.error("❌ No username found in sessionStorage!");
 		return;
 	}
-	dropdown.addElement('Single', 'button', 'game-component',
+	dropdown.addElement('Single', 'button', 'item t-border',
 		'Classic', () => {
 			const difficulty = sessionStorage.getItem("user_set_dificulty") || "Normal";
 			const tableSize = sessionStorage.getItem("user_set_tableSize") || "Medium";
@@ -27,7 +27,7 @@ function initializeGameMainMenu(page: Game) {
 			document.getElementById('sidebar')?.classList.toggle('hidden');
 			logic.startSingleClassic(username, { difficulty, tableSize, sound })
 		});
-	dropdown.addElement('Single', 'button', 'game-component',
+	dropdown.addElement('Single', 'button', 'item t-border',
 		'Infinity', () => lib.showToast(`Single Infinity clicked`));
 
 	// Set Multi dropdown
@@ -35,13 +35,13 @@ function initializeGameMainMenu(page: Game) {
 		const lobby = document.getElementById('lobby');
 		lobby?.classList.toggle('hidden');
 	});
-	dropdown.addElement('Multi', 'button', 'game-component', 'Tournament',
+	dropdown.addElement('Multi', 'button', 'item t-border', 'Tournament',
 		() => {
 			//* TEMP
 			page.addLobbyEntry(lobbyid.toString(), 'me', 'multi', "5");
 			lobbyid++;
 		});
-	dropdown.addElement('Multi', 'button', 'game-component', "Don't click",
+	dropdown.addElement('Multi', 'button', 'item t-border', "Don't click",
 		() => {
 			//* TEMP
 			page.removeLobbyEntry(rmlobbyid.toString());
@@ -53,13 +53,12 @@ function initializeGameMainMenu(page: Game) {
 
 	// Set Co-Op dropdown
 	dropdown.initialize('Co-Op');
-	dropdown.addElement('Co-Op', 'button', 'game-component', 'Soccer',
+	dropdown.addElement('Co-Op', 'button', 'item t-border', 'Soccer',
 		() => {
 			lib.showToast("Connecting to multiplayer game...");
 			startMultiplayerClient();
 		});
-		
-	dropdown.addElement('Co-Op', 'button', 'game-component', 'Don\'t click',
+	dropdown.addElement('Co-Op', 'button', 'item t-border', 'Don\'t click',
 		() => lib.showToast(`Co-Op Don't click clicked`));
 }
 
@@ -76,7 +75,7 @@ class Game extends Page {
 		dropdown.addElement('Settings', 'div', 'flex flex-col', /*html*/`
 			<div class="grid grid-cols-[1fr_2fr] items-center">
 				<label for="difficulty">Difficulty</label>
-				<select id="difficulty" class="game-component justify-center">
+				<select id="difficulty" class="item t-border justify-center">
 					<option>Easy</option>
 					<option>Normal</option>
 					<option>Hard</option>
@@ -84,7 +83,7 @@ class Game extends Page {
 			</div>
 			<div class="grid grid-cols-[1fr_2fr] items-center">
 				<label for="table-size">Table Size</label>
-				<select id="table-size" class="game-component justify-center">
+				<select id="table-size" class="item t-border justify-center">
 					<option>Small</option>
 					<option>Medium</option>
 					<option>Large</option> 
@@ -92,12 +91,12 @@ class Game extends Page {
 			</div>
 			<div class="grid grid-cols-[1fr_2fr] items-center">
 				<label for="sound">Sound</label>
-				<select id="sound" class="game-component justify-center">
+				<select id="sound" class="item t-border justify-center">
 					<option>On</option>
 					<option>Off</option>
 				</select>
 			</div>
-			<button id="save-settings" type="button" class="game-component">Save</button>
+			<button id="save-settings" type="button" class="item t-border">Save</button>
 		`);
 		document.getElementById('save-settings')!.addEventListener('click', menu.saveSettingsHandler);
 		menu.initGameMenu();
@@ -107,9 +106,9 @@ class Game extends Page {
 	getHtml(): string {
 		return /*html*/`
 			${sidebar.getHtml()}
-			<main class="game-component flex flex-1 justify-around items-center font-['Press_Start_2P']">
+			<main class="card t-border flex flex-1 justify-around items-center font-['Press_Start_2P']">
 				<div id="game-main-menu" class="flex flex-col items-center">
-					<h1 id="main-menu-title" class="font-bold text-8xl mb-20">PONGIFY</h1>
+					<h1 id="main-menu-title" class="font-bold text-8xl mb-20 max-lg:text-7xl">PONGIFY</h1>
 					<div class="flex gap-5">
 						<div class="flex flex-col w-80">
 							${dropdown.getHtml('Single')}
