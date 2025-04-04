@@ -119,10 +119,10 @@ class Game extends Page {
 						<div id="lobby" class="hidden flex-col items-center justify-center w-100 space-y-3">
 							<h2 class="text-3xl font-bold">Lobby</h2>
 							<ul class="grid grid-cols-4">
-								<li class="text-light">Host</li>
-								<li class="text-light">Mode</li>
-								<li class="text-light w-22">Max Players</li>
-								<li class="text-light"></li>
+								<li class="text-c-secondary">Host</li>
+								<li class="text-c-secondary">Mode</li>
+								<li class="text-c-secondary w-22">Max Players</li>
+								<li class="text-c-secondary"></li>
 							</ul>
 							<ul id="lobby-list" class="grid grid-cols-4 gap-2 overflow-scroll max-h-65">
 							</ul>

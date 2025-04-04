@@ -26,7 +26,7 @@ export function showToast(message?: string, type: string = ""): void {
 			toast.className = "bg-yellow-100 text-yellow-800 border-yellow-400 hover:border-yellow-800";
 			break;
 		default:
-			toast.className = "bg-lighter border-light text-darker hover:border-darker";
+			toast.className = "bg-c-bg border-c-secondary text-c-primary hover:border-c-primary";
 	}
 	setTimeout(() => toast.remove(), 3100);
 }

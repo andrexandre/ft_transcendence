@@ -4,26 +4,26 @@
 /* theme */
 @theme static {
 	/* 0 = lighter, 1000 = darker */
-	--color-lighter: var(--color-d-lighter); /* background */
-	--color-light: var(--color-d-light); /* border */
-	--color-dark: var(--color-d-dark); /* text */
-	--color-darker: var(--color-d-darker); /* border hover */
-	--color-d-lighter: theme(colors.stone.100);
-	--color-d-light: theme(colors.stone.400);
-	--color-d-dark: theme(colors.stone.800);
-	--color-d-darker: theme(colors.stone.600);
-	--color-g-lighter: theme(colors.black);
-	--color-g-light: theme(colors.green.800);
-	--color-g-dark: theme(colors.green.600);
-	--color-g-darker: theme(colors.green.400);
+	--color-c-bg: var(--color-d-c-bg); /* background */
+	--color-c-text: var(--color-d-c-text); /* text */
+	--color-c-primary: var(--color-d-c-primary); /* border hover */
+	--color-c-secondary: var(--color-d-c-secondary); /* border */
+	--color-d-c-bg: theme(colors.stone.100);
+	--color-d-c-text: theme(colors.stone.800);
+	--color-d-c-primary: theme(colors.stone.600);
+	--color-d-c-secondary: theme(colors.stone.400);
+	--color-g-c-bg: theme(colors.black);
+	--color-g-c-text: theme(colors.green.600);
+	--color-g-c-primary: theme(colors.green.400);
+	--color-g-c-secondary: theme(colors.green.800);
 }
 
 @layer components {
 	.t-border {
-		@apply border-2 text-dark border-light hover:border-darker;
+		@apply border-2 text-c-text border-c-secondary hover:border-c-primary;
 	}
 	.t-dashed { /* dashed rounded border */
-		@apply border-2 text-dark border-light hover:border-darker border-dashed rounded-3xl;
+		@apply border-2 text-c-text border-c-secondary hover:border-c-primary border-dashed rounded-3xl;
 	}
 	.item {
 		@apply m-1 p-2;
@@ -31,12 +31,11 @@
 	.card {
 		@apply gap-4 m-2.5 p-10 text-center;
 	}
-	/* .tab {} */
 }
 
 /* global */
 body {
-	@apply bg-lighter select-none;
+	@apply bg-c-bg select-none;
 }
 
 img {
@@ -45,7 +44,7 @@ img {
 
 /* other */
 .sidebar-component {
-	@apply flex p-3 rounded-2xl justify-between items-center w-full hover:bg-light transition-all;
+	@apply flex p-3 rounded-2xl justify-between items-center w-full hover:bg-c-secondary transition-all;
 }
 
 /* toast */
@@ -71,7 +70,7 @@ canvas {
 	left: 50%;
 	transform: translate(-50%, -50%);
 	z-index: 10;
-	@apply border-2 border-dark;
+	@apply border-2 border-c-text;
 }
 
 #scoreboard {
@@ -81,7 +80,7 @@ canvas {
 	transform: translateX(-50%);
 	font-size: 30px;
 	font-weight: bold;
-	@apply text-dark;
+	@apply text-c-text;
 }
 
 #main-menu-title {

@@ -32,16 +32,16 @@ const checkLogin = async () => {
 
 function setTheme(theme: string, color?: string) {
 	if (theme === "game") {
-		document.documentElement.style.setProperty('--color-lighter', 'var(--color-g-lighter)');
-		document.documentElement.style.setProperty('--color-light', 'var(--color-g-light)');
-		document.documentElement.style.setProperty('--color-dark', 'var(--color-g-dark)');
-		document.documentElement.style.setProperty('--color-darker', 'var(--color-g-darker)');
+		document.documentElement.style.setProperty('--color-c-bg', 'var(--color-g-c-bg)');
+		document.documentElement.style.setProperty('--color-c-secondary', 'var(--color-g-c-secondary)');
+		document.documentElement.style.setProperty('--color-c-text', 'var(--color-g-c-text)');
+		document.documentElement.style.setProperty('--color-c-primary', 'var(--color-g-c-primary)');
 	}
 	else {
-		document.documentElement.style.setProperty('--color-lighter', 'var(--color-d-lighter)');
-		document.documentElement.style.setProperty('--color-light', 'var(--color-d-light)');
-		document.documentElement.style.setProperty('--color-dark', 'var(--color-d-dark)');
-		document.documentElement.style.setProperty('--color-darker', 'var(--color-d-darker)');
+		document.documentElement.style.setProperty('--color-c-bg', 'var(--color-d-c-bg)');
+		document.documentElement.style.setProperty('--color-c-secondary', 'var(--color-d-c-secondary)');
+		document.documentElement.style.setProperty('--color-c-text', 'var(--color-d-c-text)');
+		document.documentElement.style.setProperty('--color-c-primary', 'var(--color-d-c-primary)');
 	}
 }
 
