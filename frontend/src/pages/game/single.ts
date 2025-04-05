@@ -27,8 +27,6 @@ export function startSingleClassic(username: string, settings: { difficulty: str
     console.log(`🎮 Game started for: ${username}`);
     console.log("🛠 Settings:", settings);
 
-    // const gameCanvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
-    // const ctx = gameCanvas.getContext("2d");
     const menu = document.getElementById("game-main-menu") as HTMLDivElement;
 
     // Hide menu, show game

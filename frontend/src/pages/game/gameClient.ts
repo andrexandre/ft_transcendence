@@ -10,13 +10,13 @@ export function initGameCanvas() {
 	gameCanvas.height = 600;
 };
 
-const PADDLE_WIDTH = 10;
-const PADDLE_HEIGHT = 80;
-const BALL_SIZE = 10;
+const paddleWidth = 10;
+const paddleHeight = 80;
+const ballSize = 10;
 
 let socket: WebSocket;
 let currentPlayerId = "";
-let players: { id: string; position: number }[] = [];
+let players: { username: string; userId: number; posiY: number; posiX: number; score: number }[] = [];
 let ball = { x: 400, y: 300 };
 let gameStarted = false;
 
@@ -34,36 +34,78 @@ function drawGameMessage(msg: string, color?: string) {
 
 function updateScoreboard(players: any[], ball: any) {
 	const el = document.getElementById("scoreboard") as HTMLDivElement;
-	const score = `${players[0]?.username ?? "Player1"} vs ${players[1]?.username ?? "Player2"}`;
-	el.innerHTML = `<span style='color:blue;'>${score}</span>  |  Ball: ${ball.x.toFixed(1)}, ${ball.y.toFixed(1)}`;
+	if (players.length < 2) return;
+
+	const p1 = players[0];
+	const p2 = players[1];
+
+	el.innerHTML = `
+		<span style='color: blue;'>${p1.username}</span>
+		<b>${p1.score}</b> 
+		vs 
+		<b>${p2.score}</b> 
+		<span style='color: red;'>${p2.username}</span>
+		<br>
+		<small>Ball: ${ball.x.toFixed(1)}, ${ball.y.toFixed(1)}</small>
+	`;
 	el.style.display = "block";
 }
+
 
 function drawGame() {
 	ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 
-	ctx.fillStyle = "#ccc";
+	// draw canvas
+	ctx.fillStyle = "green";
 	ctx.fillRect(gameCanvas.width / 2 - 1, 0, 2, gameCanvas.height);
 
-	players.forEach((p, i) => {
-		const x = i === 0 ? 30 : gameCanvas.width - 40;
-		const y = (p.position / 100) * (gameCanvas.height - PADDLE_HEIGHT);
-		ctx.fillStyle = p.id === currentPlayerId ? "#4ade80" : "#f87171";
-		ctx.fillRect(x, y, PADDLE_WIDTH, PADDLE_HEIGHT);
+	// draw paddles
+	players.forEach((p) => {
+		const x = (p.posiX / 100) * (gameCanvas.width - paddleWidth);
+		const y = (p.posiY / 100) * (gameCanvas.height - paddleHeight);
+		ctx.fillStyle = p.userId.toString() === currentPlayerId ? "#4ade80" : "#f87171";
+		ctx.fillRect(x, y, paddleWidth, paddleHeight);
 	});
+	
 
-	ctx.fillStyle = "#3b82f6";
-	ctx.fillRect(ball.x, ball.y, BALL_SIZE, BALL_SIZE);
+	// draw ball
+	ctx.fillStyle = "green";
+	ctx.beginPath();
+	ctx.arc(ball.x + ballSize / 2, ball.y + ballSize / 2, ballSize / 2, 0, Math.PI * 2);
+	ctx.fill();
 
 	updateScoreboard(players, ball);
 }
 
+/// Need to correct the diference between smouth and speed
 function setupControls() {
+	const keysPressed: Record<string, boolean> = {};
+	let lastMoveTime = 0;
+	const speedDelay = 25;
+
 	document.addEventListener("keydown", (e) => {
-		if (!socket || socket.readyState !== WebSocket.OPEN) return;
-		if (e.key === "ArrowUp") socket.send(JSON.stringify({ type: "move", direction: "up" }));
-		if (e.key === "ArrowDown") socket.send(JSON.stringify({ type: "move", direction: "down" }));
+		keysPressed[e.key] = true;
 	});
+
+	document.addEventListener("keyup", (e) => {
+		keysPressed[e.key] = false;
+	});
+
+	setInterval(() => {
+		if (!socket || socket.readyState !== WebSocket.OPEN) return;
+
+		const now = Date.now();
+		if (now - lastMoveTime < speedDelay) return;
+
+		if (keysPressed["ArrowUp"]) {
+			socket.send(JSON.stringify({ type: "move", direction: "up" }));
+			lastMoveTime = now;
+		}
+		if (keysPressed["ArrowDown"]) {
+			socket.send(JSON.stringify({ type: "move", direction: "down" }));
+			lastMoveTime = now;
+		}
+	}, 1000 / 60);
 }
 
 function hideMainMenuAndShowCanvas() {
@@ -78,16 +120,29 @@ function connectWebSocket(username: string) {
 
 	socket.onopen = () => {
 		console.log("✅ Connected to server");
-		socket.send(JSON.stringify({ type: "join", username }));
+		const userId = parseInt(sessionStorage.getItem("user_id") || "0");
+
+		socket.send(JSON.stringify({
+			type: "join",
+			username,
+			userId,
+		}));
 	};
 
 	socket.onmessage = (event) => {
 		const data = JSON.parse(event.data);
-		console.log("📩 Message from server:", data);
+		// console.log("📩 Message from server:", data);
 
 		if (data.type === "welcome") {
 			currentPlayerId = data.playerId;
 			console.log("🎮 Player ID:", currentPlayerId);
+		}
+		
+		if (data.type === "countdown") {
+			drawGameMessage(data.value.toString(), "green");
+			if (data.value === 1) {
+				setTimeout(() => GameMessageVisibility("hide"), 1000);
+			}
 		}
 
 		if (data.type === "update") {
@@ -99,6 +154,19 @@ function connectWebSocket(username: string) {
 			players = data.state.players;
 			ball = data.state.ball;
 			drawGame();
+		}
+		
+		if (data.type === "end") {
+			const winner = data.winner;
+			drawGameMessage(`${winner} wins!`, winner === username ? "blue" : "red");
+			GameMessageVisibility("show");
+		
+			setTimeout(() => {
+				document.getElementById("gameCanvas")?.classList.add("hidden");
+				document.getElementById("game-main-menu")?.classList.remove("hidden");
+				document.getElementById("scoreboard")!.style.display = "none";
+				GameMessageVisibility("hide");
+			}, 5000);
 		}
 
 		if (data.type === "full") {
