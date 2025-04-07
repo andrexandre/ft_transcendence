@@ -166,6 +166,7 @@ function connectWebSocket(username: string) {
 				document.getElementById("game-main-menu")?.classList.remove("hidden");
 				document.getElementById("scoreboard")!.style.display = "none";
 				GameMessageVisibility("hide");
+				document.getElementById('sidebar')?.classList.toggle('hidden');
 			}, 5000);
 		}
 
@@ -175,6 +176,13 @@ function connectWebSocket(username: string) {
 	};
 
 	socket.onerror = (err) => console.error("Socket error:", err);
+	socket.onclose = () => {
+		console.log("❌ Disconnected from server");
+		socket = null!;
+		gameStarted = false;
+		GameMessageVisibility("show");
+		drawGameMessage("Disconnected from server", "red");
+	}
 }
 
 export function startGameClient() {

@@ -56,6 +56,7 @@ function initializeGameMainMenu(page: Game) {
 	dropdown.addElement('Co-Op', 'button', 'game-component', 'Soccer',
 		() => {
 			lib.showToast("Connecting to multiplayer game...");
+			document.getElementById('sidebar')?.classList.toggle('hidden');
 			startGameClient();
 		});
 		

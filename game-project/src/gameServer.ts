@@ -95,30 +95,36 @@ export function startGameLoop() {
 		// Paddle collision
 		const paddleY1 = (p1.posiY / 100) * (canvasHeight - paddleHeight);
 		const paddleY2 = (p2.posiY / 100) * (canvasHeight - paddleHeight);
-        
-		if (ball.x <= 30 + paddleWidth &&
+
+        // rework this /////////////////////////////////////////////////
+		if (ball.x <= 10 + paddleWidth &&
 			ball.y >= paddleY1 && ball.y <= paddleY1 + paddleHeight) {
                 ball.vx *= -1;
-                ball.x = 40;
-            }
-            
-            if (ball.x >= canvasWidth - 40 - ballSize &&
-                ball.y >= paddleY2 && ball.y <= paddleY2 + paddleHeight) {
-                    ball.vx *= -1;
-                    ball.x = canvasWidth - 50;
-                }
+                ball.x = 20;
+		}
+		if (ball.x >= canvasWidth - 10 - ballSize &&
+			ball.y >= paddleY2 && ball.y <= paddleY2 + paddleHeight) {
+				ball.vx *= -1;
+				ball.x = canvasWidth - 20;
+		}
+		
+		// Score
+		if (ball.x < 0) {
+			p2.score += 1;
+			startCountdownAndResetBall();
+		}
+		if (ball.x > canvasWidth) {
+			p1.score += 1;
+			startCountdownAndResetBall();
+		}
                 
-                // Score
-                if (ball.x < 0) {
-                    p2.score += 1;
-                    startCountdownAndResetBall();
-                }
-                if (ball.x > canvasWidth) {
-                    p1.score += 1;
-                    startCountdownAndResetBall();
-                }
-                
-                // Win
+		const state = {
+			players: [p1, p2],
+			ball,
+		};
+
+		broadcast({ type: "update", state });
+		// Win
 		if (p1.score >= winingValue || p2.score >= winingValue) {
 			const winner = p1.score > p2.score ? p1 : p2;
 			broadcast({ type: "end", winner: winner.username });
@@ -131,17 +137,12 @@ export function startGameLoop() {
 			// 	winnerId: winner.userId,
 			// });
 			clients.clear();
+			clients.forEach((value, key) => {
+				key.close();
+			});
 			startCountdownAndResetBall();
 			return;
 		}
-
-		const state = {
-			players: [p1, p2],
-			ball,
-		};
-
-		broadcast({ type: "update", state });
-        
 	}, updateFPS);
 }
 
