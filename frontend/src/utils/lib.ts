@@ -34,3 +34,31 @@ showToast.green = (message?: string) => showToast(message, "green");
 showToast.red = (message?: string) => showToast(message, "red");
 showToast.blue = (message?: string) => showToast(message, "blue");
 showToast.yellow = (message?: string) => showToast(message, "yellow");
+
+// lib.fullScreenOverlay(
+// 	/*html*/`<h1>Hello HTML</h1>`,
+// 	/*style*/`
+// 		.hello-CSS {}
+// 	`,
+// 	() => console.log('Hello JS')
+// );
+
+export function fullScreenOverlay(html: string = '', css: string = '', js?: () => void) {
+	const overlay = Object.assign(document.body.appendChild(document.createElement('div')), {
+		style: /*style*/`
+			position: fixed;
+			inset: 0;
+			background: rgba(0, 0, 0, 0.9);
+			color: white;
+			z-index: 9999;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		`
+	});
+	overlay.innerHTML = html;
+	const styleElement = document.createElement('style');
+	styleElement.textContent = css;
+	overlay.appendChild(styleElement);
+	if (js) js();
+}
