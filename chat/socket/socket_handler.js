@@ -1,4 +1,4 @@
-import { addFriend, addRequest, getFriends, getRequests, deleteFriendRequest, addBlock } from '../database/db.js';
+import { addFriend, addRequest, getFriends, getRequests, deleteFriendRequest, addBlock, checkBlock } from '../database/db.js';
 import { checkFriendOnline, getAllUsers, getTimeString, parseRoomName, roomName } from '../rooms/user.js';
 import { createMessage, loadMessages, sendMessage } from '../messages/messages.js';
 
@@ -35,6 +35,7 @@ export async function SocketHandler(socket, username)
 					break;
 				case 'get-friends-list':
 					await sendFriendList(username, socket);
+					console.log(data.friend)
 					if (data.friend)
 						await sendFriendList(data.friend, users.get(data.friend));
 					break;
@@ -54,8 +55,12 @@ export async function SocketHandler(socket, username)
 					break;
 				case 'block-user':
 					await addBlock(username, data.friend);
+					break;
+				case 'check-block':
+					const block = await checkBlock(username, data.friend);
 					socket.send(JSON.stringify({
-						type: 'block-completed',
+						type: 'block-status',
+						isBlocked: block,
 						friend: data.friend
 					}));
 					break;
@@ -97,14 +102,14 @@ async function handleChatMessage(username, msg, socket)
 
 	
 	const message = await createMessage(username, msg, getTimeString());
-	const call = await sendMessage(message, room, friend);
+	const call = await sendMessage(message, room, friend, await checkBlock(username, friend));
 
 	socket.send(JSON.stringify({
 		user: username,
 		type: 'message-emit',
 		data: message
 	}));
-	if (call === "emit")
+	if (call === "emit" && !(await checkBlock(friend, username)))
 	{
 		clients.forEach(client =>{
 			if (client !== socket && client.readyState === 1)
@@ -129,7 +134,7 @@ async function joinRoom(username, friend, socket)
 	if (!rooms.has(room))
 		rooms.set(room, new Set());
 	rooms.get(room).add(socket);
-	const msgHistory = await loadMessages(room);
+	const msgHistory = await loadMessages(room, await checkBlock(username, friend));
 	if(msgHistory && msgHistory.length > 0)
 	{
 		socket.send(JSON.stringify({

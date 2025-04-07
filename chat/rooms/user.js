@@ -5,12 +5,13 @@ export function roomName(user1, user2)
 {
 	const sortedUsers = [user1, user2].sort();
 
-	return `private-${sortedUsers[0]}-${sortedUsers[1]}`;
+	return `${sortedUsers[0]}-${sortedUsers[1]}`;
 }
 
 export function parseRoomName(roomName)
 {
-	const usersString = roomName.substring(8);
+	const room = 'private-' + roomName;
+	const usersString = room.substring(8);
 	const users = usersString.split('-');
 
 	return users;

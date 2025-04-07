@@ -31,7 +31,7 @@ async function setupServer() {
 		const token = request.cookies.token;
 		const userData = await fetchUserDataFromGateway(token);
 		username = userData.username;
-		console.log(userData.userId);
+		// console.log(userData.userId);
 
 		if (!username)
 			return reply.send('Please provide a username in the URL (e.g., /?user=Antony)');
@@ -65,7 +65,7 @@ async function fetchUserDataFromGateway(token) {
             throw new Error(`Failed to fetch user from Gateway: ${response.status} ${response.statusText}`);
         }
 
-        console.log(response);
+        // console.log(response);
         return await response.json();
     } catch (error) {
         console.error("❌ Error fetching user from Gateway:", error);
