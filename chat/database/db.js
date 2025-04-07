@@ -36,8 +36,10 @@ export async function initializeDatabase()
 		CREATE TABLE IF NOT EXISTS users_blocked (
 			user_id INTEGER,
 			blocked_user INTEGER,
+			PRIMARY KEY (user_id, blocked_user),
 			FOREIGN KEY (user_id) REFERENCES users(user_id),
 			FOREIGN KEY (blocked_user) REFERENCES users(user_id)
+			CHECK (user_id != blocked_user)
 		);
 		CREATE TABLE IF NOT EXISTS friend_requests (
 			request_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -105,12 +107,6 @@ export async function getFriends(username)
             FROM users u
             INNER JOIN friendships f ON u.user_id = f.friend_id
             WHERE f.user_id = ?
-            AND NOT EXISTS (
-                SELECT 1 
-                FROM users_blocked b
-                WHERE (b.user_id = f.user_id AND b.blocked_user = f.friend_id)
-                   OR (b.user_id = f.friend_id AND b.blocked_user = f.user_id)
-            )
         `;
 		const friends = await db.all(query, [user.user_id]);
 		
@@ -165,7 +161,7 @@ export async function getRequests(receiver)
 
 		const requests = await db.all(`
             SELECT 
-                fr.request_id, 
+                fr.request_id,
                 u.username AS sender, 
                 fr.sent_at
             FROM 
@@ -222,6 +218,29 @@ export async function addBlock(user, friend)
 	}
 	catch (error) {
 		console.error('Error adding blocked user: ', error);
+		return ;
+	}
+}
+
+export async function checkBlock(username, friend)
+{
+	try {
+
+		const user_id = await db.get(`SELECT user_id FROM users WHERE username = ?`, [username]);
+		const friend_id = await db.get(`SELECT user_id FROM users WHERE username = ?`, [friend]);
+
+		console.log('username: ' + username + ', user_id: ' + user_id.user_id);
+		console.log('username: ' + friend + ', user_id: ' + friend_id.user_id);
+		const blocked = await db.get(`
+			SELECT * FROM users_blocked
+			WHERE (user_id = ? AND blocked_user = ?)
+			`, [user_id.user_id, friend_id.user_id]);
+		if (!blocked)
+			return false;
+		return true;
+	}
+	catch (error) {
+		console.error('Error checking block: ', error);
 		return ;
 	}
 }

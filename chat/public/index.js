@@ -4,10 +4,12 @@ const roomButton = document.getElementById('roomButton');
 const refreshButton = document.getElementById('refresh-button');
 //Handle connections
 
-const urlParams = new URLSearchParams(window.location.search);
-const username = urlParams.get('user');
+// const urlParams = new URLSearchParams(window.location.search);
+// const token = request.cookies.token;
+// const userData = await fetchUserDataFromGateway(token);
+// const username = userData.username;
 
-const host = `ws://localhost:2000/chat-ws?user=${username}`;
+const host = `ws://localhost:2000/chat-ws`;
 const socket = new WebSocket(host);
 
 socket.onopen = () => {
@@ -35,13 +37,8 @@ socket.onmessage = (event) => {
 		data.data.forEach(user => addOnlineUser(user));
 	else if	(data.type === 'add-requests')
 		showFriendRequests(data.data);
-    else if(data.type === 'block-completed')
-    {
-        socket.send(JSON.stringify({
-            type: 'get-friends-list',
-            friend: data.friend
-        }));
-    }
+    else if (data.type === 'block-status')
+        createRoom(data.friend, data.isBlocked);
 };
 
 //Send messages
@@ -91,8 +88,10 @@ function addMessage(user, from, message, timestamp)
 		messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
+
 //Handle online users
-function createFriendList(friendName) {
+function createFriendList(friendName)
+{
     const friendList = document.getElementById('friendList');
     if (friendList)
         friendList.innerHTML = '';
@@ -109,104 +108,247 @@ function createFriendList(friendName) {
     roomButton.appendChild(nameText);
 
     roomButton.addEventListener('click', () => {
+        // Clear existing content
         const divFriend = document.getElementById('currentFriend');
         if (divFriend) {
             divFriend.innerHTML = '';
-        }
-        
-        const onlineStatus = document.createElement('span');
-        onlineStatus.className = 'online-status';
-        
-        const currentFriend = document.createElement('span');
-        currentFriend.className = 'friend-name';
-        currentFriend.textContent = friendName;
-        
-        const userDropdown = document.createElement('div');
-        userDropdown.className = 'user-dropdown';
-        userDropdown.id = 'userDropdown';
-        
-        const profileItem = document.createElement('div');
-        profileItem.className = 'dropdown-item';
-        
-        const personIcon = document.createElement('div');
-        personIcon.className = 'person-icon';
-        
-        const personHead = document.createElement('div');
-        personHead.className = 'person-head';
-        
-        const personBody = document.createElement('div');
-        personBody.className = 'person-body';
-        
-        personIcon.appendChild(personHead);
-        personIcon.appendChild(personBody);
-        
-        const profileText = document.createElement('span');
-        profileText.textContent = 'Profile';
-        
-        profileItem.appendChild(personIcon);
-        profileItem.appendChild(profileText);
-        
-        const blockItem = document.createElement('div');
-        blockItem.className = 'dropdown-item';
-        
-		const blockIcon = document.createElement('div');
-        blockIcon.className = 'block-icon';
-
-        const blockText = document.createElement('span');
-        blockText.textContent = 'Block';
-		
-		blockItem.appendChild(blockIcon);
-        blockItem.appendChild(blockText);
-        
-        userDropdown.appendChild(profileItem);
-        userDropdown.appendChild(blockItem);
-        
-        currentFriend.addEventListener('click', (e) => {
-            e.stopPropagation();
-            userDropdown.classList.toggle('active');
-        });
-        
-        document.addEventListener('click', () => {
-            if (userDropdown.classList.contains('active')) {
-                userDropdown.classList.remove('active');
-            }
-        });
-
-        userDropdown.addEventListener('click', (e) => {
-            e.stopPropagation();
-        });
-
-        profileItem.addEventListener('click', () => {
-            console.log('Profile clicked for', friendName);
-            // Add your profile ality => here
-        });
-        
-        
-        divFriend.appendChild(onlineStatus);
-        divFriend.appendChild(currentFriend);
-        divFriend.appendChild(userDropdown);
-        
-        blockItem.addEventListener('click', () => {
-            console.log('Block clicked for', friendName);
-            divFriend.innerHTML = '';
-            clearChatContainer();
-            showNotification(`User ${friendName} has been blocked`);
-            socket.send(JSON.stringify({
-                type: 'block-user',
-                friend: friendName
-            }));
-        });
-
+        }        
         clearChatContainer();
-
+        socket.send(JSON.stringify({
+            type: 'check-block',
+            friend: friendName
+        }));
+        
         socket.send(JSON.stringify({
             type: 'join-room',
             friend: friendName
         }));
     });
-
     friendList.appendChild(roomButton);
 }
+
+function createRoom(friendName, isBlocked)
+{
+    const divFriend = document.getElementById('currentFriend');
+    if (!divFriend) return;
+    
+    const onlineStatus = document.createElement('span');
+    onlineStatus.className = 'online-status';
+    
+    const currentFriend = document.createElement('span');
+    currentFriend.className = 'friend-name';
+    currentFriend.textContent = friendName;
+    
+    const userDropdown = document.createElement('div');
+    userDropdown.className = 'user-dropdown';
+    userDropdown.id = 'userDropdown';
+    
+    const profileItem = document.createElement('div');
+    profileItem.className = 'dropdown-item';
+    
+    const personIcon = document.createElement('div');
+    personIcon.className = 'person-icon';
+    
+    const personHead = document.createElement('div');
+    personHead.className = 'person-head';
+    
+    const personBody = document.createElement('div');
+    personBody.className = 'person-body';
+    
+    personIcon.appendChild(personHead);
+    personIcon.appendChild(personBody);
+    
+    const profileText = document.createElement('span');
+    profileText.textContent = 'Profile';
+    
+    profileItem.appendChild(personIcon);
+    profileItem.appendChild(profileText);
+    
+    const blockItem = document.createElement('div');
+    blockItem.className = 'dropdown-item';
+    
+    const blockIcon = document.createElement('div');
+    blockIcon.className = 'block-icon';
+
+    const blockText = document.createElement('span');
+    blockText.textContent = isBlocked ? 'Unblock' : 'Block';
+    
+    blockItem.appendChild(blockIcon);
+    blockItem.appendChild(blockText);
+    
+    userDropdown.appendChild(profileItem);
+    userDropdown.appendChild(blockItem);
+    
+    currentFriend.addEventListener('click', (e) => {
+        e.stopPropagation();
+        userDropdown.classList.toggle('active');
+    });
+    
+    document.addEventListener('click', () => {
+        if (userDropdown.classList.contains('active')) {
+            userDropdown.classList.remove('active');
+        }
+    });
+
+    userDropdown.addEventListener('click', (e) => {
+        e.stopPropagation();
+    });
+
+    profileItem.addEventListener('click', () => {
+        console.log('Profile clicked for', friendName);
+        // Add your profile functionality here
+    });
+
+    divFriend.appendChild(onlineStatus);
+    divFriend.appendChild(currentFriend);
+    divFriend.appendChild(userDropdown);
+
+    blockItem.addEventListener('click', () => {
+        console.log('Block clicked for', friendName);
+        const isBlocking = blockText.textContent.includes('Block');
+        if (isBlocking) {
+            blockText.textContent = 'Unblock';
+            showNotification(`User ${friendName} has been blocked`);
+            socket.send(JSON.stringify({
+                type: 'block-user',
+                friend: friendName
+            }));
+        } else {
+            blockText.textContent = 'Block';
+            showNotification(`User ${friendName} has been unblocked`);
+            socket.send(JSON.stringify({
+                type: 'unblock-user',
+                friend: friendName
+            }));
+        }
+    });
+}
+
+// function createFriendList(friendName) {
+//     const friendList = document.getElementById('friendList');
+//     if (friendList)
+//         friendList.innerHTML = '';
+
+//     const roomButton = document.createElement('button');
+//     roomButton.className = 'friend-room';
+
+//     const statusDot = document.createElement('span');
+//     statusDot.className = 'online-status';
+
+//     const nameText = document.createTextNode(friendName);
+
+//     roomButton.appendChild(statusDot);
+//     roomButton.appendChild(nameText);
+
+//     roomButton.addEventListener('click', () => {
+//         const divFriend = document.getElementById('currentFriend');
+//         if (divFriend) {
+//             divFriend.innerHTML = '';
+//         }
+        
+//         const onlineStatus = document.createElement('span');
+//         onlineStatus.className = 'online-status';
+        
+//         const currentFriend = document.createElement('span');
+//         currentFriend.className = 'friend-name';
+//         currentFriend.textContent = friendName;
+        
+//         const userDropdown = document.createElement('div');
+//         userDropdown.className = 'user-dropdown';
+//         userDropdown.id = 'userDropdown';
+        
+//         const profileItem = document.createElement('div');
+//         profileItem.className = 'dropdown-item';
+        
+//         const personIcon = document.createElement('div');
+//         personIcon.className = 'person-icon';
+        
+//         const personHead = document.createElement('div');
+//         personHead.className = 'person-head';
+        
+//         const personBody = document.createElement('div');
+//         personBody.className = 'person-body';
+        
+//         personIcon.appendChild(personHead);
+//         personIcon.appendChild(personBody);
+        
+//         const profileText = document.createElement('span');
+//         profileText.textContent = 'Profile';
+        
+//         profileItem.appendChild(personIcon);
+//         profileItem.appendChild(profileText);
+        
+//         const blockItem = document.createElement('div');
+//         blockItem.className = 'dropdown-item';
+        
+// 		const blockIcon = document.createElement('div');
+//         blockIcon.className = 'block-icon';
+
+//         const blockText = document.createElement('span');
+//         socket.send(JSON.stringify({
+//             type: 'check-block',
+//             friend: friendName
+//         }));
+//         blockText.textContent = 'Block';
+		
+// 		blockItem.appendChild(blockIcon);
+//         blockItem.appendChild(blockText);
+        
+//         userDropdown.appendChild(profileItem);
+//         userDropdown.appendChild(blockItem);
+        
+//         currentFriend.addEventListener('click', (e) => {
+//             e.stopPropagation();
+//             userDropdown.classList.toggle('active');
+//         });
+        
+//         document.addEventListener('click', () => {
+//             if (userDropdown.classList.contains('active')) {
+//                 userDropdown.classList.remove('active');
+//             }
+//         });
+
+//         userDropdown.addEventListener('click', (e) => {
+//             e.stopPropagation();
+//         });
+
+//         profileItem.addEventListener('click', () => {
+//             console.log('Profile clicked for', friendName);
+//             // Add your profile ality => here
+//         });
+
+//         divFriend.appendChild(onlineStatus);
+//         divFriend.appendChild(currentFriend);
+//         divFriend.appendChild(userDropdown);
+
+//         blockItem.addEventListener('click', () => {
+//             console.log('Block clicked for', friendName);
+//             const isBlocking = blockItem.textContent.includes('Block');
+//             if (isBlocking) {
+//                 blockItem.textContent = 'Unblock';
+//                 showNotification(`User ${friendName} has been blocked`);
+//                 socket.send(JSON.stringify({
+//                     type: 'block-user',
+//                     friend: friendName
+//                 }));
+//             } else {
+//                 blockItem.textContent = 'Block';
+//                 showNotification(`User ${friendName} has been unblocked`);
+//                 socket.send(JSON.stringify({
+//                     type: 'unblock-user',
+//                     friend: friendName
+//                 }));
+//             }
+//         });
+//         clearChatContainer();
+//         socket.send(JSON.stringify({
+//             type: 'join-room',
+//             friend: friendName
+//         }));
+//     });
+
+//     friendList.appendChild(roomButton);
+// }
 
 function clearChatContainer()
 {
@@ -376,7 +518,7 @@ const showRequestsBtn = document.getElementById('show-requests-btn');
 showRequestsBtn.addEventListener('click', () => {
 	socket.send(JSON.stringify({
 		type: 'get-friend-request',
-		receiver: username
+		// receiver: username
 	}));
 });
 
