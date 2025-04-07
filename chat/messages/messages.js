@@ -28,7 +28,8 @@ export async function storeChat(room, message, blocked)
 			fs.writeFileSync(filePath, '');
 		console.log(`File created successfully.`);
 	}
-	fs.appendFileSync(filePath, JSON.stringify(message) + '\n');
+	if(!blocked)
+		fs.appendFileSync(filePath, JSON.stringify(message) + '\n');
 }
 
 export async function createMessage(from, message, timeStamp)

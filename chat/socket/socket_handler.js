@@ -1,5 +1,5 @@
 import { addFriend, addRequest, getFriends, getRequests, deleteFriendRequest, addBlock, checkBlock } from '../database/db.js';
-import { checkFriendOnline, getAllUsers, getTimeString, parseRoomName, roomName } from '../utils/user.js';
+import { checkFriendOnline, getAllUsers, getTimeString, parseRoomName, roomName } from '../utils/utils.js';
 import { createMessage, loadMessages, sendMessage } from '../messages/messages.js';
 
 export const users = new Map();
