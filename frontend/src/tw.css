@@ -33,6 +33,13 @@
 	}
 }
 
+@layer utilities {
+	input:-webkit-autofill {
+		transition: background-color 100000s ease-in-out 0s;
+		box-shadow: 0 0 0px 1000px rgb(225, 245, 255) inset !important;
+	}
+}
+
 /* global */
 body {
 	@apply bg-c-bg select-none;

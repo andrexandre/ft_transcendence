@@ -31,10 +31,12 @@ class Chat extends Page {
 			() => this.addOnlineFriendEntry('Name'));
 		document.getElementById('chat-box-block')?.addEventListener('click',
 			() => this.removeOnlineFriendEntry('Name'));
-		// document.getElementById('chat-box-profile')?.addEventListener('click',
-		// 	() => lib.showToast.green('Viewing profile...'));
-		// document.getElementById('chat-box-block')?.addEventListener('click',
-		// 	() => lib.showToast.red('Blocking user...'));
+		document.getElementById('chat-box-invite')?.addEventListener('click',
+			() => lib.showToast.yellow('Inviting player...'));
+		document.getElementById('chat-box-profile')?.addEventListener('click',
+			() => lib.showToast.green('Viewing profile...'));
+		document.getElementById('chat-box-block')?.addEventListener('click',
+			() => lib.showToast.red('Blocking user...'));
 	}
 	onCleanup(): void { }
 	getHtml(): string {
@@ -61,6 +63,7 @@ class Chat extends Page {
 				<div id="chat-box" class="flex flex-col flex-1">
 					<div id="chat-box-header" class="flex justify-around">
 						<span class="mr-auto">Name</span>
+						<button id="chat-box-invite">invite</button>
 						<button id="chat-box-profile">profile</button>
 						<button id="chat-box-block">block</button>
 					</div>
