@@ -30,7 +30,7 @@ const checkLogin = async () => {
 	}
 }
 
-function setTheme(theme: string, color?: string) {
+function setTheme(theme: string, _color?: string) {
 	if (theme === "game") {
 		document.documentElement.style.setProperty('--color-c-bg', 'var(--color-g-c-bg)');
 		document.documentElement.style.setProperty('--color-c-secondary', 'var(--color-g-c-secondary)');
@@ -48,9 +48,8 @@ function setTheme(theme: string, color?: string) {
 function loadPage(path: string): void {
 	let newPage: Page;
 
-	if (path != "/register" && path != "/login") {
+	if (path != "/register" && path != "/login")
 		checkLogin();
-	}
 	if (path === "/game") {
 		setTheme("game");
 	} else {

@@ -16,6 +16,22 @@ class Login extends Page {
 	onCleanup(): void { }
 	getHtml(): string {
 		return /*html*/`
+			<!-- <div class="m-auto h-fit card t-dashed">
+				<h1 class="text-3xl">Login</h1>
+				<form class="space-y-6 flex flex-col" action="#">
+					<label for="username">Username</label>
+					<input class="item t-dashed" type="text" id="username" placeholder="Enter username" required />
+					<label for="password">Password</label>
+					<input class="item t-dashed" type="password" id="password" placeholder="Enter password" required />
+					<button class="item t-dashed" type="submit">Submit</button>
+				</form>
+				<button class="item t-dashed" id="google-auth-button">
+					<i class="fa-brands fa-google mr-2"></i>
+					Continue with Google
+				</button>
+				<p>Not registered? <button id="register-button">Create account</button></p>
+				<p>Want to login? <button id="dashboard-button">Go to Dashboard</button></p>
+			</div> -->
 			<div class="m-auto h-fit max-w-xs p-9 bg-white border border-gray-200 rounded-lg shadow-sm">
 				<form class="space-y-6" action="#">
 					<h5 class="text-center text-3xl font-medium text-gray-900">Login</h5>
@@ -64,8 +80,6 @@ class Login extends Page {
 					throw new Error(`${response.status} - ${response.statusText}`);
 				}
 				lib.showToast.green(`${response.status} - ${response.statusText}`);
-				let loginResponseData = await response.json();
-				lib.userInfo.username = loginResponseData.username
 				lib.navigate("/", e);
 			} catch (error) {
 				console.log(error);

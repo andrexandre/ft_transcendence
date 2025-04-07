@@ -17,16 +17,19 @@ function initializeGameMainMenu(page: Game) {
 	const username = sessionStorage.getItem("username");
 	if (!username) {
 		console.error("❌ No username found in sessionStorage!");
-		return;
+		dropdown.addElement('Single', 'button', 'item t-border',
+			'User not found');
 	}
-	dropdown.addElement('Single', 'button', 'item t-border',
-		'Classic', () => {
-			const difficulty = sessionStorage.getItem("user_set_dificulty") || "Normal";
-			const tableSize = sessionStorage.getItem("user_set_tableSize") || "Medium";
-			const sound = sessionStorage.getItem("user_set_sound") === "1";
-			document.getElementById('sidebar')?.classList.toggle('hidden');
-			logic.startSingleClassic(username, { difficulty, tableSize, sound })
-		});
+	else {
+		dropdown.addElement('Single', 'button', 'item t-border',
+			'Classic', () => {
+				const difficulty = sessionStorage.getItem("user_set_dificulty") || "Normal";
+				const tableSize = sessionStorage.getItem("user_set_tableSize") || "Medium";
+				const sound = sessionStorage.getItem("user_set_sound") === "1";
+				document.getElementById('sidebar')?.classList.toggle('hidden');
+				logic.startSingleClassic(username, { difficulty, tableSize, sound })
+			});
+	}
 	dropdown.addElement('Single', 'button', 'item t-border',
 		'Infinity', () => lib.showToast(`Single Infinity clicked`));
 
@@ -68,8 +71,6 @@ class Game extends Page {
 	}
 	onMount(): void {
 		sidebar.setSidebarToggler();
-		initializeGameMainMenu(this)
-
 		// Set Settings dropdown
 		dropdown.initialize('Settings');
 		dropdown.addElement('Settings', 'div', 'flex flex-col', /*html*/`
@@ -99,7 +100,12 @@ class Game extends Page {
 			<button id="save-settings" type="button" class="item t-border">Save</button>
 		`);
 		document.getElementById('save-settings')!.addEventListener('click', menu.saveSettingsHandler);
+
+		// Initialize game info
 		menu.initGameMenu();
+		setTimeout(() => { //* TEMP FIX
+			initializeGameMainMenu(this);
+		}, 200);
 		document.getElementById('game-main-menu')!.addEventListener('click', (event) => this.setGameMenuToggler(event));
 	}
 	onCleanup() { }
