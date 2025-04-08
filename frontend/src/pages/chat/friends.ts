@@ -1,5 +1,12 @@
 import { showToast } from "../../utils";
 
+const response = await fetch('/api/user', {
+	method: 'GET',
+	credentials: 'include'
+});
+
+console.log('Response: ' + response);
+
 const host = `ws://localhost:2000/chat-ws`;
 const socket = new WebSocket(host);
 
@@ -15,6 +22,7 @@ socket.onclose = (event) => {
 	console.log('WebSocket connection closed:', event.code, event.reason);
 	// Maybe add some reconnection logic here
 };
+
 
 // socket.onmessage = (event) => {
 // 	const data = JSON.parse(event.data);

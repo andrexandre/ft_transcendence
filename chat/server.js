@@ -22,22 +22,23 @@ async function setupServer() {
 
 	await server_chat.register(fastifyWebsocket);
 	await server_chat.register(fastifyCookie);
+	await server_chat.register(User);
 
 	/* server_chat.addHook('onRequest', async (request, reply) => {
 		console.log(`Incoming request: ${request.method} ${request.url}`);
 	}); */
 	
-	server_chat.get('/', async (request, reply) => {
-		const token = request.cookies.token;
-		const userData = await fetchUserDataFromGateway(token);
-		username = userData.username;
-		// console.log(userData.userId);
+	// server_chat.get('/', async (request, reply) => {
+	// 	const token = request.cookies.token;
+	// 	const userData = await fetchUserDataFromGateway(token);
+	// 	username = userData.username;
+	// 	// console.log(userData.userId);
 
-		if (!username)
-			return reply.send('Please provide a username in the URL (e.g., /?user=Antony)');
-		await createUser(username);
-		return reply.sendFile('index.html');
-	});
+	// 	if (!username)
+	// 		return reply.send('Please provide a username in the URL (e.g., /?user=Antony)');
+	// 	await createUser(username);
+	// 	return reply.sendFile('index.html');
+	// });
 
 	server_chat.get('/chat-ws', { websocket: true }, async (connection, req) => {
 		try {
@@ -48,6 +49,21 @@ async function setupServer() {
 		}
     });
 
+}
+
+async function User(server)
+{
+	server.get('/api/user', async (request, reply) =>{
+		console.log('HSHHASHHAHSHAHSHHAHSASHHAHHSHAHSHASHHAS');
+		const token = request.cookies.token;
+		if(!token)
+			return reply.status(401).send({error: "No token provided"});
+		const userData = await fetchUserDataFromGateway(token);
+		if (!userData)
+			return reply.status(401).send({ error: "Failed to fetch user from Gateway" });
+		username = userData.username;
+		await createUser(username);
+	});
 }
 
 async function fetchUserDataFromGateway(token) {
