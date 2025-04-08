@@ -28,9 +28,9 @@ class Chat extends Page {
 			}
 		});
 		document.getElementById('chat-box-profile')?.addEventListener('click',
-			() => this.addOnlineFriendEntry('Name'));
+			() => this.addListEntry('online-friends-list', 'Name'));
 		document.getElementById('chat-box-block')?.addEventListener('click',
-			() => this.removeOnlineFriendEntry('Name'));
+			() => this.removeListEntry('online-friends-list', 'Name'));
 		document.getElementById('chat-box-invite')?.addEventListener('click',
 			() => lib.showToast.yellow('Inviting player...'));
 		document.getElementById('chat-box-profile')?.addEventListener('click',
@@ -87,19 +87,19 @@ class Chat extends Page {
 			</main>
 		`;
 	}
-	addOnlineFriendEntry(name: string): void {
-		const onlineFriendsList = document.getElementById('online-friends-list');
+	addListEntry(list: string, name: string): void {
+		const onlineFriendsList = document.getElementById(`${list}`);
 		if (onlineFriendsList) {
 			const friendEntry = document.createElement('div');
-			friendEntry.classList.add('friend-entry');
+			friendEntry.classList.add(`${list}-entry`);
 			friendEntry.textContent = name;
 			onlineFriendsList.appendChild(friendEntry);
 		}
 	}
-	removeOnlineFriendEntry(name: string): void {
-		const onlineFriendsList = document.getElementById('online-friends-list');
+	removeListEntry(list: string, name: string): void {
+		const onlineFriendsList = document.getElementById(`${list}`);
 		if (onlineFriendsList) {
-			const friendEntries = onlineFriendsList.getElementsByClassName('friend-entry');
+			const friendEntries = onlineFriendsList.getElementsByClassName(`${list}-entry`);
 			for (const entry of Array.from(friendEntries)) {
 				if (entry.textContent?.trim() === name) {
 					onlineFriendsList.removeChild(entry);
