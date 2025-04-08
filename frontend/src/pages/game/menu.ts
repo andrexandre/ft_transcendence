@@ -25,7 +25,6 @@ export async function initGameMenu() {
 		sessionStorage.setItem("user_set_sound", userData.user_set_sound.toString());
 
 		// Update UI dropdowns with loaded settings
-		// console.log(tableSizeSelect);
 		difficultySelect.value = userData.user_set_dificulty;
 		tableSizeSelect.value = userData.user_set_tableSize;
 		soundSelect.value = userData.user_set_sound === 1 ? "On" : "Off";
@@ -76,27 +75,4 @@ export async function saveSettingsHandler() {
 	}
 };
 
-export function classicBtnHandler() {
-	const username = sessionStorage.getItem("username");
-	if (!username) {
-		console.error("❌ No username found in sessionStorage!");
-		return;
-	}
-
-	const difficulty = sessionStorage.getItem("user_set_dificulty") || "Normal";
-	const tableSize = sessionStorage.getItem("user_set_tableSize") || "Medium";
-	const sound = sessionStorage.getItem("user_set_sound") === "1";
-
-	console.log(`🎯 Starting game for: ${username}`);
-	console.log("➡ Difficulty:", difficulty);
-	console.log("➡ Table Size:", tableSize);
-	console.log("➡ Sound:", sound ? "On" : "Off");
-
-	// Hide menu, show game
-	const menu = document.getElementById('game-main-menu') as HTMLElement;
-	const gameCanvas = document.getElementById('game-canvas') as HTMLElement;
-
-	menu.classList.add("hidden");
-	gameCanvas.classList.remove("hidden");
-	showToast.yellow('Brotha refresh tha page, the connection is not done yet!')
-}
+ 

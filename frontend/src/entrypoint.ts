@@ -24,4 +24,4 @@ document.addEventListener('keydown', (event: KeyboardEvent) => {
 	}
 });
 
-lib.loadTheme();
+// lib.loadTheme();

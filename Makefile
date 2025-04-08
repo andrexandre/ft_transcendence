@@ -104,7 +104,7 @@ rm-rf:
 guser:
 	docker exec pongify sqlite3 -header -column /pong_vol/game-project/db_game.db "SELECT * FROM users;"
 ggame:
-	docker exec pongify sqlite3 -header -column /pong_vol/game-project/db_game.db "SELECT * FROM games LIMIT 20;"
+	docker exec pongify sqlite3 -header -column /pong_vol/game-project/db_game.db "SELECT * FROM games;"
 
 
 
