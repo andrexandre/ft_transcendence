@@ -6,6 +6,7 @@ import * as menu from "./menu"
 import * as logic from "./single"
 // import {startGameClient} from "./client"
 import { startGameClient, initGameCanvas } from "./gameClient";
+import * as lobbyClient from "./lobbyClient";
 
 //* TEMP
 let lobbyid = 0;
@@ -29,24 +30,78 @@ function initializeGameMainMenu(page: Game) {
 		});
 	dropdown.addElement('Single', 'button', 'game-component',
 		'Infinity', () => lib.showToast(`Single Infinity clicked`));
-
+	
 	// Set Multi dropdown
-	dropdown.initialize('Multi', () => {
+	dropdown.initialize('Multi', async () => {
 		const lobby = document.getElementById('lobby');
 		lobby?.classList.toggle('hidden');
+
+		if (!lobby?.classList.contains('hidden')) {
+			try {
+				const lobbies = await lobbyClient.fetchLobbies();
+				const list = document.getElementById('lobby-list')!;
+				list.innerHTML = "";
+
+				lobbies.forEach((lobbyObj: any) => {
+					page.addLobbyEntry(
+						lobbyObj.id,
+						lobbyObj.hostUsername,
+						lobbyObj.mode,
+						`${lobbyObj.players.length}/${lobbyObj.maxPlayers}`,
+						() => {
+							lib.showToast.blue(`Joining lobby ${lobbyObj.id}`);
+							lobbyClient.joinLobby(
+								lobbyObj.id,
+								sessionStorage.getItem("user_name")!,
+								Number(sessionStorage.getItem("user_id")!)
+							);
+						}
+					);
+				});
+			} catch (err) {
+				console.error("❌ Failed to load lobbies:", err);
+				lib.showToast.red("Failed to load lobbies");
+			}
+		}
 	});
-	dropdown.addElement('Multi', 'button', 'game-component', 'Tournament',
-		() => {
-			//* TEMP
-			page.addLobbyEntry(lobbyid.toString(), 'me', 'multi', "5");
-			lobbyid++;
-		});
-	dropdown.addElement('Multi', 'button', 'game-component', "Don't click",
-		() => {
-			//* TEMP
-			page.removeLobbyEntry(rmlobbyid.toString());
-			rmlobbyid++;
-		});
+
+	dropdown.addElement('Multi', 'button', 'game-component', 'Tournament', async () => {
+		const username = sessionStorage.getItem("user_name")!;
+		const userId = Number(sessionStorage.getItem("user_id")!);
+		try {
+			const result = await lobbyClient.createLobby(username, userId, "classic", 2);
+			lib.showToast.green(`✅ Created lobby ${result.id}`);
+		} catch (err) {
+			lib.showToast.red("❌ Failed to create lobby");
+		}
+	});
+
+	// Set Multi dropdown
+	// dropdown.initialize('Multi', () => {
+	// 	const lobby = document.getElementById('lobby');
+	// 	lobby?.classList.toggle('hidden');
+	// 	//////////////// TEST MC ////////////////
+	// 	if (!lobby?.classList.contains('hidden')) {
+	// 		if (!lobby?.classList.contains('hidden')) {
+	// 			const lobbies = await lobbyClient.fetchLobbies(); // ✅ needs await
+	// 		}
+			
+	// 	}
+	// });
+	// dropdown.addElement('Multi', 'button', 'game-component', 'Tournament',
+	// 	() => {
+	// 		//* TEMP
+	// 		// page.addLobbyEntry(lobbyid.toString(), 'me', 'multi', "5");
+	// 		// lobbyid++;
+	// 		//////////////// TEST MC ////////////////
+	// 		const result =  lobbyClient.createLobby(username, 123);
+	// 	});
+	// dropdown.addElement('Multi', 'button', 'game-component', "Don't click",
+	// 	() => {
+	// 		//* TEMP
+	// 		page.removeLobbyEntry(rmlobbyid.toString());
+	// 		rmlobbyid++;
+	// 	});
 	// * TEMP
 	// document.getElementById('dropdownButton-Multi')?.click();
 	// this.addLobbyEntry(lobbyid.toString(), 'me', 'multi', "5");

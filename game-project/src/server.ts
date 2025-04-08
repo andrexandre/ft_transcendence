@@ -6,6 +6,7 @@ import cors from '@fastify/cors';
 import { userRoutes } from "./userSet.js";
 import { handleJoin, handleMove, handleDisconnect, startGameLoop } from "./gameServer.js";
 // import { lobbyRoutes } from "./lobbyManager.js";
+import * as lobby from "./lobbyManager.js";
 
 const PORT = 5000;
 const gamefast = fastify({ logger: true });
@@ -35,6 +36,24 @@ gamefast.get("/ws", { websocket: true }, (conn, req) => {
 	});
 
 	socket.on("close", () => handleDisconnect(socket));
+});
+
+gamefast.get("/lobbies", (_, reply) => {
+	reply.send(lobby.listLobbies());
+});
+
+gamefast.post("/lobbies", async (req, reply) => {
+	const { username, userId, mode, maxPlayers } = req.body as any;
+	const newLobby = lobby.createLobby(username, userId, mode, maxPlayers);
+	reply.send({ id: newLobby.id });
+});
+
+gamefast.post("/lobbies/:id/join", async (req, reply) => {
+	const { username, userId } = req.body as any;
+	const { id } = req.params as any;
+	const updated = lobby.joinLobby(id, username, userId);
+	if (!updated) return reply.status(400).send({ error: "Join failed" });
+	reply.send(updated);
 });
 
 // Start game loop (for multiplayer game logic)
