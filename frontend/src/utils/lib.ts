@@ -12,28 +12,40 @@ export function showToast(message?: string, type: string = ""): void {
 	toast.textContent = message || "Bro, you just got Toasted!";
 	document.getElementById('toast-container')!.appendChild(toast);
 
-	switch (type) {
-		case "green":
-			toast.className = "bg-green-100 text-green-800 border-green-400 hover:border-green-800";
-			break;
-		case "red":
-			toast.className = "bg-red-100 text-red-800 border-red-400 hover:border-red-800";
-			break;
-		case "blue":
-			toast.className = "bg-blue-100 text-blue-800 border-blue-400 hover:border-blue-800";
-			break;
-		case "yellow":
-			toast.className = "bg-yellow-100 text-yellow-800 border-yellow-400 hover:border-yellow-800";
-			break;
-		default:
-			toast.className = "bg-c-bg border-c-secondary text-c-primary hover:border-c-primary";
-	}
+	if (type !== "green" && type !== "red" && type !== "blue" && type !== "yellow")
+		type = "default";
+	toast.className = `toast-${type}`;
 	setTimeout(() => toast.remove(), 3100);
 }
 showToast.green = (message?: string) => showToast(message, "green");
 showToast.red = (message?: string) => showToast(message, "red");
 showToast.blue = (message?: string) => showToast(message, "blue");
 showToast.yellow = (message?: string) => showToast(message, "yellow");
+
+export function loadTheme() {
+	if (localStorage.getItem('theme') === 'dark')
+		document.documentElement.classList.add('dark');
+	else if (localStorage.getItem('theme') === 'light')
+		document.documentElement.classList.remove('dark');
+	else if (window.matchMedia('(prefers-color-scheme: dark)').matches)
+		document.documentElement.classList.add('dark');
+}
+
+export function setTheme(option: string) {
+	const htmlElement = document.documentElement;
+	if (option == "auto") {
+		htmlElement.classList.remove('dark');
+		localStorage.removeItem('theme');
+		if (window.matchMedia('(prefers-color-scheme: dark)').matches)
+			htmlElement.classList.add('dark');
+	} else if (option == "dark") {
+		htmlElement.classList.add('dark');
+		localStorage.setItem('theme', 'dark');
+	} else if (option == "light") {
+		htmlElement.classList.remove('dark');
+		localStorage.setItem('theme', 'light');
+	}
+}
 
 // lib.fullScreenOverlay(
 // 	/*html*/`<h1>Hello HTML</h1>`,

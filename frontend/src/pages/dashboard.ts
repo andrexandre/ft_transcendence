@@ -2,12 +2,29 @@ import Page from "./Page"
 import * as lib from "../utils"
 import sidebar from "../components/sidebar"
 
+export async function renderProfileUsername() {
+	const profileUsername = document.getElementById("profile-username")!;
+	if (!lib.userInfo.username)
+		await new Promise(r => setTimeout(r, 100));
+	let line: string = '';
+	if (lib.userInfo.username) {
+		if (lib.userInfo.auth_method === "google")
+			line = "G. ";
+		else if (lib.userInfo.auth_method === "email")
+			line = "E. ";
+		profileUsername.textContent = line + lib.userInfo.username;
+	}
+	else
+		profileUsername.textContent = "Sir Barkalot";
+}
+
 class Dashboard extends Page {
 	constructor() {
 		super("dashboard", '/');
 	}
 	onMount(): void {
 		sidebar.setSidebarToggler();
+		renderProfileUsername();
 	}
 	onCleanup(): void { }
 	getHtml(): string {
@@ -18,7 +35,7 @@ class Dashboard extends Page {
 					<div class="flex gap-16">
 						<img class="rounded-full size-48 shadow-xl shadow-neutral-400 border-2" src="https://picsum.photos/id/237/200">
 						<div class="justify-center self-center">
-							<h1 class="text-3xl font-bold">${this.showUsername()}</h1>
+							<h1 id="profile-username" class="text-3xl font-bold">Loading...</h1>
 							<p class="text-xl">The mighty tail-wagger</p>
 						</div>
 					</div>
@@ -55,18 +72,6 @@ class Dashboard extends Page {
 				</div>
 			</main>
 		`
-	}
-	showUsername(): string {
-		let line: string = '';
-		if (lib.userInfo.username) {
-			if (lib.userInfo.auth_method === "google")
-				line = "G. ";
-			else if (lib.userInfo.auth_method === "email")
-				line = "E. ";
-			return line + lib.userInfo.username;
-		}
-		else
-			return "Sir Barkalot";
 	}
 }
 

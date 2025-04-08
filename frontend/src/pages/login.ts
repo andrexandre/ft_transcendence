@@ -25,7 +25,7 @@ class Login extends Page {
 					<input class="item t-dashed pl-4" type="password" id="password" placeholder="Enter password" required />
 					<button class="item t-dashed" type="submit">Submit</button>
 				</form>
-				<hr class="text-stone-300">
+				<hr class="text-c-primary">
 				<button class="item t-dashed focus:outline-none focus:border-blue-500" id="google-auth-button">
 					<i class="fa-brands fa-google mr-2"></i>
 					Continue with Google
