@@ -97,7 +97,7 @@ const sidebar = {
 			window.location.href = "http://127.0.0.1:5000/";
 		});
 		document.getElementById("logout-button")!.addEventListener("click", () => {
-			const Logout = async () => {
+			(async () => {
 				try {
 					const response = await fetch('http://127.0.0.1:7000/logout', {
 						credentials: 'include',
@@ -111,10 +111,9 @@ const sidebar = {
 					console.log(error);
 					lib.showToast.red(error as string);
 				}
-			}
-			Logout()
+			})();
 		});
-		lib.assignButtonNavigation('settings-button', '/login');
+		lib.assignButtonNavigation('settings-button', '/settings');
 	}
 }
 

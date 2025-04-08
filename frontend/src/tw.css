@@ -1,5 +1,14 @@
 @import "tailwindcss";
-/* @config "../tailwind.config.js"; */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* All the following styles are only on tw.css
+bg- (excluding settings)
+text- (excluding game/page and auth)
+border (excluding chat/page)
+hover:border-
+focus:border- (excluding auth)
+*/
 
 /* theme */
 @theme static {
@@ -8,7 +17,7 @@
 	--color-c-text: var(--color-d-c-text); /* text */
 	--color-c-primary: var(--color-d-c-primary); /* border hover */
 	--color-c-secondary: var(--color-d-c-secondary); /* border */
-	--color-d-c-bg: theme(colors.stone.100);
+	--color-d-c-bg: theme(colors.white);
 	--color-d-c-text: theme(colors.stone.800);
 	--color-d-c-primary: theme(colors.stone.600);
 	--color-d-c-secondary: theme(colors.stone.400);
@@ -20,10 +29,12 @@
 
 @layer components {
 	.t-border {
-		@apply border-2 text-c-text border-c-secondary hover:border-c-primary;
+		@apply border-2 text-c-text border-c-secondary hover:border-c-primary
+			dark:text-c-bg dark:border-c-primary dark:hover:border-c-secondary;
 	}
 	.t-dashed { /* dashed rounded border */
-		@apply border-2 text-c-text border-c-secondary hover:border-c-primary border-dashed rounded-3xl;
+		@apply border-2 text-c-text border-c-secondary hover:border-c-primary border-dashed rounded-3xl
+			dark:text-c-bg dark:border-c-primary dark:hover:border-c-secondary;
 	}
 	.item {
 		@apply m-1 p-2;
@@ -42,7 +53,7 @@
 
 /* global */
 body {
-	@apply bg-c-bg select-none;
+	@apply bg-c-bg select-none dark:bg-black;
 }
 
 img {
@@ -51,7 +62,7 @@ img {
 
 /* other */
 .sidebar-component {
-	@apply flex p-3 rounded-2xl justify-between items-center w-full hover:bg-c-secondary transition-all;
+	@apply flex p-3 rounded-2xl justify-between items-center w-full hover:bg-c-secondary transition-all dark:hover:bg-c-primary;
 }
 
 /* toast */
@@ -63,6 +74,26 @@ img {
 	@apply flex p-4 rounded-lg shadow-lg border-2 select-all;
 	animation: toast-animation 3000ms forwards;
 	/* animation: name duration timing-function delay iteration-count direction fill-mode play-state; */
+}
+.toast-default {
+	@apply bg-c-bg text-c-text border-c-secondary hover:border-c-primary
+	dark:bg-black dark:text-c-bg dark:border-c-primary dark:hover:border-c-secondary;
+}
+.toast-green {
+	@apply bg-green-100 text-green-800 border-green-400 hover:border-green-800
+	dark:bg-green-950 dark:text-green-100 dark:border-green-700 dark:hover:border-green-300;
+}
+.toast-red {
+	@apply bg-red-100 text-red-800 border-red-400 hover:border-red-800
+	dark:bg-red-950 dark:text-red-100 dark:border-red-700 dark:hover:border-red-300;
+}
+.toast-blue {
+	@apply bg-blue-100 text-blue-800 border-blue-400 hover:border-blue-800
+	dark:bg-blue-950 dark:text-blue-100 dark:border-blue-700 dark:hover:border-blue-300;
+}
+.toast-yellow {
+	@apply bg-yellow-100 text-yellow-800 border-yellow-400 hover:border-yellow-800
+	dark:bg-yellow-950 dark:text-yellow-100 dark:border-yellow-700 dark:hover:border-yellow-300;
 }
 
 @keyframes toast-animation {

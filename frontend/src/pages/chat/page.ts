@@ -1,6 +1,7 @@
 import Page from "../Page"
 import * as lib from "../../utils"
 import sidebar from "../../components/sidebar"
+import { setChatEventListeners } from "./friends";
 
 class Chat extends Page {
 	constructor() {
@@ -10,39 +11,13 @@ class Chat extends Page {
 		sidebar.setSidebarToggler();
 		document.getElementById('hide-button')?.click();
 
-		// Add event listeners for buttons
-		document.getElementById('online-friends-refresh')?.addEventListener('click',
-			() => lib.showToast.blue('Refreshing online friends...'));
-		document.getElementById('friend-request-button')?.addEventListener('click',
-			() => lib.showToast.blue('Checking friend requests...'));
-		document.getElementById('online-users-refresh')?.addEventListener('click',
-			() => lib.showToast.blue('Refreshing online users...'));
-		document.getElementById('chat-box-form')?.addEventListener('submit', (event) => {
-			event.preventDefault();
-			const message = (document.getElementById('chat-box-input') as HTMLInputElement).value.trim();
-			if (message) {
-				lib.showToast.green(`Message sent: ${message}`);
-				(document.getElementById('chat-box-input') as HTMLInputElement).value = "";
-			} else {
-				lib.showToast.yellow('Empty message');
-			}
-		});
-		document.getElementById('chat-box-profile')?.addEventListener('click',
-			() => this.addOnlineFriendEntry('Name'));
-		document.getElementById('chat-box-block')?.addEventListener('click',
-			() => this.removeOnlineFriendEntry('Name'));
-		document.getElementById('chat-box-invite')?.addEventListener('click',
-			() => lib.showToast.yellow('Inviting player...'));
-		document.getElementById('chat-box-profile')?.addEventListener('click',
-			() => lib.showToast.green('Viewing profile...'));
-		document.getElementById('chat-box-block')?.addEventListener('click',
-			() => lib.showToast.red('Blocking user...'));
+		setChatEventListeners();
 	}
 	onCleanup(): void { }
 	getHtml(): string {
 		return /*html*/`
 			${sidebar.getHtml()}
-			<main class="card p-5 t-dashed flex w-full **:p-5 **:border **:border-stone-300">
+			<main class="card p-5 t-dashed flex w-full **:p-5 **:border **:border-c-secondary">
 				<div id="friends" class="grid grid-rows-2">
 					<div id="online-friends" class="flex flex-col w-75">
 						<div id="online-friends-header" class="flex justify-around">
@@ -86,27 +61,6 @@ class Chat extends Page {
 				</div>
 			</main>
 		`;
-	}
-	addOnlineFriendEntry(name: string): void {
-		const onlineFriendsList = document.getElementById('online-friends-list');
-		if (onlineFriendsList) {
-			const friendEntry = document.createElement('div');
-			friendEntry.classList.add('friend-entry');
-			friendEntry.textContent = name;
-			onlineFriendsList.appendChild(friendEntry);
-		}
-	}
-	removeOnlineFriendEntry(name: string): void {
-		const onlineFriendsList = document.getElementById('online-friends-list');
-		if (onlineFriendsList) {
-			const friendEntries = onlineFriendsList.getElementsByClassName('friend-entry');
-			for (const entry of Array.from(friendEntries)) {
-				if (entry.textContent?.trim() === name) {
-					onlineFriendsList.removeChild(entry);
-					break;
-				}
-			}
-		}
 	}
 }
 

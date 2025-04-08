@@ -5,12 +5,14 @@ import Page from "./pages/Page"
 import register from "./pages/register"
 import login from "./pages/login"
 import dashboard from "./pages/dashboard"
+import settings from "./pages/settings"
 import game from "./pages/game/page"
 import chat from "./pages/chat/page"
 import * as lib from "./utils"
 
 let currentPage: Page | undefined;
 
+// TODO fix already logged in user
 const checkLogin = async () => {
 	try {
 		const response = await fetch('http://127.0.0.1:7000/fetchDashboardData', {
@@ -30,7 +32,7 @@ const checkLogin = async () => {
 	}
 }
 
-function setTheme(theme: string, _color?: string) {
+function setColorTheme(theme: string, _color?: string) {
 	if (theme === "game") {
 		document.documentElement.style.setProperty('--color-c-bg', 'var(--color-g-c-bg)');
 		document.documentElement.style.setProperty('--color-c-secondary', 'var(--color-g-c-secondary)');
@@ -51,9 +53,9 @@ function loadPage(path: string): void {
 	if (path != "/register" && path != "/login")
 		checkLogin();
 	if (path === "/game") {
-		setTheme("game");
+		setColorTheme("game");
 	} else {
-		setTheme("light", "stone");
+		setColorTheme("light", "stone");
 	}
 	switch (path) {
 		case "/register":
@@ -61,6 +63,9 @@ function loadPage(path: string): void {
 			break;
 		case "/login":
 			newPage = login;
+			break;
+		case "/settings":
+			newPage = settings;
 			break;
 		case "/game":
 			newPage = game;
@@ -82,6 +87,7 @@ function loadPage(path: string): void {
 		document.dispatchEvent(new KeyboardEvent('keydown', { key: ' ' }));
 		lib.Cookies.set('outline', 'true');
 	}
+	currentPage = newPage;
 }
 
 // fix circular dependency for navigate function
