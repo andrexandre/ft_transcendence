@@ -1,17 +1,19 @@
 import fastify from "fastify";
 import fastifyWebsocket from "@fastify/websocket";
 import fastifyCookie from "@fastify/cookie";
-import fastifyJwt from "@fastify/jwt";
+// import fastifyJwt from "@fastify/jwt";
 import cors from '@fastify/cors';
 import { userRoutes } from "./userSet.js";
 import { handleJoin, handleMove, handleDisconnect, startGameLoop } from "./gameServer.js";
+// import { lobbyRoutes } from "./lobbyManager.js";
 
 const PORT = 5000;
 const gamefast = fastify({ logger: true });
 
 await gamefast.register(fastifyWebsocket);
+// await gamefast.register(lobbyRoutes);
 gamefast.register(fastifyCookie);
-gamefast.register(fastifyJwt, { secret: "supersecret" });
+// gamefast.register(fastifyJwt, { secret: "supersecret" });
 gamefast.register(userRoutes);
 await gamefast.register(cors, {
 	origin: ['http://127.0.0.1:5500'],
@@ -35,7 +37,7 @@ gamefast.get("/ws", { websocket: true }, (conn, req) => {
 	socket.on("close", () => handleDisconnect(socket));
 });
 
-// Start game loop (broadcast every frame)
+// Start game loop (for multiplayer game logic)
 startGameLoop();
 
 gamefast.listen({ port: PORT, host: "0.0.0.0" }, () => {
