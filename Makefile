@@ -22,6 +22,9 @@ upd:
 down:
 	-docker compose down -v
 
+env:
+	curl -s https://gist.githubusercontent.com/andrexandre/8c011820a35117d005016151cfd46207/raw/83a0d67fbf775a78355dd617e6502d9c03f496ad/.env > backend/Gateway/.env
+
 status:
 	@echo "$(GREEN)Containers status$(END)\n"
 	@docker ps -a
