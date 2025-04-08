@@ -1,6 +1,8 @@
 import { sockets, rooms } from '../socket/socket_handler.js';
 import * as fs from 'fs';
 import * as path from 'path';
+import { checkBlock } from '../database/db.js';
+import { roomName } from '../utils/utils.js';
 
 export async function storeChat(room, message, blocked)
 {
@@ -24,8 +26,7 @@ export async function storeChat(room, message, blocked)
 			copyContents(room);
 			return ;
 		}
-		else
-			fs.writeFileSync(filePath, '');
+		fs.writeFileSync(filePath, '');
 		console.log(`File created successfully.`);
 	}
 	if(!blocked)
@@ -54,8 +55,6 @@ function copyContents(room)
 
 	const file_path_private = path.resolve(`./${dirPath}/${private_room}.jsonl`);
 	const file_path_blocked = path.resolve(`./${dirPath}/${blocked_room}.jsonl`);
-
-	console.log('path of file blocked: ' + file_path_blocked);
 
 	if(!fs.existsSync(file_path_private))
 		return [];
@@ -128,4 +127,14 @@ export async function sendMessage(msg, room, friend, blocked)
 	else
 		storeChat(room, msg, blocked);
 	return ;
+}
+
+export async function updateBlockRoom(username, friend)
+{
+	const block = (await checkBlock(username, friend)) && (await checkBlock(friend, username));
+
+	if(block)
+		return ;
+	const room = roomName(username, friend);
+	copyContents(room);
 }

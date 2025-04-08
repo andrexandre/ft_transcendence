@@ -222,15 +222,34 @@ export async function addBlock(user, friend)
 	}
 }
 
+export async function deleteBlock(user, friend)
+{
+	try {
+		const user_id = await db.get(`SELECT user_id FROM users WHERE username = ?`, [user]);
+		const friend_id = await db.get(`SELECT user_id FROM users WHERE username = ?`, [friend]);
+
+		if (!user_id || !friend_id) {
+            console.error('User or friend not found');
+            return;
+        }
+
+		await db.run(`
+			DELETE FROM users_blocked
+			WHERE user_id = ? AND blocked_user = ?
+			`, [user_id.user_id, friend_id.user_id]);
+	}
+	catch (error) {
+		console.error('Error deleting user from users_blocked table: ' + error);
+		return ;
+	}
+}
+
 export async function checkBlock(username, friend)
 {
 	try {
 
 		const user_id = await db.get(`SELECT user_id FROM users WHERE username = ?`, [username]);
 		const friend_id = await db.get(`SELECT user_id FROM users WHERE username = ?`, [friend]);
-
-		console.log('username: ' + username + ', user_id: ' + user_id.user_id);
-		console.log('username: ' + friend + ', user_id: ' + friend_id.user_id);
 		const blocked = await db.get(`
 			SELECT * FROM users_blocked
 			WHERE (user_id = ? AND blocked_user = ?)

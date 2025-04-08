@@ -1,6 +1,6 @@
-import { addFriend, addRequest, getFriends, getRequests, deleteFriendRequest, addBlock, checkBlock } from '../database/db.js';
+import { addFriend, addRequest, getFriends, getRequests, deleteFriendRequest, addBlock, checkBlock, deleteBlock } from '../database/db.js';
 import { checkFriendOnline, getAllUsers, getTimeString, parseRoomName, roomName } from '../utils/utils.js';
-import { createMessage, loadMessages, sendMessage } from '../messages/messages.js';
+import { createMessage, loadMessages, sendMessage, updateBlockRoom } from '../messages/messages.js';
 
 export const users = new Map();
 export const sockets = new Map();
@@ -35,7 +35,6 @@ export async function SocketHandler(socket, username)
 					break;
 				case 'get-friends-list':
 					await sendFriendList(username, socket);
-					console.log(data.friend)
 					if (data.friend)
 						await sendFriendList(data.friend, users.get(data.friend));
 					break;
@@ -55,6 +54,20 @@ export async function SocketHandler(socket, username)
 					break;
 				case 'block-user':
 					await addBlock(username, data.friend);
+					await updateBlockRoom(username, data.friend);
+					socket.send(JSON.stringify({
+						type: 'block-status',
+						isBlocked: true,
+						friend: data.friend
+					}));
+					break;
+				case 'unblock-user':
+					await deleteBlock(username, data.friend);
+					socket.send(JSON.stringify({
+						type: 'block-status',
+						isBlocked: false,
+						friend: data.friend
+					}));
 					break;
 				case 'check-block':
 					const block = await checkBlock(username, data.friend);
@@ -141,7 +154,6 @@ async function joinRoom(username, friend, socket)
 			user: username,
 			type: 'load-messages',
 			data: msgHistory,
-			// sender: username
 		}));
 	}
 }
