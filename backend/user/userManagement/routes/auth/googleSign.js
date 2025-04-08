@@ -1,31 +1,11 @@
+import googleSignSchema from "../../schemas/auth/googleSignSchema.js";
 
-
-async function googleSignRoutes(server, opts) {
+async function googleSignRoute(server, opts) {
 	
 	server.route({
 		method: 'POST',
 		url: '/api/login/googleSign',
-		schema: {
-			body: {
-				type: 'object',
-				required: [ 'username', 'email', 'auth_method' ],
-				properties: {
-					username: { type: 'string' },
-					email: { type: 'string', format: 'email' },
-					auth_method: { type: 'string' }
-				}
-			},
-			response: {
-				200: {
-					type: 'object',
-					properties: {
-						userID: { type: 'string' },
-						username: { type: 'string' },
-						message: { type: 'string' }
-					}
-				},
-			},
-		},
+		schema: googleSignSchema,
 	
 		handler:  async (request, response) => {
 			
@@ -66,4 +46,4 @@ async function googleSignRoutes(server, opts) {
 	});
 }
 
-export default googleSignRoutes;
+export default googleSignRoute;

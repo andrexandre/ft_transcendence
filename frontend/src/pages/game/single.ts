@@ -1,24 +1,36 @@
+import { showToast } from "../../utils";
+
+function GameMessageVisibility(visible: string) {
+	const countdownElement = document.getElementById("game-message") as HTMLDivElement;
+	if (visible === "show") {
+		countdownElement.classList.remove("hidden");
+	} else {
+		countdownElement.classList.add("hidden");
+	}
+}
+
+function drawGameMessage(gameMessage: string, color?: string) {
+	const countdownElement = document.getElementById("game-message") as HTMLDivElement;
+	countdownElement.classList.remove("hidden");
+	countdownElement.textContent = gameMessage;
+	if (color)
+		countdownElement.style.color = color;
+}
+
 export function startSingleClassic(username: string, settings: { difficulty: string, tableSize: string, sound: boolean }) {
     console.log(`🎮 Game started for: ${username}`);
     console.log("🛠 Settings:", settings);
 
     const gameCanvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
     const ctx = gameCanvas.getContext("2d");
-    const menu = document.getElementById("menu") as HTMLDivElement;
+    const menu = document.getElementById("game-main-menu") as HTMLDivElement;
 
     // Hide menu, show game
     menu.classList.add("hidden");
-    menu.classList.remove("visible"); // check to remove
-    gameCanvas.style.visibility = "visible";
+    gameCanvas.classList.remove("hidden");
 
     // Create elements scoreboard
     let scoreboard = document.getElementById("scoreboard") as HTMLDivElement;
-    if (!scoreboard) {
-        scoreboard = document.createElement("div");
-        scoreboard.id = "scoreboard";
-        scoreboard.classList.add("scoreboard");
-        document.body.appendChild(scoreboard);
-    }
     scoreboard.style.display = "block";
 
     const player1Id = parseInt(sessionStorage.getItem("user_id") || "0", 10); // Get user_id from session
@@ -27,13 +39,13 @@ export function startSingleClassic(username: string, settings: { difficulty: str
     console.log(`🔍 Player 1 ID: ${player1Id}, Player 2 ID: ${player2Id}`);
 
     // Set table size based on settings
-     if (settings.tableSize === "small") {
+     if (settings.tableSize === "Small") {
         gameCanvas.width = 400;
         gameCanvas.height = 200;
-    } else if (settings.tableSize === "medium") {
+    } else if (settings.tableSize === "Medium") {
         gameCanvas.width = 800;
         gameCanvas.height = 400;
-    } else if (settings.tableSize === "large") {
+    } else if (settings.tableSize === "Large") {
         gameCanvas.width = 1600;
         gameCanvas.height = 800;
     }
@@ -52,11 +64,11 @@ export function startSingleClassic(username: string, settings: { difficulty: str
     
     // Set Dificulty
     let aiError = 0;
-    if (settings.difficulty === "easy") {
+    if (settings.difficulty === "Easy") {
         aiError = 50;
-    } else if (settings.difficulty === "normal") {
+    } else if (settings.difficulty === "Normal") {
         aiError = 20;
-    } else if (settings.difficulty === "hard") {
+    } else if (settings.difficulty === "Hard") {
         aiError = 5;
     }
 
@@ -85,11 +97,8 @@ export function startSingleClassic(username: string, settings: { difficulty: str
         // Draw scoreboard
         scoreboard.innerHTML = `<span style="color: blue;">${username}</span> ${playerScore} - ${aiScore} <span style="color: red;">BoTony</span>`;
         // Draw Countdown Before Game/Reset
-        if (countdownValue > 0) {
-            ctx.fillStyle = "green";
-            ctx.font = "100px 'Press Start 2P'";
-            ctx.textAlign = "center";
-            ctx.fillText(countdownValue.toString(), gameCanvas.width / 2, gameCanvas.height / 2);
+		if (countdownValue > 0) {
+			drawGameMessage(countdownValue.toString());
         }
     }
 
@@ -150,7 +159,7 @@ export function startSingleClassic(username: string, settings: { difficulty: str
     
     async function saveMatchToDatabase(player1Id: number, player2Id: number, player1Score: number, player2Score: number, gameMode: string, winnerId: number) {
         try {
-            const response = await fetch("/save-match", {
+            const response = await fetch("http://127.0.0.1:5000/save-match", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ player1Id, player2Id, player1Score, player2Score, gameMode, winnerId }),
@@ -172,15 +181,10 @@ export function startSingleClassic(username: string, settings: { difficulty: str
         if (!ctx) return;
     
         ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-        ctx.fillStyle = "black";
-        ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
     
         // Draw Winning Message
-        ctx.fillStyle = color;
-        ctx.font = "50px 'Press Start 2P'";
-        ctx.textAlign = "center";
-        ctx.fillText(message, gameCanvas.width / 2, gameCanvas.height / 2);
-        
+		drawGameMessage(message, color);
+       
         // Determine winner
         const winnerId = playerScore > aiScore ? player1Id : player2Id;
         
@@ -210,14 +214,15 @@ export function startSingleClassic(username: string, settings: { difficulty: str
             if (countdownValue <= 0) {
                 clearInterval(countdownInterval);
                 if (!gameOver) {
-                const angleOptions = [Math.random() * 90 - 45, Math.random() * 90 + 135];
-                const randomAngle = angleOptions[Math.floor(Math.random() * angleOptions.length)];
-                
-                const angleRad = randomAngle * (Math.PI / 180);
+                    const angleOptions = [Math.random() * 90 - 45, Math.random() * 90 + 135];
+                    const randomAngle = angleOptions[Math.floor(Math.random() * angleOptions.length)];
+                    
+                    const angleRad = randomAngle * (Math.PI / 180);
 
-                const speed = 7;
-                ballSpeedX = speed * Math.cos(angleRad);
-                ballSpeedY = speed * Math.sin(angleRad);
+                    const speed = 7;
+                    ballSpeedX = speed * Math.cos(angleRad);
+                    ballSpeedY = speed * Math.sin(angleRad);
+                    GameMessageVisibility("hide");
                 }
             }
         }, 1000);
@@ -241,12 +246,13 @@ export function startSingleClassic(username: string, settings: { difficulty: str
         if (event.key === "ArrowDown") downPressed = false;
     }
     
-    function returnToMenu() {
-        gameCanvas.style.visibility = "hidden";
+	function returnToMenu() {
+		GameMessageVisibility("hide");
+		gameCanvas.classList.add("hidden");
         menu.classList.remove("hidden");
-        menu.classList.add("visible");
         scoreboard.style.display = "none";
-    }
+		document.getElementById('sidebar')?.classList.toggle('hidden');
+	}
     
     document.addEventListener("keydown", keyDownHandler);
     document.addEventListener("keyup", keyUpHandler);

@@ -1,31 +1,12 @@
 import bcrypt from 'bcrypt';
-import * as crypto from 'crypto';
+import loginSchema from '../../schemas/auth/loginSchema.js';
 
-
-async function LoginRoutes(server, opts) {
+async function LoginRoute(server, opts) {
     
     server.route({
         method: 'POST',
         url: '/api/login',
-        schema: {
-            body: {
-                type: 'object',
-                required: [ 'username', 'password' ],
-                properties: {
-                    username: { type: 'string' },
-                    password: { type: 'string' },
-                }
-            },
-            response: {
-                200: {
-                    type: 'object',
-                    properties: {
-                        userID: { type: 'string' },
-                        username: { type: 'string' },
-                    }
-                },
-            },
-        },
+        schema: loginSchema,
     
         handler:  async (request, response) => {
             
@@ -49,13 +30,6 @@ async function LoginRoutes(server, opts) {
 						userID: `${user.id}`,
 						username: `${user.username}`
 					};
-					
-					// const data = JSON.stringify(Object.keys(tmpRes).sort());
-					// hash = crypto.createHash('sha256').update(data).digest('hex');
-
-					// console.log(hash);
-					// Ter que mudar o status do online para TRUE
-                    // Criar os token aqui e colocar eles nas cookies
                 }
 
             } catch(err) {
@@ -73,4 +47,4 @@ async function LoginRoutes(server, opts) {
     });
 }
 
-export default LoginRoutes;
+export default LoginRoute;

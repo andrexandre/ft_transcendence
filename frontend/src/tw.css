@@ -1,16 +1,60 @@
 @import "tailwindcss";
+/* @config "../tailwind.config.js"; */
 
+/* theme */
 @theme static {
-	--color-lighter: theme(colors.stone.100);
-	--color-light: theme(colors.stone.400);
-	--color-dark: theme(colors.stone.600);
-	--color-darker: theme(colors.stone.800);
+	/* 0 = lighter, 1000 = darker */
+	--color-c-bg: var(--color-d-c-bg); /* background */
+	--color-c-text: var(--color-d-c-text); /* text */
+	--color-c-primary: var(--color-d-c-primary); /* border hover */
+	--color-c-secondary: var(--color-d-c-secondary); /* border */
+	--color-d-c-bg: theme(colors.stone.100);
+	--color-d-c-text: theme(colors.stone.800);
+	--color-d-c-primary: theme(colors.stone.600);
+	--color-d-c-secondary: theme(colors.stone.400);
+	--color-g-c-bg: theme(colors.black);
+	--color-g-c-text: theme(colors.green.600);
+	--color-g-c-primary: theme(colors.green.400);
+	--color-g-c-secondary: theme(colors.green.800);
 }
 
+@layer components {
+	.t-border {
+		@apply border-2 text-c-text border-c-secondary hover:border-c-primary;
+	}
+	.t-dashed { /* dashed rounded border */
+		@apply border-2 text-c-text border-c-secondary hover:border-c-primary border-dashed rounded-3xl;
+	}
+	.item {
+		@apply m-1 p-2;
+	}
+	.card {
+		@apply gap-4 m-2.5 p-10 text-center;
+	}
+}
+
+@layer utilities {
+	input:-webkit-autofill {
+		transition: background-color 100000s ease-in-out 0s;
+		box-shadow: 0 0 0px 1000px rgb(225, 245, 255) inset !important;
+	}
+}
+
+/* global */
 body {
-	@apply bg-lighter select-none;
+	@apply bg-c-bg select-none;
 }
 
+img {
+	@apply pointer-events-none;
+}
+
+/* other */
+.sidebar-component {
+	@apply flex p-3 rounded-2xl justify-between items-center w-full hover:bg-c-secondary transition-all;
+}
+
+/* toast */
 #toast-container {
 	@apply flex flex-col-reverse gap-2 w-xs fixed -top-4 right-4 pt-8;
 }
@@ -20,23 +64,6 @@ body {
 	animation: toast-animation 3000ms forwards;
 	/* animation: name duration timing-function delay iteration-count direction fill-mode play-state; */
 }
-.dash-component {
-	@apply gap-4 m-2.5 text-center border-2 border-dashed rounded-3xl text-dark border-light hover:border-darker;
-}
-.sidebar-list {
-	@apply flex flex-col h-full;
-}
-.sidebar-component {
-	@apply flex p-3 rounded-2xl justify-between items-center w-full  hover:bg-light transition-all;
-}
-
-.profile-header {
-	@apply flex gap-16;
-}
-
-img {
-	@apply pointer-events-none;
-}
 
 @keyframes toast-animation {
 	0%, 100% { opacity: 0; transform: translateY(-30px); }
@@ -44,6 +71,31 @@ img {
 }
 
 /* game */
-.game-component {
-	@apply m-1 px-4 py-2 border-2 border-light hover:border-darker focus:outline-none;
+canvas {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	z-index: 10;
+	@apply border-2 border-c-text;
+}
+
+#scoreboard {
+	position: absolute;
+	top: 5%;
+	left: 50%;
+	transform: translateX(-50%);
+	font-size: 30px;
+	font-weight: bold;
+	@apply text-c-text;
+}
+
+#main-menu-title {
+	animation: glow 2s infinite alternate;
+	text-shadow: 0 0 10px green, 0 0 20px lime, 0 0 30px lime, 0 0 40px lime;
+}
+
+@keyframes glow {
+	0% { text-shadow: 0 0 10px black, 0 0 20px lime, 0 0 30px lime; }
+	100% { text-shadow: 0 0 20px black, 0 0 30px lime, 0 0 40px lime; }
 }

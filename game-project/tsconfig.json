@@ -1,10 +1,5 @@
 {
     "compilerOptions": {
-      // "outDir": "./",
-      // "rootDir": "./",
-      // "allowJs": true,
-      // "noImplicitAny": false,
-      // "noEmitOnError": false,
       "target": "ESNext",
       "module": "ESNext",
       "moduleResolution": "bundler",
@@ -14,9 +9,6 @@
       // "allowImportingTsExtensions": true, // lines for vite
       // "noEmit": true, // lines for vite
     },
-    "include": ["**/*.ts", "public/**/*.ts"], 
-    "exclude": ["node_modules"]
+    "include": ["**/*.ts"], 
+    "exclude": ["node_modules", "src/tmpDel"]
 }
-
-// change **/*.ts from server.ts
-// ESNext

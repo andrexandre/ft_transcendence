@@ -16,8 +16,8 @@ db_game.serialize(() => {
             user_id INTEGER PRIMARY KEY,
             user_name TEXT UNIQUE NOT NULL,
             user_xp INTEGER DEFAULT 0,
-            user_set_dificulty TEXT DEFAULT 'normal',
-            user_set_tableSize TEXT DEFAULT 'medium',
+            user_set_dificulty TEXT DEFAULT 'Normal',
+            user_set_tableSize TEXT DEFAULT 'Medium',
             user_set_sound BOOLEAN DEFAULT 1
         );
     `);
@@ -37,8 +37,7 @@ db_game.serialize(() => {
             FOREIGN KEY (game_player2_id) REFERENCES users(user_id)
         );
     `);
-
-    console.log("Tables ensured.");
+    
 });
 
 export default db_game;

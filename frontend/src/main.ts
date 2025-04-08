@@ -5,31 +5,79 @@ import Page from "./pages/Page"
 import register from "./pages/register"
 import login from "./pages/login"
 import dashboard from "./pages/dashboard"
-import game from "./pages/game/game"
+import game from "./pages/game/page"
+import chat from "./pages/chat/page"
 import * as lib from "./utils"
 
-function loadPage(path: string): void {
-	let CurrentPage: Page;
+let currentPage: Page | undefined;
 
+const checkLogin = async () => {
+	try {
+		const response = await fetch('http://127.0.0.1:7000/fetchDashboardData', {
+			credentials: 'include',
+		});
+		if (!response.ok) {
+			lib.navigate('/login');
+			throw new Error(`${response.status} - ${response.statusText}`);
+		}
+		let dashData = await response.json();
+		lib.userInfo.username = dashData.username
+		lib.userInfo.userId = dashData.userId
+		lib.userInfo.auth_method = dashData.auth_method
+	} catch (error) {
+		console.log(error);
+		lib.showToast.red(error as string);
+	}
+}
+
+function setTheme(theme: string, _color?: string) {
+	if (theme === "game") {
+		document.documentElement.style.setProperty('--color-c-bg', 'var(--color-g-c-bg)');
+		document.documentElement.style.setProperty('--color-c-secondary', 'var(--color-g-c-secondary)');
+		document.documentElement.style.setProperty('--color-c-text', 'var(--color-g-c-text)');
+		document.documentElement.style.setProperty('--color-c-primary', 'var(--color-g-c-primary)');
+	}
+	else {
+		document.documentElement.style.setProperty('--color-c-bg', 'var(--color-d-c-bg)');
+		document.documentElement.style.setProperty('--color-c-secondary', 'var(--color-d-c-secondary)');
+		document.documentElement.style.setProperty('--color-c-text', 'var(--color-d-c-text)');
+		document.documentElement.style.setProperty('--color-c-primary', 'var(--color-d-c-primary)');
+	}
+}
+
+function loadPage(path: string): void {
+	let newPage: Page;
+
+	if (path != "/register" && path != "/login")
+		checkLogin();
+	if (path === "/game") {
+		setTheme("game");
+	} else {
+		setTheme("light", "stone");
+	}
 	switch (path) {
 		case "/register":
-			CurrentPage = register;
+			newPage = register;
 			break;
 		case "/login":
-			CurrentPage = login;
+			newPage = login;
 			break;
 		case "/game":
-			CurrentPage = game;
+			newPage = game;
+			break;
+		case "/chat":
+			newPage = chat;
 			break;
 		default:
 			lib.showToast.red("404 - Page Not Found");
 			history.replaceState(null, "", "/");
 		case "/":
-			CurrentPage = dashboard;
+			newPage = dashboard;
 			break;
 	}
-	document.getElementById("app")!.innerHTML = CurrentPage.getHtml();
-	CurrentPage.mount();
+	currentPage?.cleanup();
+	document.getElementById("app")!.innerHTML = newPage.getHtml();
+	newPage.mount();
 	if (lib.Cookies.get('outline')) {
 		document.dispatchEvent(new KeyboardEvent('keydown', { key: ' ' }));
 		lib.Cookies.set('outline', 'true');

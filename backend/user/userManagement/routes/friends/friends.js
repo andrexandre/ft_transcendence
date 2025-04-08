@@ -14,7 +14,9 @@ export function friendRequestRoute(server, opts) {
 			try {
 				const requestee = await server.getUserByUsername(requesteeUsername);
 				const requester = await server.getUserByUsername(requesterUsername);
-
+				
+				// Tenho que colocar na base de dados dos dois que um pedido foi feito
+				// Change to onle make this once
 				await server.createFriendRequest(requestee, requester, requestee.id);
 				await server.createFriendRequest(requestee, requester, requester.id);
 				
@@ -24,8 +26,7 @@ export function friendRequestRoute(server, opts) {
 			}
 
 			response.status(200).send({message: "Request was maid sucefful"});
-			// Tenho que colocar na base de dados dos dois que um pedido foi feito
-				},
+			},
 	});
 }
 
@@ -57,5 +58,3 @@ export async function processFriendRequestRoute(server, opts) {
 				},
 	});
 }
-
-// export default friendsRoutes;
