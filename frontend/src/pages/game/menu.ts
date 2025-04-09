@@ -10,11 +10,11 @@ function initializeGameMainMenu() {
 	const username = sessionStorage.getItem("username");
 	if (!username) {
 		console.error("❌ No username found in sessionStorage!");
-		dropdown.addElement('Single', 'button', 'item t-border',
+		dropdown.addElement('Single', 'button', 'item g-t-border-alt',
 			'User not found');
 	}
 	else {
-		dropdown.addElement('Single', 'button', 'item t-border',
+		dropdown.addElement('Single', 'button', 'item g-t-border-alt',
 			'Classic', () => {
 				const difficulty = sessionStorage.getItem("user_set_dificulty") || "Normal";
 				const tableSize = sessionStorage.getItem("user_set_tableSize") || "Medium";
@@ -23,7 +23,7 @@ function initializeGameMainMenu() {
 				startSingleClassic(username, { difficulty, tableSize, sound })
 			});
 	}
-	dropdown.addElement('Single', 'button', 'item t-border',
+	dropdown.addElement('Single', 'button', 'item g-t-border-alt',
 		'Infinity', () => showToast(`Single Infinity clicked`));
 
 	// Set Multi dropdown
@@ -59,7 +59,7 @@ function initializeGameMainMenu() {
 			}
 		}
 	});
-	dropdown.addElement('Multi', 'button', 'item t-border', 'Tournament', async () => {
+	dropdown.addElement('Multi', 'button', 'item g-t-border-alt', 'Tournament', async () => {
 		const username = sessionStorage.getItem("user_name")!;
 		const userId = Number(sessionStorage.getItem("user_id")!);
 		try {
@@ -69,7 +69,7 @@ function initializeGameMainMenu() {
 			showToast.red("❌ Failed to create lobby");
 		}
 	});
-	dropdown.addElement('Multi', 'button', 'item t-border', 'Don\'t click',
+	dropdown.addElement('Multi', 'button', 'item g-t-border-alt', 'Don\'t click',
 		() => {
 			document.body.innerHTML = "";
 			document.body.className = "h-screen m-0 bg-cover bg-center bg-no-repeat";
@@ -78,13 +78,13 @@ function initializeGameMainMenu() {
 
 	// Set Co-Op dropdown
 	dropdown.initialize('Co-Op');
-	dropdown.addElement('Co-Op', 'button', 'item t-border', 'Matrecos',
+	dropdown.addElement('Co-Op', 'button', 'item g-t-border-alt', 'Matrecos',
 		() => {
 			showToast("Connecting to multiplayer game...");
 			document.getElementById('sidebar')?.classList.toggle('hidden');
 			startGameClient();
 		});
-	dropdown.addElement('Co-Op', 'button', 'item t-border', 'Free for All',
+	dropdown.addElement('Co-Op', 'button', 'item g-t-border-alt', 'Free for All',
 		() => showToast(`Co-Op Free for All clicked`));
 }
 
@@ -105,6 +105,13 @@ function addLobbyEntry(id: string, userName: string, gameType: string, maxPlayer
 	`);
 	document.getElementById(`join-button-${id}`)?.addEventListener('click', onClickHandler);
 	showToast.blue(`Lobby entry n: ${id} added`);
+}
+
+function removeLobbyEntry(id: string) {
+	const lobby = document.getElementById('lobby-list');
+	const entries = lobby?.querySelectorAll(`[id^="entry-${id}-"]`);
+	entries?.forEach(entry => entry.remove());
+	showToast.yellow(`Lobby entry n: ${id} removed`);
 }
 
 export async function initUserData() {
@@ -139,6 +146,7 @@ export async function initUserData() {
 		initializeGameMainMenu();
 		initGameCanvas();
 	} catch (error) {
+		showToast.red(error as string);
 		console.error("❌ Error loading user data:", error);
 	}
 }
@@ -159,7 +167,7 @@ export async function saveSettingsHandler() {
 	const tableSize = tableSizeSelect.value;
 	const sound = soundSelect.value === "On" ? 1 : 0;
 
-	console.log(`🎮 Saving settings for: ${{username, difficulty, tableSize, sound}}`);
+	console.log(`🎮 Saving settings for: ${{ username, difficulty, tableSize, sound }}`);
 
 	// Save settings in sessionStorage
 	sessionStorage.setItem("user_set_dificulty", difficulty);
@@ -184,4 +192,3 @@ export async function saveSettingsHandler() {
 	}
 };
 
- 

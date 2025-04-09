@@ -15,7 +15,7 @@ class Game extends Page {
 		dropdown.addElement('Settings', 'div', 'flex flex-col', /*html*/`
 			<div class="grid grid-cols-[1fr_2fr] items-center">
 				<label for="difficulty">Difficulty</label>
-				<select id="difficulty" class="item t-border justify-center">
+				<select id="difficulty" class="item g-t-border justify-center">
 					<option>Easy</option>
 					<option>Normal</option>
 					<option>Hard</option>
@@ -23,7 +23,7 @@ class Game extends Page {
 			</div>
 			<div class="grid grid-cols-[1fr_2fr] items-center">
 				<label for="table-size">Table Size</label>
-				<select id="table-size" class="item t-border justify-center">
+				<select id="table-size" class="item g-t-border justify-center">
 					<option>Small</option>
 					<option>Medium</option>
 					<option>Large</option> 
@@ -31,12 +31,12 @@ class Game extends Page {
 			</div>
 			<div class="grid grid-cols-[1fr_2fr] items-center">
 				<label for="sound">Sound</label>
-				<select id="sound" class="item t-border justify-center">
+				<select id="sound" class="item g-t-border justify-center">
 					<option>On</option>
 					<option>Off</option>
 				</select>
 			</div>
-			<button id="save-settings" type="button" class="item t-border">Save</button>
+			<button id="save-settings" type="button" class="item g-t-border">Save</button>
 		`);
 		document.getElementById('save-settings')!.addEventListener('click', menu.saveSettingsHandler);
 
@@ -50,7 +50,7 @@ class Game extends Page {
 	getHtml(): string {
 		return /*html*/`
 			${sidebar.getHtml()}
-			<main class="card t-border flex flex-1 justify-around items-center font-['Press_Start_2P']">
+			<main class="card g-t-border flex flex-1 justify-around items-center font-['Press_Start_2P']">
 				<div id="game-main-menu" class="flex flex-col items-center">
 					<h1 id="main-menu-title" class="font-bold text-8xl mb-20 max-lg:text-7xl">PONGIFY</h1>
 					<div class="flex gap-5">
@@ -60,11 +60,11 @@ class Game extends Page {
 							${dropdown.getHtml('Co-Op')}
 							${dropdown.getHtml('Settings')}
 						</div>
-						<div id="lobby" class="hidden flex-col items-center justify-center w-100 space-y-3 item t-border">
+						<div id="lobby" class="hidden flex-col items-center justify-center w-100 space-y-3 item g-t-border">
 							<ul class="grid grid-cols-4">
 								<li class="text-c-secondary">Host</li>
 								<li class="text-c-secondary">Mode</li>
-								<li class="text-c-secondary w-22">#/#</li>
+								<li class="text-c-secondary">#/#</li>
 								<li class="text-c-secondary"></li>
 							</ul>
 							<ul id="lobby-list" class="grid grid-cols-4 gap-2 overflow-scroll max-h-65 text-sm">
@@ -90,12 +90,6 @@ class Game extends Page {
 				}
 			});
 		}
-	}
-	removeLobbyEntry(id: string) {
-		const lobby = document.getElementById('lobby-list');
-		const entries = lobby?.querySelectorAll(`[id^="entry-${id}-"]`);
-		entries?.forEach(entry => entry.remove());
-		lib.showToast.yellow(`Lobby entry n: ${id} removed`);
 	}
 }
 

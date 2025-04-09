@@ -3,7 +3,7 @@ import * as lib from "../utils"
 const dropdown = {
 	getHtml: (componentId: string) => /*html*/`
 		<div class="text-left my-1 flex flex-col w-full">
-			<button id="dropdownButton-${componentId}" class="item t-border m-0">
+			<button id="dropdownButton-${componentId}" class="item g-t-border m-0">
 				${componentId}
 			</button>
 
@@ -27,7 +27,7 @@ const dropdown = {
 	},
 	addElement: (elementId: string, elementName: string, elementClasses: string, elementHtml: string, elementOnClickHandler?: () => void) => {
 		const component = document.createElement(elementName);
-		component.className = elementClasses + ' border-orange-700 hover:border-orange-500';
+		component.className = elementClasses;
 		component.innerHTML = elementHtml;
 		if (elementOnClickHandler)
 			component.addEventListener('click', elementOnClickHandler);
