@@ -4,13 +4,9 @@ import sidebar from "../../components/sidebar"
 import dropdown from "../../components/dropdown"
 import * as menu from "./menu"
 import * as logic from "./single"
-// import {startGameClient} from "./client"
 import { startGameClient, initGameCanvas } from "./gameClient";
 import * as lobbyClient from "./lobbyClient";
 
-//* TEMP
-let lobbyid = 0;
-let rmlobbyid = 0;
 
 function initializeGameMainMenu(page: Game) {
 	// Set Single dropdown
@@ -77,36 +73,6 @@ function initializeGameMainMenu(page: Game) {
 			lib.showToast.red("❌ Failed to create lobby");
 		}
 	});
-
-	// Set Multi dropdown
-	// dropdown.initialize('Multi', () => {
-	// 	const lobby = document.getElementById('lobby');
-	// 	lobby?.classList.toggle('hidden');
-	// 	//////////////// TEST MC ////////////////
-	// 	if (!lobby?.classList.contains('hidden')) {
-	// 		if (!lobby?.classList.contains('hidden')) {
-	// 			const lobbies = await lobbyClient.fetchLobbies(); // ✅ needs await
-	// 		}
-			
-	// 	}
-	// });
-	// dropdown.addElement('Multi', 'button', 'game-component', 'Tournament',
-	// 	() => {
-	// 		//* TEMP
-	// 		// page.addLobbyEntry(lobbyid.toString(), 'me', 'multi', "5");
-	// 		// lobbyid++;
-	// 		//////////////// TEST MC ////////////////
-	// 		const result =  lobbyClient.createLobby(username, 123);
-	// 	});
-	// dropdown.addElement('Multi', 'button', 'game-component', "Don't click",
-	// 	() => {
-	// 		//* TEMP
-	// 		page.removeLobbyEntry(rmlobbyid.toString());
-	// 		rmlobbyid++;
-	// 	});
-	// * TEMP
-	// document.getElementById('dropdownButton-Multi')?.click();
-	// this.addLobbyEntry(lobbyid.toString(), 'me', 'multi', "5");
 
 	// Set Co-Op dropdown
 	dropdown.initialize('Co-Op');
@@ -178,12 +144,11 @@ class Game extends Page {
 							${dropdown.getHtml('Co-Op')}
 							${dropdown.getHtml('Settings')}
 						</div>
-						<div id="lobby" class="hidden flex-col items-center justify-center w-100 space-y-3">
-							<h2 class="text-3xl font-bold">Lobby</h2>
+						<div id="lobby" class="hidden flex-col items-center justify-center w-100 space-y-3 item t-border">
 							<ul class="grid grid-cols-4">
 								<li class="text-c-secondary">Host</li>
 								<li class="text-c-secondary">Mode</li>
-								<li class="text-c-secondary w-22">Max Players</li>
+								<li class="text-c-secondary w-22">#/#</li>
 								<li class="text-c-secondary"></li>
 							</ul>
 							<ul id="lobby-list" class="grid grid-cols-4 gap-2 overflow-scroll max-h-65">
