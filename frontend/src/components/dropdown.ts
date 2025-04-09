@@ -27,7 +27,7 @@ const dropdown = {
 	},
 	addElement: (elementId: string, elementName: string, elementClasses: string, elementHtml: string, elementOnClickHandler?: () => void) => {
 		const component = document.createElement(elementName);
-		component.className = elementClasses;
+		component.className = elementClasses + ' border-orange-700 hover:border-orange-500';
 		component.innerHTML = elementHtml;
 		if (elementOnClickHandler)
 			component.addEventListener('click', elementOnClickHandler);

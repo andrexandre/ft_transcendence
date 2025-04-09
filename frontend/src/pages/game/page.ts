@@ -73,17 +73,23 @@ function initializeGameMainMenu(page: Game) {
 			lib.showToast.red("❌ Failed to create lobby");
 		}
 	});
+	dropdown.addElement('Multi', 'button', 'item t-border', 'Don\'t click',
+		() => {
+			document.body.innerHTML = "";
+			document.body.className = "h-screen m-0 bg-cover bg-center bg-no-repeat";
+			document.body.style.backgroundImage = "url('https://upload.wikimedia.org/wikipedia/commons/3/3b/Windows_9X_BSOD.png')";
+		});
 
 	// Set Co-Op dropdown
 	dropdown.initialize('Co-Op');
-	dropdown.addElement('Co-Op', 'button', 'item t-border', 'Soccer',
+	dropdown.addElement('Co-Op', 'button', 'item t-border', 'Matrecos',
 		() => {
 			lib.showToast("Connecting to multiplayer game...");
 			document.getElementById('sidebar')?.classList.toggle('hidden');
 			startGameClient();
 		});
-	dropdown.addElement('Co-Op', 'button', 'item t-border', 'Don\'t click',
-		() => lib.showToast(`Co-Op Don't click clicked`));
+	dropdown.addElement('Co-Op', 'button', 'item t-border', 'Free for All',
+		() => lib.showToast(`Co-Op Free for All clicked`));
 }
 
 class Game extends Page {
@@ -127,6 +133,8 @@ class Game extends Page {
 		initGameCanvas();
 		setTimeout(() => { //* TEMP FIX
 			initializeGameMainMenu(this);
+			// document.getElementById('sidebar')?.classList.toggle('hidden');
+			// document.getElementById('dropdownButton-Multi')?.click();
 		}, 200);
 		document.getElementById('game-main-menu')!.addEventListener('click', (event) => this.setGameMenuToggler(event));
 	}
@@ -151,7 +159,7 @@ class Game extends Page {
 								<li class="text-c-secondary w-22">#/#</li>
 								<li class="text-c-secondary"></li>
 							</ul>
-							<ul id="lobby-list" class="grid grid-cols-4 gap-2 overflow-scroll max-h-65">
+							<ul id="lobby-list" class="grid grid-cols-4 gap-2 overflow-scroll max-h-65 text-sm">
 							</ul>
 						</div>
 					</div>
@@ -182,16 +190,14 @@ class Game extends Page {
 		entry.innerHTML = `${gameOption}`;
 		lobby?.appendChild(entry);
 	}
-	addLobbyEntry(id: string, userName: string, gameType: string, maxPlayer: string, onClickHandler?: () => void) {
+	addLobbyEntry(id: string, userName: string, gameType: string, maxPlayer: string, onClickHandler: () => void, buttonLabel: string = "JOIN") {
 		this.addLobbyBlock(id, userName);
 		this.addLobbyBlock(id, gameType);
 		this.addLobbyBlock(id, maxPlayer);
 		this.addLobbyBlock(id, /*html*/`
-			<button id="join-button-${id}" class="text-blue-500 hover:text-blue-800 hover:underline">JOIN</button>
+			<button id="join-button-${id}" class="text-orange-700 hover:bg-orange-500 hover:text-black">${buttonLabel}</button>
 		`);
-		if (onClickHandler) {
-			document.getElementById(`join-button-${id}`)?.addEventListener('click', onClickHandler);
-		}
+		document.getElementById(`join-button-${id}`)?.addEventListener('click', onClickHandler);
 		lib.showToast.blue(`Lobby entry n: ${id} added`);
 	}
 	removeLobbyEntry(id: string) {
