@@ -3,94 +3,6 @@ import * as lib from "../../utils"
 import sidebar from "../../components/sidebar"
 import dropdown from "../../components/dropdown"
 import * as menu from "./menu"
-import * as logic from "./single"
-import { startGameClient, initGameCanvas } from "./gameClient";
-import * as lobbyClient from "./lobbyClient";
-
-
-function initializeGameMainMenu(page: Game) {
-	// Set Single dropdown
-	dropdown.initialize('Single');
-	const username = sessionStorage.getItem("username");
-	if (!username) {
-		console.error("❌ No username found in sessionStorage!");
-		dropdown.addElement('Single', 'button', 'item t-border',
-			'User not found');
-	}
-	else {
-		dropdown.addElement('Single', 'button', 'item t-border',
-			'Classic', () => {
-				const difficulty = sessionStorage.getItem("user_set_dificulty") || "Normal";
-				const tableSize = sessionStorage.getItem("user_set_tableSize") || "Medium";
-				const sound = sessionStorage.getItem("user_set_sound") === "1";
-				document.getElementById('sidebar')?.classList.toggle('hidden');
-				logic.startSingleClassic(username, { difficulty, tableSize, sound })
-			});
-	}
-	dropdown.addElement('Single', 'button', 'item t-border',
-		'Infinity', () => lib.showToast(`Single Infinity clicked`));
-	
-	// Set Multi dropdown
-	dropdown.initialize('Multi', async () => {
-		const lobby = document.getElementById('lobby');
-		lobby?.classList.toggle('hidden');
-
-		if (!lobby?.classList.contains('hidden')) {
-			try {
-				const lobbies = await lobbyClient.fetchLobbies();
-				const list = document.getElementById('lobby-list')!;
-				list.innerHTML = "";
-
-				lobbies.forEach((lobbyObj: any) => {
-					page.addLobbyEntry(
-						lobbyObj.id,
-						lobbyObj.hostUsername,
-						lobbyObj.mode,
-						`${lobbyObj.players.length}/${lobbyObj.maxPlayers}`,
-						() => {
-							lib.showToast.blue(`Joining lobby ${lobbyObj.id}`);
-							lobbyClient.joinLobby(
-								lobbyObj.id,
-								sessionStorage.getItem("user_name")!,
-								Number(sessionStorage.getItem("user_id")!)
-							);
-						}
-					);
-				});
-			} catch (err) {
-				console.error("❌ Failed to load lobbies:", err);
-				lib.showToast.red("Failed to load lobbies");
-			}
-		}
-	});
-	dropdown.addElement('Multi', 'button', 'item t-border', 'Tournament', async () => {
-		const username = sessionStorage.getItem("user_name")!;
-		const userId = Number(sessionStorage.getItem("user_id")!);
-		try {
-			const result = await lobbyClient.createLobby(username, userId, "classic", 2);
-			lib.showToast.green(`✅ Created lobby ${result.id}`);
-		} catch (err) {
-			lib.showToast.red("❌ Failed to create lobby");
-		}
-	});
-	dropdown.addElement('Multi', 'button', 'item t-border', 'Don\'t click',
-		() => {
-			document.body.innerHTML = "";
-			document.body.className = "h-screen m-0 bg-cover bg-center bg-no-repeat";
-			document.body.style.backgroundImage = "url('https://upload.wikimedia.org/wikipedia/commons/3/3b/Windows_9X_BSOD.png')";
-		});
-
-	// Set Co-Op dropdown
-	dropdown.initialize('Co-Op');
-	dropdown.addElement('Co-Op', 'button', 'item t-border', 'Matrecos',
-		() => {
-			lib.showToast("Connecting to multiplayer game...");
-			document.getElementById('sidebar')?.classList.toggle('hidden');
-			startGameClient();
-		});
-	dropdown.addElement('Co-Op', 'button', 'item t-border', 'Free for All',
-		() => lib.showToast(`Co-Op Free for All clicked`));
-}
 
 class Game extends Page {
 	constructor() {
@@ -129,13 +41,9 @@ class Game extends Page {
 		document.getElementById('save-settings')!.addEventListener('click', menu.saveSettingsHandler);
 
 		// Initialize game info
-		menu.initGameMenu();
-		initGameCanvas();
-		setTimeout(() => { //* TEMP FIX
-			initializeGameMainMenu(this);
-			// document.getElementById('sidebar')?.classList.toggle('hidden');
-			// document.getElementById('dropdownButton-Multi')?.click();
-		}, 200);
+		menu.initUserData();
+		// document.getElementById('sidebar')?.classList.toggle('hidden');
+		// document.getElementById('dropdownButton-Multi')?.click();
 		document.getElementById('game-main-menu')!.addEventListener('click', (event) => this.setGameMenuToggler(event));
 	}
 	onCleanup() { }
@@ -182,23 +90,6 @@ class Game extends Page {
 				}
 			});
 		}
-	}
-	addLobbyBlock(gameOptionId: string, gameOption: string | number) {
-		const lobby = document.getElementById('lobby-list');
-		const entry = document.createElement('li') as HTMLElement;
-		entry.id = `entry-${gameOptionId}-${gameOption}`;
-		entry.innerHTML = `${gameOption}`;
-		lobby?.appendChild(entry);
-	}
-	addLobbyEntry(id: string, userName: string, gameType: string, maxPlayer: string, onClickHandler: () => void, buttonLabel: string = "JOIN") {
-		this.addLobbyBlock(id, userName);
-		this.addLobbyBlock(id, gameType);
-		this.addLobbyBlock(id, maxPlayer);
-		this.addLobbyBlock(id, /*html*/`
-			<button id="join-button-${id}" class="text-orange-700 hover:bg-orange-500 hover:text-black">${buttonLabel}</button>
-		`);
-		document.getElementById(`join-button-${id}`)?.addEventListener('click', onClickHandler);
-		lib.showToast.blue(`Lobby entry n: ${id} added`);
 	}
 	removeLobbyEntry(id: string) {
 		const lobby = document.getElementById('lobby-list');
