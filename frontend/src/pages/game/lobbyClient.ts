@@ -13,7 +13,7 @@ export async function createLobby(username: string, userId: number, mode = "clas
 		body: JSON.stringify({ username, userId, mode, maxPlayers }),
 	});
 	if (!res.ok) throw new Error("Failed to create lobby");
-	return await res.json(); // { id }
+	return await res.json();
 }
 
 export async function joinLobby(lobbyId: string, username: string, userId: number) {
@@ -23,5 +23,5 @@ export async function joinLobby(lobbyId: string, username: string, userId: numbe
 		body: JSON.stringify({ username, userId }),
 	});
 	if (!res.ok) throw new Error("Failed to join lobby");
-	return await res.json(); // updated lobby
+	return await res.json();
 }
