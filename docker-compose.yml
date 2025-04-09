@@ -1,6 +1,5 @@
 
 services:
-
   user_management:
     image: user_management
     container_name: user_management
@@ -26,15 +25,15 @@ services:
     networks:
       - ft_transcendence
 
-  gateway:
-    image: gateway-api
-    container_name: gateway-api
+  services-api:
+    image: services-api
+    container_name: services-api
     build: 
-      context: ./backend/Gateway/conf
+      context: ./backend/services-api/conf
     ports:
       - "7000:7000"
     volumes:
-      - ./backend/Gateway:/backend/:rw #Vai guardar na home 
+      - ./backend/services-api:/backend/:rw #Vai guardar na home 
     networks:
       - ft_transcendence
 
@@ -70,14 +69,17 @@ services:
     networks:
       - ft_transcendence
 
-#   nginx:
-#     image: nginx
-#     container_name: nginx
-#     ports:
-#       - "9000:9000"
-#     volumes:
-#       - ./frontend/src:/usr/share/nginx/html:ro
-#       - ./frontend/nginx.conf:/etc/nginx/nginx.conf:ro
+  nginx:
+    image: nginx:latest
+    container_name: nginx-gateway
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - services-api
+    networks:
+      - ft_transcendence
 
 networks:
   ft_transcendence:

@@ -64,7 +64,7 @@ fastify.register(fastifyJwt, {
 });
 
 fastify.register(cors, {
-  origin: ['http://127.0.0.1:5500', 'http://127.0.0.1:5000', 'http://chat:2000'], // Allow frontend origin
+  origin: ['http://127.0.0.1:5500', 'http://127.0.0.1:5000', 'http://chat:2000', 'http://127.0.0.1:80'], // Allow frontend origin
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true // Allow cookies if needed
 });

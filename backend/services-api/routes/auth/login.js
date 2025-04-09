@@ -21,7 +21,7 @@ function loginRoute(fastify, options) {
                 path: '/',
                 httpOnly: true,
                 secure: true,
-                sameSite: 'Strict'
+                sameSite: 'None'
             });
             reply.send(await fastify.parseToReadableData(request.cookies.token));
         }

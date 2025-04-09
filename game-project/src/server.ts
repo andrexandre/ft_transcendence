@@ -54,7 +54,7 @@ gamefast.get("/ws", { websocket: true }, (connection, req) => {
 // Fetch user data from Gateway
 async function fetchUserDataFromGateway(token: string | undefined) {
     try {
-        const response = await fetch("http://gateway-api:7000/userData", {
+        const response = await fetch("http://services-api:7000/game/userData", {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -195,7 +195,7 @@ gamefast.patch<SaveSettingsRequest>("/save-settings", async (request, reply) => 
 // Function to Send Match Data to Main API
 async function sendMatchToAPI(matchData: any) {
     try {
-        const response = await fetch("http://gateway-api:7000/matchHistory", {
+        const response = await fetch("http://services-api:7000/matchHistory", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(matchData),
