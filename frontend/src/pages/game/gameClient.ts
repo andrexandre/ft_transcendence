@@ -1,3 +1,5 @@
+import { playSound, playMusic, stopAllMusic } from "./soundManager";
+
 const SERVER_URL = "ws://127.0.0.1:5000/ws";
 
 export let gameCanvas: HTMLCanvasElement;
@@ -98,6 +100,7 @@ function setupControls() {
 		if (keysPressed["ArrowUp"]) {
 			socket.send(JSON.stringify({ type: "move", direction: "up" }));
 			lastMoveTime = now;
+			playSound("paddleHit"); ///test
 		}
 		if (keysPressed["ArrowDown"]) {
 			socket.send(JSON.stringify({ type: "move", direction: "down" }));
@@ -138,6 +141,7 @@ function connectWebSocket(username: string) {
 		if (data.type === "countdown") {
 			drawGameMessage(data.value.toString(), "green");
 			if (data.value === 1) {
+				playSound("countdown"); /// TEEEEEEEEEEEEEEEEEEESSSSSSSSSTT
 				setTimeout(() => GameMessageVisibility("hide"), 1000);
 			}
 		}
@@ -189,4 +193,5 @@ export function startGameClient() {
 	setupControls();
 	drawGameMessage("Waiting for another player...", "gray");
 	GameMessageVisibility("show");
+	playMusic("gameMusic");
 }

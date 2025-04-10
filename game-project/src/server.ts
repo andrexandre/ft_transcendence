@@ -1,20 +1,16 @@
 import fastify from "fastify";
 import fastifyWebsocket from "@fastify/websocket";
 import fastifyCookie from "@fastify/cookie";
-// import fastifyJwt from "@fastify/jwt";
 import cors from '@fastify/cors';
 import { userRoutes } from "./userSet.js";
 import { handleJoin, handleMove, handleDisconnect, startGameLoop } from "./gameServer.js";
-// import { lobbyRoutes } from "./lobbyManager.js";
 import * as lobby from "./lobbyManager.js";
 
 const PORT = 5000;
 const gamefast = fastify({ logger: true });
 
 await gamefast.register(fastifyWebsocket);
-// await gamefast.register(lobbyRoutes);
 gamefast.register(fastifyCookie);
-// gamefast.register(fastifyJwt, { secret: "supersecret" });
 gamefast.register(userRoutes);
 await gamefast.register(cors, {
 	origin: ['http://127.0.0.1:5500'],
@@ -44,7 +40,13 @@ gamefast.get("/lobbies", (_, reply) => {
 
 gamefast.post("/lobbies", async (req, reply) => {
 	const { username, userId, mode, maxPlayers } = req.body as any;
+
 	const newLobby = lobby.createLobby(username, userId, mode, maxPlayers);
+
+	if (!newLobby) {
+		return reply.status(400).send({ error: "User is already in a lobby" });
+	}
+
 	reply.send({ id: newLobby.id });
 });
 
@@ -56,7 +58,7 @@ gamefast.post("/lobbies/:id/join", async (req, reply) => {
 	reply.send(updated);
 });
 
-// Start game loop (for multiplayer game logic)
+// Start game loop (for multiplayer game logic) // Del in front
 startGameLoop();
 
 gamefast.listen({ port: PORT, host: "0.0.0.0" }, () => {

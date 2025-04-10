@@ -72,7 +72,10 @@ export async function createLobby(username: string, userId: number, mode = "clas
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ username, userId, mode, maxPlayers }),
 	});
-	if (!res.ok) throw new Error("Failed to create lobby");
+	if (!res.ok) {
+		const errMsg = await res.text();
+		throw new Error(errMsg || "Failed to create lobby");
+	}
 	return await res.json();
 }
 
@@ -82,6 +85,10 @@ export async function joinLobby(lobbyId: string, username: string, userId: numbe
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ username, userId }),
 	});
-	if (!res.ok) throw new Error("Failed to join lobby");
+	if (!res.ok){
+		showToast.red("Cannot join lobby");
+		throw new Error("Cannot join lobby");	
+	}
+	showToast.green("Lobby joined");
 	return await res.json();
 }
