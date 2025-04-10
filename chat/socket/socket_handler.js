@@ -5,6 +5,7 @@ import { createMessage, loadMessages, sendMessage, updateBlockRoom } from '../me
 export const users = new Map();
 export const sockets = new Map();
 export const rooms = new Map();
+const load = new Map();
 
 export async function SocketHandler(socket, username)
 {
@@ -58,7 +59,8 @@ export async function SocketHandler(socket, username)
 					socket.send(JSON.stringify({
 						type: 'block-status',
 						isBlocked: true,
-						friend: data.friend
+						friend: data.friend,
+						load: data.load
 					}));
 					break;
 				case 'unblock-user':
@@ -66,7 +68,8 @@ export async function SocketHandler(socket, username)
 					socket.send(JSON.stringify({
 						type: 'block-status',
 						isBlocked: false,
-						friend: data.friend
+						friend: data.friend,
+						load: data.load
 					}));
 					break;
 				case 'check-block':
@@ -74,7 +77,8 @@ export async function SocketHandler(socket, username)
 					socket.send(JSON.stringify({
 						type: 'block-status',
 						isBlocked: block,
-						friend: data.friend
+						friend: data.friend,
+						load: true
 					}));
 					break;
 			}
@@ -184,5 +188,5 @@ async function sendRequests(receiver, socket)
 	socket.send(JSON.stringify({
 		type: 'add-requests',
 		data: requests
-	}))
+	}));
 }

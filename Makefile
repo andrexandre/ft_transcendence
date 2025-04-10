@@ -40,6 +40,7 @@ backend/Gateway/.env:
 
 destroy: down rmi
 	find . -type f -iname '*.db' -delete
+	find . -type f -iname '*.jsonl' -delete
 	docker run --rm -v ./backend/user/userManagement/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
 	docker run --rm -v ./backend/Gateway/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
 	docker run --rm -v ./game-project/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
@@ -104,7 +105,7 @@ rm-rf:
 guser:
 	docker exec pongify sqlite3 -header -column /pong_vol/game-project/db_game.db "SELECT * FROM users;"
 ggame:
-	docker exec pongify sqlite3 -header -column /pong_vol/game-project/db_game.db "SELECT * FROM games LIMIT 20;"
+	docker exec pongify sqlite3 -header -column /pong_vol/game-project/db_game.db "SELECT * FROM games;"
 
 
 

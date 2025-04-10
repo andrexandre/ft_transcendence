@@ -1,4 +1,4 @@
-import { showToast } from "../../utils";
+import { gameCanvas, ctx, initGameCanvas } from "./gameClient";
 
 function GameMessageVisibility(visible: string) {
 	const countdownElement = document.getElementById("game-message") as HTMLDivElement;
@@ -17,19 +17,21 @@ function drawGameMessage(gameMessage: string, color?: string) {
 		countdownElement.style.color = color;
 }
 
+function updateScoreboard(username: string, playerScore: number, aiScore: number) {
+    const scoreboard = document.getElementById("scoreboard") as HTMLDivElement;
+    scoreboard.innerHTML = `<span style="color: blue;">${username}
+    </span> ${playerScore} - ${aiScore} <span style="color: red;">BoTony</span>`;
+}
+
 export function startSingleClassic(username: string, settings: { difficulty: string, tableSize: string, sound: boolean }) {
     console.log(`🎮 Game started for: ${username}`);
     console.log("🛠 Settings:", settings);
 
-    const gameCanvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
-    const ctx = gameCanvas.getContext("2d");
     const menu = document.getElementById("game-main-menu") as HTMLDivElement;
 
     // Hide menu, show game
     menu.classList.add("hidden");
     gameCanvas.classList.remove("hidden");
-
-    // Create elements scoreboard
     let scoreboard = document.getElementById("scoreboard") as HTMLDivElement;
     scoreboard.style.display = "block";
 
@@ -95,7 +97,7 @@ export function startSingleClassic(username: string, settings: { difficulty: str
         ctx.fill();
     
         // Draw scoreboard
-        scoreboard.innerHTML = `<span style="color: blue;">${username}</span> ${playerScore} - ${aiScore} <span style="color: red;">BoTony</span>`;
+        updateScoreboard(username, playerScore, aiScore);
         // Draw Countdown Before Game/Reset
 		if (countdownValue > 0) {
 			drawGameMessage(countdownValue.toString());
@@ -159,7 +161,7 @@ export function startSingleClassic(username: string, settings: { difficulty: str
     
     async function saveMatchToDatabase(player1Id: number, player2Id: number, player1Score: number, player2Score: number, gameMode: string, winnerId: number) {
         try {
-            const response = await fetch("http://127.0.0.1:5000/save-match", {
+            const response = await fetch("http://127.0.0.1:7000/save-matchHistory", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ player1Id, player2Id, player1Score, player2Score, gameMode, winnerId }),

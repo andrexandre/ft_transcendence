@@ -48,12 +48,13 @@ async function fetchUserDataFromGateway(token: string | undefined): Promise<User
 
 async function sendMatchToAPI(matchData: MatchData) {
 	try {
+		console.log("❌❌❌❌", matchData);
 		const response = await fetch("http://gateway-api:7000/matchHistory", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(matchData),
 		});
-
+			
 		if (!response.ok) {
 			throw new Error(`Failed to send match: ${response.status} ${response.statusText}`);
 		}
@@ -65,6 +66,7 @@ async function sendMatchToAPI(matchData: MatchData) {
 		return false;
 	}
 }
+
 
 export async function userRoutes(gamefast: FastifyInstance) {
 	// Get user data
@@ -128,21 +130,13 @@ export async function userRoutes(gamefast: FastifyInstance) {
 	});
 
 	// Save match
-	gamefast.post("/save-match", async (request, reply) => {
+	gamefast.post("/save-match", (request, reply) => {
 		const { gameMode, player1Id, player2Id, player1Score, player2Score, winnerId } = request.body as MatchData;
-		if (!player1Id || !player2Id) return reply.status(400).send({ error: "Missing player IDs" });
+		// if (!player1Id || !player2Id) return reply.status(400).send({ error: "Missing player IDs" });
 
 		db_game.run(
-			`INSERT INTO games (game_mode, game_player1_id, game_player2_id, game_player1_score, game_player2_score, game_winner) VALUES (?, ?, ?, ?, ?, ?)`,
-			[gameMode, player1Id, player2Id, player1Score, player2Score, winnerId],
-			async function (err) {
-				if (err) return reply.status(500).send({ error: "Database error", details: err.message });
-
-				const matchData = { matchId: this.lastID, gameMode, player1Id, player2Id, player1Score, player2Score, winnerId };
-				const success = await sendMatchToAPI(matchData);
-
-				reply.send({ message: success ? "✅ Match saved & sent!" : "⚠ Match saved, but API sync failed.", matchId: this.lastID });
-			}
+			`INSERT INTO games (game_mode, game_player1_id, game_player2_id, game_player1_score, game_player2_score, game_winner) VALUES (?, ?, ?, ?, ?, ?)`
 		);
+		reply.status(200).send({ message: "Match saved & sent!"});
 	});
 }

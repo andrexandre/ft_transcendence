@@ -102,13 +102,20 @@ img {
 }
 
 /* game */
+.g-t-border {
+	@apply border-2 text-g-c-text border-g-c-secondary hover:border-g-c-primary;
+}
+.g-t-border-alt {
+	@apply border-2 text-g-c-text border-orange-700 hover:border-orange-500;
+}
+
 canvas {
 	position: absolute;
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
 	z-index: 10;
-	@apply border-2 border-c-text;
+	@apply border-2 border-g-c-text;
 }
 
 #scoreboard {
@@ -118,7 +125,7 @@ canvas {
 	transform: translateX(-50%);
 	font-size: 30px;
 	font-weight: bold;
-	@apply text-c-text;
+	@apply text-g-c-text;
 }
 
 #main-menu-title {
