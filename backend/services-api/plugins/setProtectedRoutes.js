@@ -11,10 +11,10 @@ async function setProtectedRoutes(fastify, options){
             return reply.status(403).send("Forbidden");
         }
     });
-    fastify.register(gameRoutes);
-    fastify.register(matchHistory);
-    fastify.register(fetchAllData);
-    fastify.register(gameSettings);
+    fastify.register(gameRoutes, {prefix : '/game'});
+    fastify.register(matchHistory, {prefix : '/game'});
+    fastify.register(gameSettings, {prefix : '/game'});
+    fastify.register(fetchAllData, {prefix : '/frontend'});
 }
 
 export default setProtectedRoutes;
