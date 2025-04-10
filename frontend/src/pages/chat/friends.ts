@@ -1,13 +1,25 @@
 import { showToast } from "../../utils";
 
-const response = await fetch('/api/user', {
-	method: 'GET',
-	credentials: 'include'
-});
 
-console.log('Response: ' + response);
+// let socket: WebSocket | null = null
 
-const host = `ws://localhost:2000/chat-ws`;
+// const response = await fetch('/api/user', {
+// 	method: 'GET',
+// 	credentials: 'include',
+// });
+// try {
+//     if (!response.ok) {
+// 		console.error('Failed to fetch user data:', response.status, response.statusText);
+//         // Handle error case
+//     } else {
+// 		console.log("response: " + response.ok);
+//     }
+// } catch (error) {
+// 	console.error('Error fetching user data:', error);
+//     // Handle network error
+// }
+
+const host = `ws://127.0.0.1:2000/chat-ws`;
 const socket = new WebSocket(host);
 
 socket.onopen = () => {
