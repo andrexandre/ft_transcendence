@@ -51,7 +51,6 @@ function updateScoreboard(players: any[], ball: any) {
 	el.style.display = "block";
 }
 
-
 function drawGame() {
 	ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 
@@ -67,7 +66,6 @@ function drawGame() {
 		ctx.fillRect(x, y, paddleWidth, paddleHeight);
 	});
 	
-
 	// draw ball
 	ctx.fillStyle = "green";
 	ctx.beginPath();
@@ -131,7 +129,6 @@ function connectWebSocket(username: string) {
 
 	socket.onmessage = (event) => {
 		const data = JSON.parse(event.data);
-		// console.log("📩 Message from server:", data);
 
 		if (data.type === "welcome") {
 			currentPlayerId = data.playerId;
