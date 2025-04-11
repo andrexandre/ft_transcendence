@@ -5,6 +5,7 @@ import fastify from "fastify";
 import LoginRoute from "./routes/auth/loginRoutes.js";
 import googleSignRoute from "./routes/auth/googleSign.js";
 import RegisterRoute from "./routes/auth/registerRoutes.js";
+import userRoutes from "./routes/userRoutes/userRoutes.js";
 
 // Utils
 import { errorResponseSchema } from "./utils/error.js";
@@ -44,6 +45,7 @@ async function start() {
 		await server.register(RegisterRoute);
 		await server.register(LoginRoute);
 		await server.register(googleSignRoute);
+		await server.register(userRoutes);
 		
 		server.listen(listenOptions, async () => {
 			

@@ -1,13 +1,14 @@
+import { sampleBios } from "../utils/utils.js";
 
 export const createUser = function (username, email, password, auth_method) {
 	
-	let columns = "username, email, auth_method, is_online";
-	let values = "?, ?, ?, 'FALSE'";
-	let params = [username, email, auth_method];
+	let columns = "username, email, auth_method, is_online, codename, biography";
+	let values = "?, ?, ?, 'FALSE', ?, ?";
+	let params = [username, email, auth_method, "King of Pirates", sampleBios[Math.floor(Math.random() * (sampleBios.length + 1))]];
 
 	if (password) {
-		columns = "username, email, password, auth_method, is_online";
-		values = "?, ?, ?, ?, 'FALSE'";
+		columns = "username, email, password, auth_method, is_online, codename, biography";
+		values = "?, ?, ?, ?, 'FALSE', ?, ?";
 		params.splice(2, 0, password);
 	}
 
@@ -35,7 +36,9 @@ export const createTables = function() {
 		email TEXT NOT NULL UNIQUE,
 		password TEXT DEFAULT NULL,
 		auth_method TEXT NOT NULL,
-		is_online BOOLEAN NOT NULL
+		is_online BOOLEAN NOT NULL,
+		codename TEXT NOT NULL,
+		biography TEXT NOT NULL
 	);
 	`;
 

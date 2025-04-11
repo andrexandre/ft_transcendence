@@ -23,7 +23,6 @@ async function RegisterRoute(server, opts) {
 				});
 
             } catch(err) {
-
                 if (err.code === 'SQLITE_CONSTRAINT') {
 					const msg = (err.message.includes("email")) ? 'Email' : 'Username';
 					response.status(409).send({
