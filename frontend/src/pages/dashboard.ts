@@ -26,6 +26,22 @@ class Dashboard extends Page {
 		sidebar.setSidebarToggler();
 		renderProfileUsername();
 		document.getElementById("game-ad-button")!.addEventListener("click", () => lib.navigate('/game'));
+		(async () => {
+			try {
+				const response = await fetch('http://127.0.0.1:5000/user-game-history', {
+					credentials: "include",
+				});
+				if (!response.ok) {
+					throw new Error(`${response.status} - ${response.statusText}`);
+				}
+				lib.showToast.green(`${response.status} - ${response.statusText}`);
+				let dashData = await response.json();
+				console.log("Game data:" + dashData);
+			} catch (error) {
+				console.log(error);
+				lib.showToast.red(error as string);
+			}
+		})();
 	}
 	onCleanup(): void { }
 	getHtml(): string {
