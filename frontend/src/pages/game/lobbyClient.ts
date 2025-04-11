@@ -21,11 +21,10 @@ export async function renderLobbyList(): Promise<void> {
 
 			if (isHost) {
 				buttonLabel = isFull ? "START" : "QUIT";
-				handler:() => {
+				handler = () => {
 					if (isFull) {
 						showToast.green("🕹️ Starting game...");
 						startGameClient();
-						return Promise.resolve();
 					} else {
 						leaveLobby(lobbyObj.id, currentUserId, true);
 						showToast.red("🕹️ FFFF game...");
