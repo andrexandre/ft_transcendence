@@ -60,3 +60,21 @@ export function joinLobby(lobbyId: string, username: string, userId: number): Lo
 	return lobby;
 }
 
+export function leaveLobby(lobbyId: string, userId: number): boolean {
+	const lobby = lobbies.get(lobbyId);
+	if (!lobby) return false;
+
+	lobby.players = lobby.players.filter(p => p.userId !== userId);
+	if (lobby.players.length === 0) {
+		lobbies.delete(lobbyId);
+	}
+	return true;
+}
+
+export function removeLobbyIfHost(lobbyId: string, userId: number): boolean {
+	const lobby = lobbies.get(lobbyId);
+	if (!lobby || lobby.hostUserId !== userId) return false;
+
+	lobbies.delete(lobbyId);
+	return true;
+}
