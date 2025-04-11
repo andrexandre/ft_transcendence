@@ -18,6 +18,43 @@ export async function renderProfileUsername() {
 		profileUsername.textContent = "Sir Barkalot";
 }
 
+interface MatchHistoryI {
+	Mode: string;
+	winner: {
+		username: string;
+		score: number;
+	};
+	loser: {
+		username: string;
+		score: number;
+	};
+	time: string;
+}
+
+function displayMatchHistory(matchHistory: MatchHistoryI[]) {
+	const statsDiv = document.getElementById("stats")!;
+	matchHistory.forEach(match => {
+		const matchDiv = document.createElement("div");
+		let matchBgColor = '';
+		if (match.winner.username === lib.userInfo.username)
+			matchBgColor = "border-green-500 hover:border-green-700";
+		else if (match.loser.username === lib.userInfo.username)
+			matchBgColor = "border-red-500 hover:border-red-700";
+		matchDiv.className = "relative item t-dashed " + matchBgColor;
+		matchDiv.innerHTML = /*html*/`
+			<p class="text-sm absolute top-0 left-1/2 transform -translate-x-1/2">${match.Mode}</p>
+			<div class="flex justify-around text-3xl pt-1 items-center">
+				<p>${match.winner.score}</p>
+				<p>${match.winner.username}</p>
+				<p>vs</p>
+				<p>${match.loser.username}</p>
+				<p>${match.loser.score}</p>
+			</div>
+		`;
+		statsDiv.appendChild(matchDiv);
+	});
+}
+
 class Dashboard extends Page {
 	constructor() {
 		super("dashboard", '/');
@@ -34,8 +71,8 @@ class Dashboard extends Page {
 				if (!response.ok) {
 					throw new Error(`${response.status} - ${response.statusText}`);
 				}
-				let dashData = await response.json();
-				console.log("Game data:" + dashData);
+				let matchHistory = await response.json();
+				displayMatchHistory(matchHistory);
 			} catch (error) {
 				console.log(error);
 				lib.showToast.red(error as string);
@@ -61,13 +98,8 @@ class Dashboard extends Page {
 					<div class="ball size-4 rounded-xl bg-c-secondary absolute animate-[ball-animation_6s_infinite_linear]"></div>
 					<button id="game-ad-button" class="flex p-5 t-dashed absolute bottom-0 animate-[btn-animation_6s_infinite_linear]">Let's Play</button>
 				</div>
-				<div id="stats" class="card t-dashed grid">
-					<h1 class="text-xl font-bold">Pong Stats</h1>
-					<div class="item t-dashed"></div>
-					<div class="item t-dashed"></div>
-					<div class="item t-dashed"></div>
-					<div class="item t-dashed"></div>
-					<div class="item t-dashed"></div>
+				<div id="stats" class="card t-dashed">
+					<h1 class="text-xl font-bold mb-8">Pong match history</h1>
 				</div>
 				<div id="friends" class="card t-dashed flex flex-col justify-around overflow-scroll">
 					<h1 class="text-xl font-bold">Active friends</h1>

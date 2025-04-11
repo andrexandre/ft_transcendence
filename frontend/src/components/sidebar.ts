@@ -86,6 +86,9 @@ const sidebar = {
 					}
 					lib.showToast.green(`${response.status} - ${response.statusText}`);
 					lib.navigate('/login');
+					lib.userInfo.username = '';
+					lib.userInfo.userId = '';
+					lib.userInfo.auth_method = '';
 				} catch (error) {
 					console.log(error);
 					lib.showToast.red(error as string);

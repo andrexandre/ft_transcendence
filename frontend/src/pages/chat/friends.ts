@@ -4,7 +4,7 @@ const host = `ws://127.0.0.1:2000/chat-ws`;
 const socket = new WebSocket(host);
 
 socket.onopen = () => {
-	console.log('Chat socket created');
+	console.debug('Chat socket created');
 }
 
 socket.onerror = (error) => {
@@ -12,7 +12,7 @@ socket.onerror = (error) => {
 };
 
 socket.onclose = (event) => {
-	console.log('WebSocket connection closed:', event.code, event.reason);
+	console.debug('WebSocket connection closed:', event.code, event.reason);
 	// Maybe add some reconnection logic here
 };
 
