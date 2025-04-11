@@ -5,45 +5,33 @@ const sidebar = {
 		<aside id="sidebar" class="card t-dashed transition-all p-3 w-50">
 			<ul id="sidebar-list" class="flex flex-col h-full">
 				<li>
-					<button id="hide-button" class="sidebar-component">
+					<button id="hide-sidebar-button" class="sidebar-component">
 						<i class="fa-solid fa-arrow-left"></i>
 						<p>Hide</p>
 					</button>
 				</li>
 				<li>
-					<button id="home-button" class="sidebar-component">
+					<button id="goto-home-button" class="sidebar-component">
 						<i class="fa-solid fa-home"></i>
 						<p>Home</p>
 					</button>
 				</li>
 				<li>
-					<button id="chat-button" class="sidebar-component">
+					<button id="goto-chat-button" class="sidebar-component">
 						<i class="fa-solid fa-message"></i>
 						<p>Chat</p>
 					</button>
 				</li>
 				<li>
-					<button id="game-button" class="sidebar-component">
+					<button id="goto-game-button" class="sidebar-component">
 						<i class="fa-solid fa-gamepad"></i>
 						<p>Game</p>
 					</button>
 				</li>
 				<li>
-					<button id="notifications-button" class="sidebar-component">
+					<button id="test-notifications-button" class="sidebar-component">
 						<i class="fa-solid fa-bell"></i>
 						<p>Notifications</p>
-					</button>
-				</li>
-				<li>
-					<button id="link-to-chat-button" class="sidebar-component">
-						<i class="fa-solid fa-comment-dots"></i>
-						<p>Link to chat</p>
-					</button>
-				</li>
-				<li>
-					<button id="link-to-game-button" class="sidebar-component">
-						<i class="fa-solid fa-link"></i>
-						<p>Link to game</p>
 					</button>
 				</li>
 				<li class="mt-auto">
@@ -51,7 +39,7 @@ const sidebar = {
 						<i class="fa-solid fa-right-from-bracket"></i>
 						<p>Logout</p>
 					</button>
-					<button id="settings-button" class="sidebar-component">
+					<button id="goto-settings-button" class="sidebar-component">
 						<i class="fa-solid fa-gear"></i>
 						<p>Settings</p>
 					</button>
@@ -59,12 +47,13 @@ const sidebar = {
 			</ul>
 		</aside>
 	`,
-	setSidebarToggler: () => {
-		const sidebar = document.getElementById('sidebar');
-		const sidebarList = document.getElementById('sidebar-list');
-		const closeButton = document.getElementById('hide-button');
-
-		const handler = () => {
+	setSidebarToggler: (buttonName?: string) => {
+		if (buttonName == 'home' || buttonName == 'chat' || buttonName == 'game' || buttonName == 'settings') {
+			document.getElementById(`goto-${buttonName}-button`)?.classList.add('bg-c-secondary');
+		}
+		document.getElementById('hide-sidebar-button')!.addEventListener('click', () => {
+			const sidebar = document.getElementById('sidebar');
+			const sidebarList = document.getElementById('sidebar-list');
 			const pElements = sidebar?.querySelectorAll('p');
 			if (!sidebar || !sidebarList)
 				return lib.showToast.red();
@@ -81,21 +70,11 @@ const sidebar = {
 					sidebarList.classList.add('place-items-center');
 				}
 			});
-		}
-		closeButton?.addEventListener('click', handler);
-
-		lib.assignButtonNavigation('home-button', '/');
-		lib.assignButtonNavigation('chat-button', '/chat');
-		document.getElementById("link-to-chat-button")!.addEventListener("click", () => {
-			window.location.href = "http://127.0.0.1:2000/";
 		});
-		lib.assignButtonNavigation('game-button', '/game');
-		document.getElementById("notifications-button")!.addEventListener("click", () => {
-			lib.showToast();
-		});
-		document.getElementById("link-to-game-button")!.addEventListener("click", () => {
-			window.location.href = "http://127.0.0.1:5000/";
-		});
+		lib.assignButtonNavigation('goto-home-button', '/');
+		lib.assignButtonNavigation('goto-chat-button', '/chat');
+		lib.assignButtonNavigation('goto-game-button', '/game');
+		document.getElementById("test-notifications-button")!.addEventListener("click", () => lib.showToast());
 		document.getElementById("logout-button")!.addEventListener("click", () => {
 			(async () => {
 				try {
@@ -113,7 +92,7 @@ const sidebar = {
 				}
 			})();
 		});
-		lib.assignButtonNavigation('settings-button', '/settings');
+		lib.assignButtonNavigation('goto-settings-button', '/settings');
 	}
 }
 

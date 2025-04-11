@@ -23,7 +23,7 @@ class Dashboard extends Page {
 		super("dashboard", '/');
 	}
 	onMount(): void {
-		sidebar.setSidebarToggler();
+		sidebar.setSidebarToggler('home');
 		renderProfileUsername();
 		document.getElementById("game-ad-button")!.addEventListener("click", () => lib.navigate('/game'));
 		(async () => {
@@ -34,7 +34,6 @@ class Dashboard extends Page {
 				if (!response.ok) {
 					throw new Error(`${response.status} - ${response.statusText}`);
 				}
-				lib.showToast.green(`${response.status} - ${response.statusText}`);
 				let dashData = await response.json();
 				console.log("Game data:" + dashData);
 			} catch (error) {

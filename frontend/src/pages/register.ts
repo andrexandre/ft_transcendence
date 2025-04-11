@@ -59,7 +59,7 @@ class Register extends Page {
 					throw new Error(`${response.status} - ${response.statusText}`);
 				}
 				lib.showToast.green(`${response.status} - ${response.statusText}`);
-				lib.navigate("/login", e);
+				lib.navigate("/login");
 			} catch (error) {
 				console.log(error);
 				lib.showToast.red(error as string);

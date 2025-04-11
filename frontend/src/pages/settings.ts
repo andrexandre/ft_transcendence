@@ -8,7 +8,7 @@ class Settings extends Page {
 		super("settings", '/settings');
 	}
 	onMount(): void {
-		sidebar.setSidebarToggler();
+		sidebar.setSidebarToggler('settings');
 		renderProfileUsername();
 		const buttons = document.querySelectorAll('#theme-selector button');
 		buttons.forEach(button => {

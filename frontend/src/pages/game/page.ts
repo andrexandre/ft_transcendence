@@ -9,7 +9,7 @@ class Game extends Page {
 		super("game", '/game');
 	}
 	onMount(): void {
-		sidebar.setSidebarToggler();
+		sidebar.setSidebarToggler('game');
 		// Set Settings dropdown
 		dropdown.initialize('Settings');
 		dropdown.addElement('Settings', 'div', 'flex flex-col', /*html*/`

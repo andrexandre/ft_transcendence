@@ -4,7 +4,7 @@ const host = `ws://127.0.0.1:2000/chat-ws`;
 const socket = new WebSocket(host);
 
 socket.onopen = () => {
-	showToast('Chat socket created');
+	console.log('Chat socket created');
 }
 
 socket.onerror = (error) => {
@@ -170,7 +170,7 @@ function addFriendRequest(name: string) {
 	friendRequestsList.appendChild(friendRequestEntry);
 }
 
-function showFriendRequests(requests: {sender: string}[]) { //! wtf does this receive
+function showFriendRequests(requests: {sender: string}[]) {
 	const friendRequestsList = document.getElementById('friend-requests-list')!;
 	friendRequestsList.innerHTML = '';
 	console.log(requests);
@@ -287,8 +287,5 @@ export function setChatEventListeners() {
 		() => showToast.green('Viewing profile...'));
 	document.getElementById('chat-box-invite')?.addEventListener('click',
 		() => showToast.yellow('Inviting player...'));
-	// document.getElementById('chat-box-block')?.addEventListener('click',
-	// 	() => showToast.red('Blocking user...'));
-	// createRoom('User', false); // set chat-box-block listener
 	setupBlockButtonListener();
 }

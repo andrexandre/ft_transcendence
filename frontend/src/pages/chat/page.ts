@@ -8,8 +8,8 @@ class Chat extends Page {
 		super("chat", '/chat');
 	}
 	onMount(): void {
-		sidebar.setSidebarToggler();
-		document.getElementById('hide-button')?.click();
+		sidebar.setSidebarToggler('chat');
+		document.getElementById('hide-sidebar-button')?.click();
 
 		setChatEventListeners();
 	}

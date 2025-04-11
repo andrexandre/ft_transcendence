@@ -57,8 +57,7 @@ class Login extends Page {
 				if (!response.ok) {
 					throw new Error(`${response.status} - ${response.statusText}`);
 				}
-				lib.showToast.green(`${response.status} - ${response.statusText}`);
-				lib.navigate("/", e);
+				lib.navigate("/");
 			} catch (error) {
 				console.log(error);
 				lib.showToast.red(error as string);
