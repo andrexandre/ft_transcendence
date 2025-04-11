@@ -34,13 +34,13 @@ gamefast.get("/ws", { websocket: true }, (conn, req) => {
 	socket.on("close", () => handleDisconnect(socket));
 });
 
+/////// Lobby routes handling ///////
 gamefast.get("/lobbies", (_, reply) => {
 	reply.send(lobby.listLobbies());
 });
 
 gamefast.post("/lobbies", async (req, reply) => {
 	const { username, userId, mode, maxPlayers } = req.body as any;
-
 	const newLobby = lobby.createLobby(username, userId, mode, maxPlayers);
 
 	if (!newLobby) {
@@ -58,7 +58,25 @@ gamefast.post("/lobbies/:id/join", async (req, reply) => {
 	reply.send(updated);
 });
 
-// Start game loop (for multiplayer game logic) // Del in front
+// Leave lobby (non-host)
+gamefast.delete("/lobbies/:id/leave", async (req, reply) => {
+	const { id } = req.params as any;
+	const { userId } = req.body as any;
+	const result = lobby.leaveLobby(id, userId);
+	if (!result) return reply.status(404).send({ error: "Lobby or user not found" });
+	reply.send({ message: "Left lobby" });
+});
+
+// Disband lobby (host only)
+gamefast.delete("/lobbies/:id", async (req, reply) => {
+	const { id } = req.params as any;
+	const { userId } = req.body as any;
+	const success = lobby.removeLobbyIfHost(id, userId);
+	if (!success) return reply.status(403).send({ error: "Not host or lobby not found" });
+	reply.send({ message: "Lobby disbanded" });
+});
+
+// Start game loop (for multiplayer game logic) // Delete in front
 startGameLoop();
 
 gamefast.listen({ port: PORT, host: "0.0.0.0" }, () => {

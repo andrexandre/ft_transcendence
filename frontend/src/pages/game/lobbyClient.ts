@@ -1,5 +1,5 @@
 import { showToast } from "../../utils";
-
+import { startGameClient } from "./gameClient";
 const SERVER_URL = "http://127.0.0.1:5000";
 
 export async function renderLobbyList(): Promise<void> {
@@ -9,29 +9,61 @@ export async function renderLobbyList(): Promise<void> {
 		list.innerHTML = "";
 
 		const currentUsername = sessionStorage.getItem("username");
+		const currentUserId = Number(sessionStorage.getItem("user_id"));
 
 		lobbies.forEach((lobbyObj: any) => {
-			const isHost = lobbyObj.hostUsername === currentUsername;
+			const isHost = lobbyObj.hostUserId === currentUserId;
+			const isInLobby = lobbyObj.players.some((p: any) => p.userId === currentUserId);
+			const isFull = lobbyObj.players.length === lobbyObj.maxPlayers;
+
+			let buttonLabel = "JOIN";
+			let handler = () => joinLobby(lobbyObj.id, currentUsername!, currentUserId);
+
+			if (isHost) {
+				buttonLabel = isFull ? "START" : "QUIT";
+				handler = () => {
+					if (isFull) {
+						showToast.green("🕹️ Starting game...");
+						startGameClient();
+					} else {
+						leaveLobby(lobbyObj.id, currentUserId, true);
+						showToast.red("🕹️ FFFF game...");
+					}
+				};
+				
+			} else if (isInLobby) {
+				buttonLabel = "QUIT";
+				handler = () => leaveLobby(lobbyObj.id, currentUserId, false);
+			}
+
 			addLobbyEntry(
 				lobbyObj.id,
 				lobbyObj.hostUsername,
 				lobbyObj.mode,
 				`${lobbyObj.players.length}/${lobbyObj.maxPlayers}`,
-				() => {
-					showToast.blue(`${isHost ? "Ready in" : "Joining"} lobby ${lobbyObj.id}`);
-					joinLobby(
-						lobbyObj.id,
-						currentUsername!,
-						Number(sessionStorage.getItem("user_id")!)
-					);
-				},
-				isHost ? "READY" : "JOIN"
+				handler,
+				buttonLabel
 			);
 		});
+
 	} catch (err) {
 		console.error("❌ Failed to load lobbies:", err);
 		showToast.red("Failed to load lobbies");
 	}
+}
+
+export async function leaveLobby(lobbyId: string, userId: number, isHost: boolean) {
+	const endpoint = isHost
+		? `${SERVER_URL}/lobbies/${lobbyId}`
+		: `${SERVER_URL}/lobbies/${lobbyId}/leave`;
+
+	const res = await fetch(endpoint, {
+		method: "DELETE",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ userId }),
+	});
+	if (!res.ok) throw new Error("Failed to leave/disband lobby");
+	await renderLobbyList();
 }
 
 function addLobbyBlock(gameOptionId: string, gameOption: string | number) {
@@ -57,7 +89,7 @@ function addLobbyEntry(
 		<button id="join-button-${id}" class="text-orange-700 hover:bg-orange-500 hover:text-black">${label}</button>
 	`);
 	document.getElementById(`join-button-${id}`)?.addEventListener("click", onClickHandler);
-	showToast.blue(`Lobby entry n: ${id} added`);
+	// showToast.blue(`Lobby entry n: ${id} added`);
 }
 
 export async function fetchLobbies() {

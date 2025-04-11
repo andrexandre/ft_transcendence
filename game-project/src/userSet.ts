@@ -14,8 +14,24 @@ interface MatchData {
 
 interface UserData {
 	username: string;
-	userId: string;
+	userId: number;
 }
+
+interface User {
+	user_id: number;
+	user_name: string;
+}
+
+interface GameHistory {
+	game_mode: string;
+	game_player1_id: number;
+	game_player2_id: number;
+	game_winner: number;
+	game_player1_score: number;
+	game_player2_score: number;
+	game_time: string;
+}
+
 
 interface SaveSettingsRequest {
     Body: {
@@ -46,23 +62,33 @@ async function getUserDatafGateway(token: string | undefined): Promise<UserData 
 	}
 }
 
-// Adapt to get match history for frontend
-export async function sendMatchToAPI(matchData: MatchData): Promise<boolean> {
-	try {
-		const response = await fetch("http://gateway-api:7000/matchHistory", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify(matchData),
-		});
-		if (!response.ok) throw new Error("❌ Failed to send match");
-		console.log("✅ Match saved to Gateway API");
-		return true;
-	} catch (err) {
-		console.error("❌ Match API error:", err);
-		return false;
-	}
+async function getUserHistory(id: any): Promise<GameHistory[]> {
+	return new Promise((resolve, reject) => {
+	  let content: GameHistory[] = [];
+  
+	  db_game.each("SELECT * FROM games WHERE game_player1_id = ? or game_player2_id = ?;", [ id, id ], (err, row: GameHistory) => {
+		if (err) {
+		  reject(err); // Rejeita a Promise em caso de erro
+		} else {
+		  content.push(row);
+		}
+	  }, (err, numRows) => {
+		if (err) {
+		  reject(err); // Se houver erro no processo, rejeita
+		} else {
+		  resolve(content); // Resolve a Promise com os dados quando terminar
+		}
+	  });
+	});
 }
 
+const getUserFromDb = (userId: Number) =>
+	new Promise((resolve, reject) => {
+		db_game.get("SELECT * FROM users WHERE user_id = ?", [userId], (err, row) => {
+			if (err) return reject({ status: 500, error: "Database error", details: err.message });
+			resolve(row);
+		});
+	});
 
 export async function userRoutes(gamefast: FastifyInstance) {
 	// Get user data
@@ -76,16 +102,9 @@ export async function userRoutes(gamefast: FastifyInstance) {
 
 		const { username, userId } = userData;
 
-		const getUserFromDb = () =>
-			new Promise((resolve, reject) => {
-				db_game.get("SELECT * FROM users WHERE user_id = ?", [userId], (err, row) => {
-					if (err) return reject({ status: 500, error: "Database error", details: err.message });
-					resolve(row);
-				});
-			});
-
+		
 		try {
-			let row = await getUserFromDb();
+			let row = await getUserFromDb(userId);
 			if (!row) {
 				console.log(`🆕 User '${username}' not found. Creating...`);
 				await new Promise((resolve, reject) => {
@@ -142,5 +161,56 @@ export async function userRoutes(gamefast: FastifyInstance) {
 			  reply.status(200).send({ message: "✅ Match saved & sent!" });
 			}
 		  );
+	});
+
+	gamefast.get('/user-game-history', async (request, reply) => {
+		
+		try {
+
+			const token: string | undefined = request.cookies.token;
+			if (!token) return reply.status(401).send({ error: "No token provided" });
+			
+			// Obtém informações do usuário
+			const userData = await getUserDatafGateway(token);
+			if (!userData)
+				return reply.status(401).send({ error: "Failed to fetch user from Gateway" });
+
+			const user1: any = await getUserFromDb(userData.userId);
+			console.log(user1);
+			// Obtém histórico do usuário
+			const history: GameHistory[] = await getUserHistory(user1.user_id);
+			
+			// Array de resultados formatados
+			const result: any[] = [];
+	
+			for (const element of history) {
+				let user2: any;
+				if (element.game_player2_id === 9999) {
+					user2 = {user_id: 9999, user_name: 'bot'}
+				} else {
+					if (element.game_player2_id != user1.user_id)
+						user2 = await getUserFromDb(element.game_player2_id);
+					else
+						user2 = await getUserFromDb(element.game_player1_id);
+				}
+				result.push({
+					Mode: element.game_mode,
+					winner: {
+						username: (element.game_winner === user1.user_id) ? user1.user_name : user2.user_name,
+						score: (element.game_winner === user1.user_id) ? element.game_player1_score : element.game_player2_score
+					},
+					loser: {
+						username: (element.game_winner === user1.user_id) ? user2.user_name : user1.user_name,
+						score: (element.game_winner === user1.user_id) ? element.game_player2_score : element.game_player1_score
+					},
+					time: element.game_time
+				});
+			}
+	
+			reply.send(JSON.stringify(result, null, 2)); 
+		} catch (error) {
+			console.error("Erro ao processar histórico:", error);
+			reply.status(500).send({ error: `Erro interno no servidor:\n ${error}` });
+		}
 	});
 }

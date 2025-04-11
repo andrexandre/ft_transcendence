@@ -39,7 +39,7 @@ function initializeGameMainMenu() {
 	
 		if (!lobby?.classList.contains('hidden')) {
 			await lobbyClient.renderLobbyList();
-			lobbyRefreshInterval = setInterval(lobbyClient.renderLobbyList, 10000);
+			lobbyRefreshInterval = setInterval(lobbyClient.renderLobbyList, 1000);
 		} else {
 			if (lobbyRefreshInterval) {
 				clearInterval(lobbyRefreshInterval);
@@ -51,7 +51,7 @@ function initializeGameMainMenu() {
 		const username = sessionStorage.getItem("username")!;
 		const userId = Number(sessionStorage.getItem("user_id")!);
 		try {
-			const result = await lobbyClient.createLobby(username, userId, "TNMT", 8);
+			const result = await lobbyClient.createLobby(username, userId, "TNMT", 2);
 			showToast.green(`✅ Created lobby ${result.id}`);
 		} catch (err) {
 			showToast.red("❌ Failed to create lobby");
