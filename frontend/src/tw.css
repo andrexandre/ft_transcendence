@@ -1,16 +1,71 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* All the following styles are only on tw.css
+bg- (excluding settings)
+text- (excluding game/page and auth)
+border (excluding chat/page)
+hover:border-
+focus:border- (excluding auth)
+*/
+
+/* theme */
 @theme static {
-	--color-lighter: theme(colors.stone.100);
-	--color-light: theme(colors.stone.400);
-	--color-dark: theme(colors.stone.600);
-	--color-darker: theme(colors.stone.800);
+	/* 0 = lighter, 1000 = darker */
+	--color-c-bg: var(--color-d-c-bg); /* background */
+	--color-c-text: var(--color-d-c-text); /* text */
+	--color-c-primary: var(--color-d-c-primary); /* border hover */
+	--color-c-secondary: var(--color-d-c-secondary); /* border */
+	--color-d-c-bg: theme(colors.white);
+	--color-d-c-text: theme(colors.stone.800);
+	--color-d-c-primary: theme(colors.stone.600);
+	--color-d-c-secondary: theme(colors.stone.400);
+	--color-g-c-bg: theme(colors.black);
+	--color-g-c-text: theme(colors.green.600);
+	--color-g-c-primary: theme(colors.green.400);
+	--color-g-c-secondary: theme(colors.green.800);
 }
 
+@layer components {
+	.t-border {
+		@apply border-2 text-c-text border-c-secondary hover:border-c-primary
+			dark:text-c-bg dark:border-c-primary dark:hover:border-c-secondary;
+	}
+	.t-dashed { /* dashed rounded border */
+		@apply border-2 text-c-text border-c-secondary hover:border-c-primary border-dashed rounded-3xl
+			dark:text-c-bg dark:border-c-primary dark:hover:border-c-secondary;
+	}
+	.item {
+		@apply m-1 p-2;
+	}
+	.card {
+		@apply gap-4 m-2.5 p-10 text-center;
+	}
+}
+
+@layer utilities {
+	input:-webkit-autofill {
+		transition: background-color 100000s ease-in-out 0s;
+		box-shadow: 0 0 0px 1000px rgb(225, 245, 255) inset !important;
+	}
+}
+
+/* global */
 body {
-	@apply bg-lighter select-none;
+	@apply bg-c-bg select-none dark:bg-black;
 }
 
+img {
+	@apply pointer-events-none;
+}
+
+/* other */
+.sidebar-component {
+	@apply flex p-3 rounded-2xl justify-between items-center w-full hover:bg-c-secondary transition-all dark:hover:bg-c-primary;
+}
+
+/* toast */
 #toast-container {
 	@apply flex flex-col-reverse gap-2 w-xs fixed -top-4 right-4 pt-8;
 }
@@ -20,22 +75,25 @@ body {
 	animation: toast-animation 3000ms forwards;
 	/* animation: name duration timing-function delay iteration-count direction fill-mode play-state; */
 }
-.dash-component {
-	@apply gap-4 m-2.5 text-center border-2 border-dashed rounded-3xl text-dark border-light hover:border-darker;
+.toast-default {
+	@apply bg-c-bg text-c-text border-c-secondary hover:border-c-primary
+	dark:bg-black dark:text-c-bg dark:border-c-primary dark:hover:border-c-secondary;
 }
-.sidebar-list {
-	@apply flex flex-col h-full;
+.toast-green {
+	@apply bg-green-100 text-green-800 border-green-400 hover:border-green-800
+	dark:bg-green-950 dark:text-green-100 dark:border-green-700 dark:hover:border-green-300;
 }
-.sidebar-component {
-	@apply flex p-3 rounded-2xl justify-between items-center w-full  hover:bg-light transition-all;
+.toast-red {
+	@apply bg-red-100 text-red-800 border-red-400 hover:border-red-800
+	dark:bg-red-950 dark:text-red-100 dark:border-red-700 dark:hover:border-red-300;
 }
-
-.profile-header {
-	@apply flex gap-16;
+.toast-blue {
+	@apply bg-blue-100 text-blue-800 border-blue-400 hover:border-blue-800
+	dark:bg-blue-950 dark:text-blue-100 dark:border-blue-700 dark:hover:border-blue-300;
 }
-
-img {
-	@apply pointer-events-none;
+.toast-yellow {
+	@apply bg-yellow-100 text-yellow-800 border-yellow-400 hover:border-yellow-800
+	dark:bg-yellow-950 dark:text-yellow-100 dark:border-yellow-700 dark:hover:border-yellow-300;
 }
 
 @keyframes toast-animation {
@@ -44,25 +102,81 @@ img {
 }
 
 /* game */
-.game-component {
-	@apply m-1 px-4 py-2 border-2 border-light hover:border-darker focus:outline-none;
+.g-t-border {
+	@apply border-2 text-g-c-text border-g-c-secondary hover:border-g-c-primary;
+}
+.g-t-border-alt {
+	@apply border-2 text-g-c-text border-orange-700 hover:border-orange-500;
 }
 
 canvas {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 10;
-	@apply border-2 border-dark;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	z-index: 10;
+	@apply border-2 border-g-c-text;
 }
 
 #scoreboard {
-    position: absolute;
-    top: 5%;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 30px;
-    font-weight: bold;
-	@apply text-dark;
+	position: absolute;
+	top: 5%;
+	left: 50%;
+	transform: translateX(-50%);
+	font-size: 30px;
+	font-weight: bold;
+	@apply text-g-c-text;
+}
+
+#main-menu-title {
+	animation: glow 2s infinite alternate;
+	text-shadow: 0 0 10px green, 0 0 20px lime, 0 0 30px lime, 0 0 40px lime;
+}
+
+@keyframes glow {
+	0% { text-shadow: 0 0 10px black, 0 0 20px lime, 0 0 30px lime; }
+	100% { text-shadow: 0 0 20px black, 0 0 30px lime, 0 0 40px lime; }
+}
+
+/* dashboard menu animation */
+@keyframes ball-animation {
+	0%, 100% {
+		bottom: 15%;
+		left: 50%;
+	}
+	25% {
+		bottom: 50%;
+		left: var(--ball-end);
+	}
+	50% {
+		bottom: 96%;
+		left: 50%;
+	}
+	75% {
+		bottom: 50%;
+		left: 0%;
+	}
+}
+
+:root {
+	--btn-width: 7rem;
+	--btn-start: 0%;
+	--btn-end: calc(100% - var(--btn-width));
+	--btn-half: calc((var(--btn-end) - var(--btn-start)) / 2);
+	--ball-end: calc(100% - 1rem);
+}
+
+@keyframes btn-animation {
+	0%, 100% {
+		left: var(--btn-half);
+	}
+	25% {
+		left: var(--btn-end);
+	}
+	50% {
+		left: var(--btn-half);
+	}
+	75% {
+		left: var(--btn-start);
+	}
 }

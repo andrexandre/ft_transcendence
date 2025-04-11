@@ -7,7 +7,7 @@ MAGENTA		:= \033[1;35m
 CYAN		:= \033[1;36m
 WHITE		:= \033[1;37m
 
-build-up:
+build-up: backend/Gateway/.env
 	docker compose up --build
 
 build:
@@ -35,11 +35,12 @@ status:
 	@docker network ls
 	@echo
 
-env:
+backend/Gateway/.env:
 	curl -s https://gist.githubusercontent.com/andrexandre/8c011820a35117d005016151cfd46207/raw/83a0d67fbf775a78355dd617e6502d9c03f496ad/.env > backend/Gateway/.env
 
 destroy: down rmi
 	find . -type f -iname '*.db' -delete
+	find . -type f -iname '*.jsonl' -delete
 	docker run --rm -v ./backend/user/userManagement/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
 	docker run --rm -v ./backend/Gateway/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
 	docker run --rm -v ./game-project/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
@@ -104,7 +105,7 @@ rm-rf:
 guser:
 	docker exec pongify sqlite3 -header -column /pong_vol/game-project/db_game.db "SELECT * FROM users;"
 ggame:
-	docker exec pongify sqlite3 -header -column /pong_vol/game-project/db_game.db "SELECT * FROM games LIMIT 20;"
+	docker exec pongify sqlite3 -header -column /pong_vol/game-project/db_game.db "SELECT * FROM games;"
 
 
 

@@ -23,3 +23,5 @@ document.addEventListener('keydown', (event: KeyboardEvent) => {
 		});
 	}
 });
+
+// lib.loadTheme();

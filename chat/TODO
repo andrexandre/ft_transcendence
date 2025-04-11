@@ -1,3 +1,3 @@
 - mais tarde fazer o redirect para o profile quando se clica no botão de profile no dropdown menu
-- falta pensar como vou dar unblock nos users e por onde
-- falta apos da block atualizar tanto a lista de amigos online do user que bloqueou e o user que foi bloqueado
+- falta fazer com que eu saiba quando as pessoas estao online quand entram no site nao quando entram no chat
+- fazer match do id das duas bases de dados

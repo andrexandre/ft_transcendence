@@ -17,14 +17,13 @@ function loginRoute(fastify, options) {
         if(response.status == 200){
             const payload = await fastify.prepareTokenData(response, "email");
             const token = await fastify.generateToken(payload);
-            console.log("PAYLOAD HERE: ", payload);
             reply.status(200).setCookie("token", token, {
                 path: '/',
                 httpOnly: true,
                 secure: true,
                 sameSite: 'Strict'
             });
-            reply.send(await fastify.parseToReadableData(token));
+            reply.send(payload);
         }
         else{
             reply.status(response.status);
