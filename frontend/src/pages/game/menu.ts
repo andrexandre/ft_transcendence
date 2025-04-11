@@ -3,6 +3,12 @@ import dropdown from "../../components/dropdown";
 import { startSingleClassic } from "./single";
 import * as lobbyClient from "./lobbyClient";
 import { startGameClient, initGameCanvas } from "./gameClient";
+import { playMusic } from "./soundManager";
+
+playMusic("menuMusic");
+
+
+let lobbyRefreshInterval: ReturnType<typeof setInterval> | null = null;
 
 function initializeGameMainMenu() {
 	// Set Single dropdown
@@ -30,40 +36,22 @@ function initializeGameMainMenu() {
 	dropdown.initialize('Multi', async () => {
 		const lobby = document.getElementById('lobby');
 		lobby?.classList.toggle('hidden');
-
+	
 		if (!lobby?.classList.contains('hidden')) {
-			try {
-				const lobbies = await lobbyClient.fetchLobbies();
-				const list = document.getElementById('lobby-list')!;
-				list.innerHTML = "";
-
-				lobbies.forEach((lobbyObj: any) => {
-					addLobbyEntry(
-						lobbyObj.id,
-						lobbyObj.hostUsername,
-						lobbyObj.mode,
-						`${lobbyObj.players.length}/${lobbyObj.maxPlayers}`,
-						() => {
-							showToast.blue(`Joining lobby ${lobbyObj.id}`);
-							lobbyClient.joinLobby(
-								lobbyObj.id,
-								sessionStorage.getItem("user_name")!,
-								Number(sessionStorage.getItem("user_id")!)
-							);
-						}
-					);
-				});
-			} catch (err) {
-				console.error("❌ Failed to load lobbies:", err);
-				showToast.red("Failed to load lobbies");
+			await lobbyClient.renderLobbyList();
+			lobbyRefreshInterval = setInterval(lobbyClient.renderLobbyList, 10000);
+		} else {
+			if (lobbyRefreshInterval) {
+				clearInterval(lobbyRefreshInterval);
+				lobbyRefreshInterval = null;
 			}
 		}
 	});
 	dropdown.addElement('Multi', 'button', 'item g-t-border-alt', 'Tournament', async () => {
-		const username = sessionStorage.getItem("user_name")!;
+		const username = sessionStorage.getItem("username")!;
 		const userId = Number(sessionStorage.getItem("user_id")!);
 		try {
-			const result = await lobbyClient.createLobby(username, userId, "classic", 2);
+			const result = await lobbyClient.createLobby(username, userId, "TNMT", 8);
 			showToast.green(`✅ Created lobby ${result.id}`);
 		} catch (err) {
 			showToast.red("❌ Failed to create lobby");
@@ -96,14 +84,24 @@ function addLobbyBlock(gameOptionId: string, gameOption: string | number) {
 	lobby?.appendChild(entry);
 }
 
-function addLobbyEntry(id: string, userName: string, gameType: string, maxPlayer: string, onClickHandler: () => void, buttonLabel: string = "JOIN") {
+function addLobbyEntry(
+	id: string,
+	userName: string,
+	gameType: string,
+	maxPlayer: string,
+	onClickHandler: () => void
+) {
+	const currentUser = sessionStorage.getItem("username");
+	const isHost = userName === currentUser;
+	const label = isHost ? "READY" : "JOIN";
+
 	addLobbyBlock(id, userName);
 	addLobbyBlock(id, gameType);
 	addLobbyBlock(id, maxPlayer);
 	addLobbyBlock(id, /*html*/`
-		<button id="join-button-${id}" class="text-orange-700 hover:bg-orange-500 hover:text-black">${buttonLabel}</button>
+		<button id="join-button-${id}" class="text-orange-700 hover:bg-orange-500 hover:text-black">${label}</button>
 	`);
-	document.getElementById(`join-button-${id}`)?.addEventListener('click', onClickHandler);
+	document.getElementById(`join-button-${id}`)?.addEventListener("click", onClickHandler);
 	showToast.blue(`Lobby entry n: ${id} added`);
 }
 

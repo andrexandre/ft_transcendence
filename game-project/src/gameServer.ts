@@ -128,14 +128,16 @@ export function startGameLoop() {
 		if (p1.score >= winingValue || p2.score >= winingValue) {
 			const winner = p1.score > p2.score ? p1 : p2;
 			broadcast({ type: "end", winner: winner.username });
-			// saveMatchToAPI({
-			// 	player1Id: p1.userId,
-			// 	player2Id: p2.userId,
-			// 	player1Score: p1.score,
-			// 	player2Score: p2.score,
-			// 	gameMode: "classic",
-			// 	winnerId: winner.userId,
-			// });
+			
+			saveMatchToDatabase(
+				p1.userId,
+				p2.userId,
+				p1.score,
+				p2.score,
+				"Matrecos",
+				winner.userId
+			);
+			
 			clients.clear();
 			clients.forEach((value, key) => {
 				key.close();
@@ -146,23 +148,30 @@ export function startGameLoop() {
 	}, updateFPS);
 }
 
-async function saveMatchToAPI(match: {
-	player1Id: number;
-	player2Id: number;
-	player1Score: number;
-	player2Score: number;
-	gameMode: string;
-	winnerId: number;
-}) {
+async function saveMatchToDatabase( 
+	player1Id: number,
+	player2Id: number,
+	player1Score: number,
+	player2Score: number,
+	gameMode: string,
+	winnerId: number
+) {
 	try {
-		const res = await fetch("http://gateway-api:7000/matchHistory", {
+		const response = await fetch("http://127.0.0.1:5000/save-match", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify(match),
+			body: JSON.stringify({
+				player1Id,
+				player2Id,
+				player1Score,
+				player2Score,
+				gameMode,
+				winnerId,
+			}),
 		});
-		if (!res.ok) throw new Error("API error");
-		console.log("✅ Match saved:", match);
-	} catch (err) {
-		console.error("❌ Failed to save match:", err);
+		if (!response.ok) throw new Error("Failed to save match");
+		console.log("✅ Match saved to database");
+	} catch (error) {
+		console.error("❌ Error saving match:", error);
 	}
 }

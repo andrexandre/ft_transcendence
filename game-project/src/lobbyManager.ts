@@ -14,7 +14,21 @@ export function listLobbies(): Lobby[] {
 	return [...lobbies.values()];
 }
 
-export function createLobby(username: string, userId: number, mode: string, maxPlayers: number): Lobby {
+export function findLobbyByUserId(userId: number): Lobby | undefined {
+	for (const lobby of lobbies.values()) {
+		if (lobby.hostUserId === userId) return lobby;
+		if (lobby.players.some(p => p.userId === userId)) return lobby;
+	}
+	return undefined;
+}
+
+
+export function createLobby(username: string, userId: number, mode: string, maxPlayers: number): Lobby | null {
+	if (findLobbyByUserId(userId)) {
+		console.log(`❌ User ${userId} already in a lobby, cannot host`);
+		return null;
+	}
+
 	const id = Math.random().toString(36).slice(2, 6);
 	const lobby: Lobby = {
 		id,
@@ -28,19 +42,21 @@ export function createLobby(username: string, userId: number, mode: string, maxP
 	return lobby;
 }
 
-export function joinLobby(id: string, username: string, userId: number): Lobby | null {
-	const lobby = lobbies.get(id);
-	if (!lobby || lobby.players.length >= lobby.maxPlayers) return null;
+export function joinLobby(lobbyId: string, username: string, userId: number): Lobby | null {
+	const lobby = lobbies.get(lobbyId);
+	if (!lobby) return null;
+
+	if (findLobbyByUserId(userId)) {
+		console.log(`❌ User ${userId} already in a lobby, cannot join another`);
+		return null;
+	}
+
+	if (lobby.players.length >= lobby.maxPlayers) {
+		console.log(`⚠ Lobby ${lobbyId} is full`);
+		return null;
+	}
+
 	lobby.players.push({ username, userId });
 	return lobby;
 }
 
-
-
-// infos
-// Lobby model    Defines lobby schema
-// lobbies Map	  Holds all active lobbies
-// createLobby()	Generates new lobbies
-// joinLobby()	  Allows players to enter
-// leaveLobby()	  Handles exits/disbands
-// lobbyRoutes()	Exposes HTTP API

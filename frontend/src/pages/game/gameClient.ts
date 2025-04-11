@@ -1,3 +1,5 @@
+import { playSound, playMusic, stopAllMusic } from "./soundManager";
+
 const SERVER_URL = "ws://127.0.0.1:5000/ws";
 
 export let gameCanvas: HTMLCanvasElement;
@@ -51,7 +53,6 @@ function updateScoreboard(players: any[], ball: any) {
 	el.style.display = "block";
 }
 
-
 function drawGame() {
 	ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 
@@ -67,7 +68,6 @@ function drawGame() {
 		ctx.fillRect(x, y, paddleWidth, paddleHeight);
 	});
 	
-
 	// draw ball
 	ctx.fillStyle = "green";
 	ctx.beginPath();
@@ -100,6 +100,7 @@ function setupControls() {
 		if (keysPressed["ArrowUp"]) {
 			socket.send(JSON.stringify({ type: "move", direction: "up" }));
 			lastMoveTime = now;
+			playSound("paddleHit"); ///test
 		}
 		if (keysPressed["ArrowDown"]) {
 			socket.send(JSON.stringify({ type: "move", direction: "down" }));
@@ -131,7 +132,6 @@ function connectWebSocket(username: string) {
 
 	socket.onmessage = (event) => {
 		const data = JSON.parse(event.data);
-		// console.log("📩 Message from server:", data);
 
 		if (data.type === "welcome") {
 			currentPlayerId = data.playerId;
@@ -141,6 +141,7 @@ function connectWebSocket(username: string) {
 		if (data.type === "countdown") {
 			drawGameMessage(data.value.toString(), "green");
 			if (data.value === 1) {
+				playSound("countdown"); /// TEEEEEEEEEEEEEEEEEEESSSSSSSSSTT
 				setTimeout(() => GameMessageVisibility("hide"), 1000);
 			}
 		}
@@ -192,4 +193,5 @@ export function startGameClient() {
 	setupControls();
 	drawGameMessage("Waiting for another player...", "gray");
 	GameMessageVisibility("show");
+	playMusic("gameMusic");
 }
