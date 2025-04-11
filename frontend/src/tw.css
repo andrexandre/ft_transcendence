@@ -137,3 +137,46 @@ canvas {
 	0% { text-shadow: 0 0 10px black, 0 0 20px lime, 0 0 30px lime; }
 	100% { text-shadow: 0 0 20px black, 0 0 30px lime, 0 0 40px lime; }
 }
+
+/* dashboard menu animation */
+@keyframes ball-animation {
+	0%, 100% {
+		bottom: 15%;
+		left: 50%;
+	}
+	25% {
+		bottom: 50%;
+		left: var(--ball-end);
+	}
+	50% {
+		bottom: 96%;
+		left: 50%;
+	}
+	75% {
+		bottom: 50%;
+		left: 0%;
+	}
+}
+
+:root {
+	--btn-width: 7rem;
+	--btn-start: 0%;
+	--btn-end: calc(100% - var(--btn-width));
+	--btn-half: calc((var(--btn-end) - var(--btn-start)) / 2);
+	--ball-end: calc(100% - 1rem);
+}
+
+@keyframes btn-animation {
+	0%, 100% {
+		left: var(--btn-half);
+	}
+	25% {
+		left: var(--btn-end);
+	}
+	50% {
+		left: var(--btn-half);
+	}
+	75% {
+		left: var(--btn-start);
+	}
+}

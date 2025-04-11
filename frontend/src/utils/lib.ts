@@ -29,6 +29,13 @@ export function loadTheme() {
 		document.documentElement.classList.remove('dark');
 	else if (window.matchMedia('(prefers-color-scheme: dark)').matches)
 		document.documentElement.classList.add('dark');
+	// else { // to replace in case the previous else if is not working
+	// 	document.documentElement.classList.remove('dark');
+	// 	if (window.matchMedia('(prefers-color-scheme: dark)').matches) 
+	// 		document.documentElement.classList.add('dark');
+	// }
+	console.debug(`Theme set to ${localStorage.getItem('theme') ? localStorage.getItem('theme') : 'auto'}`);
+	console.debug(`System theme set to ${window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'}`);
 }
 
 export function setTheme(option: string) {
@@ -45,6 +52,7 @@ export function setTheme(option: string) {
 		htmlElement.classList.remove('dark');
 		localStorage.setItem('theme', 'light');
 	}
+	console.debug(`Theme set to ${option}`);
 }
 
 // lib.fullScreenOverlay(

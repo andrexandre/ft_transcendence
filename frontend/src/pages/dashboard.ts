@@ -25,6 +25,7 @@ class Dashboard extends Page {
 	onMount(): void {
 		sidebar.setSidebarToggler();
 		renderProfileUsername();
+		document.getElementById("game-ad-button")!.addEventListener("click", () => lib.navigate('/game'));
 	}
 	onCleanup(): void { }
 	getHtml(): string {
@@ -41,8 +42,9 @@ class Dashboard extends Page {
 					</div>
 					<p>Champion of belly rubs, fetch, and fierce squirrel chases. Sir Barkalot is the first to answer the doorbell with a royal bark. His hobbies include digging to China and chewing shoes.</p>
 				</div>
-				<div id="ad" class="card t-dashed">
-					<h1 class="text-xl font-bold">Let's Play Pong</h1>
+				<div class="card t-dashed relative">
+					<div class="ball size-4 rounded-xl bg-c-secondary absolute animate-[ball-animation_6s_infinite_linear]"></div>
+					<button id="game-ad-button" class="flex p-5 t-dashed absolute bottom-0 animate-[btn-animation_6s_infinite_linear]">Let's Play</button>
 				</div>
 				<div id="stats" class="card t-dashed grid">
 					<h1 class="text-xl font-bold">Pong Stats</h1>
