@@ -60,14 +60,14 @@ class Game extends Page {
 							${dropdown.getHtml('Co-Op')}
 							${dropdown.getHtml('Settings')}
 						</div>
-						<div id="lobby" class="hidden flex-col items-center justify-center w-100 space-y-3 item g-t-border">
-							<ul class="grid grid-cols-4">
+						<div id="lobby" class="hidden flex-col w-100 space-y-3 item g-t-border text-sm">
+						<ul class="grid grid-cols-[1fr_1fr_4.5rem_4.5rem]">
 								<li class="text-c-secondary">Host</li>
 								<li class="text-c-secondary">Mode</li>
 								<li class="text-c-secondary">#/#</li>
 								<li class="text-c-secondary"></li>
 							</ul>
-							<ul id="lobby-list" class="grid grid-cols-4 gap-2 overflow-scroll max-h-65 text-sm">
+							<ul id="lobby-list" class="grid grid-cols-[1fr_1fr_4.5rem_4.5rem] overflow-scroll text-sm">
 							</ul>
 						</div>
 					</div>

@@ -83,10 +83,12 @@ function loadPage(path: string): void {
 	currentPage?.cleanup();
 	document.getElementById("app")!.innerHTML = newPage.getHtml();
 	newPage.mount();
-	if (lib.Cookies.get('outline')) {
-		document.dispatchEvent(new KeyboardEvent('keydown', { key: ' ' }));
-		lib.Cookies.set('outline', 'true');
-	}
+	setTimeout(() => {
+		if (lib.Cookies.get('outline')) {
+			document.dispatchEvent(new KeyboardEvent('keydown', { key: ' ' }));
+			lib.Cookies.set('outline', 'true');
+		}
+	}, 50);
 	currentPage = newPage;
 }
 
