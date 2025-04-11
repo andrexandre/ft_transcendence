@@ -6,6 +6,7 @@ import { createUser, initializeDatabase } from './database/db.js';
 import { SocketHandler } from './socket/socket_handler.js';
 import { fileURLToPath } from 'url';
 import fastifyCookie from "@fastify/cookie";
+import fastifyCors from '@fastify/cors';
 
 const server_chat = fastify();
 const port = 2000;
@@ -20,28 +21,41 @@ async function setupServer() {
 		prefix: '/'
 	});
 
+	await server_chat.register(fastifyCors, {
+		origin: true,
+		credentials: true
+	});
+
 	await server_chat.register(fastifyWebsocket);
 	await server_chat.register(fastifyCookie);
 
 	/* server_chat.addHook('onRequest', async (request, reply) => {
 		console.log(`Incoming request: ${request.method} ${request.url}`);
 	}); */
-	
-	server_chat.get('/', async (request, reply) => {
-		const token = request.cookies.token;
-		const userData = await fetchUserDataFromGateway(token);
-		username = userData.username;
-		// console.log(userData.userId);
 
-		if (!username)
-			return reply.send('Please provide a username in the URL (e.g., /?user=Antony)');
-		await createUser(username);
-		return reply.sendFile('index.html');
-	});
+	// server_chat.get('/api/user', async (request, reply) =>{
+	// 	console.log("hhshahhssssssssssssssssssssssssssss");
+	// 	const token = request.cookies.token;
+	// 	if(!token)
+	// 		return reply.status(401).send({error: "No token provided"});
+	// 	const userData = await fetchUserDataFromGateway(token);
+	// 	console.log("username" + userData.username);
+	// 	if (!userData)
+	// 		return reply.status(401).send({ error: "Failed to fetch user from Gateway" });
+	// 	username = userData.username;
+	// 	await createUser(username);
+	// });
 
 	server_chat.get('/chat-ws', { websocket: true }, async (connection, req) => {
 		try {
-			SocketHandler(connection, username);
+			const token = req.cookies.token;
+			if(!token)
+				throw "Error getting token";
+			const userData = await fetchUserDataFromGateway(token);
+			if (!userData)
+				throw "Error fetching data";
+			await createUser(userData.username);
+			SocketHandler(connection, userData.username);
 		} catch (error) {
 			console.error('Error in WebSocket handler:', error);
 			connection.socket.close();

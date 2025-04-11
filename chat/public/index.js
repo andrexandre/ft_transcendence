@@ -4,6 +4,28 @@ const roomButton = document.getElementById('roomButton');
 const refreshButton = document.getElementById('refresh-button');
 //Handle connections
 
+try {
+    const response = await fetch('/api/user', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+        'Accept': 'application/json'
+        }
+    });
+
+    if (!response.ok) {
+        console.error('Failed to fetch user data:', response.status, response.statusText);
+        // Handle error case
+    } else {
+        const userData = await response.json();
+        console.log('User data received:', userData);
+        // Handle successful case
+    }
+} catch (error) {
+    console.error('Error fetching user data:', error);
+    // Handle network error
+}
+
 const host = `ws://localhost:2000/chat-ws`;
 const socket = new WebSocket(host);
 
