@@ -1,5 +1,7 @@
 // Dependencies
 import fastify from "fastify";
+import fastifyCookie from '@fastify/cookie';
+import fastifyCors from "@fastify/cors"; // temporario
 
 // Routes
 import LoginRoute from "./routes/auth/loginRoutes.js";
@@ -15,6 +17,12 @@ import db from './plugins/db_plugin.js';
 
 // Creation of the app  instance
 const server = fastify({ loger: true });
+
+server.register(fastifyCors, {
+	origin: ['http://127.0.0.1:5500'], // Allow frontend origin
+	methods: ['GET', 'POST', 'PUT', 'DELETE'],
+	credentials: true // Allow cookies if needed
+});
 
 // Only for tests
 server.addHook('onRequest', (request, reply, done) => {
@@ -46,6 +54,7 @@ async function start() {
 		await server.register(LoginRoute);
 		await server.register(googleSignRoute);
 		await server.register(userRoutes);
+		await server.register(fastifyCookie);
 		
 		server.listen(listenOptions, async () => {
 			

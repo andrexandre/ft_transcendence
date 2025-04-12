@@ -31,6 +31,14 @@ async function userRoutes(server, opts) {
             
         },
     });
+
+	 
+    server.route({
+        method: 'GET',
+        url: '/api/users/update',
+        handler:  async (request, reply) => {}}
+	);
+
 }
 
 export default userRoutes;
