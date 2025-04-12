@@ -1,6 +1,7 @@
 // Dependencies
 import fastify from "fastify";
 import fastifyCookie from '@fastify/cookie';
+import fastifyMultipart from '@fastify/multipart'
 import fastifyCors from "@fastify/cors"; // temporario
 
 // Routes
@@ -50,11 +51,12 @@ async function start() {
 		// Ver como registrar todas as routes com auto-load
 		server.addSchema(errorResponseSchema);
 		await server.register(db, { dbPath: './user.db'});
+		await server.register(fastifyCookie);
+		await server.register(fastifyMultipart);
 		await server.register(RegisterRoute);
 		await server.register(LoginRoute);
 		await server.register(googleSignRoute);
 		await server.register(userRoutes);
-		await server.register(fastifyCookie);
 		
 		server.listen(listenOptions, async () => {
 			
