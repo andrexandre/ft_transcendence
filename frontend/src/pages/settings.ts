@@ -10,37 +10,16 @@ class Settings extends Page {
 	onMount(): void {
 		sidebar.setSidebarToggler('settings');
 		renderProfileUsername();
-		(async () => {
-			const response = await fetch('http://127.0.0.1:3000/api/user/info', {
-				credentials: "include"
+		const buttons = document.querySelectorAll('#theme-selector button');
+		buttons.forEach(button => {
+			button.addEventListener('click', () => {
+				buttons.forEach(btn => btn.setAttribute("data-state", "inactive"));
+				button.setAttribute("data-state", "active");
 			});
-
-			if (!response.ok) {
-				lib.showToast("Fetch failed");
-			}
-			const data = await response.json();
-			console.log(data);
-
-			const username = document.getElementById('profile-username') as HTMLElement;
-			const codename = document.getElementById('codename') as HTMLElement;
-			const biography = document.getElementById('bio') as HTMLElement;
-
-			username.textContent = data.username;
-			codename.textContent = data.codename;
-			biography.textContent = data.biography;
-
-
-		})();
-		// const buttons = document.querySelectorAll('#theme-selector button');
-		// buttons.forEach(button => {
-		// 	button.addEventListener('click', () => {
-		// 		buttons.forEach(btn => btn.setAttribute("data-state", "inactive"));
-		// 		button.setAttribute("data-state", "active");
-		// 	});
-		// });
-		// document.getElementById(`light-theme-button`)!.addEventListener('click', () => lib.setTheme("light"));
-		// document.getElementById(`dark-theme-button`)!.addEventListener('click', () => lib.setTheme("dark"));
-		// document.getElementById(`auto-theme-button`)!.addEventListener('click', () => lib.setTheme("auto"));
+		});
+		document.getElementById(`light-theme-button`)!.addEventListener('click', () => lib.setTheme("light"));
+		document.getElementById(`dark-theme-button`)!.addEventListener('click', () => lib.setTheme("dark"));
+		document.getElementById(`auto-theme-button`)!.addEventListener('click', () => lib.setTheme("auto"));
 	}
 	onCleanup(): void {
 		// lib.setTheme("light");
@@ -50,19 +29,30 @@ class Settings extends Page {
 			${sidebar.getHtml()}
 			<main class="flex flex-col flex-1 card t-dashed text-start">
 				<h1 class="item text-2xl">Profile</h1>
-				<div id="profile" class="card t-dashed grid overflow-scroll lg:w-3/4 min-h-[400px]">
+				<div id="profile" class="card t-dashed grid overflow-scroll lg:w-1/2">
 					<div class="flex gap-16">
 						<img class="rounded-full size-48 shadow-xl shadow-neutral-400 border-2" src="https://picsum.photos/id/237/200">
 						<div class="justify-center self-center">
 							<h1 id="profile-username" class="text-3xl font-bold">Loading...</h1>
-							<p id="codename" class="text-xl">The mighty tail-wagger</p>
+							<p class="text-xl">The mighty tail-wagger</p>
 						</div>
 					</div>
-					<p id="bio" >Champion of belly rubs, fetch, and fierce squirrel chases. Sir Barkalot is the first to answer the doorbell with a royal bark. His hobbies include digging to China and chewing shoes.</p>
-					<!-- Botão de Update -->
-					<button id="update-profile-button" class="mt-4 px-4 py-2 rounded-xl bg-c-primary text-white hover:bg-c-primary/80 transition">
-					Update Information
-					</button>
+					<p>Champion of belly rubs, fetch, and fierce squirrel chases. Sir Barkalot is the first to answer the doorbell with a royal bark. His hobbies include digging to China and chewing shoes.</p>
+				</div>
+				<h1 class="item text-2xl">Settings</h1>
+				<div>
+					<p class="m-2 text-c-secondary">Themes are only enabled on here</p>
+					<div id="theme-selector" class="items-center gap-4 t-border size-fit">
+						<button id="auto-theme-button" class="item data-active:bg-c-primary data-active:text-c-bg">
+							<i class="fa-solid fa-desktop"></i>
+						</button>
+						<button id="light-theme-button" class="item data-active:bg-c-primary data-active:text-c-bg">
+							<i class="fa-solid fa-sun"></i>
+						</button>
+						<button id="dark-theme-button" class="item data-active:bg-c-primary data-active:text-c-bg">
+							<i class="fa-solid fa-moon"></i>
+						</button>
+					</div>
 				</div>
 			</main>
 		`;
