@@ -3,11 +3,9 @@ import dropdown from "../../components/dropdown";
 import { startSingleClassic } from "./single";
 import * as lobbyClient from "./lobbyClient";
 import { startGameClient, initGameCanvas } from "./gameClient";
-import { playMusic } from "./soundManager";
+// import { playMusic } from "./soundManager";
 
-playMusic("menuMusic");
-
-
+// playMusic("menuMusic");
 let lobbyRefreshInterval: ReturnType<typeof setInterval> | null = null;
 
 function initializeGameMainMenu() {
@@ -39,7 +37,7 @@ function initializeGameMainMenu() {
 	
 		if (!lobby?.classList.contains('hidden')) {
 			await lobbyClient.renderLobbyList();
-			lobbyRefreshInterval = setInterval(lobbyClient.renderLobbyList, 1000);
+			lobbyRefreshInterval = setInterval(lobbyClient.renderLobbyList, 5000);
 		} else {
 			if (lobbyRefreshInterval) {
 				clearInterval(lobbyRefreshInterval);
@@ -47,17 +45,31 @@ function initializeGameMainMenu() {
 			}
 		}
 	});
-	
+
+	// Tournament
 	dropdown.addElement('Multi', 'button', 'item t-border', 'Tournament', async () => {
 		const username = sessionStorage.getItem("username")!;
 		const userId = Number(sessionStorage.getItem("user_id")!);
 		try {
 			const result = await lobbyClient.createLobby(username, userId, "TNMT", 2);
-			showToast.green(`✅ Created lobby ${result.id}`);
+			showToast.green(`✅ Created TNMT lobby ${result.id}`);
 		} catch (err) {
 			showToast.red("❌ Failed to create lobby");
 		}
 	});
+
+	dropdown.addElement('Multi', 'button', 'item t-border', '1V1', async () => {
+		const username = sessionStorage.getItem("username")!;
+		const userId = Number(sessionStorage.getItem("user_id")!);
+		try {
+			const result = await lobbyClient.createLobby(username, userId, "1V1", 2);
+			showToast.green(`✅ Created 1V1 lobby: ${result.id}`);
+		} catch (err) {
+			showToast.red("❌ Failed to create 1V1 lobby");
+		}
+	});
+
+	// Dont click
 	dropdown.addElement('Multi', 'button', 'item t-border', 'Don\'t click',
 		() => {
 			document.body.innerHTML = "";
@@ -66,75 +78,70 @@ function initializeGameMainMenu() {
 		});
 
 	// Set Co-Op dropdown
-	dropdown.initialize('Co-Op');
-	dropdown.addElement('Co-Op', 'button', 'item t-border', 'Matrecos',
-		() => {
-			showToast("Connecting to multiplayer game...");
-			document.getElementById('sidebar')?.classList.toggle('hidden');
-			startGameClient();
-		});
-	dropdown.addElement('Co-Op', 'button', 'item t-border', 'Free for All',
-		() => showToast(`Co-Op Free for All clicked`));
-}
-
-function addLobbyBlock(gameOptionId: string, gameOption: string | number) {
-	const lobby = document.getElementById('lobby-list');
-	const entry = document.createElement('li') as HTMLElement;
-	entry.id = `entry-${gameOptionId}-${gameOption}`;
-	entry.innerHTML = `${gameOption}`;
-	lobby?.appendChild(entry);
-}
-
-function addLobbyEntry(
-	id: string,
-	userName: string,
-	gameType: string,
-	maxPlayer: string,
-	onClickHandler: () => void
-) {
-	const currentUser = sessionStorage.getItem("username");
-	const isHost = userName === currentUser;
-	const label = isHost ? "READY" : "JOIN";
-
-	addLobbyBlock(id, userName);
-	addLobbyBlock(id, gameType);
-	addLobbyBlock(id, maxPlayer);
-	addLobbyBlock(id, /*html*/`
-		<button id="join-button-${id}" class="text-orange-700 hover:bg-orange-500 hover:text-black">${label}</button>
-	`);
-	document.getElementById(`join-button-${id}`)?.addEventListener("click", onClickHandler);
-	showToast.blue(`Lobby entry n: ${id} added`);
+	dropdown.initialize('Co-Op', async () => {
+		const lobby = document.getElementById('lobby');
+		lobby?.classList.remove('hidden');
+		await lobbyClient.renderLobbyList();
+		if (!lobbyRefreshInterval) {
+			lobbyRefreshInterval = setInterval(lobbyClient.renderLobbyList, 50000);
+		}
+	}); //NEED TO FIX toggle between co-op and multi //////////
+	
+	// Matrecos
+	dropdown.addElement('Co-Op', 'button', 'item t-border', 'Matrecos', async () => {
+		const username = sessionStorage.getItem("username")!;
+		const userId = Number(sessionStorage.getItem("user_id")!);
+		try {
+			const result = await lobbyClient.createLobby(username, userId, "MTC", 4);
+			showToast.green(`✅ Created Matrecos lobby: ${result.id}`);
+		} catch (err) {
+			showToast.red("❌ Failed to create Matrecos lobby");
+		}
+	});
+	
+	// Free for All
+	dropdown.addElement('Co-Op', 'button', 'item t-border', 'Free for All', async () => {
+		const username = sessionStorage.getItem("username")!;
+		const userId = Number(sessionStorage.getItem("user_id")!);
+		try {
+			const result = await lobbyClient.createLobby(username, userId, "FFA", 4);
+			showToast.green(`✅ Created FFA lobby: ${result.id}`);
+		} catch (err) {
+			showToast.red("❌ Failed to create FFA lobby");
+		}
+	});
+	
 }
 
 export async function initUserData() {
 	console.log("📌 Menu Loaded, checking user...");
-
+	
 	const difficultySelect = document.getElementById('difficulty') as HTMLSelectElement;
 	const tableSizeSelect = document.getElementById('table-size') as HTMLSelectElement;
 	const soundSelect = document.getElementById('sound') as HTMLSelectElement;
-
+	
 	try {
 		const response = await fetch("http://127.0.0.1:5000/get-user-data", { credentials: "include" });
-
+		
 		if (!response.ok) {
 			throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
 		}
-
+		
 		const userData = await response.json();
 		console.log("✅ User & Settings Loaded:", userData);
-
+		
 		// Store settings in sessionStorage
 		sessionStorage.setItem("username", userData.user_name);
 		sessionStorage.setItem("user_id", userData.user_id);
 		sessionStorage.setItem("user_set_dificulty", userData.user_set_dificulty);
 		sessionStorage.setItem("user_set_tableSize", userData.user_set_tableSize);
 		sessionStorage.setItem("user_set_sound", userData.user_set_sound.toString());
-
+		
 		// Update UI dropdowns with loaded settings
 		difficultySelect.value = userData.user_set_dificulty;
 		tableSizeSelect.value = userData.user_set_tableSize;
 		soundSelect.value = userData.user_set_sound === 1 ? "On" : "Off";
-
+		
 		initializeGameMainMenu();
 		initGameCanvas();
 	} catch (error) {
@@ -148,23 +155,23 @@ export async function saveSettingsHandler() {
 		console.error("❌ No username found! Cannot save settings.");
 		return;
 	}
-
+	
 	// Read values from dropdowns
 	const difficultySelect = document.getElementById('difficulty') as HTMLSelectElement;
 	const tableSizeSelect = document.getElementById('table-size') as HTMLSelectElement;
 	const soundSelect = document.getElementById('sound') as HTMLSelectElement;
-
+	
 	const difficulty = difficultySelect.value;
 	const tableSize = tableSizeSelect.value;
 	const sound = soundSelect.value === "On" ? 1 : 0;
-
+	
 	console.log(`🎮 Saving settings for: ${{username, difficulty, tableSize, sound}}`);
-
+	
 	// Save settings in sessionStorage
 	sessionStorage.setItem("user_set_dificulty", difficulty);
 	sessionStorage.setItem("user_set_tableSize", tableSize);
 	sessionStorage.setItem("user_set_sound", sound.toString());
-
+	
 	// Send settings update to the database
 	try {
 		const response = await fetch("http://127.0.0.1:5000/save-settings", {
@@ -173,14 +180,12 @@ export async function saveSettingsHandler() {
 			credentials: 'include',
 			body: JSON.stringify({ username, difficulty, tableSize, sound }),
 		});
-
+		
 		if (!response.ok)
 			throw new Error(`Failed to save settings (${response.status})`);
 		showToast.green('Settings saved');
-
+		
 	} catch (error) {
 		console.error("❌ Error saving settings:", error);
 	}
 };
-
- 
