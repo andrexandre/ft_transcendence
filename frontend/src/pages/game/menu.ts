@@ -1,6 +1,118 @@
 import { showToast } from "../../utils";
+import dropdown from "../../components/dropdown";
+import { startSingleClassic } from "./single";
+import * as lobbyClient from "./lobbyClient";
+import { startGameClient, initGameCanvas } from "./gameClient";
+import { playMusic } from "./soundManager";
 
-export async function initGameMenu() {
+playMusic("menuMusic");
+
+
+let lobbyRefreshInterval: ReturnType<typeof setInterval> | null = null;
+
+function initializeGameMainMenu() {
+	// Set Single dropdown
+	dropdown.initialize('Single');
+	const username = sessionStorage.getItem("username");
+	if (!username) {
+		console.error("❌ No username found in sessionStorage!");
+		dropdown.addElement('Single', 'button', 'item g-t-border-alt',
+			'User not found');
+	}
+	else {
+		dropdown.addElement('Single', 'button', 'item g-t-border-alt',
+			'Classic', () => {
+				const difficulty = sessionStorage.getItem("user_set_dificulty") || "Normal";
+				const tableSize = sessionStorage.getItem("user_set_tableSize") || "Medium";
+				const sound = sessionStorage.getItem("user_set_sound") === "1";
+				document.getElementById('sidebar')?.classList.toggle('hidden');
+				startSingleClassic(username, { difficulty, tableSize, sound })
+			});
+	}
+	dropdown.addElement('Single', 'button', 'item g-t-border-alt',
+		'Infinity', () => showToast(`Single Infinity clicked`));
+
+	// Set Multi dropdown
+	dropdown.initialize('Multi', async () => {
+		const lobby = document.getElementById('lobby');
+		lobby?.classList.toggle('hidden');
+	
+		if (!lobby?.classList.contains('hidden')) {
+			await lobbyClient.renderLobbyList();
+			lobbyRefreshInterval = setInterval(lobbyClient.renderLobbyList, 1000);
+		} else {
+			if (lobbyRefreshInterval) {
+				clearInterval(lobbyRefreshInterval);
+				lobbyRefreshInterval = null;
+			}
+		}
+	});
+	dropdown.addElement('Multi', 'button', 'item g-t-border-alt', 'Tournament', async () => {
+		const username = sessionStorage.getItem("username")!;
+		const userId = Number(sessionStorage.getItem("user_id")!);
+		try {
+			const result = await lobbyClient.createLobby(username, userId, "TNMT", 2);
+			showToast.green(`✅ Created lobby ${result.id}`);
+		} catch (err) {
+			showToast.red("❌ Failed to create lobby");
+		}
+	});
+	dropdown.addElement('Multi', 'button', 'item g-t-border-alt', 'Don\'t click',
+		() => {
+			document.body.innerHTML = "";
+			document.body.className = "h-screen m-0 bg-cover bg-center bg-no-repeat";
+			document.body.style.backgroundImage = "url('https://upload.wikimedia.org/wikipedia/commons/3/3b/Windows_9X_BSOD.png')";
+		});
+
+	// Set Co-Op dropdown
+	dropdown.initialize('Co-Op');
+	dropdown.addElement('Co-Op', 'button', 'item g-t-border-alt', 'Matrecos',
+		() => {
+			showToast("Connecting to multiplayer game...");
+			document.getElementById('sidebar')?.classList.toggle('hidden');
+			startGameClient();
+		});
+	dropdown.addElement('Co-Op', 'button', 'item g-t-border-alt', 'Free for All',
+		() => showToast(`Co-Op Free for All clicked`));
+}
+
+function addLobbyBlock(gameOptionId: string, gameOption: string | number) {
+	const lobby = document.getElementById('lobby-list');
+	const entry = document.createElement('li') as HTMLElement;
+	entry.id = `entry-${gameOptionId}-${gameOption}`;
+	entry.innerHTML = `${gameOption}`;
+	lobby?.appendChild(entry);
+}
+
+function addLobbyEntry(
+	id: string,
+	userName: string,
+	gameType: string,
+	maxPlayer: string,
+	onClickHandler: () => void
+) {
+	const currentUser = sessionStorage.getItem("username");
+	const isHost = userName === currentUser;
+	const label = isHost ? "READY" : "JOIN";
+
+	addLobbyBlock(id, userName);
+	addLobbyBlock(id, gameType);
+	addLobbyBlock(id, maxPlayer);
+	addLobbyBlock(id, /*html*/`
+		<button id="join-button-${id}" class="text-orange-700 hover:bg-orange-500 hover:text-black">${label}</button>
+	`);
+	document.getElementById(`join-button-${id}`)?.addEventListener("click", onClickHandler);
+	showToast.blue(`Lobby entry n: ${id} added`);
+}
+
+function removeLobbyEntry(id: string) {
+	const lobby = document.getElementById('lobby-list');
+	const entries = lobby?.querySelectorAll(`[id^="entry-${id}-"]`);
+	entries?.forEach(entry => entry.remove());
+	showToast.yellow(`Lobby entry n: ${id} removed`);
+}
+
+export async function initUserData() {
 	console.log("📌 Menu Loaded, checking user...");
 
 	const difficultySelect = document.getElementById('difficulty') as HTMLSelectElement;
@@ -25,12 +137,14 @@ export async function initGameMenu() {
 		sessionStorage.setItem("user_set_sound", userData.user_set_sound.toString());
 
 		// Update UI dropdowns with loaded settings
-		// console.log(tableSizeSelect);
 		difficultySelect.value = userData.user_set_dificulty;
 		tableSizeSelect.value = userData.user_set_tableSize;
 		soundSelect.value = userData.user_set_sound === 1 ? "On" : "Off";
 
+		initializeGameMainMenu();
+		initGameCanvas();
 	} catch (error) {
+		showToast.red(error as string);
 		console.error("❌ Error loading user data:", error);
 	}
 }
@@ -51,10 +165,7 @@ export async function saveSettingsHandler() {
 	const tableSize = tableSizeSelect.value;
 	const sound = soundSelect.value === "On" ? 1 : 0;
 
-	console.log(`🎮 Saving settings for: ${username}`);
-	console.log("➡ Difficulty:", difficulty);
-	console.log("➡ Table Size:", tableSize);
-	console.log("➡ Sound:", sound);
+	console.log(`🎮 Saving settings for: ${{ username, difficulty, tableSize, sound }}`);
 
 	// Save settings in sessionStorage
 	sessionStorage.setItem("user_set_dificulty", difficulty);
@@ -72,37 +183,10 @@ export async function saveSettingsHandler() {
 
 		if (!response.ok)
 			throw new Error(`Failed to save settings (${response.status})`);
-		console.log("✅ Settings saved successfully!");
+		showToast.green('Settings saved');
 
 	} catch (error) {
 		console.error("❌ Error saving settings:", error);
 	}
 };
 
-export function classicBtnHandler() {
-	const username = sessionStorage.getItem("username");
-	if (!username) {
-		console.error("❌ No username found in sessionStorage!");
-		return;
-	}
-
-	const difficulty = sessionStorage.getItem("user_set_dificulty") || "Normal";
-	const tableSize = sessionStorage.getItem("user_set_tableSize") || "Medium";
-	const sound = sessionStorage.getItem("user_set_sound") === "1";
-
-	console.log(`🎯 Starting game for: ${username}`);
-	console.log("➡ Difficulty:", difficulty);
-	console.log("➡ Table Size:", tableSize);
-	console.log("➡ Sound:", sound ? "On" : "Off");
-
-	// Hide menu, show game
-	const menu = document.getElementById('game-main-menu') as HTMLElement;
-	const gameCanvas = document.getElementById('game-canvas') as HTMLElement;
-
-	menu.classList.add("hidden");
-	gameCanvas.classList.remove("hidden");
-	showToast.yellow('Brotha refresh tha page, the connection is not done yet!')
-	// gameCanvas.classList.add("visible");
-
-	// startSingleClassic(username, { difficulty, tableSize, sound });
-}
