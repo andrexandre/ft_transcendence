@@ -23,7 +23,7 @@ function loginRoute(fastify, options) {
                 secure: true,
                 sameSite: 'None'
             });
-            reply.send(await fastify.parseToReadableData(request.cookies.token));
+            reply.send(payload);
         }
         else{
             reply.status(response.status);

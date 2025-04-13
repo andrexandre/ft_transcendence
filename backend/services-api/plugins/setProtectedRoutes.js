@@ -6,6 +6,9 @@ import gameSettings from '../routes/frontend/gameSettings.js';
 async function setProtectedRoutes(fastify, options){
     fastify.addHook('onRequest', async (request, reply) => {
         try{
+            const user = await fastify.parseToReadableData(request.cookies.token);
+            // if(user.role != "admin")
+            //     throw new Error;
             await request.jwtVerify();
         }catch(err){
             return reply.status(403).send("Forbidden");
