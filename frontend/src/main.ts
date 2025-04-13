@@ -15,7 +15,7 @@ let currentPage: Page | undefined;
 // TODO fix already logged in user
 const checkLogin = async () => {
 	try {
-		const response = await fetch('http://127.0.0.1:7000/fetchDashboardData', {
+		const response = await fetch('http://127.0.0.1:7000/frontend/fetchDashboardData', {
 			credentials: 'include',
 		});
 		if (!response.ok) {

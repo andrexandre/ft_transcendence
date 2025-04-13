@@ -7,7 +7,7 @@ MAGENTA		:= \033[1;35m
 CYAN		:= \033[1;36m
 WHITE		:= \033[1;37m
 
-build-up: backend/Gateway/.env
+build-up: backend/services-api/.env
 	docker compose up --build
 
 build:
@@ -35,7 +35,7 @@ status:
 	@docker network ls
 	@echo
 
-backend/Gateway/.env:
+backend/services-api/.env:
 	curl -s https://gist.githubusercontent.com/andrexandre/8c011820a35117d005016151cfd46207/raw/83a0d67fbf775a78355dd617e6502d9c03f496ad/.env > backend/Gateway/.env
 
 destroy: down rmi

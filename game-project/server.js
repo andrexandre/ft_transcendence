@@ -16,7 +16,7 @@ gamefast.register(fastifyJwt, { secret: "supersecret" });
 // Fetch user data from Gateway
 async function fetchUserDataFromGateway(token) {
     try {
-        const response = await fetch("http://gateway-api:7000/userData", {
+        const response = await fetch("http://services-api:7000/userData", {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -134,7 +134,7 @@ gamefast.post("/save-settings", async (request, reply) => {
 // Function to Send Match Data to Main API
 async function sendMatchToAPI(matchData) {
     try {
-        const response = await fetch("http://gateway-api:7000/matchHistory", {
+        const response = await fetch("http://services-api:7000/matchHistory", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(matchData),

@@ -25,6 +25,7 @@ server.register(fastifyCors, {
 	credentials: true // Allow cookies if needed
 });
 
+
 // Only for tests
 server.addHook('onRequest', (request, reply, done) => {
     console.log(`[${request.method}] ${request.url}`);

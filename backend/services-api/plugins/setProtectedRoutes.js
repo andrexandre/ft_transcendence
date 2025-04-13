@@ -15,10 +15,10 @@ async function setProtectedRoutes(fastify, options) {
             return err;
         }
     });
-    fastify.register(gameRoutes, {prefix : '/game'});
+    fastify.register(gameRoutes);
     fastify.register(matchHistory, {prefix : '/game'});
     fastify.register(gameSettings, {prefix : '/game'});
-    fastify.register(fetchAllData, {prefix : '/frontend'});
+    fastify.register(fetchDashboardData, {prefix : '/frontend'});
 }
 
 export default setProtectedRoutes;

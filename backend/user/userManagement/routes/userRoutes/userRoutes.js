@@ -9,7 +9,7 @@ async function userRoutes(server, opts) {
            
 			//aqui provavlemente vai ter de ser multipart/form-data
 			const token = request.cookies.token;
-			const response = await fetch('http://gateway-api:7000/userData', {
+			const response = await fetch('http://services-api:7000/userData', {
 				method: "GET",
 				headers: {
 					"Content-Type": "application/json",
