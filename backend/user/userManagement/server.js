@@ -1,21 +1,29 @@
 // Dependencies
 import fastify from "fastify";
+import fastifyCookie from '@fastify/cookie';
+import fastifyMultipart from '@fastify/multipart'
+import fastifyCors from "@fastify/cors"; // temporario
 
 // Routes
 import LoginRoute from "./routes/auth/loginRoutes.js";
 import googleSignRoute from "./routes/auth/googleSign.js";
 import RegisterRoute from "./routes/auth/registerRoutes.js";
-import { friendRequestRoute, processFriendRequestRoute } from "./routes/friends/friends.js";
+import userRoutes from "./routes/userRoutes/userRoutes.js";
 
 // Utils
-import { loadQueryFile } from "./utils/utils_1.js";
+import { errorResponseSchema } from "./utils/error.js";
 
 // Plugins
-import db_test from './plugins/db_plugin.js';
-
+import db from './plugins/db_plugin.js';
 
 // Creation of the app  instance
 const server = fastify({ loger: true });
+
+server.register(fastifyCors, {
+	origin: ['http://127.0.0.1:5500'], // Allow frontend origin
+	methods: ['GET', 'POST', 'PUT', 'DELETE'],
+	credentials: true // Allow cookies if needed
+});
 
 // Only for tests
 server.addHook('onRequest', (request, reply, done) => {
@@ -28,12 +36,6 @@ server.get('/',  async(request, response) => {
 	
 	response.header('content-type', 'application/json');
 	let tmp = await server.sqlite.all('SELECT * FROM users');
-	if (tmp.length > 0 ) {
-		tmp = tmp.map(item => ({
-		...item,
-		friends: JSON.parse(item.friends)
-		}));
-	}
 
 	response.send(JSON.stringify(tmp, null, 2));
 });
@@ -47,26 +49,25 @@ async function start() {
 	
 	try {
 		// Ver como registrar todas as routes com auto-load
-		await server.register(db_test, { dbPath: './user.db'});
+		server.addSchema(errorResponseSchema);
+		await server.register(db, { dbPath: './user.db'});
+		await server.register(fastifyCookie);
+		await server.register(fastifyMultipart);
 		await server.register(RegisterRoute);
 		await server.register(LoginRoute);
 		await server.register(googleSignRoute);
-		await server.register(friendRequestRoute);
-		await server.register(processFriendRequestRoute);
+		await server.register(userRoutes);
 		
 		server.listen(listenOptions, async () => {
 			
 			console.log(`Server is running on port: 3000`);
-			let content;
 			try {
-				content = await loadQueryFile('../queries/create_tables.sql');
+				await server.createTables();
+				console.log("Tables Created!")
 			} catch(err) {
 				console.error(err);
 				process.exit(1);
-
 			}
-			console.log(content);
-			server.sqlite.run(content);
 		});
 
 	} catch(err) {
