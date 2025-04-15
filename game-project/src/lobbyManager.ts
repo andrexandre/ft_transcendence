@@ -1,88 +1,64 @@
-// import { FastifyInstance } from "fastify";
+import { WebSocket } from 'ws';
+import crypto from 'crypto';
+
+type Player = {
+	id: string;             // internal socket id
+	socket: WebSocket;
+	username: string;
+	userId: number;
+};
+
+
 type Lobby = {
-	id: string;
-	hostUsername: string;
-	hostUserId: number;
-	players: { username: string; userId: number }[];
-	mode: string;
-	maxPlayers: number;
+  id: string;
+  players: Player[];
 };
 
 const lobbies = new Map<string, Lobby>();
 
-export function listLobbies(): Lobby[] {
-	return [...lobbies.values()];
-}
+export function createLobby(socket: WebSocket, user: UserData): string {
+	const lobbyId = crypto.randomUUID();
+	const playerId = crypto.randomUUID();
 
-export function findLobbyByUserId(userId: number): Lobby | undefined {
-	for (const lobby of lobbies.values()) {
-		if (lobby.hostUserId === userId) return lobby;
-		if (lobby.players.some(p => p.userId === userId)) return lobby;
-	}
-	return undefined;
-}
-
-
-export function createLobby(username: string, userId: number, mode: string, maxPlayers: number): Lobby | null {
-	if (findLobbyByUserId(userId)) {
-		console.log(`❌ User ${userId} already in a lobby, cannot host`);
-		return null;
-	}
-
-	const id = Math.random().toString(36).slice(2, 6);
 	const lobby: Lobby = {
-		id,
-		hostUsername: username,
-		hostUserId: userId,
-		mode,
-		maxPlayers,
-		players: [{ username, userId }],
+		id: lobbyId,
+		players: [{
+			id: playerId,
+			socket,
+			username: user.username,
+			userId: user.userId
+		}]
 	};
-	lobbies.set(id, lobby);
-	return lobby;
+
+	lobbies.set(lobbyId, lobby);
+	return lobbyId;
 }
 
-export function joinLobby(lobbyId: string, username: string, userId: number): Lobby | null {
-	const lobby = lobbies.get(lobbyId);
-	if (!lobby) return null;
+export function joinLobby(lobbyId: string, socket: WebSocket): string | null {
+  const lobby = lobbies.get(lobbyId);
+  if (!lobby || lobby.players.length >= 2) return null;
 
-	if (findLobbyByUserId(userId)) {
-		console.log(`❌ User ${userId} already in a lobby, cannot join another`);
-		return null;
-	}
+  const playerId = crypto.randomUUID();
+  lobby.players.push({ id: playerId, socket });
 
-	if (lobby.players.length >= lobby.maxPlayers) {
-		console.log(`⚠ Lobby ${lobbyId} is full`);
-		return null;
-	}
+  if (lobby.players.length === 2) {
+    startGame(lobby);
+  }
 
-	lobby.players.push({ username, userId });
-	return lobby;
+  return playerId;
 }
 
-export function leaveLobby(lobbyId: string, userId: number): boolean {
-	const lobby = lobbies.get(lobbyId);
-	if (!lobby) return false;
+function startGame(lobby: Lobby) {
+  console.log(`🎮 Starting game in lobby ${lobby.id}`);
 
-	lobby.players = lobby.players.filter(p => p.userId !== userId);
-	if (lobby.players.length === 0) {
-		lobbies.delete(lobbyId);
-	}
-	return true;
-}
+  lobby.players.forEach((player, index) => {
+    player.socket.send(
+      JSON.stringify({
+        type: 'game-start',
+        player: index === 0 ? 'left' : 'right'
+      })
+    );
+  });
 
-export function removeLobbyIfHost(lobbyId: string, userId: number): boolean {
-	const lobby = lobbies.get(lobbyId);
-	if (!lobby || lobby.hostUserId !== userId) return false;
-
-	lobbies.delete(lobbyId);
-	return true;
-}
-
-export function findLobbyById(id: string): Lobby | undefined {
-	return lobbies.get(id);
-}
-
-export function removeLobby(id: string): boolean {
-	return lobbies.delete(id);
+  // TODO: You’ll move to real gameManager logic here later.
 }

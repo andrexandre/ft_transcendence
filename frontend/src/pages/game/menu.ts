@@ -1,12 +1,49 @@
 import { showToast } from "../../utils";
 import dropdown from "../../components/dropdown";
-import { startSingleClassic } from "./single";
-import * as lobbyClient from "./lobbyClient";
-import { startGameClient, initGameCanvas } from "./gameClient";
+import {initGameCanvas } from "./rendering";
+// import { connectToServer } from "./client";
+
+let socket: WebSocket | null = null;
+
+export function connectToServer() {
+	socket = new WebSocket("ws://localhost:5000/ws");
+
+	socket.onopen = () => {
+		console.log("✅ WebSocket connected");
+	};
+
+	socket.onmessage = (event) => {
+		const data = JSON.parse(event.data);
+		console.log("📨 Message from server:", data);
+
+		switch (data.type) {
+			case "lobby-created":
+				showToast.green(`✅ Lobby created: ${data.lobbyId}`);
+				break;
+			case "lobby-joined":
+				showToast.green(`✅ Joined lobby!`);
+				break;
+			case "game-start":
+				showToast.green(`🎮 Game started! You are: ${data.player}`);
+				document.getElementById('sidebar')?.classList.add('hidden');
+				// initGameCanvas();
+				break;
+			case "error":
+				showToast.red(`❌ ${data.message}`);
+				break;
+		}
+	};
+
+	socket.onerror = () => showToast.red("❌ WebSocket connection error");
+	socket.onclose = () => showToast.red("🔌 Disconnected from game server");
+}
+
+connectToServer(); // Call it early when your app starts
 
 let lobbyRefreshInterval: ReturnType<typeof setInterval> | null = null;
 
 function initializeGameMainMenu() {
+	connectToServer();
 	// Set Single dropdown
 	dropdown.initialize('Single');
 	const username = sessionStorage.getItem("username");
@@ -22,7 +59,7 @@ function initializeGameMainMenu() {
 				const tableSize = sessionStorage.getItem("user_set_tableSize") || "Medium";
 				const sound = sessionStorage.getItem("user_set_sound") === "1";
 				document.getElementById('sidebar')?.classList.toggle('hidden');
-				startSingleClassic(username, { difficulty, tableSize, sound })
+				// singleplayer game
 			});
 	}
 	dropdown.addElement('Single', 'button', 'item g-t-border-alt',
@@ -38,8 +75,8 @@ function initializeGameMainMenu() {
 			lobby?.classList.add('hidden');
 
 		if (!lobby?.classList.contains('hidden')) {
-			await lobbyClient.renderLobbyList();
-			lobbyRefreshInterval = setInterval(lobbyClient.renderLobbyList, 5000);
+			// see the lobbylist
+			// lobbyClient.renderLobbyList();
 		} else {
 			if (lobbyRefreshInterval) {
 				clearInterval(lobbyRefreshInterval);
@@ -52,22 +89,21 @@ function initializeGameMainMenu() {
 		const username = sessionStorage.getItem("username")!;
 		const userId = Number(sessionStorage.getItem("user_id")!);
 		try {
-			const result = await lobbyClient.createLobby(username, userId, "TNMT", 2);
-			showToast.green(`✅ Created TNMT lobby ${result.id}`);
+			//add looby(username, "TNMT", 8);
+			showToast.green(`✅ Created TNMT lobby `);
 		} catch (err) {
 			showToast.red("❌ Failed to create lobby");
 		}
 	});
 
+	// 1v1
 	dropdown.addElement('Multi', 'button', 'item g-t-border-alt', '1V1', async () => {
-		const username = sessionStorage.getItem("username")!;
-		const userId = Number(sessionStorage.getItem("user_id")!);
-		try {
-			const result = await lobbyClient.createLobby(username, userId, "1V1", 2);
-			showToast.green(`✅ Created 1V1 lobby: ${result.id}`);
-		} catch (err) {
-			showToast.red("❌ Failed to create 1V1 lobby");
+		if (!socket || socket.readyState !== WebSocket.OPEN) {
+			showToast.red("❌ WebSocket not connected");
+			return;
 		}
+
+		socket.send(JSON.stringify({ type: "create-lobby" }));
 	});
 
 	// Dont click
@@ -87,9 +123,9 @@ function initializeGameMainMenu() {
 		else
 			lobby?.classList.add('hidden');
 
-		await lobbyClient.renderLobbyList();
+		// await lobbyClient.renderLobbyList();
 		if (!lobbyRefreshInterval) {
-			lobbyRefreshInterval = setInterval(lobbyClient.renderLobbyList, 50000);
+			// lobbyRefreshInterval = setInterval(lobbyClient.renderLobbyList, 50000);
 		}
 	});
 	
@@ -98,8 +134,8 @@ function initializeGameMainMenu() {
 		const username = sessionStorage.getItem("username")!;
 		const userId = Number(sessionStorage.getItem("user_id")!);
 		try {
-			const result = await lobbyClient.createLobby(username, userId, "MTC", 4);
-			showToast.green(`✅ Created Matrecos lobby: ${result.id}`);
+			// const result = await lobbyClient.createLobby(username, userId, "MTC", 4);
+			showToast.green(`✅ Created Matrecos lobby: `);
 		} catch (err) {
 			showToast.red("❌ Failed to create Matrecos lobby");
 		}
@@ -110,8 +146,8 @@ function initializeGameMainMenu() {
 		const username = sessionStorage.getItem("username")!;
 		const userId = Number(sessionStorage.getItem("user_id")!);
 		try {
-			const result = await lobbyClient.createLobby(username, userId, "FFA", 4);
-			showToast.green(`✅ Created FFA lobby: ${result.id}`);
+			// const result = await lobbyClient.createLobby(username, userId, "FFA", 4);
+			showToast.green(`✅ Created FFA lobby: `);
 		} catch (err) {
 			showToast.red("❌ Failed to create FFA lobby");
 		}

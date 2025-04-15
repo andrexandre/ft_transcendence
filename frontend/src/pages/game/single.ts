@@ -1,4 +1,4 @@
-import { gameCanvas, ctx, initGameCanvas } from "./gameClient";
+import { gameCanvas, ctx } from "./rendering";
 
 function GameMessageVisibility(visible: string) {
 	const countdownElement = document.getElementById("game-message") as HTMLDivElement;
