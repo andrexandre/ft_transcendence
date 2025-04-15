@@ -3,8 +3,11 @@ import fastifyWebsocket from "@fastify/websocket";
 import fastifyCookie from "@fastify/cookie";
 import cors from '@fastify/cors';
 import { userRoutes } from "./userSet.js";
-import { handleJoin, handleMove, handleDisconnect, startGameLoop } from "./gameServer.js";
+import { handleJoin, handleMove, handleDisconnect, startGameLoop, broadcastStartGame } from "./gameServer.js";
 import * as lobby from "./lobbyManager.js";
+import { clients } from "./gameServer.js";
+import { createGameRoom } from "./gameRoomManager.js";
+
 
 const PORT = 5000;
 const gamefast = fastify({ logger: true });
@@ -54,6 +57,7 @@ gamefast.post("/lobbies/:id/join", async (req, reply) => {
 	const { username, userId } = req.body as any;
 	const { id } = req.params as any;
 	const updated = lobby.joinLobby(id, username, userId);
+
 	if (!updated) return reply.status(400).send({ error: "Join failed" });
 	reply.send(updated);
 });
@@ -76,8 +80,22 @@ gamefast.delete("/lobbies/:id", async (req, reply) => {
 	reply.send({ message: "Lobby disbanded" });
 });
 
-// Start game loop (for multiplayer game logic) // Delete in front
-startGameLoop();
+// Start game (host only)
+gamefast.post("/lobbies/:id/start", async (req, reply) => {
+	const { id } = req.params as any;
+	const lobbyToStart = lobby.findLobbyById(id);
+	if (!lobbyToStart) return reply.status(404).send({ error: "Lobby not found" });
+
+	const userIds = lobbyToStart.players.map(p => p.userId);
+	broadcastStartGame(userIds); // 🔥 Trigger startGame on all players
+
+	lobby.removeLobby(id); // Remove lobby after starting
+	reply.send({ message: "Game started", players: lobbyToStart.players });
+});
+
+
+// Start game loop
+// startGameLoop();
 
 gamefast.listen({ port: PORT, host: "0.0.0.0" }, () => {
 	console.log(`🚀 Game server running on ws://localhost:${PORT}`);
