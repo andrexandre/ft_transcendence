@@ -3,11 +3,32 @@ import * as lib from "../utils"
 import sidebar from "../components/sidebar"
 import { renderProfileUsername } from "./dashboard"
 
+//! remove this to refactor
 export async function renderProfileInfo() {
-	if (!lib.userInfo.username)
-		await new Promise(r => setTimeout(r, 100));
+	if (!lib.userInfo.username) //! remove
+		await new Promise(r => setTimeout(r, 100)); //! remove
 	(document.getElementById("profile-username") as HTMLInputElement).value = lib.userInfo.username || "Sir Barkalot";
 	// (document.getElementById("email-username") as HTMLInputElement).value = lib.userInfo.email || "Sir Barkalot";
+}
+
+async function getAndUpdateInfo() {
+	try {
+		const response = await fetch('http://127.0.0.1:7000/fetchDashboardData', {
+			credentials: 'include',
+		});
+		if (!response.ok) {
+			lib.navigate('/login');
+			throw new Error(`${response.status} - ${response.statusText}`);
+		}
+		let dashData = await response.json();
+		lib.userInfo.username = dashData.username
+		lib.userInfo.userId = dashData.userId
+		lib.userInfo.auth_method = dashData.auth_method
+		renderProfileUsername();
+	} catch (error) {
+		console.log(error);
+		lib.showToast.red(error as string);
+	}
 }
 
 class Settings extends Page {
@@ -16,7 +37,6 @@ class Settings extends Page {
 	}
 	onMount(): void {
 		sidebar.setSidebarToggler('settings');
-		// renderProfileUsername();
 		const buttons = document.querySelectorAll('#theme-selector button');
 		buttons.forEach(button => {
 			button.addEventListener('click', () => {
@@ -38,7 +58,8 @@ class Settings extends Page {
 			// console.log(test.);
 			// console.log((document.getElementById("profile-username") as HTMLInputElement).value);
 		});
-		renderProfileInfo();
+		renderProfileInfo(); //! remove
+		// getAndUpdateInfo();
 	}
 	onCleanup(): void {
 		// lib.setTheme("light");

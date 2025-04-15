@@ -2,10 +2,11 @@ import Page from "./Page"
 import * as lib from "../utils"
 import sidebar from "../components/sidebar"
 
+//! remove this to refactor
 export async function renderProfileUsername() {
 	const profileUsername = document.getElementById("profile-username")!;
-	if (!lib.userInfo.username)
-		await new Promise(r => setTimeout(r, 100));
+	if (!lib.userInfo.username) //! remove
+		await new Promise(r => setTimeout(r, 100)); //! remove
 	let line: string = '';
 	if (lib.userInfo.username) {
 		if (lib.userInfo.auth_method === "google")
@@ -55,6 +56,43 @@ function displayMatchHistory(matchHistory: MatchHistoryI[]) {
 	});
 }
 
+async function updateMatchHistory() {
+	try {
+		const response = await fetch('http://127.0.0.1:5000/user-game-history', {
+			credentials: "include",
+		});
+		if (!response.ok) {
+			throw new Error(`${response.status} - ${response.statusText}`);
+		}
+		let matchHistory = await response.json();
+		displayMatchHistory(matchHistory);
+	} catch (error) {
+		console.log(error);
+		lib.showToast.red(error as string);
+	}
+}
+
+async function getAndUpdateInfo() {
+	try {
+		const response = await fetch('http://127.0.0.1:7000/fetchDashboardData', {
+			credentials: 'include',
+		});
+		if (!response.ok) {
+			lib.navigate('/login');
+			throw new Error(`${response.status} - ${response.statusText}`);
+		}
+		let dashData = await response.json();
+		lib.userInfo.username = dashData.username
+		lib.userInfo.userId = dashData.userId
+		lib.userInfo.auth_method = dashData.auth_method
+		renderProfileUsername();
+		updateMatchHistory();
+	} catch (error) {
+		console.log(error);
+		lib.showToast.red(error as string);
+	}
+}
+
 class Dashboard extends Page {
 	constructor() {
 		super("dashboard", '/');
@@ -62,24 +100,9 @@ class Dashboard extends Page {
 	onMount(): void {
 		sidebar.setSidebarToggler('home');
 		document.getElementById("game-ad-button")!.addEventListener("click", () => lib.navigate('/game'));
-		renderProfileUsername();
-		// if (lib.userInfo.username) {
-			(async () => { //* TEMP
-				try {
-					const response = await fetch('http://127.0.0.1:5000/user-game-history', {
-						credentials: "include",
-					});
-					if (!response.ok) {
-						throw new Error(`${response.status} - ${response.statusText}`);
-					}
-					let matchHistory = await response.json();
-					displayMatchHistory(matchHistory);
-				} catch (error) {
-					console.log(error);
-					lib.showToast.red(error as string);
-				}
-			})();
-		// }
+		// getAndUpdateInfo();
+		renderProfileUsername(); //! remove
+		updateMatchHistory(); //! remove
 	}
 	onCleanup(): void { }
 	getHtml(): string {

@@ -8,7 +8,7 @@ socket.onopen = () => {
 }
 
 socket.onerror = (error) => {
-	showToast('WebSocket error:' + error);
+	console.log('WebSocket error: ', error);
 };
 
 socket.onclose = (event) => {
@@ -179,7 +179,8 @@ function showFriendRequests(requests: {sender: string}[]) {
 	});
 }
 let isChatLoaded = false;
-function createRoom(name: string, isBlocked: boolean, load: boolean) { //* load chat box
+//! needs to fix load variable
+function createRoom(name: string, isBlocked: boolean, _load: boolean) { //* load chat box
 	const roomList = document.getElementById('chat-box-message-list')!;
 	roomList.innerHTML = '';
 
