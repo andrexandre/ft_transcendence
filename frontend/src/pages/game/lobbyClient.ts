@@ -1,5 +1,4 @@
 import { showToast } from "../../utils";
-import { startGameClient } from "./gameClient";
 
 const SERVER_URL = "http://127.0.0.1:5000";
 
@@ -89,7 +88,6 @@ function addLobbyEntry(
 		<button id="join-button-${id}" class="text-orange-700 hover:bg-orange-500 hover:text-black">${label}</button>
 	`);
 	document.getElementById(`join-button-${id}`)?.addEventListener("click", onClickHandler);
-	// showToast.blue(`Lobby entry n: ${id} added`);
 }
 
 export async function fetchLobbies() {

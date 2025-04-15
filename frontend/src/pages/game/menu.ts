@@ -3,9 +3,7 @@ import dropdown from "../../components/dropdown";
 import { startSingleClassic } from "./single";
 import * as lobbyClient from "./lobbyClient";
 import { startGameClient, initGameCanvas } from "./gameClient";
-// import { playMusic } from "./soundManager";
 
-// playMusic("menuMusic");
 let lobbyRefreshInterval: ReturnType<typeof setInterval> | null = null;
 
 function initializeGameMainMenu() {

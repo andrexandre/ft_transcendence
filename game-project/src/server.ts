@@ -3,10 +3,8 @@ import fastifyWebsocket from "@fastify/websocket";
 import fastifyCookie from "@fastify/cookie";
 import cors from '@fastify/cors';
 import { userRoutes } from "./userSet.js";
-import { handleJoin, handleMove, handleDisconnect, startGameLoop, broadcastStartGame } from "./gameServer.js";
+import { handleJoin, handleMove, handleDisconnect} from "./gameServer.js";
 import * as lobby from "./lobbyManager.js";
-import { clients } from "./gameServer.js";
-import { createGameRoom } from "./gameRoomManager.js";
 
 
 const PORT = 5000;
@@ -87,7 +85,6 @@ gamefast.post("/lobbies/:id/start", async (req, reply) => {
 	if (!lobbyToStart) return reply.status(404).send({ error: "Lobby not found" });
 
 	const userIds = lobbyToStart.players.map(p => p.userId);
-	broadcastStartGame(userIds); // 🔥 Trigger startGame on all players
 
 	lobby.removeLobby(id); // Remove lobby after starting
 	reply.send({ message: "Game started", players: lobbyToStart.players });
