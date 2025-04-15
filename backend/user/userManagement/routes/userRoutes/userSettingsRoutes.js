@@ -1,20 +1,16 @@
 
-import userSettingsRoutes from "./userSettingsRoutes.js";
-import userAvatarRoutes from "./userAvatarRoutes.js";
 
-async function userRoutes(server, opts) {
+async function userSettingsRoutes(server, opts) {
     
-    server.route({
+	server.route({
         method: 'GET',
-        url: '/api/user/info',
+        url: '/api/user/settings',
         handler:  async (request, reply) => {
            
-			//aqui provavlemente vai ter de ser multipart/form-data
 			const token = request.cookies.token;
 			const response = await fetch('http://gateway-api:7000/userData', {
 				method: "GET",
 				headers: {
-					"Content-Type": "application/json",
 					"Cookie": `token=${token}`,
 				},
 				credentials: "include"
@@ -35,9 +31,14 @@ async function userRoutes(server, opts) {
         },
     });
 
-	server.register(userSettingsRoutes);
-	server.register(userAvatarRoutes);
+    server.route({
+        method: 'POST',
+        url: '/api/users/save-settings',
+        handler:  async (request, reply) => {
+
+		}}
+	);
 
 }
 
-export default userRoutes;
+export default userSettingsRoutes;

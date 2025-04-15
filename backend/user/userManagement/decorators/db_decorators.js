@@ -39,6 +39,7 @@ export const createTables = function() {
 		is_online BOOLEAN DEFAULT FALSE,
 		codename TEXT NOT NULL,
 		biography TEXT NOT NULL,
+		avatar TEXT DEFAULT NULL,
 		two_FA_status BOOLEAN DEFAULT TRUE
 	);
 	`;

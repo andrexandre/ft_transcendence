@@ -10,6 +10,33 @@ export async function renderProfileInfo() {
 	// (document.getElementById("email-username") as HTMLInputElement).value = lib.userInfo.email || "Sir Barkalot";
 }
 
+async function loadInfo() {
+
+	const response = await fetch('http://127.0.0.1:3000/api/user/settings', {
+		credentials: 'include'
+	})
+	
+	if (!response.ok) return lib.showToast('Merda no fetch');
+	
+	const userData = await response.json();
+	(document.getElementById("profile-username") as HTMLInputElement).value = userData.username;
+	(document.getElementById("profile-codename") as HTMLInputElement).value = userData.codename;
+	(document.getElementById("profile-email") as HTMLInputElement).value = userData.email;
+	(document.getElementById("profile-bio") as HTMLInputElement).value = userData.biography;
+
+	const imageResponse = await fetch('http://127.0.0.1:3000/api/user/avatar', {
+		credentials: 'include'
+	})
+	
+	if (!imageResponse.ok) return lib.showToast('Merda no fetch 2');
+	// console.log(imageResponse);
+	const blob = await imageResponse.blob();
+	console.log(blob);
+	const url = URL.createObjectURL(blob);
+	(document.getElementById("profile-avatar") as HTMLImageElement).src = url;
+
+}
+
 class Settings extends Page {
 	constructor() {
 		super("settings", '/settings');
@@ -34,11 +61,11 @@ class Settings extends Page {
 			console.log((document.getElementById("profile-codename") as HTMLInputElement).value);
 			console.log((document.getElementById("profile-email") as HTMLInputElement).value);
 			console.log((document.getElementById("profile-bio") as HTMLInputElement).value);
-			const test = (document.getElementById("profile-avatar") as HTMLImageElement);
 			// console.log(test.);
 			// console.log((document.getElementById("profile-username") as HTMLInputElement).value);
 		});
-		renderProfileInfo();
+		// renderProfileInfo();
+		loadInfo();
 	}
 	onCleanup(): void {
 		// lib.setTheme("light");
