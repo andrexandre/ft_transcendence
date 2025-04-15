@@ -119,22 +119,11 @@ input, textarea {
 }
 
 canvas {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	z-index: 10;
-	@apply border-2 border-g-c-text;
+	@apply absolute top-1/2 left-1/2 z-10 transform -translate-1/2 border-2 border-g-c-text;
 }
 
 #scoreboard {
-	position: absolute;
-	top: 5%;
-	left: 50%;
-	transform: translateX(-50%);
-	font-size: 30px;
-	font-weight: bold;
-	@apply text-g-c-text;
+	@apply absolute top-12 left-1/2 text-3xl font-bold transform -translate-x-1/2 text-g-c-text;
 }
 
 #main-menu-title {

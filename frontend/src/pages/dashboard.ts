@@ -32,9 +32,9 @@ interface MatchHistoryI {
 }
 
 function displayMatchHistory(matchHistory: MatchHistoryI[]) {
-	const statsDiv = document.getElementById("stats")!;
+	const statsDiv = document.getElementById("stats-list")!;
 	matchHistory.forEach(match => {
-		const matchDiv = document.createElement("div");
+		const matchDiv = document.createElement("li");
 		let matchBgColor = '';
 		if (match.winner.username === lib.userInfo.username)
 			matchBgColor = "border-green-500 hover:border-green-700 dark:border-green-700 dark:hover:border-green-500";
@@ -61,23 +61,25 @@ class Dashboard extends Page {
 	}
 	onMount(): void {
 		sidebar.setSidebarToggler('home');
-		renderProfileUsername();
 		document.getElementById("game-ad-button")!.addEventListener("click", () => lib.navigate('/game'));
-		(async () => {
-			try {
-				const response = await fetch('http://127.0.0.1:5000/user-game-history', {
-					credentials: "include",
-				});
-				if (!response.ok) {
-					throw new Error(`${response.status} - ${response.statusText}`);
+		renderProfileUsername();
+		// if (lib.userInfo.username) {
+			(async () => { //* TEMP
+				try {
+					const response = await fetch('http://127.0.0.1:5000/user-game-history', {
+						credentials: "include",
+					});
+					if (!response.ok) {
+						throw new Error(`${response.status} - ${response.statusText}`);
+					}
+					let matchHistory = await response.json();
+					displayMatchHistory(matchHistory);
+				} catch (error) {
+					console.log(error);
+					lib.showToast.red(error as string);
 				}
-				let matchHistory = await response.json();
-				displayMatchHistory(matchHistory);
-			} catch (error) {
-				console.log(error);
-				lib.showToast.red(error as string);
-			}
-		})();
+			})();
+		// }
 	}
 	onCleanup(): void { }
 	getHtml(): string {
@@ -98,26 +100,29 @@ class Dashboard extends Page {
 					<div class="ball size-4 rounded-xl bg-c-secondary absolute animate-[ball-animation_6s_infinite_linear]"></div>
 					<button id="game-ad-button" class="flex p-5 t-dashed absolute bottom-0 animate-[btn-animation_6s_infinite_linear]">Let's Play</button>
 				</div>
-				<div id="stats" class="card t-dashed flex flex-col overflow-scroll">
+				<div class="card t-dashed flex flex-col">
 					<h1 class="text-xl">Pong match history</h1>
+					<ul id="stats-list" class="flex flex-col gap-2 overflow-scroll"></ul>
 				</div>
 				<div id="friends" class="card t-dashed flex flex-col justify-around overflow-scroll">
 					<h1 class="text-xl">Active friends</h1>
-					<div class="item t-dashed p-3 flex">
-						<img src="https://api.dicebear.com/9.x/avataaars-neutral/svg?seed=Brian" class="size-10 rounded-4xl">
-						<svg height="10" width="10"><circle cx="5" cy="5" r="5" fill="green" /></svg>
-						<h1 class="self-center ml-5">Brian</h1>
-					</div>
-					<div class="item t-dashed p-3 flex">
-						<img src="https://api.dicebear.com/9.x/avataaars-neutral/svg?seed=Eliza" class="size-10 rounded-4xl">
-						<svg height="10" width="10"><circle cx="5" cy="5" r="5" fill="grey" /></svg>
-						<h1 class="self-center ml-5">Eliza</h1>
-					</div>
-					<div class="item t-dashed p-3 flex">
-						<img src="https://api.dicebear.com/9.x/avataaars-neutral/svg?seed=Alexander" class="size-10 rounded-4xl">
-						<svg height="10" width="10"><circle cx="5" cy="5" r="5" fill="grey" /></svg>
-						<h1 class="self-center ml-5">Alexander</h1>
-					</div>
+					<ul id="friends-list" class="flex flex-col overflow-scroll">
+						<li class="item t-dashed p-3 flex">
+							<img src="https://api.dicebear.com/9.x/avataaars-neutral/svg?seed=Brian" class="size-10 rounded-4xl">
+							<svg height="10" width="10"><circle cx="5" cy="5" r="5" fill="green" /></svg>
+							<h1 class="self-center ml-5">Brian</h1>
+						</li>
+						<li class="item t-dashed p-3 flex">
+							<img src="https://api.dicebear.com/9.x/avataaars-neutral/svg?seed=Eliza" class="size-10 rounded-4xl">
+							<svg height="10" width="10"><circle cx="5" cy="5" r="5" fill="grey" /></svg>
+							<h1 class="self-center ml-5">Eliza</h1>
+						</li>
+						<li class="item t-dashed p-3 flex">
+							<img src="https://api.dicebear.com/9.x/avataaars-neutral/svg?seed=Alexander" class="size-10 rounded-4xl">
+							<svg height="10" width="10"><circle cx="5" cy="5" r="5" fill="grey" /></svg>
+							<h1 class="self-center ml-5">Alexander</h1>
+						</li>
+					</ul>
 				</div>
 			</main>
 		`

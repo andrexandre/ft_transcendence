@@ -34,8 +34,8 @@ export function loadTheme() {
 	// 	if (window.matchMedia('(prefers-color-scheme: dark)').matches) 
 	// 		document.documentElement.classList.add('dark');
 	// }
-	console.debug(`Theme set to ${localStorage.getItem('theme') ? localStorage.getItem('theme') : 'auto'}`);
-	console.debug(`System theme set to ${window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'}`);
+	// console.debug(`Theme set to ${localStorage.getItem('theme') ? localStorage.getItem('theme') : 'auto'}`);
+	// console.debug(`System theme set to ${window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'}`);
 }
 
 export function setTheme(option: string, save?: boolean) {
@@ -52,7 +52,7 @@ export function setTheme(option: string, save?: boolean) {
 		htmlElement.classList.remove('dark');
 		if (save) localStorage.setItem('theme', 'light');
 	}
-	console.debug(`Theme set to ${option}`);
+	// console.debug(`Theme set to ${option}`);
 }
 
 export function getTheme() {
