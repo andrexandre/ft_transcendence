@@ -4,11 +4,15 @@ import sidebar from "../../components/sidebar"
 import dropdown from "../../components/dropdown"
 import * as menu from "./menu"
 
+let currentTheme: string;
+
 class Game extends Page {
 	constructor() {
 		super("game", '/game');
 	}
 	onMount(): void {
+		currentTheme = lib.getTheme();
+		lib.setTheme('light')
 		sidebar.setSidebarToggler('game');
 		// Set Settings dropdown
 		dropdown.initialize('Settings');
@@ -46,13 +50,15 @@ class Game extends Page {
 		// document.getElementById('dropdownButton-Multi')?.click();
 		document.getElementById('game-main-menu')!.addEventListener('click', (event) => this.setGameMenuToggler(event));
 	}
-	onCleanup() { }
+	onCleanup() {
+		lib.setTheme(currentTheme);
+	}
 	getHtml(): string {
 		return /*html*/`
 			${sidebar.getHtml()}
 			<main class="card g-t-border flex flex-1 justify-around items-center font-['Press_Start_2P']">
 				<div id="game-main-menu" class="flex flex-col items-center">
-					<h1 id="main-menu-title" class="font-bold text-8xl mb-20 max-lg:text-7xl">PONGIFY</h1>
+					<h1 id="main-menu-title" class="text-8xl mb-20 max-lg:text-7xl">PONGIFY</h1>
 					<div class="flex gap-5">
 						<div class="flex flex-col w-80">
 							${dropdown.getHtml('Single')}

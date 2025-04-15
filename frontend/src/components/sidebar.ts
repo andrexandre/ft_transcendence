@@ -50,6 +50,7 @@ const sidebar = {
 	setSidebarToggler: (buttonName?: string) => {
 		if (buttonName == 'home' || buttonName == 'chat' || buttonName == 'game' || buttonName == 'settings') {
 			document.getElementById(`goto-${buttonName}-button`)?.classList.add('bg-c-secondary');
+			document.getElementById(`goto-${buttonName}-button`)?.classList.add('dark:bg-c-primary');
 		}
 		document.getElementById('hide-sidebar-button')!.addEventListener('click', () => {
 			const sidebar = document.getElementById('sidebar');

@@ -56,13 +56,22 @@ body {
 	@apply bg-c-bg select-none dark:bg-black;
 }
 
+h1 {
+	@apply font-bold;
+}
+
 img {
 	@apply pointer-events-none;
 }
 
+input, textarea {
+	@apply outline-none;
+}
+
 /* other */
 .sidebar-component {
-	@apply flex p-3 rounded-2xl justify-between items-center w-full hover:bg-c-secondary transition-all dark:hover:bg-c-primary;
+	@apply flex p-3 rounded-2xl justify-between items-center w-full transition-all
+		text-c-text dark:text-c-bg hover:bg-c-secondary dark:hover:bg-c-primary;
 }
 
 /* toast */

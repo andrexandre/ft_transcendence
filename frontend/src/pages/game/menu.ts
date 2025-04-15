@@ -35,8 +35,12 @@ function initializeGameMainMenu() {
 	// Set Multi dropdown
 	dropdown.initialize('Multi', async () => {
 		const lobby = document.getElementById('lobby');
-		lobby?.classList.toggle('hidden');
-	
+		const menu = document.getElementById(`dropdownMenu-Multi`);
+		if (!menu?.classList.contains('hidden'))
+			lobby?.classList.remove('hidden');
+		else
+			lobby?.classList.add('hidden');
+
 		if (!lobby?.classList.contains('hidden')) {
 			await lobbyClient.renderLobbyList();
 			lobbyRefreshInterval = setInterval(lobbyClient.renderLobbyList, 1000);
@@ -65,7 +69,24 @@ function initializeGameMainMenu() {
 		});
 
 	// Set Co-Op dropdown
-	dropdown.initialize('Co-Op');
+	dropdown.initialize('Co-Op', async () => {
+		const lobby = document.getElementById('lobby');
+		const menu = document.getElementById(`dropdownMenu-Co-Op`);
+		if (!menu?.classList.contains('hidden'))
+			lobby?.classList.remove('hidden');
+		else
+			lobby?.classList.add('hidden');
+
+		if (!lobby?.classList.contains('hidden')) {
+			await lobbyClient.renderLobbyList();
+			lobbyRefreshInterval = setInterval(lobbyClient.renderLobbyList, 1000);
+		} else {
+			if (lobbyRefreshInterval) {
+				clearInterval(lobbyRefreshInterval);
+				lobbyRefreshInterval = null;
+			}
+		}
+	});
 	dropdown.addElement('Co-Op', 'button', 'item g-t-border-alt', 'Matrecos',
 		() => {
 			showToast("Connecting to multiplayer game...");

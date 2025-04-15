@@ -37,9 +37,9 @@ function displayMatchHistory(matchHistory: MatchHistoryI[]) {
 		const matchDiv = document.createElement("div");
 		let matchBgColor = '';
 		if (match.winner.username === lib.userInfo.username)
-			matchBgColor = "border-green-500 hover:border-green-700";
+			matchBgColor = "border-green-500 hover:border-green-700 dark:border-green-700 dark:hover:border-green-500";
 		else if (match.loser.username === lib.userInfo.username)
-			matchBgColor = "border-red-500 hover:border-red-700";
+			matchBgColor = "border-red-500 hover:border-red-700 dark:border-red-700 dark:hover:border-red-500";
 		matchDiv.className = "relative item t-dashed " + matchBgColor;
 		matchDiv.innerHTML = /*html*/`
 			<p class="text-sm absolute top-0 left-1/2 transform -translate-x-1/2">${match.Mode}</p>
@@ -88,7 +88,7 @@ class Dashboard extends Page {
 					<div class="flex gap-16">
 						<img class="rounded-full size-48 shadow-xl shadow-neutral-400 border-2" src="https://picsum.photos/id/237/200">
 						<div class="justify-center self-center">
-							<h1 id="profile-username" class="text-3xl font-bold">Loading...</h1>
+							<h1 id="profile-username" class="text-3xl">Loading...</h1>
 							<p class="text-xl">The mighty tail-wagger</p>
 						</div>
 					</div>
@@ -98,25 +98,25 @@ class Dashboard extends Page {
 					<div class="ball size-4 rounded-xl bg-c-secondary absolute animate-[ball-animation_6s_infinite_linear]"></div>
 					<button id="game-ad-button" class="flex p-5 t-dashed absolute bottom-0 animate-[btn-animation_6s_infinite_linear]">Let's Play</button>
 				</div>
-				<div id="stats" class="card t-dashed">
-					<h1 class="text-xl font-bold mb-8">Pong match history</h1>
+				<div id="stats" class="card t-dashed flex flex-col overflow-scroll">
+					<h1 class="text-xl">Pong match history</h1>
 				</div>
 				<div id="friends" class="card t-dashed flex flex-col justify-around overflow-scroll">
-					<h1 class="text-xl font-bold">Active friends</h1>
+					<h1 class="text-xl">Active friends</h1>
 					<div class="item t-dashed p-3 flex">
 						<img src="https://api.dicebear.com/9.x/avataaars-neutral/svg?seed=Brian" class="size-10 rounded-4xl">
 						<svg height="10" width="10"><circle cx="5" cy="5" r="5" fill="green" /></svg>
-						<h1 class="font-bold self-center ml-5">Brian</h1>
+						<h1 class="self-center ml-5">Brian</h1>
 					</div>
 					<div class="item t-dashed p-3 flex">
 						<img src="https://api.dicebear.com/9.x/avataaars-neutral/svg?seed=Eliza" class="size-10 rounded-4xl">
 						<svg height="10" width="10"><circle cx="5" cy="5" r="5" fill="grey" /></svg>
-						<h1 class="font-bold self-center ml-5">Eliza</h1>
+						<h1 class="self-center ml-5">Eliza</h1>
 					</div>
 					<div class="item t-dashed p-3 flex">
 						<img src="https://api.dicebear.com/9.x/avataaars-neutral/svg?seed=Alexander" class="size-10 rounded-4xl">
 						<svg height="10" width="10"><circle cx="5" cy="5" r="5" fill="grey" /></svg>
-						<h1 class="font-bold self-center ml-5">Alexander</h1>
+						<h1 class="self-center ml-5">Alexander</h1>
 					</div>
 				</div>
 			</main>
