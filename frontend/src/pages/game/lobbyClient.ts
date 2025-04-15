@@ -1,5 +1,5 @@
 import { showToast } from "../../utils";
-import { startGameClient } from "./gameClient";
+
 const SERVER_URL = "http://127.0.0.1:5000";
 
 export async function renderLobbyList(): Promise<void> {
@@ -20,22 +20,21 @@ export async function renderLobbyList(): Promise<void> {
 			let handler = () => joinLobby(lobbyObj.id, currentUsername!, currentUserId);
 
 			if (isHost) {
-				buttonLabel = isFull ? "START" : "QUIT";
-				handler = () => {
-					if (isFull) {
+				if (isFull) {
+					buttonLabel = "START";
+					handler = async () => {
 						showToast.green("🕹️ Starting game...");
-						startGameClient();
-					} else {
-						leaveLobby(lobbyObj.id, currentUserId, true);
-						showToast.red("🕹️ FFFF game...");
-					}
-				};
-				
-			} else if (isInLobby) {
-				buttonLabel = "QUIT";
-				handler = () => leaveLobby(lobbyObj.id, currentUserId, false);
+						await startGameFromLobby(lobbyObj.id);
+					};
+				} else {
+					buttonLabel = "QUIT";
+					handler = async () => {
+						await leaveLobby(lobbyObj.id, currentUserId, true);
+						showToast.red("❌ Lobby disbanded");
+					};
+				}
 			}
-
+			
 			addLobbyEntry(
 				lobbyObj.id,
 				lobbyObj.hostUsername,
@@ -89,7 +88,6 @@ function addLobbyEntry(
 		<button id="join-button-${id}" class="text-orange-700 hover:bg-orange-500 hover:text-black">${label}</button>
 	`);
 	document.getElementById(`join-button-${id}`)?.addEventListener("click", onClickHandler);
-	// showToast.blue(`Lobby entry n: ${id} added`);
 }
 
 export async function fetchLobbies() {
@@ -123,4 +121,26 @@ export async function joinLobby(lobbyId: string, username: string, userId: numbe
 	}
 	showToast.green("Lobby joined");
 	return await res.json();
+}
+
+export async function startGameFromLobby(lobbyId: string) {
+	try {
+		const userId = Number(sessionStorage.getItem("user_id"));
+		const response = await fetch(`${SERVER_URL}/lobbies/${lobbyId}/start`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ userId }), // ✅ Send userId to backend
+		});
+		if (!response.ok) throw new Error("Failed to start game");
+
+		const data = await response.json();
+		console.log("🎮 Starting game with:", data.players);
+
+		document.getElementById("sidebar")?.classList.add("hidden");
+		document.getElementById("game-main-menu")?.classList.add("hidden");
+
+	} catch (err) {
+		console.error("❌ Error starting game:", err);
+		showToast.red("Failed to start game");
+	}
 }
