@@ -3,20 +3,13 @@ import * as lib from "../utils"
 import sidebar from "../components/sidebar"
 import { renderProfileUsername } from "./dashboard"
 
-export async function renderProfileInfo() {
-	if (!lib.userInfo.username)
-		await new Promise(r => setTimeout(r, 100));
-	(document.getElementById("profile-username") as HTMLInputElement).value = lib.userInfo.username || "Sir Barkalot";
-	// (document.getElementById("email-username") as HTMLInputElement).value = lib.userInfo.email || "Sir Barkalot";
-}
 
-async function loadInfo() {
+async function loadInformation() {
 
 	const response = await fetch('http://127.0.0.1:3000/api/user/settings', {
 		credentials: 'include'
 	})
-	
-	if (!response.ok) return lib.showToast('Merda no fetch');
+	if (!response.ok) return lib.showToast('Failed too load user Information!');
 	
 	const userData = await response.json();
 	(document.getElementById("profile-username") as HTMLInputElement).value = userData.username;
@@ -27,14 +20,14 @@ async function loadInfo() {
 	const imageResponse = await fetch('http://127.0.0.1:3000/api/user/avatar', {
 		credentials: 'include'
 	})
-	
-	if (!imageResponse.ok) return lib.showToast('Merda no fetch 2');
-	// console.log(imageResponse);
+	if (!imageResponse.ok) return lib.showToast('Failed too load user Avatar!');
+
 	const blob = await imageResponse.blob();
 	console.log(blob);
 	const url = URL.createObjectURL(blob);
-	(document.getElementById("profile-avatar") as HTMLImageElement).src = url;
-
+	const errorUrl = 'https://fastly.picsum.photos/id/63/300/300.jpg?hmac=NZIxadbJNvrTZPpf2SgsLhZ4Up4GlWVwar-bI6FcTE8';
+	
+	(document.getElementById("profile-avatar") as HTMLImageElement).src = url || errorUrl;
 }
 
 class Settings extends Page {
@@ -55,17 +48,8 @@ class Settings extends Page {
 		document.getElementById(`dark-theme-button`)!.addEventListener('click', () => lib.setTheme("dark"));
 		document.getElementById(`auto-theme-button`)!.addEventListener('click', () => lib.setTheme("auto"));
 
-		document.getElementById("profile-save-button")!.addEventListener("click", () => {
-			lib.showToast("Button worked");
-			console.log((document.getElementById("profile-username") as HTMLInputElement).value);
-			console.log((document.getElementById("profile-codename") as HTMLInputElement).value);
-			console.log((document.getElementById("profile-email") as HTMLInputElement).value);
-			console.log((document.getElementById("profile-bio") as HTMLInputElement).value);
-			// console.log(test.);
-			// console.log((document.getElementById("profile-username") as HTMLInputElement).value);
-		});
-		// renderProfileInfo();
-		loadInfo();
+
+		loadInformation();
 	}
 	onCleanup(): void {
 		// lib.setTheme("light");

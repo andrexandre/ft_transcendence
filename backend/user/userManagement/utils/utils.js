@@ -1,4 +1,8 @@
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
+export const __dirname = dirname(fileURLToPath(import.meta.url));
+			
 export const sampleBios = [
 	"Former ping-pong prodigy turned digital paddle warrior.",
 	"Sharp reflexes. Unstoppable ball. You lose.",

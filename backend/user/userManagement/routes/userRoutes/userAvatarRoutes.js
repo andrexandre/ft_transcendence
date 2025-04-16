@@ -1,8 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-
+import { __dirname } from '../../utils/utils.js';
 
 
 async function userAvatarRoutes(server, opts) {
@@ -14,52 +12,40 @@ async function userAvatarRoutes(server, opts) {
            
 		try {
 
-			// const token = request.cookies.token;
-			// const response = await fetch('http://gateway-api:7000/userData', {
-			// 	method: "GET",
-			// 	headers: {
-			// 		"Cookie": `token=${token}`,
-			// 	},
-			// 	credentials: "include"
-			// });
+			const token = request.cookies.token;
+			const response = await fetch('http://gateway-api:7000/userData', {
+				method: "GET",
+				headers: {
+					"Cookie": `token=${token}`,
+				},
+				credentials: "include"
+			});
 
-			// if (!response.ok) reply.status(500).send({error: "Internal server error!"});
+			if (!response.ok) reply.status(500).send({error: "Internal server error!"});
 
-			// const userData = await response.json();
-			// const targetUser = await server.getUserByUsername(userData.username);
+			const userData = await response.json();
+			const targetUser = await server.getUserByUsername(userData.username);
 
-			const __filename = fileURLToPath(import.meta.url);
-			const __dirname = dirname(__filename);
 			
-			const filePath = path.join(__dirname, '../../uploads', "default.jpg");
+			const filePath = path.join(__dirname, '../uploads', targetUser.avatar);
 			await fs.promises.access(filePath, fs.constants.F_OK);
 			const stream = fs.createReadStream(filePath);
-			const fileSize = await fs.promises.stat(filePath);
-			// console.log('SIZEE: ', ));
-			console.log(stream)
-			reply.type('image/jpeg').send(stream);
-			// reply.type('image/jpg').header('Content-Length', fileSize);	
-			// reply.header('Content-Disposition', `inline; filename="default.jpg"`);
-			// reply.status(200).send(stream);
+			
+			const fileSize = (await fs.promises.stat(filePath)).size;
+			console.log('SIZEE: ', fileSize);
+			
+			return reply
+			.type('image/jpeg') // tipo dependendo da extensao 
+			.header('content-Length', fileSize)
+			.send(stream);
 
 		} catch(err) {
 			console.log(err);
 			reply.status(500).send({error: "Internal server error!"});
 		}
 
-			
-
-			// reply.status(200).send({
-			// 	username: targetUser.username,
-			// 	email: targetUser.email,
-			// 	codename: targetUser.codename,
-			// 	biography: targetUser.biography
-			// });
-            
         },
     });
-
-    
 
 }
 
