@@ -4,6 +4,7 @@ export var userInfo = {
 	username: "",
 	userId: "",
 	auth_method: "",
+	profileImage: "",
 }
 
 export function showToast(message?: string, type: string = ""): void {

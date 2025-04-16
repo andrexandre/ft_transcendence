@@ -2,11 +2,8 @@ import Page from "./Page"
 import * as lib from "../utils"
 import sidebar from "../components/sidebar"
 
-//! remove this to refactor
 export async function renderProfileUsername() {
 	const profileUsername = document.getElementById("profile-username")!;
-	if (!lib.userInfo.username) //! remove
-		await new Promise(r => setTimeout(r, 100)); //! remove
 	let line: string = '';
 	if (lib.userInfo.username) {
 		if (lib.userInfo.auth_method === "google")
@@ -100,9 +97,9 @@ class Dashboard extends Page {
 	onMount(): void {
 		sidebar.setSidebarToggler('home');
 		document.getElementById("game-ad-button")!.addEventListener("click", () => lib.navigate('/game'));
-		// getAndUpdateInfo();
-		renderProfileUsername(); //! remove
-		updateMatchHistory(); //! remove
+		if (lib.userInfo.profileImage)
+			(document.getElementById('profile-image') as HTMLImageElement).src = lib.userInfo.profileImage;
+		getAndUpdateInfo();
 	}
 	onCleanup(): void { }
 	getHtml(): string {
@@ -111,13 +108,13 @@ class Dashboard extends Page {
 			<main class="grid grid-cols-2 grid-rows-2 flex-1">
 				<div id="profile" class="card t-dashed grid overflow-scroll">
 					<div class="flex gap-16">
-						<img class="rounded-full size-48 shadow-xl shadow-neutral-400 border-2" src="https://picsum.photos/id/237/200">
+						<img id="profile-image" class="object-cover rounded-full size-48 shadow-xl shadow-neutral-400 border-2" src="https://picsum.photos/id/237/200">
 						<div class="justify-center self-center">
 							<h1 id="profile-username" class="text-3xl">Loading...</h1>
-							<p class="text-xl">The mighty tail-wagger</p>
+							<p id="profile-codename" class="text-xl">The mighty tail-wagger</p>
 						</div>
 					</div>
-					<p>Champion of belly rubs, fetch, and fierce squirrel chases. Sir Barkalot is the first to answer the doorbell with a royal bark. His hobbies include digging to China and chewing shoes.</p>
+					<p id="profile-bio">Champion of belly rubs, fetch, and fierce squirrel chases. Sir Barkalot is the first to answer the doorbell with a royal bark. His hobbies include digging to China and chewing shoes.</p>
 				</div>
 				<div class="card t-dashed relative">
 					<div class="ball size-4 rounded-xl bg-c-secondary absolute animate-[ball-animation_6s_infinite_linear]"></div>
