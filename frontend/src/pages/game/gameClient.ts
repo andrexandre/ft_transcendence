@@ -1,5 +1,3 @@
-import { playSound, playMusic, stopAllMusic } from "./soundManager";
-
 const SERVER_URL = "ws://127.0.0.1:5000/ws";
 
 export let gameCanvas: HTMLCanvasElement;
@@ -48,7 +46,6 @@ function updateScoreboard(players: any[], ball: any) {
 		<b>${p2.score}</b> 
 		<span style='color: red;'>${p2.username}</span>
 		<br>
-		<small>Ball: ${ball.x.toFixed(1)}, ${ball.y.toFixed(1)}</small>
 	`;
 	el.style.display = "block";
 }
@@ -64,7 +61,7 @@ function drawGame() {
 	players.forEach((p) => {
 		const x = (p.posiX / 100) * (gameCanvas.width - paddleWidth);
 		const y = (p.posiY / 100) * (gameCanvas.height - paddleHeight);
-		ctx.fillStyle = p.userId.toString() === currentPlayerId ? "#4ade80" : "#f87171";
+		ctx.fillStyle = p.userId.toString() === currentPlayerId ? "blue" : "red";
 		ctx.fillRect(x, y, paddleWidth, paddleHeight);
 	});
 	
@@ -100,7 +97,6 @@ function setupControls() {
 		if (keysPressed["ArrowUp"]) {
 			socket.send(JSON.stringify({ type: "move", direction: "up" }));
 			lastMoveTime = now;
-			playSound("paddleHit"); ///test
 		}
 		if (keysPressed["ArrowDown"]) {
 			socket.send(JSON.stringify({ type: "move", direction: "down" }));
@@ -132,7 +128,11 @@ function connectWebSocket(username: string) {
 
 	socket.onmessage = (event) => {
 		const data = JSON.parse(event.data);
-
+		if (data.type === "startGame") {
+			console.log("📩 Received 'startGame' WebSocket message");
+			startGameClient(); 
+		}
+		
 		if (data.type === "welcome") {
 			currentPlayerId = data.playerId;
 			console.log("🎮 Player ID:", currentPlayerId);
@@ -141,7 +141,6 @@ function connectWebSocket(username: string) {
 		if (data.type === "countdown") {
 			drawGameMessage(data.value.toString(), "green");
 			if (data.value === 1) {
-				playSound("countdown"); /// TEEEEEEEEEEEEEEEEEEESSSSSSSSSTT
 				setTimeout(() => GameMessageVisibility("hide"), 1000);
 			}
 		}
@@ -193,5 +192,4 @@ export function startGameClient() {
 	setupControls();
 	drawGameMessage("Waiting for another player...", "gray");
 	GameMessageVisibility("show");
-	playMusic("gameMusic");
 }

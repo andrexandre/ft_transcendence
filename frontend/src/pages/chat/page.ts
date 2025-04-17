@@ -9,8 +9,6 @@ class Chat extends Page {
 	}
 	onMount(): void {
 		sidebar.setSidebarToggler('chat');
-		document.getElementById('hide-sidebar-button')?.click();
-
 		setChatEventListeners();
 	}
 	onCleanup(): void { }

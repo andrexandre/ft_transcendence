@@ -78,3 +78,11 @@ export function removeLobbyIfHost(lobbyId: string, userId: number): boolean {
 	lobbies.delete(lobbyId);
 	return true;
 }
+
+export function findLobbyById(id: string): Lobby | undefined {
+	return lobbies.get(id);
+}
+
+export function removeLobby(id: string): boolean {
+	return lobbies.delete(id);
+}

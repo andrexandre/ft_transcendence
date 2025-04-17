@@ -18,19 +18,19 @@ class Login extends Page {
 		return /*html*/`
 			<div class="flex flex-col gap-5 m-auto h-fit card t-dashed">
 				<h1 class="text-3xl">Login</h1>
-				<form class="space-y-3 flex flex-col *:focus:outline-none *:focus:border-blue-500" action="#">
+				<form class="space-y-3 flex flex-col" action="#">
 					<label for="username">Username</label>
-					<input class="item t-dashed pl-4" type="text" id="username" placeholder="Enter username" required />
+					<input class="item t-dashed pl-4 focus:border-blue-500" type="text" id="username" placeholder="Enter username" required />
 					<label for="password">Password</label>
-					<input class="item t-dashed pl-4" type="password" id="password" placeholder="Enter password" required />
-					<button class="item t-dashed" type="submit">Submit</button>
+					<input class="item t-dashed pl-4 focus:border-blue-500" type="password" id="password" placeholder="Enter password" required />
+					<button class="item t-dashed focus:outline-none focus:border-blue-500" type="submit">Submit</button>
 				</form>
 				<hr class="text-c-primary">
 				<button class="item t-dashed focus:outline-none focus:border-blue-500" id="google-auth-button">
 					<i class="fa-brands fa-google mr-2"></i>
 					Continue with Google
 				</button>
-				<div class="text-sm font-medium text-gray-500">
+				<div class="text-sm font-medium text-c-secondary">
 					<p>Not registered? <button id="goto-register-button" class="text-blue-700 hover:underline hover:cursor-pointer">Create account</button></p>
 					<p>Want to login? <button id="goto-dashboard-button" class="text-blue-700 hover:underline hover:cursor-pointer">Go to Dashboard</button></p>
 				</div>
