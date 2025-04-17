@@ -1,7 +1,6 @@
 import { FastifyInstance } from "fastify";
 import db_game from "./db_game.js";
 
-
 // Interfaces
 interface MatchData {
 	gameMode: string;
@@ -27,7 +26,6 @@ interface GameHistory {
 	game_time: string;
 }
 
-
 interface SaveSettingsRequest {
     Body: {
         username: string;
@@ -37,7 +35,7 @@ interface SaveSettingsRequest {
     };
 }
 
-async function getUserDatafGateway(token: string | undefined): Promise<UserData | null> {
+export async function getUserDatafGateway(token: string | undefined): Promise<UserData | null> {
 	try {
 		const response = await fetch("http://gateway-api:7000/userData", {
 			method: "GET",
@@ -47,10 +45,9 @@ async function getUserDatafGateway(token: string | undefined): Promise<UserData 
 			},
 			credentials: "include"
 		});
-
 		if (!response.ok) throw new Error(`Failed to fetch user from Gateway: ${response.status} ${response.statusText}`);
-
 		return await response.json();
+		
 	} catch (error) {
 		console.error("❌ Error fetching user from Gateway:", error);
 		return null;
@@ -85,9 +82,9 @@ const getUserFromDb = (userId: Number) =>
 		});
 	});
 
-export async function userRoutes(gamefast: FastifyInstance) {
+export async function userRoutes(gameserver: FastifyInstance) {
 	// Get user data
-	gamefast.get("/get-user-data", async (request, reply) => {
+	gameserver.get("/get-user-data", async (request, reply) => {
 		const token: string | undefined = request.cookies.token;
 
 		if (!token) return reply.status(401).send({ error: "No token provided" });
@@ -97,7 +94,6 @@ export async function userRoutes(gamefast: FastifyInstance) {
 
 		const { username, userId } = userData;
 
-		
 		try {
 			let row = await getUserFromDb(userId);
 			if (!row) {
@@ -121,7 +117,7 @@ export async function userRoutes(gamefast: FastifyInstance) {
 	});
 
 	// Save user settings
-	gamefast.patch<SaveSettingsRequest>("/save-settings", async (request, reply) => {
+	gameserver.patch<SaveSettingsRequest>("/save-settings", async (request, reply) => {
 		const { username, difficulty, tableSize, sound } = request.body;
 		if (!username) return reply.status(400).send({ error: "Username is required" });
 
@@ -140,10 +136,8 @@ export async function userRoutes(gamefast: FastifyInstance) {
 	});
 
 	// Save match
-	gamefast.post("/save-match", (request, reply) => {
+	gameserver.post("/save-match", (request, reply) => {
 		const { gameMode, player1Id, player2Id, player1Score, player2Score, winnerId } = request.body as MatchData;
-		// if (!player1Id || !player2Id) return reply.status(400).send({ error: "Missing player IDs" });
-
 		db_game.run(
 			`INSERT INTO games (game_mode, game_player1_id, game_player2_id, game_player1_score, game_player2_score, game_winner) VALUES (?, ?, ?, ?, ?, ?)`,
 			[gameMode, player1Id, player2Id, player1Score, player2Score, winnerId],
@@ -158,10 +152,8 @@ export async function userRoutes(gamefast: FastifyInstance) {
 		  );
 	});
 
-	gamefast.get('/user-game-history', async (request, reply) => {
-		
+	gameserver.get('/user-game-history', async (request, reply) => {	
 		try {
-
 			const token: string | undefined = request.cookies.token;
 			if (!token) return reply.status(401).send({ error: "No token provided" });
 			

@@ -1,131 +1,102 @@
 import { showToast } from "../../utils";
 import dropdown from "../../components/dropdown";
-import {initGameCanvas } from "./rendering";
-// import { connectToServer } from "./client";
-
-let socket: WebSocket | null = null;
-
-export function connectToServer() {
-	socket = new WebSocket("ws://localhost:5000/ws");
-
-	socket.onopen = () => {
-		console.log("✅ WebSocket connected");
-	};
-
-	socket.onmessage = (event) => {
-		const data = JSON.parse(event.data);
-		console.log("📨 Message from server:", data);
-
-		switch (data.type) {
-			case "lobby-created":
-				showToast.green(`✅ Lobby created: ${data.lobbyId}`);
-				break;
-			case "lobby-joined":
-				showToast.green(`✅ Joined lobby!`);
-				break;
-			case "game-start":
-				showToast.green(`🎮 Game started! You are: ${data.player}`);
-				document.getElementById('sidebar')?.classList.add('hidden');
-				// initGameCanvas();
-				break;
-			case "error":
-				showToast.red(`❌ ${data.message}`);
-				break;
-		}
-	};
-
-	socket.onerror = () => showToast.red("❌ WebSocket connection error");
-	socket.onclose = () => showToast.red("🔌 Disconnected from game server");
-}
-
-connectToServer(); // Call it early when your app starts
+import { connectToGameServer, createLobby, fetchLobbies } from "./lobbyClient";
 
 let lobbyRefreshInterval: ReturnType<typeof setInterval> | null = null;
 
 function initializeGameMainMenu() {
-	connectToServer();
+	const username = sessionStorage.getItem("username")!;
+	const userId = Number(sessionStorage.getItem("user_id")!);
+	connectToGameServer({ username, userId });
+
 	// Set Single dropdown
 	dropdown.initialize('Single');
-	const username = sessionStorage.getItem("username");
 	if (!username) {
 		console.error("❌ No username found in sessionStorage!");
-		dropdown.addElement('Single', 'button', 'item g-t-border-alt',
-			'User not found');
+		dropdown.addElement('Single', 'button', 'item g-t-border-alt', 'User not found');
 	}
 	else {
-		dropdown.addElement('Single', 'button', 'item g-t-border-alt',
-			'Classic', () => {
-				const difficulty = sessionStorage.getItem("user_set_dificulty") || "Normal";
-				const tableSize = sessionStorage.getItem("user_set_tableSize") || "Medium";
-				const sound = sessionStorage.getItem("user_set_sound") === "1";
-				document.getElementById('sidebar')?.classList.toggle('hidden');
-				// singleplayer game
-			});
+		dropdown.addElement('Single', 'button', 'item g-t-border-alt', 'Classic', () => {
+			const difficulty = sessionStorage.getItem("user_set_dificulty") || "Normal";
+			const tableSize = sessionStorage.getItem("user_set_tableSize") || "Medium";
+			const sound = sessionStorage.getItem("user_set_sound") === "1";
+			document.getElementById('sidebar')?.classList.toggle('hidden');
+			// add single game
+		});
 	}
-	dropdown.addElement('Single', 'button', 'item g-t-border-alt',
-		'Infinity', () => showToast(`Single Infinity clicked`));
+	dropdown.addElement('Single', 'button', 'item g-t-border-alt','Infinity',
+		() => showToast(`Single Infinity clicked`));
 
-	// Set Multi dropdown
+	// 👥 Multiplayer
 	dropdown.initialize('Multi', async () => {
 		const lobby = document.getElementById('lobby');
 		const menu = document.getElementById(`dropdownMenu-Multi`);
+	
 		if (!menu?.classList.contains('hidden'))
 			lobby?.classList.remove('hidden');
 		else
 			lobby?.classList.add('hidden');
-
+	
 		if (!lobby?.classList.contains('hidden')) {
-			// see the lobbylist
-			// lobbyClient.renderLobbyList();
+			await fetchLobbies();
+	
+			// 🚀 Start auto-refresh se ainda não estiver a correr
+			if (!lobbyRefreshInterval) {
+				lobbyRefreshInterval = setInterval(fetchLobbies, 5000);
+				console.log("🔄 Auto-refresh started");
+			}
 		} else {
+			// 🛑 Parar o refresh se o menu for fechado
 			if (lobbyRefreshInterval) {
 				clearInterval(lobbyRefreshInterval);
 				lobbyRefreshInterval = null;
+				console.log("⛔ Auto-refresh stopped");
 			}
 		}
 	});
-	// Tournament
-	dropdown.addElement('Multi', 'button', 'item g-t-border-alt', 'Tournament', async () => {
-		const username = sessionStorage.getItem("username")!;
-		const userId = Number(sessionStorage.getItem("user_id")!);
-		try {
-			//add looby(username, "TNMT", 8);
-			showToast.green(`✅ Created TNMT lobby `);
-		} catch (err) {
-			showToast.red("❌ Failed to create lobby");
-		}
+
+	dropdown.addElement("Multi", "button", "item g-t-border-alt", "Tournament", () => {
+		showToast.green(`TNT clicked`)
+		createLobby("TNT", 8);
 	});
 
-	// 1v1
-	dropdown.addElement('Multi', 'button', 'item g-t-border-alt', '1V1', async () => {
-		if (!socket || socket.readyState !== WebSocket.OPEN) {
-			showToast.red("❌ WebSocket not connected");
-			return;
-		}
-
-		socket.send(JSON.stringify({ type: "create-lobby" }));
+	dropdown.addElement("Multi", "button", "item g-t-border-alt", "1V1", () => {
+		showToast(`1V1 clicked`)
+		createLobby("1V1", 2);
 	});
 
-	// Dont click
-	dropdown.addElement('Multi', 'button', 'item g-t-border-alt', 'Don\'t click',
-		() => {
-			document.body.innerHTML = "";
-			document.body.className = "h-screen m-0 bg-cover bg-center bg-no-repeat";
-			document.body.style.backgroundImage = "url('https://upload.wikimedia.org/wikipedia/commons/3/3b/Windows_9X_BSOD.png')";
-		});
+	dropdown.addElement("Multi", "button", "item g-t-border-alt", "Don't click", () => {
+		document.body.innerHTML = "";
+		document.body.className = "h-screen m-0 bg-cover bg-center bg-no-repeat";
+		document.body.style.backgroundImage =
+			"url('https://upload.wikimedia.org/wikipedia/commons/3/3b/Windows_9X_BSOD.png')";
+	});
 
 	// Set Co-Op dropdown
 	dropdown.initialize('Co-Op', async () => {
 		const lobby = document.getElementById('lobby');
 		const menu = document.getElementById(`dropdownMenu-Co-Op`);
+
 		if (!menu?.classList.contains('hidden'))
 			lobby?.classList.remove('hidden');
 		else
 			lobby?.classList.add('hidden');
-
-		// await lobbyClient.renderLobbyList();
-		if (!lobbyRefreshInterval) {
-			// lobbyRefreshInterval = setInterval(lobbyClient.renderLobbyList, 50000);
+	
+		if (!lobby?.classList.contains('hidden')) {
+			await fetchLobbies(); 
+	
+			// 🚀 Start auto-refresh se ainda não estiver a correr
+			if (!lobbyRefreshInterval) {
+				lobbyRefreshInterval = setInterval(fetchLobbies, 5000);
+				console.log("🔄 Auto-refresh started");
+			}
+		} else {
+			// 🛑 Parar o refresh se o menu for fechado
+			if (lobbyRefreshInterval) {
+				clearInterval(lobbyRefreshInterval);
+				lobbyRefreshInterval = null;
+				console.log("⛔ Auto-refresh stopped");
+			}
 		}
 	});
 	
@@ -134,8 +105,8 @@ function initializeGameMainMenu() {
 		const username = sessionStorage.getItem("username")!;
 		const userId = Number(sessionStorage.getItem("user_id")!);
 		try {
-			// const result = await lobbyClient.createLobby(username, userId, "MTC", 4);
-			showToast.green(`✅ Created Matrecos lobby: `);
+			showToast(`MTC clicked`)
+			createLobby("MTC", 4);
 		} catch (err) {
 			showToast.red("❌ Failed to create Matrecos lobby");
 		}
@@ -146,8 +117,8 @@ function initializeGameMainMenu() {
 		const username = sessionStorage.getItem("username")!;
 		const userId = Number(sessionStorage.getItem("user_id")!);
 		try {
-			// const result = await lobbyClient.createLobby(username, userId, "FFA", 4);
-			showToast.green(`✅ Created FFA lobby: `);
+			showToast(`FFA clicked`)
+			createLobby("FFA", 4);
 		} catch (err) {
 			showToast.red("❌ Failed to create FFA lobby");
 		}
@@ -155,12 +126,7 @@ function initializeGameMainMenu() {
 	
 }
 
-function removeLobbyEntry(id: string) {
-	const lobby = document.getElementById('lobby-list');
-	const entries = lobby?.querySelectorAll(`[id^="entry-${id}-"]`);
-	entries?.forEach(entry => entry.remove());
-	showToast.yellow(`Lobby entry n: ${id} removed`);
-}
+
 
 export async function initUserData() {
 	console.log("📌 Menu Loaded, checking user...");
@@ -192,7 +158,7 @@ export async function initUserData() {
 		soundSelect.value = userData.user_set_sound === 1 ? "On" : "Off";
 		
 		initializeGameMainMenu();
-		initGameCanvas();
+		// initGameCanvas();
 	} catch (error) {
 		showToast.red(error as string);
 		console.error("❌ Error loading user data:", error);
@@ -214,9 +180,9 @@ export async function saveSettingsHandler() {
 	const difficulty = difficultySelect.value;
 	const tableSize = tableSizeSelect.value;
 	const sound = soundSelect.value === "On" ? 1 : 0;
-
+	
 	console.log(`🎮 Saving settings for: ${{ username, difficulty, tableSize, sound }}`);
-
+	
 	// Save settings in sessionStorage
 	sessionStorage.setItem("user_set_dificulty", difficulty);
 	sessionStorage.setItem("user_set_tableSize", tableSize);
@@ -239,3 +205,26 @@ export async function saveSettingsHandler() {
 		console.error("❌ Error saving settings:", error);
 	}
 };
+
+// async function toggleLobbyVisibility(menuId: string) {
+// 	const lobby = document.getElementById('lobby');
+// 	const menu = document.getElementById(`dropdownMenu-${menuId}`);
+// 	const isOpen = !menu?.classList.contains('hidden');
+
+// 	if (isOpen) lobby?.classList.remove('hidden');
+// 	else lobby?.classList.add('hidden');
+
+// 	if (!lobby?.classList.contains('hidden')) {
+// 		await fetchLobbies();
+// 		if (!lobbyRefreshInterval) {
+// 			lobbyRefreshInterval = setInterval(fetchLobbies, 5000);
+// 			console.log("🔄 Auto-refresh started");
+// 		}
+// 	} else {
+// 		if (lobbyRefreshInterval) {
+// 			clearInterval(lobbyRefreshInterval);
+// 			lobbyRefreshInterval = null;
+// 			console.log("⛔ Auto-refresh stopped");
+// 		}
+// 	}
+// }
