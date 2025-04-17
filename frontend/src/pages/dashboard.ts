@@ -71,7 +71,7 @@ async function updateMatchHistory() {
 
 async function getAndUpdateInfo() {
 	try {
-		const response = await fetch('http://127.0.0.1:7000/fetchDashboardData', {
+		const response = await fetch('http://127.0.0.1:7000/frontend/fetchDashboardData', {
 			credentials: 'include',
 		});
 		if (!response.ok) {
