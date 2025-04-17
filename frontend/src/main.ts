@@ -6,6 +6,7 @@ import register from "./pages/register"
 import login from "./pages/login"
 import dashboard from "./pages/dashboard"
 import settings from "./pages/settings"
+import profile from "./pages/profile"
 import game from "./pages/game/page"
 import chat from "./pages/chat/page"
 import * as lib from "./utils"
@@ -32,18 +33,18 @@ async function checkLogin() {
 	}
 }
 
-function setColorTheme(theme: string, _color?: string) {
-	if (theme === "game") {
-		document.documentElement.style.setProperty('--color-c-bg', 'var(--color-g-c-bg)');
-		document.documentElement.style.setProperty('--color-c-secondary', 'var(--color-g-c-secondary)');
-		document.documentElement.style.setProperty('--color-c-text', 'var(--color-g-c-text)');
-		document.documentElement.style.setProperty('--color-c-primary', 'var(--color-g-c-primary)');
+function setColorTheme(color: string) {
+	if (color === "custom") {
+		document.documentElement.style.setProperty('--color-c-bg', 'var(--color-c-game-bg)');
+		document.documentElement.style.setProperty('--color-c-secondary', 'var(--color-c-game-secondary)');
+		document.documentElement.style.setProperty('--color-c-text', 'var(--color-c-game-text)');
+		document.documentElement.style.setProperty('--color-c-primary', 'var(--color-c-game-primary)');
 	}
 	else {
-		document.documentElement.style.setProperty('--color-c-bg', 'var(--color-d-c-bg)');
-		document.documentElement.style.setProperty('--color-c-secondary', 'var(--color-d-c-secondary)');
-		document.documentElement.style.setProperty('--color-c-text', 'var(--color-d-c-text)');
-		document.documentElement.style.setProperty('--color-c-primary', 'var(--color-d-c-primary)');
+		document.documentElement.style.setProperty('--color-c-bg', `var(--color-c-${color}-bg)`);
+		document.documentElement.style.setProperty('--color-c-secondary', `var(--color-c-${color}-secondary)`);
+		document.documentElement.style.setProperty('--color-c-text', `var(--color-c-${color}-text)`);
+		document.documentElement.style.setProperty('--color-c-primary', `var(--color-c-${color}-primary)`);
 	}
 }
 
@@ -53,9 +54,9 @@ function loadPage(path: string): void {
 	if (path != "/register" && path != "/login")
 		checkLogin();
 	if (path === "/game") {
-		setColorTheme("game");
+		setColorTheme("custom");
 	} else {
-		setColorTheme("light", "stone");
+		setColorTheme("stone");
 	}
 	switch (path) {
 		case "/register":
@@ -66,6 +67,9 @@ function loadPage(path: string): void {
 			break;
 		case "/settings":
 			newPage = settings;
+			break;
+		case "/profile":
+			newPage = profile;
 			break;
 		case "/game":
 			newPage = game;

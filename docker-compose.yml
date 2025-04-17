@@ -60,6 +60,7 @@ services:
       npm config set fund false;
       npm config set update-notifier false;
       npm install;
+      npm audit fix;
       exec npm run dev
       "
     working_dir: /frontend

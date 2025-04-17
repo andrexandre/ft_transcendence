@@ -270,8 +270,8 @@ export function setChatEventListeners() {
 			showToast.blue('Refreshing online users...')
 		});
 	document.getElementById('chat-box-form')?.addEventListener('submit',
-		(event) => {
-			event.preventDefault();
+		(e: Event) => {
+			e.preventDefault();
 			const messageText = (document.getElementById('chat-box-input') as HTMLInputElement).value.trim();
 			if (messageText) {
 				showToast.green(`Message sent: ${messageText}`);

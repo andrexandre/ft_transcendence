@@ -51,6 +51,11 @@ function displayMatchHistory(matchHistory: MatchHistoryI[]) {
 		`;
 		statsDiv.appendChild(matchDiv);
 	});
+	if (matchHistory.length === 0) {
+		document.getElementById("stats-list")!.innerHTML = /*html*/`
+			<li class="item text-c-secondary">Empty match history</li>
+		`;
+	}
 }
 
 async function updateMatchHistory() {
@@ -66,6 +71,9 @@ async function updateMatchHistory() {
 	} catch (error) {
 		console.log(error);
 		lib.showToast.red(error as string);
+		document.getElementById("stats-list")!.innerHTML = /*html*/`
+			<li class="item text-c-secondary">Invalid match history</li>
+		`;
 	}
 }
 

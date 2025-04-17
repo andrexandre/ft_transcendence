@@ -28,6 +28,12 @@ const sidebar = {
 						<p>Game</p>
 					</button>
 				</li>
+				<li>
+					<button id="goto-profile-button" class="sidebar-component">
+						<i class="fa-solid fa-circle-user"></i>
+						<p>Profile</p>
+					</button>
+				</li>
 				<!--* Important comment for testing -->
 				<!-- <li class="flex">
 					<button id="test-default-notifications-button" class="sidebar-component">
@@ -64,7 +70,7 @@ const sidebar = {
 		</aside>
 	`,
 	setSidebarToggler: (buttonName?: string) => {
-		if (buttonName == 'home' || buttonName == 'chat' || buttonName == 'game' || buttonName == 'settings') {
+		if (buttonName == 'home' || buttonName == 'chat' || buttonName == 'game' || buttonName == 'settings' || buttonName == 'profile') {
 			document.getElementById(`goto-${buttonName}-button`)?.classList.add('bg-c-secondary');
 			document.getElementById(`goto-${buttonName}-button`)?.classList.add('dark:bg-c-primary');
 		}
@@ -96,6 +102,8 @@ const sidebar = {
 		lib.assignButtonNavigation('goto-home-button', '/');
 		lib.assignButtonNavigation('goto-chat-button', '/chat');
 		lib.assignButtonNavigation('goto-game-button', '/game');
+		lib.assignButtonNavigation('goto-profile-button', '/profile');
+		lib.assignButtonNavigation('goto-settings-button', '/settings');
 		//* Important comment for testing
 		// document.getElementById("test-default-notifications-button")!.addEventListener("click", () => lib.showToast());
 		// document.getElementById("test-green-notifications-button")!.addEventListener("click", () => lib.showToast.green());
@@ -122,7 +130,6 @@ const sidebar = {
 				}
 			})();
 		});
-		lib.assignButtonNavigation('goto-settings-button', '/settings');
 	}
 }
 

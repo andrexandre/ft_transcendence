@@ -64,7 +64,8 @@ class Settings extends Page {
 		});
 		if (lib.userInfo.profileImage)
 			(document.getElementById('profile-image') as HTMLImageElement).src = lib.userInfo.profileImage;
-		document.getElementById('profile-image-button')?.addEventListener('click', async () => {
+		document.getElementById('profile-image-button')?.addEventListener('click', async (e: Event) => {
+			e.preventDefault();
 			const input = document.createElement('input');
 			input.type = 'file';
 			input.accept = 'image/*';
@@ -134,7 +135,7 @@ class Settings extends Page {
 						<h1>2 Factor Authentication</h1>
 						<label class="h-7 w-12">
 							<input type="checkbox" class="sr-only peer" id="2fa-toggle">
-							<div class="h-full relative t-dashed peer peer-checked:after:translate-x-full after:absolute after:top-[2px] after:start-[2px] peer-checked:after:bg-c-bg after:bg-c-primary after:size-5 peer-checked:after:border-c-primary after:transition-all after:rounded-full"></div>
+							<div class="h-full relative t-dashed peer peer-checked:after:translate-x-full after:absolute after:top-0.5 after:start-0.5 peer-checked:after:bg-c-text dark:peer-checked:after:bg-c-bg after:size-5 after:bg-c-secondary dark:after:bg-c-primary after:transition-all after:rounded-full"></div>
 						</label>
 					</div>
 				</div>

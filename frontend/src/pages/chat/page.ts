@@ -15,7 +15,7 @@ class Chat extends Page {
 	getHtml(): string {
 		return /*html*/`
 			${sidebar.getHtml()}
-			<main class="card p-5 t-dashed flex w-full **:p-5 **:border **:border-c-secondary">
+			<main class="card p-5 t-dashed flex flex-1 **:p-5 **:border **:border-c-secondary">
 				<div id="friends" class="grid grid-rows-2">
 					<div id="online-friends" class="flex flex-col w-75">
 						<div id="online-friends-header" class="flex justify-around">
