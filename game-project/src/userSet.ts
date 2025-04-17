@@ -17,11 +17,6 @@ interface UserData {
 	userId: number;
 }
 
-interface User {
-	user_id: number;
-	user_name: string;
-}
-
 interface GameHistory {
 	game_mode: string;
 	game_player1_id: number;
@@ -186,7 +181,7 @@ export async function userRoutes(gamefast: FastifyInstance) {
 			for (const element of history) {
 				let user2: any;
 				if (element.game_player2_id === 9999) {
-					user2 = {user_id: 9999, user_name: 'bot'}
+					user2 = {user_id: 9999, user_name: 'BoTony'}
 				} else {
 					if (element.game_player2_id != user1.user_id)
 						user2 = await getUserFromDb(element.game_player2_id);

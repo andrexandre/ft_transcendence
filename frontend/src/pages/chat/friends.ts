@@ -4,15 +4,15 @@ const host = `ws://127.0.0.1:2000/chat-ws`;
 const socket = new WebSocket(host);
 
 socket.onopen = () => {
-	console.log('Chat socket created');
+	console.debug('Chat socket created');
 }
 
 socket.onerror = (error) => {
-	showToast('WebSocket error:' + error);
+	console.log('WebSocket error: ', error);
 };
 
 socket.onclose = (event) => {
-	console.log('WebSocket connection closed:', event.code, event.reason);
+	console.debug('WebSocket connection closed:', event.code, event.reason);
 	// Maybe add some reconnection logic here
 };
 
@@ -179,7 +179,8 @@ function showFriendRequests(requests: {sender: string}[]) {
 	});
 }
 let isChatLoaded = false;
-function createRoom(name: string, isBlocked: boolean, load: boolean) { //* load chat box
+//! needs to fix load variable
+function createRoom(name: string, isBlocked: boolean, _load: boolean) { //* load chat box
 	const roomList = document.getElementById('chat-box-message-list')!;
 	roomList.innerHTML = '';
 

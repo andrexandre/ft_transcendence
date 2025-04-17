@@ -41,6 +41,8 @@ backend/services-api/.env:
 destroy: down rmi
 	find . -type f -iname '*.db' -delete
 	find . -type f -iname '*.jsonl' -delete
+
+rm-node_modules:
 	docker run --rm -v ./backend/user/userManagement/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
 	docker run --rm -v ./backend/Gateway/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
 	docker run --rm -v ./game-project/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true

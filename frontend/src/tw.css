@@ -56,13 +56,22 @@ body {
 	@apply bg-c-bg select-none dark:bg-black;
 }
 
+h1 {
+	@apply font-bold;
+}
+
 img {
 	@apply pointer-events-none;
 }
 
+input, textarea {
+	@apply outline-none;
+}
+
 /* other */
 .sidebar-component {
-	@apply flex p-3 rounded-2xl justify-between items-center w-full hover:bg-c-secondary transition-all dark:hover:bg-c-primary;
+	@apply flex p-3 rounded-2xl justify-between items-center w-full transition-all
+		text-c-text dark:text-c-bg hover:bg-c-secondary dark:hover:bg-c-primary;
 }
 
 /* toast */
@@ -110,22 +119,11 @@ img {
 }
 
 canvas {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	z-index: 10;
-	@apply border-2 border-g-c-text;
+	@apply absolute top-1/2 left-1/2 z-10 transform -translate-1/2 border-2 border-g-c-text;
 }
 
 #scoreboard {
-	position: absolute;
-	top: 5%;
-	left: 50%;
-	transform: translateX(-50%);
-	font-size: 30px;
-	font-weight: bold;
-	@apply text-g-c-text;
+	@apply absolute top-12 left-1/2 text-3xl font-bold transform -translate-x-1/2 text-g-c-text;
 }
 
 #main-menu-title {

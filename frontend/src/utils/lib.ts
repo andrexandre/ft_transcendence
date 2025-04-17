@@ -4,6 +4,7 @@ export var userInfo = {
 	username: "",
 	userId: "",
 	auth_method: "",
+	profileImage: "",
 }
 
 export function showToast(message?: string, type: string = ""): void {
@@ -34,25 +35,34 @@ export function loadTheme() {
 	// 	if (window.matchMedia('(prefers-color-scheme: dark)').matches) 
 	// 		document.documentElement.classList.add('dark');
 	// }
-	console.debug(`Theme set to ${localStorage.getItem('theme') ? localStorage.getItem('theme') : 'auto'}`);
-	console.debug(`System theme set to ${window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'}`);
+	// console.debug(`Theme set to ${localStorage.getItem('theme') ? localStorage.getItem('theme') : 'auto'}`);
+	// console.debug(`System theme set to ${window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'}`);
 }
 
-export function setTheme(option: string) {
+export function setTheme(option: string, save?: boolean) {
 	const htmlElement = document.documentElement;
 	if (option == "auto") {
 		htmlElement.classList.remove('dark');
-		localStorage.removeItem('theme');
+		if (save) localStorage.removeItem('theme');
 		if (window.matchMedia('(prefers-color-scheme: dark)').matches)
 			htmlElement.classList.add('dark');
 	} else if (option == "dark") {
 		htmlElement.classList.add('dark');
-		localStorage.setItem('theme', 'dark');
+		if (save) localStorage.setItem('theme', 'dark');
 	} else if (option == "light") {
 		htmlElement.classList.remove('dark');
-		localStorage.setItem('theme', 'light');
+		if (save) localStorage.setItem('theme', 'light');
 	}
-	console.debug(`Theme set to ${option}`);
+	// console.debug(`Theme set to ${option}`);
+}
+
+export function getTheme() {
+	if (localStorage.getItem('theme') === 'dark')
+		return 'dark';
+	else if (localStorage.getItem('theme') === 'light')
+		return 'light';
+	else
+		return 'auto';
 }
 
 // lib.fullScreenOverlay(
