@@ -2,37 +2,37 @@ import Page from "./Page"
 import * as lib from "../utils"
 import sidebar from "../components/sidebar"
 
-export async function renderProfileUsername() {
-	const profileUsername = document.getElementById("profile-username") as HTMLInputElement;
-	let line: string = '';
-	if (lib.userInfo.username) {
-		if (lib.userInfo.auth_method === "google")
-			line = "G. ";
-		else if (lib.userInfo.auth_method === "email")
-			line = "E. ";
-		profileUsername.value = line + lib.userInfo.username;
-	}
-}
+// export async function renderProfileUsername() {
+// 	const profileUsername = document.getElementById("profile-username") as HTMLInputElement;
+// 	let line: string = '';
+// 	if (lib.userInfo.username) {
+// 		if (lib.userInfo.auth_method === "google")
+// 			line = "G. ";
+// 		else if (lib.userInfo.auth_method === "email")
+// 			line = "E. ";
+// 		profileUsername.value = line + lib.userInfo.username;
+// 	}
+// }
 
-async function getAndUpdateInfo() {
-	try {
-		const response = await fetch('http://127.0.0.1:7000/fetchDashboardData', {
-			credentials: 'include',
-		});
-		if (!response.ok) {
-			lib.navigate('/login');
-			throw new Error(`${response.status} - ${response.statusText}`);
-		}
-		let dashData = await response.json();
-		lib.userInfo.username = dashData.username
-		lib.userInfo.userId = dashData.userId
-		lib.userInfo.auth_method = dashData.auth_method
-		renderProfileUsername();
-	} catch (error) {
-		console.log(error);
-		lib.showToast.red(error as string);
-	}
-}
+// async function getAndUpdateInfo() {
+// 	try {
+// 		const response = await fetch('http://127.0.0.1:7000/fetchDashboardData', {
+// 			credentials: 'include',
+// 		});
+// 		if (!response.ok) {
+// 			lib.navigate('/login');
+// 			throw new Error(`${response.status} - ${response.statusText}`);
+// 		}
+// 		let dashData = await response.json();
+// 		lib.userInfo.username = dashData.username
+// 		lib.userInfo.userId = dashData.userId
+// 		lib.userInfo.auth_method = dashData.auth_method
+// 		renderProfileUsername();
+// 	} catch (error) {
+// 		console.log(error);
+// 		lib.showToast.red(error as string);
+// 	}
+// }
 
 
 async function loadInformation() {
@@ -47,6 +47,7 @@ async function loadInformation() {
 	(document.getElementById("profile-codename") as HTMLInputElement).value = userData.codename;
 	(document.getElementById("profile-email") as HTMLInputElement).value = userData.email;
 	(document.getElementById("profile-bio") as HTMLInputElement).value = userData.biography;
+	(document.getElementById('2fa-toggle') as HTMLInputElement).checked = userData.two_FA_status
 
 	const imageResponse = await fetch('http://127.0.0.1:3000/api/user/avatar', {
 		credentials: 'include'
@@ -58,7 +59,7 @@ async function loadInformation() {
 	const url = URL.createObjectURL(blob);
 	const errorUrl = 'https://fastly.picsum.photos/id/63/300/300.jpg?hmac=NZIxadbJNvrTZPpf2SgsLhZ4Up4GlWVwar-bI6FcTE8';
 	
-	(document.getElementById("profile-avatar") as HTMLImageElement).src = url || errorUrl;
+	(document.getElementById("profile-image") as HTMLImageElement).src = url || errorUrl;
 }
 
 class Settings extends Page {
@@ -80,17 +81,39 @@ class Settings extends Page {
 		document.getElementById(`dark-theme-button`)!.addEventListener('click', () => lib.setTheme("dark", true));
 		document.getElementById(`auto-theme-button`)!.addEventListener('click', () => lib.setTheme("auto", true));
 
-		const twoFAButton = document.getElementById('2fa-toggle') as HTMLInputElement;
-		twoFAButton.checked = true;
-		twoFAButton.addEventListener('click', () => {
+		// 2FA status button
+		document.getElementById('2fa-toggle')!.addEventListener('click', async () => {
+			const twoFAButton = document.getElementById('2fa-toggle') as HTMLInputElement;
+
+			const userData: { two_FA_status: boolean } = {
+				two_FA_status: (document.getElementById('2fa-toggle') as HTMLInputElement).checked
+			};
+			try {
+				const response = await fetch('http://127.0.0.1:3000/api/users/save-settings-2fa', {
+					method: 'POST',
+					credentials: "include",
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify(userData)
+				});
+				if (!response.ok) {
+					throw new Error(`${response.status} - ${response.statusText}`);
+				}
+				lib.showToast.green("Updated 2FA!");
+			} catch (error) {
+				console.log(error);
+				lib.showToast.red(error as string);
+			}
+
 			if (twoFAButton.checked) {
 				lib.showToast.green("2FA enabled");
 			} else {
 				lib.showToast.red("2FA disabled");
 			}
 		});
-		if (lib.userInfo.profileImage)
-			(document.getElementById('profile-image') as HTMLImageElement).src = lib.userInfo.profileImage;
+
+		// Upload file  Button
 		document.getElementById('profile-image-button')?.addEventListener('click', async () => {
 			const input = document.createElement('input');
 			input.type = 'file';
@@ -112,8 +135,8 @@ class Settings extends Page {
 			input.click();
 		});
 
-		getAndUpdateInfo();
-		// this.saveProfileInformation();
+		loadInformation();
+		this.saveProfileInformation();
 	}
 	onCleanup(): void {}
 	getHtml(): string {
@@ -172,29 +195,30 @@ class Settings extends Page {
 		const form = document.querySelector('form');
 		const handler = async (e: Event) => {
 			e.preventDefault();
-			const userData: { username: string; codename: string; email: string; bio: string; } = {
+			const userData: { username: string; codename: string; email: string; biography: string; two_FA_status: boolean} = {
 				username: (document.getElementById('profile-username') as HTMLInputElement).value,
 				codename: (document.getElementById('profile-codename') as HTMLInputElement).value,
 				email: (document.getElementById('profile-email') as HTMLInputElement).value,
-				bio: (document.getElementById('profile-bio') as HTMLTextAreaElement).value,
-				// image: (document.getElementById("profile-avatar") as HTMLImageElement)
+				biography: (document.getElementById('profile-bio') as HTMLTextAreaElement).value,
+				two_FA_status: (document.getElementById('2fa-toggle') as HTMLInputElement).checked
 			};
-			// try {
-			// 	const response = await fetch('http://127.0.0.1:7000/api/user/info', {
-			// 		method: 'POST',
-			// 		credentials: "include",
-			// 		headers: {
-			// 			'Content-Type': 'application/json'
-			// 		},
-			// 		body: JSON.stringify(userData)
-			// 	});
-			// 	if (!response.ok) {
-			// 		throw new Error(`${response.status} - ${response.statusText}`);
-			// 	}
-			// } catch (error) {
-			// 	console.log(error);
-			// 	lib.showToast.red(error as string);
-			// }
+			try {
+				const response = await fetch('http://127.0.0.1:3000/api/users/save-settings', {
+					method: 'POST',
+					credentials: "include",
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify(userData)
+				});
+				if (!response.ok) {
+					throw new Error(`${response.status} - ${response.statusText}`);
+				}
+				lib.showToast.green("Updated!");
+			} catch (error) {
+				console.log(error);
+				lib.showToast.red(error as string);
+			}
 		};
 		form?.addEventListener('submit', handler);
 		this.addCleanupHandler(() => form?.removeEventListener('submit', handler));
