@@ -21,20 +21,20 @@ socket.onmessage = (event) => {
 	const data = JSON.parse(event.data);
 	// console.log(data);
 	if (data.type === 'message-emit')
-		addMessage(data.user, data.data.from, data.data.message, data.data.timestamp);
+		renderMessage(data.user, data.data.from, data.data.message, data.data.timestamp);
 	else if (data.type === 'load-messages')
-		data.data.forEach((msg: { user: string, from: string, message: string, timestamp: string }) => addMessage(data.user, msg.from, msg.message, msg.timestamp));
+		data.data.forEach((msg: { user: string, from: string, message: string, timestamp: string }) => renderMessage(data.user, msg.from, msg.message, msg.timestamp));
 	else if (data.type === 'get-friends-list')
-		data.data.forEach((friend: string) => createFriendList(friend));
+		data.data.forEach((friend: string) => renderOnlineFriendList(friend));
 	else if (data.type === 'get-online-users')
-		data.data.forEach((user: string) => addOnlineUser(user));
+		data.data.forEach((user: string) => renderOnlineUsersList(user));
 	else if	(data.type === 'add-requests')
-		showFriendRequests(data.data);
+		renderFriendRequestsList(data.data);
 	else if (data.type === 'block-status')
-		createRoom(data.friend, data.isBlocked, data.load);
+		renderChatRoom(data.friend, data.isBlocked, data.load);
 };
 
-function addMessage(user: string, from: string, message: string, timestamp: string) {
+function renderMessage(user: string, from: string, message: string, timestamp: string) {
 	const List = document.getElementById(`chat-box-message-list`)!;
 	const Entry = document.createElement('div');
 	Entry.style.textAlign = user === from ? 'right' : 'left';
@@ -91,7 +91,7 @@ function setupBlockButtonListener() {
     });
 }
 
-function createFriendList(name: string) {
+function renderOnlineFriendList(name: string) {
     const friendList = document.getElementById('online-friends-list')!;
     const roomButton = document.createElement('button');
     roomButton.appendChild(document.createTextNode(name));
@@ -116,7 +116,7 @@ function createFriendList(name: string) {
     friendList.appendChild(roomButton);
 }
 
-function addOnlineUser(name: string) { // refresh online-users-list
+function renderOnlineUsersList(name: string) {
 	const onlineUsersList = document.getElementById('online-users-list')!;
 	const userButton = document.createElement('button');
 	userButton.appendChild(document.createTextNode('[Add Friend] ' + name));
@@ -133,7 +133,7 @@ function addOnlineUser(name: string) { // refresh online-users-list
 	onlineUsersList.appendChild(userButton);
 }
 
-function addFriendRequest(name: string) {
+function renderFriendRequest(name: string) {
 	const friendRequestsList = document.getElementById('friend-requests-list')!;
 	addListEntry('friend-requests-list', name);
 	const friendRequestEntry = document.getElementById(`friend-requests-list-entry-${name}`)!;
@@ -170,17 +170,17 @@ function addFriendRequest(name: string) {
 	friendRequestsList.appendChild(friendRequestEntry);
 }
 
-function showFriendRequests(requests: {sender: string}[]) {
+function renderFriendRequestsList(requests: {sender: string}[]) {
 	const friendRequestsList = document.getElementById('friend-requests-list')!;
 	friendRequestsList.innerHTML = '';
 	console.log(requests);
 	requests.forEach(request => {
-		addFriendRequest(request.sender);
+		renderFriendRequest(request.sender);
 	});
 }
 let isChatLoaded = false;
 //! needs to fix load variable
-function createRoom(name: string, isBlocked: boolean, _load: boolean) { //* load chat box
+function renderChatRoom(name: string, isBlocked: boolean, _load: boolean) { //* load chat box
 	const roomList = document.getElementById('chat-box-message-list')!;
 	roomList.innerHTML = '';
 
@@ -217,32 +217,24 @@ function createRoom(name: string, isBlocked: boolean, _load: boolean) { //* load
 	// }
 }
 
-function addListEntry(list: string, name: string): void {
-	const List = document.getElementById(`${list}`);
-	if (List) {
-		const Entry = document.createElement('div');
-		Entry.classList.add(`${list}-entry`);
-		Entry.textContent = name;
-		Entry.id = `${list}-entry-${name}`;
-		List.appendChild(Entry);
-	}
-	else //* remove after chat is stable
-		showToast.red(`List ${list} not found`);
+function addListEntry(list: string, name: string) {
+	const List = document.getElementById(`${list}`)!;
+	const Entry = document.createElement('div');
+	Entry.classList.add(`${list}-entry`);
+	Entry.textContent = name;
+	Entry.id = `${list}-entry-${name}`;
+	List.appendChild(Entry);
 }
 
-function removeListEntry(list: string, name: string): void {
-	const List = document.getElementById(`${list}`);
-	if (List) {
-		const Entries = List.getElementsByClassName(`${list}-entry`);
-		for (const entry of Array.from(Entries)) {
-			if (entry.textContent?.trim() === name) {
-				List.removeChild(entry);
-				break;
-			}
+function removeListEntry(list: string, name: string) {
+	const List = document.getElementById(`${list}`)!;
+	const Entries = List.getElementsByClassName(`${list}-entry`);
+	for (const entry of Array.from(Entries)) {
+		if (entry.textContent?.trim() === name) {
+			List.removeChild(entry);
+			break;
 		}
 	}
-	else //* remove after chat is stable
-		showToast.red(`List ${list} not found`);
 }
 
 export function setChatEventListeners() {

@@ -132,7 +132,7 @@ class Dashboard extends Page {
 					<h1 class="text-xl">Pong match history</h1>
 					<ul id="stats-list" class="flex flex-col gap-2 overflow-auto"></ul>
 				</div>
-				<div id="friends" class="card t-dashed flex flex-col justify-around">
+				<div class="card t-dashed flex flex-col justify-around">
 					<h1 class="text-xl">Active friends</h1>
 					<ul id="friends-list" class="flex flex-col overflow-auto">
 						<li class="item t-dashed p-3 flex">

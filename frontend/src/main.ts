@@ -33,7 +33,7 @@ async function checkLogin() {
 	}
 }
 
-function loadPage(path: string): void {
+function loadPage(path: string) {
 	let newPage: Page;
 
 	if (path != "/register" && path != "/login")

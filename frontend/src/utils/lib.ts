@@ -10,7 +10,7 @@ export var userInfo = {
 	profileImage: "",
 }
 
-export function showToast(message?: string, type: string = ""): void {
+export function showToast(message?: string, type: string = "") {
 	const toast = document.createElement('div');
 	toast.id = 'toast';
 	toast.textContent = message || "Bro, you just got Toasted!";

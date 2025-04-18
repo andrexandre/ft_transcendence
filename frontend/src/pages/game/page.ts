@@ -48,7 +48,7 @@ class Game extends Page {
 		// document.getElementById('dropdownButton-Multi')?.click();
 		document.getElementById('game-main-menu')!.addEventListener('click', (event) => this.setGameMenuToggler(event));
 	}
-	onCleanup() {
+	onCleanup(): void {
 		lib.setTheme(lib.getTheme());
 		lib.setColor(localStorage.getItem('color') || lib.defaultColor);
 	}
