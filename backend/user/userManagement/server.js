@@ -50,6 +50,7 @@ async function start() {
 	try {
 		// Ver como registrar todas as routes com auto-load
 		server.addSchema(errorResponseSchema);
+		server.decorateRequest('authenticatedUser', null); // To be used in the handler
 		await server.register(db, { dbPath: './user.db'});
 		await server.register(fastifyCookie);
 		await server.register(fastifyMultipart);

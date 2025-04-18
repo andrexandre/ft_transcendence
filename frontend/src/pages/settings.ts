@@ -40,19 +40,23 @@ async function loadInformation() {
 	const response = await fetch('http://127.0.0.1:3000/api/user/settings', {
 		credentials: 'include'
 	})
-	if (!response.ok) return lib.showToast('Failed too load user Information!');
+	if (!response.ok) return lib.showToast.red('Failed too load user Information!');
 	
 	const userData = await response.json();
 	(document.getElementById("profile-username") as HTMLInputElement).value = userData.username;
 	(document.getElementById("profile-codename") as HTMLInputElement).value = userData.codename;
 	(document.getElementById("profile-email") as HTMLInputElement).value = userData.email;
+	
+	if (userData.auth_method === 'google') // Google sign people can not change the email
+		(document.getElementById("profile-email") as HTMLInputElement).disabled	 = true;
+
 	(document.getElementById("profile-bio") as HTMLInputElement).value = userData.biography;
 	(document.getElementById('2fa-toggle') as HTMLInputElement).checked = userData.two_FA_status
 
 	const imageResponse = await fetch('http://127.0.0.1:3000/api/user/avatar', {
 		credentials: 'include'
 	})
-	if (!imageResponse.ok) return lib.showToast('Failed too load user Avatar!');
+	if (!imageResponse.ok) return lib.showToast.red('Failed too load user Avatar!');
 
 	const blob = await imageResponse.blob();
 	console.log(blob);

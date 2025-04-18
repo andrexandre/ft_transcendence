@@ -7,60 +7,35 @@ async function userSettingsRoutes(server, opts) {
         url: '/api/user/settings',
         handler:  async (request, reply) => {
            
-			const token = request.cookies.token;
-			const response = await fetch('http://gateway-api:7000/userData', {
-				method: "GET",
-				headers: {
-					"Cookie": `token=${token}`,
-				},
-				credentials: "include"
-			});
-
-			if (!response.ok) reply.status(500).send({error: "Internal server error!"});
-
-			const userData = await response.json();
-			const targetUser = await server.getUserByUsername(userData.username);
-
+			console.log('AuthenticatedUser: ', request.authenticatedUser);
 			reply.status(200).send({
-				username: targetUser.username,
-				email: targetUser.email,
-				codename: targetUser.codename,
-				biography: targetUser.biography,
-				two_FA_status: targetUser.two_FA_status
+				username: request.authenticatedUser.username,
+				email: request.authenticatedUser.email,
+				codename: request.authenticatedUser.codename,
+				biography: request.authenticatedUser.biography,
+				auth_method: request.authenticatedUser.auth_method,
+				two_FA_status: request.authenticatedUser.two_FA_status
 			});
-            
-        },
+        }
     });
 
     server.route({
         method: 'POST',
         url: '/api/users/save-settings',
         handler:  async (request, reply) => {
-
 			try {
-				const token = request.cookies.token;
-				const response = await fetch('http://gateway-api:7000/userData', {
-					method: "GET",
-					headers: {
-						"Cookie": `token=${token}`,
-					},
-					credentials: "include"
-				});
-	
-				if (!response.ok) reply.status(500).send({error: "Internal server error!"});
 
-				const userData = await response.json();
-				const targetUser = await server.getUserByUsername(userData.username);
-
-				await server.updateUserInformation(request.body, targetUser.id);
-				return reply.status(200).send({message: "Successfully update the information!"})
+				console.log('AuthenticatedUser: ', request.authenticatedUser);
+				await server.updateUserInformation(request.body, request.authenticatedUser.id);
+				reply.status(200).send({message: "Successfully update the information!"});
 
 			} catch (err) {
-				return reply.status(500).send({error: "Internal server error!"});
+				// error if username/email already exist
+				reply.status(500).send({error: "Internal server error!"});
+				return; 
 			}
-
-		}}
-	);
+		}
+	});
 
 	server.route({
         method: 'POST',
@@ -68,25 +43,15 @@ async function userSettingsRoutes(server, opts) {
         handler:  async (request, reply) => {
 
 			try {
-				const token = request.cookies.token;
-				const response = await fetch('http://gateway-api:7000/userData', {
-					method: "GET",
-					headers: {
-						"Cookie": `token=${token}`,
-					},
-					credentials: "include"
-				});
-	
-				if (!response.ok) reply.status(500).send({error: "Internal server error!"});
-
-				const userData = await response.json();
-				const targetUser = await server.getUserByUsername(userData.username);
-
-				await server.updateUser2FAStatus(request.body, targetUser.id);
-				return reply.status(200).send({message: "Successfully update the information!"})
+				
+				console.log('AuthenticatedUser: ', request.authenticatedUser);
+				await server.updateUser2FAStatus(request.body, request.authenticatedUser.id);
+				reply.status(200).send({message: "Successfully update the information!"});
 
 			} catch (err) {
-				return reply.status(500).send({error: "Internal server error!"});
+				// dataBase errors
+				reply.status(500).send({error: "Internal server error!"});
+				return;
 			}
 
 		}}
