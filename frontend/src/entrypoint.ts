@@ -24,4 +24,5 @@ document.addEventListener('keydown', (event: KeyboardEvent) => {
 	}
 });
 
+lib.setColor(localStorage.getItem('color') || lib.defaultColor, true);
 lib.loadTheme();

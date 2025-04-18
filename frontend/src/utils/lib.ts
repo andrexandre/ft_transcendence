@@ -1,5 +1,8 @@
 export { default as Cookies } from 'js-cookie';
 
+export const colors: string[] = ["red", "orange", "amber", "yellow", "lime", "green", "emerald", "teal", "cyan", "sky", "blue", "slate", "gray", "zinc", "neutral", "stone", "rose", "pink", "fuchsia", "purple", "violet", "indigo"];
+export const defaultColor = 'stone';
+
 export var userInfo = {
 	username: "",
 	userId: "",
@@ -63,6 +66,15 @@ export function getTheme() {
 		return 'light';
 	else
 		return 'auto';
+}
+
+export function setColor(color: string, save?: boolean) {
+	document.documentElement.style.setProperty('--color-c-bg', `var(--color-c-${color}-bg)`);
+	document.documentElement.style.setProperty('--color-c-secondary', `var(--color-c-${color}-secondary)`);
+	document.documentElement.style.setProperty('--color-c-text', `var(--color-c-${color}-text)`);
+	document.documentElement.style.setProperty('--color-c-primary', `var(--color-c-${color}-primary)`);
+	if (save) localStorage.setItem('color', color);
+	console.debug(`Color set to ${color}`);
 }
 
 // lib.fullScreenOverlay(

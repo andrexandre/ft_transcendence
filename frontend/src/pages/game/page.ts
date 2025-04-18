@@ -4,15 +4,13 @@ import sidebar from "../../components/sidebar"
 import dropdown from "../../components/dropdown"
 import * as menu from "./menu"
 
-let currentTheme: string;
-
 class Game extends Page {
 	constructor() {
 		super("game", '/game');
 	}
 	onMount(): void {
-		currentTheme = lib.getTheme();
 		lib.setTheme('light')
+		lib.setColor('game');
 		sidebar.setSidebarToggler('game');
 		// Set Settings dropdown
 		dropdown.initialize('Settings');
@@ -51,7 +49,8 @@ class Game extends Page {
 		document.getElementById('game-main-menu')!.addEventListener('click', (event) => this.setGameMenuToggler(event));
 	}
 	onCleanup() {
-		lib.setTheme(currentTheme);
+		lib.setTheme(lib.getTheme());
+		lib.setColor(localStorage.getItem('color') || lib.defaultColor);
 	}
 	getHtml(): string {
 		return /*html*/`

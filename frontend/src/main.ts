@@ -33,31 +33,11 @@ async function checkLogin() {
 	}
 }
 
-function setColorTheme(color: string) {
-	if (color === "custom") {
-		document.documentElement.style.setProperty('--color-c-bg', 'var(--color-c-game-bg)');
-		document.documentElement.style.setProperty('--color-c-secondary', 'var(--color-c-game-secondary)');
-		document.documentElement.style.setProperty('--color-c-text', 'var(--color-c-game-text)');
-		document.documentElement.style.setProperty('--color-c-primary', 'var(--color-c-game-primary)');
-	}
-	else {
-		document.documentElement.style.setProperty('--color-c-bg', `var(--color-c-${color}-bg)`);
-		document.documentElement.style.setProperty('--color-c-secondary', `var(--color-c-${color}-secondary)`);
-		document.documentElement.style.setProperty('--color-c-text', `var(--color-c-${color}-text)`);
-		document.documentElement.style.setProperty('--color-c-primary', `var(--color-c-${color}-primary)`);
-	}
-}
-
 function loadPage(path: string): void {
 	let newPage: Page;
 
 	if (path != "/register" && path != "/login")
 		checkLogin();
-	if (path === "/game") {
-		setColorTheme("custom");
-	} else {
-		setColorTheme("stone");
-	}
 	switch (path) {
 		case "/register":
 			newPage = register;
