@@ -73,7 +73,7 @@ class Game extends Page {
 								<li class="text-c-secondary">#/#</li>
 								<li class="text-c-secondary"></li>
 							</ul>
-							<ul id="lobby-list" class="grid grid-cols-[1fr_1fr_4.5rem_4.5rem] overflow-scroll text-sm">
+							<ul id="lobby-list" class="grid grid-cols-[1fr_1fr_4.5rem_4.5rem] overflow-auto text-sm">
 							</ul>
 						</div>
 					</div>

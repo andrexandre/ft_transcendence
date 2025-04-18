@@ -114,7 +114,7 @@ class Dashboard extends Page {
 		return /*html*/`
 			${sidebar.getHtml()}
 			<main class="grid grid-cols-2 grid-rows-2 flex-1">
-				<div id="profile" class="card t-dashed grid overflow-scroll">
+				<div id="profile" class="card t-dashed grid overflow-auto">
 					<div class="flex gap-16">
 						<img id="profile-image" class="object-cover rounded-full size-48 shadow-xl shadow-neutral-400 border-2" src="https://picsum.photos/id/237/200">
 						<div class="justify-center self-center">
@@ -130,11 +130,11 @@ class Dashboard extends Page {
 				</div>
 				<div class="card t-dashed flex flex-col">
 					<h1 class="text-xl">Pong match history</h1>
-					<ul id="stats-list" class="flex flex-col gap-2 overflow-scroll"></ul>
+					<ul id="stats-list" class="flex flex-col gap-2 overflow-auto"></ul>
 				</div>
-				<div id="friends" class="card t-dashed flex flex-col justify-around overflow-scroll">
+				<div id="friends" class="card t-dashed flex flex-col justify-around">
 					<h1 class="text-xl">Active friends</h1>
-					<ul id="friends-list" class="flex flex-col overflow-scroll">
+					<ul id="friends-list" class="flex flex-col overflow-auto">
 						<li class="item t-dashed p-3 flex">
 							<img src="https://api.dicebear.com/9.x/avataaars-neutral/svg?seed=Brian" class="size-10 rounded-4xl">
 							<svg height="10" width="10"><circle cx="5" cy="5" r="5" fill="green" /></svg>

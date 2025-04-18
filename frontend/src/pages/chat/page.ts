@@ -24,10 +24,10 @@ class Chat extends Page {
 								<i class="fa-solid fa-rotate-right"></i>
 							</button>
 						</div>
-						<div id="online-friends-list" class="flex flex-col flex-1 overflow-scroll"></div>
+						<div id="online-friends-list" class="flex flex-col flex-1 overflow-auto"></div>
 					</div>
 					<div id="friend-requests" class="flex flex-col w-75">
-						<div id="friend-requests-list" class="flex flex-col flex-1 overflow-scroll"></div>
+						<div id="friend-requests-list" class="flex flex-col flex-1 overflow-auto"></div>
 						<button id="friend-request-button" class="mt-auto">🔔 Friend Requests</button>
 					</div>
 				</div>
@@ -38,7 +38,7 @@ class Chat extends Page {
 						<button id="chat-box-invite">invite</button>
 						<button id="chat-box-block">block</button>
 					</div>
-					<div id="chat-box-message-list" class="flex flex-col flex-1 overflow-scroll"></div>
+					<div id="chat-box-message-list" class="flex flex-col flex-1 overflow-auto"></div>
 					<form id="chat-box-form" class="flex mt-auto">
 						<input id="chat-box-input" class="size-full" type="text" placeholder="Type a message..." autocomplete="off"/>
 						<button id="chat-box-submit" class="ml-auto">Send</button>
@@ -51,7 +51,7 @@ class Chat extends Page {
 							<i class="fa-solid fa-rotate-right"></i>
 						</button>
 					</div>
-					<div id="online-users-list" class="flex flex-col flex-1 overflow-scroll"></div>
+					<div id="online-users-list" class="flex flex-col flex-1 overflow-auto"></div>
 				</div>
 			</main>
 		`;
