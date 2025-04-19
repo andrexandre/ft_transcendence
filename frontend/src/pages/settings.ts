@@ -42,6 +42,7 @@ async function loadInformation() {
 	})
 	if (!response.ok) return lib.showToast.red('Failed too load user Information!');
 	
+	// Set user information
 	const userData = await response.json();
 	(document.getElementById("profile-username") as HTMLInputElement).value = userData.username;
 	(document.getElementById("profile-codename") as HTMLInputElement).value = userData.codename;
@@ -53,6 +54,7 @@ async function loadInformation() {
 	(document.getElementById("profile-bio") as HTMLInputElement).value = userData.biography;
 	(document.getElementById('2fa-toggle') as HTMLInputElement).checked = userData.two_FA_status
 
+	// Set user avatar
 	const imageResponse = await fetch('http://127.0.0.1:3000/api/user/avatar', {
 		credentials: 'include'
 	})
@@ -62,7 +64,6 @@ async function loadInformation() {
 	console.log(blob);
 	const url = URL.createObjectURL(blob);
 	const errorUrl = 'https://fastly.picsum.photos/id/63/300/300.jpg?hmac=NZIxadbJNvrTZPpf2SgsLhZ4Up4GlWVwar-bI6FcTE8';
-	
 	(document.getElementById("profile-image") as HTMLImageElement).src = url || errorUrl;
 }
 
@@ -90,7 +91,7 @@ class Settings extends Page {
 			const twoFAButton = document.getElementById('2fa-toggle') as HTMLInputElement;
 
 			const userData: { two_FA_status: boolean } = {
-				two_FA_status: (document.getElementById('2fa-toggle') as HTMLInputElement).checked
+				two_FA_status: twoFAButton.checked
 			};
 			try {
 				const response = await fetch('http://127.0.0.1:3000/api/users/save-settings-2fa', {
@@ -104,16 +105,15 @@ class Settings extends Page {
 				if (!response.ok) {
 					throw new Error(`${response.status} - ${response.statusText}`);
 				}
-				lib.showToast.green("Updated 2FA!");
+
+				if (twoFAButton.checked)
+					lib.showToast.green("2FA enabled");
+				else
+					lib.showToast.red("2FA disabled");
+				
 			} catch (error) {
 				console.log(error);
 				lib.showToast.red(error as string);
-			}
-
-			if (twoFAButton.checked) {
-				lib.showToast.green("2FA enabled");
-			} else {
-				lib.showToast.red("2FA disabled");
 			}
 		});
 
@@ -134,6 +134,25 @@ class Settings extends Page {
 						lib.showToast.green("Profile image updated successfully!");
 					};
 					reader.readAsDataURL(file);
+
+					// Saving the image on dataBase
+					try {
+						const avatarFormData = new FormData();
+						avatarFormData.append('image', file);
+
+						const response = await fetch('http://127.0.0.1:3000/api/user/update/avatar', {
+							method: 'POST',
+							credentials: "include",
+							body: avatarFormData
+						});
+						if (!response.ok)
+							throw new Error(`${response.status} - ${response.statusText}`);
+
+						lib.showToast.green("Imagem salva no servidor!");
+					} catch (err) {
+						console.error("Erro ao enviar imagem:", err);
+						lib.showToast.red("Erro ao salvar a imagem no servidor.");
+					}
 				}
 			});
 			input.click();
