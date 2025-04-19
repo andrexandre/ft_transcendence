@@ -35,12 +35,23 @@ socket.onmessage = (event) => {
 };
 
 function renderMessage(user: string, from: string, message: string, timestamp: string) {
-	const List = document.getElementById(`chat-box-message-list`)!;
-	const Entry = document.createElement('div');
-	Entry.style.textAlign = user === from ? 'right' : 'left';
-	Entry.classList.add(`chat-box-message-entry`);
-	Entry.textContent = `${timestamp} ${from}: ${message}`;
-	List.appendChild(Entry);
+	const listElement = document.getElementById(`chat-box-message-list`)!;
+	const entryElement = document.createElement('li');
+	let alignment;
+	if (user == from)
+		alignment = 'justify-end';
+	else if (user == 'system')
+		alignment = 'justify-center';
+	else
+		alignment = 'justify-start';
+	entryElement.className = `chat-box-message-entry flex ${alignment}`;
+	entryElement.innerHTML = /*html*/`
+	<div class="flex flex-col item t-dashed">
+		<p>${message}</p>
+		<p class="self-end text-c-secondary">${timestamp}</p>		
+	</div>
+	`;
+	listElement.appendChild(entryElement);
 }
 
 // Global variable to track the current friend
@@ -93,7 +104,8 @@ function setupBlockButtonListener() {
 
 function renderOnlineFriendList(name: string) {
     const friendList = document.getElementById('online-friends-list')!;
-    const roomButton = document.createElement('button');
+	const roomButton = document.createElement('button');
+	roomButton.className = 'item t-dashed';
     roomButton.appendChild(document.createTextNode(name));
     
     roomButton.addEventListener('click', () => {
@@ -119,15 +131,22 @@ function renderOnlineFriendList(name: string) {
 function renderOnlineUsersList(name: string) {
 	const onlineUsersList = document.getElementById('online-users-list')!;
 	const userButton = document.createElement('button');
-	userButton.appendChild(document.createTextNode('[Add Friend] ' + name));
+	userButton.className = 'flex item t-dashed px-4';
+	userButton.innerHTML = /*html*/`
+		<p class="mr-auto">${name}</p>
+		<div><i class="fa-solid fa-user-plus"></i></div>
+	`;
 	userButton.addEventListener('click', () => {
 		socket.send(JSON.stringify({
 			type: 'add-friend-request',
 			receiver: name
 		}));
 		showToast.blue(`Inviting ${name}...`);
-		userButton.textContent = 'Request Sent to ' + name;
-		userButton.style.backgroundColor = 'lightgray';
+			userButton.innerHTML = /*html*/`
+			<p class="mr-auto">${name}</p>
+			<div><i class="fa-solid fa-user-check text-c-secondary"></i></div>
+		`;
+		userButton.style.pointerEvents = 'none';
 		userButton.disabled = true;
 	});
 	onlineUsersList.appendChild(userButton);
@@ -135,11 +154,18 @@ function renderOnlineUsersList(name: string) {
 
 function renderFriendRequest(name: string) {
 	const friendRequestsList = document.getElementById('friend-requests-list')!;
-	addListEntry('friend-requests-list', name);
+	addListEntry('friend-requests-list', name, /*html*/`
+			<p class="mr-auto">${name}</p>
+			<button id="friend-requests-list-entry-${name}-accept">
+				<i class="fa-solid fa-check"></i>
+			</button>
+			<button id="friend-requests-list-entry-${name}-reject">
+				<i class="fa-solid fa-xmark"></i>
+			</button>
+		`);
 	const friendRequestEntry = document.getElementById(`friend-requests-list-entry-${name}`)!;
 
-	const acceptButton = document.createElement('button');
-	acceptButton.textContent = '✓';
+	const acceptButton = document.getElementById(`friend-requests-list-entry-${name}-accept`)!;
 	acceptButton.addEventListener('click', () => {
 		socket.send(JSON.stringify({
 			type: 'friend-request-response',
@@ -152,8 +178,7 @@ function renderFriendRequest(name: string) {
 		showToast.green(`Friend request from ${name} accepted`);
 	});
 
-	const declineButton = document.createElement('button');
-	declineButton.textContent = '✗';
+	const declineButton = document.getElementById(`friend-requests-list-entry-${name}-reject`)!
 	declineButton.addEventListener('click', () => {
 		socket.send(JSON.stringify({
 			type: 'friend-request-response',
@@ -165,8 +190,6 @@ function renderFriendRequest(name: string) {
 		// removeListEntry('friend-requests-list', name);
 		showToast.red(`Friend request from ${name} declined`);
 	});
-	friendRequestEntry.appendChild(acceptButton);
-	friendRequestEntry.appendChild(declineButton);
 	friendRequestsList.appendChild(friendRequestEntry);
 }
 
@@ -217,24 +240,18 @@ function renderChatRoom(name: string, isBlocked: boolean, _load: boolean) { //* 
 	// }
 }
 
-function addListEntry(list: string, name: string) {
-	const List = document.getElementById(`${list}`)!;
-	const Entry = document.createElement('div');
-	Entry.classList.add(`${list}-entry`);
-	Entry.textContent = name;
-	Entry.id = `${list}-entry-${name}`;
-	List.appendChild(Entry);
+function addListEntry(listName: string, name: string, html: string, classes?: string) {
+	const listElement = document.getElementById(`${listName}`)!;
+	const entryElement = document.createElement('li');
+	entryElement.className = classes || 'flex item t-dashed gap-4 justify-around px-4';
+	entryElement.innerHTML = html;
+	entryElement.id = `${listName}-entry-${name}`;
+	listElement.appendChild(entryElement);
 }
 
 function removeListEntry(list: string, name: string) {
-	const List = document.getElementById(`${list}`)!;
-	const Entries = List.getElementsByClassName(`${list}-entry`);
-	for (const entry of Array.from(Entries)) {
-		if (entry.textContent?.trim() === name) {
-			List.removeChild(entry);
-			break;
-		}
-	}
+	const entry = document.getElementById(`${list}-entry-${name}`)!;
+	document.removeChild(entry);
 }
 
 export function setChatEventListeners() {
