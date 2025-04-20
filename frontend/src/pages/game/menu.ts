@@ -1,5 +1,7 @@
 import { showToast } from "../../utils";
 import dropdown from "../../components/dropdown";
+import { startSingleClassic } from "./single";
+
 import { connectToGameServer, createLobby, fetchLobbies } from "./lobbyClient";
 
 let lobbyRefreshInterval: ReturnType<typeof setInterval> | null = null;
@@ -21,7 +23,7 @@ function initializeGameMainMenu() {
 			const tableSize = sessionStorage.getItem("user_set_tableSize") || "Medium";
 			const sound = sessionStorage.getItem("user_set_sound") === "1";
 			document.getElementById('sidebar')?.classList.toggle('hidden');
-			// add single game
+			// startSingleClassic(username, {difficulty, tableSize, sound});
 		});
 	}
 	dropdown.addElement('Single', 'button', 'item g-t-border-alt','Infinity',
@@ -123,9 +125,7 @@ function initializeGameMainMenu() {
 			showToast.red("❌ Failed to create FFA lobby");
 		}
 	});
-	
 }
-
 
 
 export async function initUserData() {

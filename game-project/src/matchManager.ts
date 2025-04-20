@@ -1,17 +1,14 @@
 // src/matchManager.ts
-import { WebSocket } from 'ws';
 import { getGamePlayers } from './lobbyManager.js';
 
 const matchSockets = new Map<string, WebSocket[]>();
-// const ongoingGames = new Map<string, Player[]>();
 
-export function handleMatchConnection(gameId: string, socket: WebSocket) {
-	// const players = ongoingGames.get(gameId);
+export function handleMatchConnection(gameId: any, connection: any) {
 	const players = getGamePlayers(gameId);
 	if (!players) {
 		console.log(`❌ Game ID not found: ${gameId}`);
-		socket.send(JSON.stringify({ type: "error", message: "Game not found" }));
-		socket.close();
+		connection.socket.send(JSON.stringify({ type: "error", message: "Game not found" }));
+		connection.socket.close();
 		return;
 	}
 
@@ -21,31 +18,31 @@ export function handleMatchConnection(gameId: string, socket: WebSocket) {
 		console.log(`🆕 Sala criada para jogo ${gameId}`);
 	}
 
-	matchSockets.get(gameId)!.push(socket);
+	matchSockets.get(gameId)!.push(connection);
 
 	console.log(`👥 Total de sockets no jogo ${gameId}: ${matchSockets.get(gameId)!.length}`);
 
-	socket.on("message", (msg) => {
+	connection.socket.on("message", (msg: string) => {
 		try {
 			const data = JSON.parse(msg.toString());
 			console.log(`📨 [${gameId}] Msg recebida:`, data);
 
 			// Broadcast para os outros jogadores
 			for (const client of matchSockets.get(gameId)!) {
-				if (client !== socket && client.readyState === WebSocket.OPEN) {
+				if (client !== connection && client.readyState === connection.socket.OPEN) {
 					client.send(JSON.stringify(data));
 					console.log(`📤 [${gameId}] Reenviado para outro player`, data);
 				}
 			}
 		} catch (err) {
 			console.error("❌ Invalid message:", err);
-			socket.send(JSON.stringify({ type: "error", message: "Invalid message format" }));
+			connection.socket.send(JSON.stringify({ type: "error", message: "Invalid message format" }));
 		}
 	});
 
-	socket.on("close", () => {
+	connection.socket.on("close", () => {
 		console.log(`❌ Player desconectado do jogo ${gameId}`);
-		const remaining = matchSockets.get(gameId)?.filter(s => s !== socket);
+		const remaining = matchSockets.get(gameId)?.filter(c => c !== connection);
 		if (!remaining || remaining.length === 0) {
 			matchSockets.delete(gameId);
 			console.log(`🧹 Match ${gameId} limpo (todos os jogadores saíram)`);

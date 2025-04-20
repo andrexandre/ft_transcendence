@@ -52,7 +52,7 @@ export function connectToGameServer(userInfo: { username: string; userId: number
 			
 				matchSocket.onopen = () => {
 					console.log("✅ Connected to match WebSocket for game:", data.gameId);
-					initGameCanvas(matchSocket, data.playerRole);
+					// initGameCanvas(matchSocket, data.playerRole);
 				};
 			
 				matchSocket.onerror = () => {

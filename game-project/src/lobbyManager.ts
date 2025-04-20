@@ -1,6 +1,4 @@
 // src/lobbyManager.ts
-
-import { WebSocket } from 'ws';
 import crypto from 'crypto';
 
 export interface UserData {

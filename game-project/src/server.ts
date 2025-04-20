@@ -1,6 +1,6 @@
 // src/server.ts
 import Fastify from "fastify";
-import websocketPlugin from "@fastify/websocket";
+import fastifyWebsocket from '@fastify/websocket';
 import fastifyCookie from "@fastify/cookie";
 import cors from '@fastify/cors';
 import { createLobby, joinLobby, startGame, listLobbies, leaveLobby, getLobbyByUserId, getLobbyBySocket} from './lobbyManager.js';
@@ -10,7 +10,7 @@ import { handleMatchConnection } from './matchManager.js';
 const PORT = 5000;
 const gameserver = Fastify({ logger: true });
 
-await gameserver.register(websocketPlugin);
+await gameserver.register(fastifyWebsocket);
 await gameserver.register(fastifyCookie);
 await userRoutes(gameserver);
 
@@ -89,6 +89,29 @@ function handleSocketMessage(connection: any, data: any) {
 		const lobbyId = createLobby(connection.socket, connection.user, gameMode, maxPlayers);
 		connection.send(JSON.stringify({ type: "lobby-created", lobbyId }));
   	}
+	////////////
+	  if (data.type === "lobby-message") {
+		const lobby = getLobbyByUserId(user.userId);
+		if (!lobby) {
+			connection.send(JSON.stringify({ type: "error", message: "You're not in a lobby" }));
+			return;
+		}
+		const payload = {
+			type: "lobby-message",
+			from: user.username,
+			userId: user.userId,
+			text: data.text
+		};
+		for (const player of lobby.players) {
+			if (player.socket.readyState === 1) { // WebSocket.OPEN === 1
+				player.socket.send(JSON.stringify(payload));
+			}
+		}
+	
+		console.log(`💬 ${user.username} disse no lobby ${lobby.id}: ${data.text}`);
+		return;
+	}
+
 	// join-lobby
 	if (data.type === "join-lobby") {
 		if (getLobbyByUserId(user.userId)) {

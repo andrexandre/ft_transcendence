@@ -1,4 +1,14 @@
-import { gameCanvas, ctx } from "./rendering";
+
+// export let gameCanvas: HTMLCanvasElement;
+// export let ctx: CanvasRenderingContext2D;
+
+// export function initGameCanvas() {
+// 	gameCanvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
+// 	ctx = gameCanvas.getContext("2d")!;
+// 	gameCanvas.width = 800;
+// 	gameCanvas.height = 600;
+// };
+
 
 function GameMessageVisibility(visible: string) {
 	const countdownElement = document.getElementById("game-message") as HTMLDivElement;
