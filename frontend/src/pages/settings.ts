@@ -32,8 +32,11 @@ async function loadInformation() {
 	const blob = await imageResponse.blob();
 	console.log(blob);
 	const url = URL.createObjectURL(blob);
+	console.log(url);
 	const errorUrl = 'https://fastly.picsum.photos/id/63/300/300.jpg?hmac=NZIxadbJNvrTZPpf2SgsLhZ4Up4GlWVwar-bI6FcTE8';
 	(document.getElementById("profile-image") as HTMLImageElement).src = url || errorUrl;
+	// URL.revokeObjectURL(url);
+
 }
 
 class Settings extends Page {
@@ -44,8 +47,8 @@ class Settings extends Page {
 		sidebar.setSidebarToggler('settings');
 
 		// Set up the image selector
-		if (lib.userInfo.profileImage)
-			(document.getElementById('profile-image') as HTMLImageElement).src = lib.userInfo.profileImage;
+		// if (lib.userInfo.profileImage)
+		// 	(document.getElementById('profile-image') as HTMLImageElement).src = lib.userInfo.profileImage;
 		document.getElementById('profile-image-button')?.addEventListener('click', async (e: Event) => {
 			e.preventDefault();
 			const input = document.createElement('input');
@@ -154,7 +157,7 @@ class Settings extends Page {
 						<h1 class="item text-start text-2xl">Profile</h1>
 						<div class="flex">
 							<button id="profile-image-button" class="relative size-60 group">
-								<img id="profile-image" src="https://picsum.photos/id/237/240" class="rounded-full size-full object-cover border-2 shadow-lg shadow-neutral-400"/>
+								<img id="profile-image" class="rounded-full size-full object-cover border-2 shadow-lg shadow-neutral-400"/>
 								<div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 rounded-full transition-opacity">
 									<i class="fa-solid fa-camera"></i>
 								</div>

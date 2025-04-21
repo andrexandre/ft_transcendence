@@ -43,6 +43,11 @@ export const updateUserStatus = function (username) {
 	return this.sqlite.get(querie, [ username ]);
 }
 
+export const updateUserAvatar = function(path, id) {
+	const querie = `UPDATE users SET avatar = ? WHERE id = ?;`;
+	return this.sqlite.get(querie, [ path , id]);
+}
+
 export const createTables = function() {
 	const query = `
 	CREATE TABLE IF NOT EXISTS users (

@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { uploadDirectory } from '../../utils/utils.js';
 import { pipeline } from 'stream/promises';
+import crypto from 'crypto'
 
 
 async function userAvatarRoutes(server, opts) {
@@ -37,13 +38,20 @@ async function userAvatarRoutes(server, opts) {
 			try {
 				
 				const data = await request.file();
-				
+			
+				console.log(data.fieldname);
 				console.log(data.filename);
+				console.log(data.encoding);
+				console.log(data.mimetype);
 				
-				// Ver como vou guardar os nomes
-				const filepath = path.join(uploadDirectory, 'teste.jpeg');
+				const extension = (data.mimetype.split('/'))[1];
+				const name = `${crypto.randomUUID()}.${extension}`;
+				
+				// Saving images with a random id
+				const filepath = path.join(uploadDirectory, name);
 				await pipeline(data.file, fs.createWriteStream(filepath));
 				// Guardar o nome do ficheiro no campo avatar do user
+				await server.updateUserAvatar(name, request.authenticatedUser.id);
 				return;
 
 			} catch(err) {

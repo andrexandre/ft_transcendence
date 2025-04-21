@@ -4,6 +4,7 @@ import fp from 'fastify-plugin';
 import {
 	createUser, 
 	getUserByUsername,
+	updateUserAvatar,
 	updateUserStatus,
 	updateUser2FAStatus,
 	updateUserInformation,
@@ -26,6 +27,7 @@ async function dbPlugin(fastify, options) {
 		fastify.decorate('createUser', createUser, ['sqlite']);
 		fastify.decorate('createTables', createTables, ['sqlite']);
 		fastify.decorate('getUserByUsername', getUserByUsername, ['sqlite']);
+		fastify.decorate('updateUserAvatar', updateUserAvatar, ['sqlite']);
 		fastify.decorate('updateUserStatus', updateUserStatus, ['sqlite']);
 		fastify.decorate('updateUser2FAStatus', updateUser2FAStatus, ['sqlite']);
 		fastify.decorate('updateUserInformation', updateUserInformation, ['sqlite']);
