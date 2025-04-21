@@ -5,6 +5,7 @@ import cors from '@fastify/cors';
 import { userRoutes } from "./userSet.js";
 import { handleJoin, handleMove, handleDisconnect} from "./gameServer.js";
 import * as lobby from "./lobbyManager.js";
+import { notifyLobbyPlayersStart } from "./lobbyNotifier.js";
 
 
 const PORT = 5000;
@@ -13,6 +14,7 @@ const gamefast = fastify({ logger: true });
 await gamefast.register(fastifyWebsocket);
 gamefast.register(fastifyCookie);
 gamefast.register(userRoutes);
+
 await gamefast.register(cors, {
 	origin: ['http://127.0.0.1:5500'],
 	methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
@@ -84,15 +86,37 @@ gamefast.post("/lobbies/:id/start", async (req, reply) => {
 	const lobbyToStart = lobby.findLobbyById(id);
 	if (!lobbyToStart) return reply.status(404).send({ error: "Lobby not found" });
 
+	const gameId = Math.random().toString(36).slice(2, 8); // ou usa uuid
 	const userIds = lobbyToStart.players.map(p => p.userId);
 
-	lobby.removeLobby(id); // Remove lobby after starting
-	reply.send({ message: "Game started", players: lobbyToStart.players });
+	// Notifica os jogadores via WebSocket
+	notifyLobbyPlayersStart(userIds, gameId);
+
+	// Remove ou marca lobby como iniciado
+	lobbyToStart.started = true;
+	lobbyToStart.gameId = gameId;
+	lobby.removeLobby(id); // ou mantém se preferires mostrar o bracket depois
+
+	reply.send({ message: "Game started", gameId });
 });
 
+import { registerLobbySocket } from "./lobbyNotifier.js";
 
-// Start game loop
-// startGameLoop();
+gamefast.get("/lobby-ws", { websocket: true }, (conn, req) => {
+	const socket = conn;
+	const url = new URL(req.url!, "http://localhost");
+	const userId = Number(url.searchParams.get("userId"));
+
+	if (!userId || isNaN(userId)) {
+		socket.send(JSON.stringify({ type: "error", message: "Missing or invalid userId" }));
+		socket.close();
+		return;
+	}
+
+	console.log(`🔌 Lobby WebSocket conectado: userId=${userId}`);
+	registerLobbySocket(userId, socket);
+});
+
 
 gamefast.listen({ port: PORT, host: "0.0.0.0" }, () => {
 	console.log(`🚀 Game server running on ws://localhost:${PORT}`);

@@ -56,7 +56,7 @@ fastify.register(logoutRoute);
 fastify.register(callbackOAuthRoute);
 
 fastify.register(fastifyJwt, {
-  secret: process.env.JWT_SECRET_KEY,
+  secret: process.env.JWT_SECRET_LOADER,
   cookie: {
     cookieName: 'token',
     signed: false

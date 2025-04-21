@@ -1,4 +1,5 @@
-// import { FastifyInstance } from "fastify";
+// src/lobbyNotifier.ts
+
 type Lobby = {
 	id: string;
 	hostUsername: string;
@@ -6,7 +7,10 @@ type Lobby = {
 	players: { username: string; userId: number }[];
 	mode: string;
 	maxPlayers: number;
+	gameId?: string;     
+	started?: boolean;
 };
+
 
 const lobbies = new Map<string, Lobby>();
 

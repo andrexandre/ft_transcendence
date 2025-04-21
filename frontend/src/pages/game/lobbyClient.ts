@@ -1,6 +1,61 @@
+// src/frontend/lobbySocket.ts
 import { showToast } from "../../utils";
+import { startGameClient } from "./gameClient";
+import { connectToLobbySocket } from "./lobbySocket";
 
 const SERVER_URL = "http://127.0.0.1:5000";
+let lobbySocket: WebSocket | null = null;
+
+export function connectToLobbySocket() {
+	const userId = sessionStorage.getItem("user_id");
+	if (!userId) {
+		console.error("❌ user_id não encontrado no sessionStorage");
+		return;
+	}
+
+	const socketUrl = `ws://127.0.0.1:5000/lobby-ws?userId=${userId}`;
+	lobbySocket = new WebSocket(socketUrl);
+
+	lobbySocket.onopen = () => {
+		console.log("✅ Conectado ao Lobby WebSocket");
+	};
+
+	lobbySocket.onmessage = (event) => {
+		try {
+			const data = JSON.parse(event.data);
+			if (data.type === "start") {
+				console.log("🎮 Jogo vai começar com gameId:", data.gameId);
+				showToast.green("🚀 Jogo a começar!");
+
+				// Esconde menus e sidebar
+				document.getElementById("sidebar")?.classList.add("hidden");
+				document.getElementById("game-main-menu")?.classList.add("hidden");
+
+				// Cria WebSocket da partida
+				connectToMatchWebSocket(data.gameId);
+			}
+		} catch (err) {
+			console.error("❌ Erro a processar mensagem WS:", err);
+		}
+	};
+
+	lobbySocket.onclose = () => {
+		console.warn("📴 Desconectado do Lobby WebSocket");
+	};
+}
+
+function connectToMatchWebSocket(gameId: string) {
+	const username = sessionStorage.getItem("username")!;
+	const userId = sessionStorage.getItem("user_id")!;
+
+	const ws = new WebSocket(`ws://127.0.0.1:5000/match-ws?gameId=${gameId}&username=${username}&userId=${userId}`);
+
+	ws.onopen = () => {
+		console.log(`🎮 Ligado ao jogo com gameId=${gameId}`);
+		startGameClient(ws); // ✅ usa o novo startGameClient
+	};
+}
+
 
 export async function renderLobbyList(): Promise<void> {
 	try {
@@ -119,6 +174,7 @@ export async function joinLobby(lobbyId: string, username: string, userId: numbe
 		showToast.red("Cannot join lobby");
 		throw new Error("Cannot join lobby");	
 	}
+	connectToLobbySocket();
 	showToast.green("Lobby joined");
 	return await res.json();
 }
