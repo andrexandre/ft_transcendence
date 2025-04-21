@@ -32,7 +32,7 @@ button { @apply cursor-pointer; }
 
 img { @apply pointer-events-none; }
 
-input, textarea { @apply outline-none; }
+input, textarea { @apply outline-none disabled:opacity-50; }
 
 @layer components {
 	.t-border {
