@@ -5,6 +5,8 @@ import {
 	createUser, 
 	getUserByUsername,
 	updateUserStatus,
+	updateUser2FAStatus,
+	updateUserInformation,
 	createTables
 } from '../decorators/db_decorators.js'
 
@@ -25,6 +27,8 @@ async function dbPlugin(fastify, options) {
 		fastify.decorate('createTables', createTables, ['sqlite']);
 		fastify.decorate('getUserByUsername', getUserByUsername, ['sqlite']);
 		fastify.decorate('updateUserStatus', updateUserStatus, ['sqlite']);
+		fastify.decorate('updateUser2FAStatus', updateUser2FAStatus, ['sqlite']);
+		fastify.decorate('updateUserInformation', updateUserInformation, ['sqlite']);
 	}
 	
 	fastify.addHook('onClose', (fastify, done) => connection.end().then(done).catch(done));
