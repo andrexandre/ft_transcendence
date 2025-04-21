@@ -4,15 +4,13 @@ import sidebar from "../../components/sidebar"
 import dropdown from "../../components/dropdown"
 import * as menu from "./menu"
 
-let currentTheme: string;
-
 class Game extends Page {
 	constructor() {
 		super("game", '/game');
 	}
 	onMount(): void {
-		currentTheme = lib.getTheme();
 		lib.setTheme('light')
+		lib.setColor('game');
 		sidebar.setSidebarToggler('game');
 		// Set Settings dropdown
 		dropdown.initialize('Settings');
@@ -50,8 +48,9 @@ class Game extends Page {
 		// document.getElementById('dropdownButton-Multi')?.click();
 		document.getElementById('game-main-menu')!.addEventListener('click', (event) => this.setGameMenuToggler(event));
 	}
-	onCleanup() {
-		lib.setTheme(currentTheme);
+	onCleanup(): void {
+		lib.setTheme(lib.getTheme());
+		lib.setColor(localStorage.getItem('color') || lib.defaultColor);
 	}
 	getHtml(): string {
 		return /*html*/`
@@ -67,13 +66,13 @@ class Game extends Page {
 							${dropdown.getHtml('Settings')}
 						</div>
 						<div id="lobby" class="hidden flex-col w-100 space-y-3 item g-t-border text-sm">
-						<ul class="grid grid-cols-[1fr_1fr_4.5rem_4.5rem]">
+							<ul class="grid grid-cols-[1fr_1fr_4.5rem_4.5rem]">
 								<li class="text-c-secondary">Host</li>
 								<li class="text-c-secondary">Mode</li>
 								<li class="text-c-secondary">#/#</li>
 								<li class="text-c-secondary"></li>
 							</ul>
-							<ul id="lobby-list" class="grid grid-cols-[1fr_1fr_4.5rem_4.5rem] overflow-scroll text-sm">
+							<ul id="lobby-list" class="grid grid-cols-[1fr_1fr_4.5rem_4.5rem] overflow-auto text-sm">
 							</ul>
 						</div>
 					</div>

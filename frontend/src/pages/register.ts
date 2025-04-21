@@ -24,7 +24,7 @@ class Register extends Page {
 					<input class="item t-dashed pl-4 focus:border-blue-500" type="email" id="email" placeholder="Enter email" required />
 					<label for="password">Password</label>
 					<input class="item t-dashed pl-4 focus:border-blue-500" type="password" id="password" placeholder="Enter password" required />
-					<button class="item t-dashed focus:outline-none" type="submit">Submit</button>
+					<button class="item t-dashed focus:outline-none focus:border-blue-500" type="submit">Submit</button>
 				</form>
 				<hr class="text-c-primary">
 				<button class="item t-dashed focus:outline-none focus:border-blue-500" id="google-auth-button">

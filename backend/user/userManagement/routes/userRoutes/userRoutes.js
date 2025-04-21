@@ -1,7 +1,38 @@
 
+import userSettingsRoutes from "./userSettingsRoutes.js";
+import userAvatarRoutes from "./userAvatarRoutes.js";
+
+const extractInformationFromToken = 'test';
 
 async function userRoutes(server, opts) {
     
+	server.addHook('onRequest', async (request, reply) => {
+
+		try {
+			const response = await fetch('http://gateway-api:7000/userData', {
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+					"Cookie": `token=${request.cookies.token}`,
+				},
+				credentials: "include"
+			});
+
+			// throw
+			if (!response.ok) reply.status(401).send({error: "User not authenticated!"});
+
+			const userData = await response.json();
+			request.authenticatedUser = await server.getUserByUsername(userData.username);
+			// if (!request.targetUser)
+			// 	throw new UserNotFoundError();
+		} catch (err) {
+			console.log(err);
+			reply.status(500).send({error: "Internal server error!"});
+			return;
+		}
+
+	});
+
     server.route({
         method: 'GET',
         url: '/api/user/info',
@@ -33,38 +64,8 @@ async function userRoutes(server, opts) {
         },
     });
 
-	 
-    server.route({
-        method: 'POST',
-        url: '/api/users/update',
-        handler:  async (request, reply) => {
-
-			// const data = request.parts();
-			// for await (const part of data) 
-			// {
-			// 	if (part.file) {
-			// 	  // ficheiro: part.file é um stream
-			// 	  console.log(`Ficheiro: ${part.filename}`);
-			// 	  part.file.resume();
-			// 	} else {
-			// 	  // campo de texto
-			// 	  console.log('ALEXXXXXXXXXXXX');
-			// 	  if (part.fieldname === 'user') {
-			// 		const json = JSON.parse(part.value);
-			// 		console.log(json);
-			// 	  }
-
-			// 	}
-				
-			//   }
-
-
-			// console.log('FIMMMMMMMMMMMMMMMMMMMM');
-
-
-			// reply.status(200).send({message: 'END OF REQUEST'});
-		}}
-	);
+	server.register(userSettingsRoutes);
+	server.register(userAvatarRoutes);
 
 }
 

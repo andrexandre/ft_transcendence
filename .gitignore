@@ -68,3 +68,5 @@ profile*
 
 .vite
 frontend/**/*.js
+
+!profile.ts

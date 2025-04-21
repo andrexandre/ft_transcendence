@@ -22,6 +22,21 @@ export const getUserByUsername = function (username) {
 	return this.sqlite.get(querie, [ username ]);
 }
 
+export const updateUserInformation = function ({username, email, codename, biography, two_FA_status}, id) {
+
+	const params = [ username, email, codename, biography, two_FA_status, id ];
+	const query = `
+	UPDATE users
+	SET username = ?, email = ?, codename = ?, biography = ?, two_FA_status = ?
+	WHERE id = ?;
+	`;
+	return this.sqlite.run(query, params);
+}
+
+export const updateUser2FAStatus = function ({ two_FA_status }, id) {
+	const query = `UPDATE users SET two_FA_status = ? WHERE id = ?;`;
+	return this.sqlite.run(query, [ two_FA_status, id ]);
+}
 
 export const updateUserStatus = function (username) {
 	const querie = `UPDATE users SET is_online = 'TRUE' WHERE username = ?;`;
@@ -39,6 +54,7 @@ export const createTables = function() {
 		is_online BOOLEAN DEFAULT FALSE,
 		codename TEXT NOT NULL,
 		biography TEXT NOT NULL,
+		avatar TEXT DEFAULT 'default.jpeg',
 		two_FA_status BOOLEAN DEFAULT TRUE
 	);
 	`;

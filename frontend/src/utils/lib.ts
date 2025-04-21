@@ -1,12 +1,16 @@
 export { default as Cookies } from 'js-cookie';
 
+export const colors: string[] = ["red", "orange", "amber", "yellow", "lime", "green", "emerald", "teal", "cyan", "sky", "blue", "slate", "gray", "zinc", "neutral", "stone", "rose", "pink", "fuchsia", "purple", "violet", "indigo"];
+export const defaultColor = 'stone';
+
 export var userInfo = {
 	username: "",
 	userId: "",
 	auth_method: "",
+	profileImage: "",
 }
 
-export function showToast(message?: string, type: string = ""): void {
+export function showToast(message?: string, type: string = "") {
 	const toast = document.createElement('div');
 	toast.id = 'toast';
 	toast.textContent = message || "Bro, you just got Toasted!";
@@ -34,8 +38,8 @@ export function loadTheme() {
 	// 	if (window.matchMedia('(prefers-color-scheme: dark)').matches) 
 	// 		document.documentElement.classList.add('dark');
 	// }
-	console.debug(`Theme set to ${localStorage.getItem('theme') ? localStorage.getItem('theme') : 'auto'}`);
-	console.debug(`System theme set to ${window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'}`);
+	// console.debug(`Theme set to ${localStorage.getItem('theme') ? localStorage.getItem('theme') : 'auto'}`);
+	// console.debug(`System theme set to ${window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'}`);
 }
 
 export function setTheme(option: string, save?: boolean) {
@@ -52,7 +56,7 @@ export function setTheme(option: string, save?: boolean) {
 		htmlElement.classList.remove('dark');
 		if (save) localStorage.setItem('theme', 'light');
 	}
-	console.debug(`Theme set to ${option}`);
+	// console.debug(`Theme set to ${option}`);
 }
 
 export function getTheme() {
@@ -62,6 +66,15 @@ export function getTheme() {
 		return 'light';
 	else
 		return 'auto';
+}
+
+export function setColor(color: string, save?: boolean) {
+	document.documentElement.style.setProperty('--color-c-bg', `var(--color-c-${color}-bg)`);
+	document.documentElement.style.setProperty('--color-c-secondary', `var(--color-c-${color}-secondary)`);
+	document.documentElement.style.setProperty('--color-c-text', `var(--color-c-${color}-text)`);
+	document.documentElement.style.setProperty('--color-c-primary', `var(--color-c-${color}-primary)`);
+	if (save) localStorage.setItem('color', color);
+	console.debug(`Color set to ${color}`);
 }
 
 // lib.fullScreenOverlay(

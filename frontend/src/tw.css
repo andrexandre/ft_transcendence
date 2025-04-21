@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./colors";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -13,19 +14,25 @@ focus:border- (excluding auth)
 /* theme */
 @theme static {
 	/* 0 = lighter, 1000 = darker */
-	--color-c-bg: var(--color-d-c-bg); /* background */
-	--color-c-text: var(--color-d-c-text); /* text */
-	--color-c-primary: var(--color-d-c-primary); /* border hover */
-	--color-c-secondary: var(--color-d-c-secondary); /* border */
-	--color-d-c-bg: theme(colors.white);
-	--color-d-c-text: theme(colors.stone.800);
-	--color-d-c-primary: theme(colors.stone.600);
-	--color-d-c-secondary: theme(colors.stone.400);
-	--color-g-c-bg: theme(colors.black);
-	--color-g-c-text: theme(colors.green.600);
-	--color-g-c-primary: theme(colors.green.400);
-	--color-g-c-secondary: theme(colors.green.800);
+	--color-c-bg: var(--color-c-stone-bg); /* background */
+	--color-c-text: var(--color-c-stone-text); /* text */
+	--color-c-primary: var(--color-c-stone-primary); /* border hover */
+	--color-c-secondary: var(--color-c-stone-secondary); /* border */
+	--color-c-game-bg: theme(colors.black);
+	--color-c-game-text: theme(colors.green.600);
+	--color-c-game-primary: theme(colors.green.400);
+	--color-c-game-secondary: theme(colors.green.800);
 }
+
+body { @apply bg-c-bg dark:bg-black select-none; }
+
+h1 { @apply font-bold; }
+
+button { @apply cursor-pointer; }
+
+img { @apply pointer-events-none; }
+
+input, textarea { @apply outline-none disabled:opacity-50; }
 
 @layer components {
 	.t-border {
@@ -44,31 +51,6 @@ focus:border- (excluding auth)
 	}
 }
 
-@layer utilities {
-	input:-webkit-autofill {
-		transition: background-color 100000s ease-in-out 0s;
-		box-shadow: 0 0 0px 1000px rgb(225, 245, 255) inset !important;
-	}
-}
-
-/* global */
-body {
-	@apply bg-c-bg select-none dark:bg-black;
-}
-
-h1 {
-	@apply font-bold;
-}
-
-img {
-	@apply pointer-events-none;
-}
-
-input, textarea {
-	@apply outline-none;
-}
-
-/* other */
 .sidebar-component {
 	@apply flex p-3 rounded-2xl justify-between items-center w-full transition-all
 		text-c-text dark:text-c-bg hover:bg-c-secondary dark:hover:bg-c-primary;
@@ -112,29 +94,18 @@ input, textarea {
 
 /* game */
 .g-t-border {
-	@apply border-2 text-g-c-text border-g-c-secondary hover:border-g-c-primary;
+	@apply border-2 text-c-game-text border-c-game-secondary hover:border-c-game-primary;
 }
 .g-t-border-alt {
-	@apply border-2 text-g-c-text border-orange-700 hover:border-orange-500;
+	@apply border-2 text-c-game-text border-orange-700 hover:border-orange-500;
 }
 
 canvas {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	z-index: 10;
-	@apply border-2 border-g-c-text;
+	@apply absolute top-1/2 left-1/2 z-10 transform -translate-1/2 border-2 border-c-game-text;
 }
 
 #scoreboard {
-	position: absolute;
-	top: 5%;
-	left: 50%;
-	transform: translateX(-50%);
-	font-size: 30px;
-	font-weight: bold;
-	@apply text-g-c-text;
+	@apply absolute top-12 left-1/2 text-3xl font-bold transform -translate-x-1/2 text-c-game-text;
 }
 
 #main-menu-title {
@@ -188,4 +159,28 @@ canvas {
 	75% {
 		left: var(--btn-start);
 	}
+}
+
+/* ugly browser defaults fix */
+input:-webkit-autofill {
+	transition: background-color 100000s ease-in-out 0s;
+	box-shadow: 0 0 0px 1000px rgb(225, 245, 255, 0.75) inset;
+}
+
+::-webkit-scrollbar { /* Scrollbar track */
+	width: 2px;
+	height: 2px;
+}
+
+::-webkit-scrollbar-track { /* Scrollbar background */
+	background: transparent;
+}
+
+::-webkit-scrollbar-thumb { /* Scrollbar paddle */
+	background: #555;
+	border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover { /* Paddle hover */
+	background: #777;
 }
