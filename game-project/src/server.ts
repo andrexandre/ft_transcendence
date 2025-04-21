@@ -86,7 +86,7 @@ function handleSocketMessage(connection: any, data: any) {
 		return;
 		}
 	
-		const lobbyId = createLobby(connection.socket, connection.user, gameMode, maxPlayers);
+		const lobbyId = createLobby(connection, connection.user, gameMode, maxPlayers);
 		connection.send(JSON.stringify({ type: "lobby-created", lobbyId }));
   	}
 	////////////
@@ -119,7 +119,7 @@ function handleSocketMessage(connection: any, data: any) {
 			connection.send(JSON.stringify({ type: "error", message: "Já estás num lobby" }));
 			return;
 		}
-		const playerId = joinLobby(data.lobbyId, connection.socket, user);
+		const playerId = joinLobby(data.lobbyId, connection, user);
 		if (playerId) {
 			connection.send(JSON.stringify({ type: "lobby-joined", playerId }));
 		} else {
