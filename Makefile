@@ -7,14 +7,14 @@ MAGENTA		:= \033[1;35m
 CYAN		:= \033[1;36m
 WHITE		:= \033[1;37m
 
-build-up: backend/Gateway/.env
+up: backend/Gateway/.env
+	docker compose up
+
+build-up:
 	docker compose up --build
 
 build:
 	docker compose build 
-
-up:
-	docker compose up
 
 upd:
 	docker compose up -d
