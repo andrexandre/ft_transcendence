@@ -161,6 +161,7 @@ export async function createLobby(username: string, userId: number, mode = "clas
 		const errMsg = await res.text();
 		throw new Error(errMsg || "Failed to create lobby");
 	}
+	connectToLobbySocket();
 	return await res.json();
 }
 

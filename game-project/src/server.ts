@@ -3,9 +3,10 @@ import fastifyWebsocket from "@fastify/websocket";
 import fastifyCookie from "@fastify/cookie";
 import cors from '@fastify/cors';
 import { userRoutes } from "./userSet.js";
-import { handleJoin, handleMove, handleDisconnect} from "./gameServer.js";
+// import { handleJoin, handleMove, handleDisconnect} from "./gameServer.js";
 import * as lobby from "./lobbyManager.js";
 import { notifyLobbyPlayersStart } from "./lobbyNotifier.js";
+import { registerLobbySocket } from "./lobbyNotifier.js";
 
 
 const PORT = 5000;
@@ -21,21 +22,21 @@ await gamefast.register(cors, {
 	credentials: true,
 });
 
-gamefast.get("/ws", { websocket: true }, (conn, req) => {
-	const socket = conn;
+// gamefast.get("/ws", { websocket: true }, (conn, req) => {
+// 	const socket = conn;
 
-	socket.on("message", (raw: string) => {
-		try {
-			const data = JSON.parse(raw);
-			if (data.type === "join") handleJoin(socket, data);
-			else if (data.type === "move") handleMove(socket, data.direction);
-		} catch (err) {
-			console.error("❌ Invalid message:", raw);
-		}
-	});
+// 	socket.on("message", (raw: string) => {
+// 		try {
+// 			const data = JSON.parse(raw);
+// 			if (data.type === "join") handleJoin(socket, data);
+// 			else if (data.type === "move") handleMove(socket, data.direction);
+// 		} catch (err) {
+// 			console.error("❌ Invalid message:", raw);
+// 		}
+// 	});
 
-	socket.on("close", () => handleDisconnect(socket));
-});
+// 	socket.on("close", () => handleDisconnect(socket));
+// });
 
 /////// Lobby routes handling ///////
 gamefast.get("/lobbies", (_, reply) => {
@@ -100,7 +101,6 @@ gamefast.post("/lobbies/:id/start", async (req, reply) => {
 	reply.send({ message: "Game started", gameId });
 });
 
-import { registerLobbySocket } from "./lobbyNotifier.js";
 
 gamefast.get("/lobby-ws", { websocket: true }, (conn, req) => {
 	const socket = conn;

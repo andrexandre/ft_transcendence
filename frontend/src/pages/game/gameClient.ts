@@ -2,9 +2,6 @@
 export let gameCanvas: HTMLCanvasElement;
 export let ctx: CanvasRenderingContext2D;
 
-
-
-
 const paddleWidth = 10;
 const paddleHeight = 80;
 const ballSize = 10;
