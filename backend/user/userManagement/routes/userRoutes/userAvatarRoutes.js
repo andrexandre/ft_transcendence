@@ -39,11 +39,32 @@ async function userAvatarRoutes(server, opts) {
 				
 				const data = await request.file();
 			
-				console.log(data.fieldname);
-				console.log(data.filename);
-				console.log(data.encoding);
-				console.log(data.mimetype);
+				// console.log(data);
+				// console.log(data.fieldname);
+				// console.log(data.filename);
+				// console.log(data.encoding);
+				// console.log(data.mimetype);
 				
+				// data.file.on('limit', () => {
+				// 	console.log('Limite de tamanho de arquivo atingido.');
+				// 	reply.status(400).send({ error: 'Arquivo muito grande' });
+				//   });
+				
+				// // Processamento do arquivo (se não atingir o limite)
+				// data.file.on('data', (chunk) => {
+				// console.log(`Recebendo chunk de ${chunk.length} bytes`);
+				// });
+			
+				// data.file.on('end', () => {
+				// console.log('Upload concluído.');
+				// });
+			
+				// data.file.on('error', (err) => {
+				// console.error('Erro ao processar o arquivo:', err);
+				// reply.status(500).send({ error: 'Erro ao processar o arquivo' });
+				// });
+
+
 				const extension = (data.mimetype.split('/'))[1];
 				const name = `${crypto.randomUUID()}.${extension}`;
 				
