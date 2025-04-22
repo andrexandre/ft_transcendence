@@ -50,8 +50,8 @@ export async function updateMatchHistory() {
 		`;
 	}
 }
-async function loadInformation() {
 
+async function loadInformation() {
 	const response = await fetch('http://127.0.0.1:3000/api/user/settings', {
 		credentials: 'include'
 	})
@@ -72,13 +72,12 @@ async function loadInformation() {
 	const imageResponse = await fetch('http://127.0.0.1:3000/api/user/avatar', {
 		credentials: 'include'
 	})
-	if (!imageResponse.ok) return console.log('Failed to load user Avatar!');
+	if (!imageResponse.ok) return lib.showToast.red('Failed to load user Avatar!');
 
 	const blob = await imageResponse.blob();
 	console.log(blob);
 	const url = URL.createObjectURL(blob);
-	const errorUrl = 'https://fastly.picsum.photos/id/63/300/300.jpg?hmac=NZIxadbJNvrTZPpf2SgsLhZ4Up4GlWVwar-bI6FcTE8';
-	(document.getElementById("profile-image") as HTMLImageElement).src = url || errorUrl;
+	(document.getElementById("profile-image") as HTMLImageElement).src = url || 'https://picsum.photos/id/63/300';
 }
 
 class Profile extends Page {
@@ -87,8 +86,8 @@ class Profile extends Page {
 	}
 	onMount(): void {
 		// Set up the image selector
-		if (lib.userInfo.profileImage)
-			(document.getElementById('profile-image') as HTMLImageElement).src = lib.userInfo.profileImage;
+		// if (lib.userInfo.profileImage)
+		// 	(document.getElementById('profile-image') as HTMLImageElement).src = lib.userInfo.profileImage;
 		document.getElementById('profile-image-button')?.addEventListener('click', async (e: Event) => {
 			e.preventDefault();
 			const input = document.createElement('input');
@@ -97,7 +96,7 @@ class Profile extends Page {
 			input.addEventListener('change', async (event) => {
 				const file = (event.target as HTMLInputElement).files?.[0];
 				console.log(file);
-				if (file) {
+				if (file && file.type.startsWith('image/')) {
 					const reader = new FileReader();
 					reader.onload = () => {
 						lib.userInfo.profileImage = reader.result as string;
@@ -125,12 +124,13 @@ class Profile extends Page {
 						console.error("Erro ao enviar imagem:", err);
 						lib.showToast.red("Erro ao salvar a imagem no servidor.");
 					}
-				}
+				} else
+					lib.showToast.red("Invalid file type. Please select an image.");
 			});
 			input.click();
 		});
 
-		//* TEMP
+		// It's not working, but it's a good idea
 		// document.addEventListener('click', (event: MouseEvent) => {
 		// 	const dialogDimensions = document.getElementById('profile-dialog')?.getBoundingClientRect();
 		// 	const isBackdropClick =
@@ -158,7 +158,7 @@ class Profile extends Page {
 							<h1 class="item text-start text-2xl">Profile</h1>
 							<div class="flex">
 								<button id="profile-image-button" class="relative size-60 group">
-									<img id="profile-image" src="https://picsum.photos/id/237/240" class="rounded-full size-full object-cover border-2 shadow-lg shadow-neutral-400"/>
+									<img id="profile-image" class="rounded-full size-full object-cover border-2 shadow-lg shadow-neutral-400"/>
 									<div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 rounded-full transition-opacity">
 										<i class="fa-solid fa-camera"></i>
 									</div>
