@@ -58,6 +58,10 @@ class Settings extends Page {
 				const file = (event.target as HTMLInputElement).files?.[0];
 				console.log(file);
 				if (file) {
+					if (file.size > 2 * 1024 * 1024) {
+						lib.showToast.red("Image is too big. Max: 2MB");
+						return;
+					  }					  
 					const reader = new FileReader();
 					reader.onload = () => {
 						lib.userInfo.profileImage = reader.result as string;
