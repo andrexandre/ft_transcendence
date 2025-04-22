@@ -3,7 +3,7 @@ import * as lib from "../utils"
 const sidebar = {
 	getHtml: () => /*html*/`
 		<aside id="sidebar" class="card t-dashed transition-all p-3 w-50">
-			<ul id="sidebar-list" class="flex flex-col h-full">
+			<ul id="sidebar-list" class="flex flex-col h-full gap-1">
 				<li>
 					<button id="hide-sidebar-button" class="sidebar-component">
 						<i class="fa-solid fa-arrow-left"></i>

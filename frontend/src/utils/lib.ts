@@ -5,6 +5,8 @@ export const defaultColor = 'slate';
 
 export var userInfo = {
 	username: "",
+	codename: "",
+	biography: "",
 	userId: "",
 	auth_method: "",
 	profileImage: "",

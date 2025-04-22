@@ -12,11 +12,9 @@ export async function renderProfileUsername() {
 			line = "E. ";
 		profileUsername.textContent = line + lib.userInfo.username;
 	}
-	else
-		profileUsername.textContent = "Sir Barkalot";
 }
 
-interface MatchHistoryI {
+export interface MatchHistoryI {
 	Mode: string;
 	winner: {
 		username: string;
@@ -52,7 +50,7 @@ function displayMatchHistory(matchHistory: MatchHistoryI[]) {
 		statsDiv.appendChild(matchDiv);
 	});
 	if (matchHistory.length === 0) {
-		document.getElementById("stats-list")!.innerHTML = /*html*/`
+		statsDiv.innerHTML = /*html*/`
 			<li class="item text-c-secondary">Empty match history</li>
 		`;
 	}
@@ -88,6 +86,8 @@ async function getAndUpdateInfo() {
 		}
 		let dashData = await response.json();
 		lib.userInfo.username = dashData.username
+		// lib.userInfo.codename = dashData.codename
+		// lib.userInfo.biography = dashData.biography
 		lib.userInfo.userId = dashData.userId
 		lib.userInfo.auth_method = dashData.auth_method
 		renderProfileUsername();
@@ -108,22 +108,23 @@ class Dashboard extends Page {
 		if (lib.userInfo.profileImage)
 			(document.getElementById('profile-image') as HTMLImageElement).src = lib.userInfo.profileImage;
 		getAndUpdateInfo();
+		document.getElementById("profile")!.addEventListener("click", () => lib.navigate('/profile'));
 	}
 	onCleanup(): void { }
 	getHtml(): string {
 		return /*html*/`
 			${sidebar.getHtml()}
 			<main class="grid grid-cols-2 grid-rows-2 flex-1">
-				<div id="profile" class="card t-dashed grid overflow-auto">
+				<button id="profile" class="card t-dashed grid overflow-auto">
 					<div class="flex gap-16">
 						<img id="profile-image" class="object-cover rounded-full size-48 shadow-xl shadow-neutral-400 border-2" src="https://picsum.photos/id/237/200">
 						<div class="justify-center self-center">
-							<h1 id="profile-username" class="text-3xl">Loading...</h1>
+							<h1 id="profile-username" class="text-3xl">Sir Barkalot</h1>
 							<p id="profile-codename" class="text-xl">The mighty tail-wagger</p>
 						</div>
 					</div>
 					<p id="profile-bio">Champion of belly rubs, fetch, and fierce squirrel chases. Sir Barkalot is the first to answer the doorbell with a royal bark. His hobbies include digging to China and chewing shoes.</p>
-				</div>
+				</button>
 				<div class="card t-dashed relative">
 					<div class="ball size-4 rounded-xl bg-c-secondary absolute animate-[ball-animation_6s_infinite_linear]"></div>
 					<button id="game-ad-button" class="flex p-5 t-dashed absolute bottom-0 animate-[btn-animation_6s_infinite_linear]">Let's Play</button>
