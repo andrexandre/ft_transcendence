@@ -54,9 +54,9 @@ class Login extends Page {
 					},
 					body: JSON.stringify(userData)
 				});
-				if (!response.ok) {
+				if (!response.ok)
 					throw new Error(`${response.status} - ${response.statusText}`);
-				}
+				lib.showToast(`Logged in successfully`);
 				lib.navigate("/");
 			} catch (error) {
 				console.log(error);

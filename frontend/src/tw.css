@@ -121,7 +121,7 @@ canvas {
 /* dashboard menu animation */
 @keyframes ball-animation {
 	0%, 100% {
-		bottom: 15%;
+		bottom: var(--btn-height);
 		left: 50%;
 	}
 	25% {
@@ -140,6 +140,7 @@ canvas {
 
 :root {
 	--btn-width: 7rem;
+	--btn-height: 4rem;
 	--btn-start: 0%;
 	--btn-end: calc(100% - var(--btn-width));
 	--btn-half: calc((var(--btn-end) - var(--btn-start)) / 2);

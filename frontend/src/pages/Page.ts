@@ -11,6 +11,8 @@
 // document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 // 	<div>${buildHtmlFile(file, {component: "profit?"})}</div>`
 
+import * as lib from "../utils";
+
 export default abstract class Page {
 	protected root: HTMLElement | undefined = undefined;
 	public mounted: boolean = false;
@@ -21,6 +23,23 @@ export default abstract class Page {
 	protected abstract onMount(): void;
 	protected abstract onCleanup(): void;
 
+	// const content = this.getHtml();
+	// this.root = document.createElement('div');
+	// this.root.id = `page-${this.name}`;
+	// this.root.classList.add('w-full', 'h-full');
+	// this.root.innerHTML = content;
+	mount() {
+		this.mounted = true;
+		this.onMount();
+		setTimeout(() => {
+			if (lib.Cookies.get('outline')) {
+				document.dispatchEvent(new KeyboardEvent('keydown', { key: ' ' }));
+				lib.Cookies.set('outline', 'true');
+			}
+		}, 50);
+		return this.root;
+	} 
+	abstract getHtml(): string;
 	addCleanupHandler(fn: () => void) {
 		this.cleanupHandlers.push(fn);
 	}
@@ -33,17 +52,6 @@ export default abstract class Page {
 		this.root?.remove();
 		this.root = undefined;
 		this.onCleanup();
-	}
-	abstract getHtml(): string;
-	mount() {
-		// const content = this.getHtml();
-		// this.root = document.createElement('div');
-		// this.root.id = `page-${this.name}`;
-		// this.root.classList.add('w-full', 'h-full');
-		// this.root.innerHTML = content;
-		this.mounted = true;
-		this.onMount();
-		return this.root;
 	}
 }
 

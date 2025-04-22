@@ -61,11 +61,6 @@ async function loadInformation() {
 	const userData = await response.json();
 	(document.getElementById("profile-username") as HTMLInputElement).value = userData.username;
 	(document.getElementById("profile-codename") as HTMLInputElement).value = userData.codename;
-	(document.getElementById("profile-email") as HTMLInputElement).value = userData.email;
-	
-	if (userData.auth_method === 'google') // Google sign people can not change the email
-		(document.getElementById("profile-email") as HTMLInputElement).disabled	 = true;
-
 	(document.getElementById("profile-bio") as HTMLInputElement).value = userData.biography;
 
 	// Set user avatar
@@ -85,51 +80,8 @@ class Profile extends Page {
 		super("profile", '/profile');
 	}
 	onMount(): void {
-		// Set up the image selector
-		// if (lib.userInfo.profileImage)
-		// 	(document.getElementById('profile-image') as HTMLImageElement).src = lib.userInfo.profileImage;
-		document.getElementById('profile-image-button')?.addEventListener('click', async (e: Event) => {
-			e.preventDefault();
-			const input = document.createElement('input');
-			input.type = 'file';
-			input.accept = 'image/*';
-			input.addEventListener('change', async (event) => {
-				const file = (event.target as HTMLInputElement).files?.[0];
-				console.log(file);
-				if (file && file.type.startsWith('image/')) {
-					const reader = new FileReader();
-					reader.onload = () => {
-						lib.userInfo.profileImage = reader.result as string;
-						const profileImage = document.getElementById('profile-image') as HTMLImageElement;
-						profileImage.src = lib.userInfo.profileImage;
-						lib.showToast.green("Profile image updated successfully!");
-					};
-					reader.readAsDataURL(file);
-
-					// Saving the image on dataBase
-					try {
-						const avatarFormData = new FormData();
-						avatarFormData.append('image', file);
-
-						const response = await fetch('http://127.0.0.1:3000/api/user/update/avatar', {
-							method: 'POST',
-							credentials: "include",
-							body: avatarFormData
-						});
-						if (!response.ok)
-							throw new Error(`${response.status} - ${response.statusText}`);
-
-						lib.showToast.green("Imagem salva no servidor!");
-					} catch (err) {
-						console.error("Erro ao enviar imagem:", err);
-						lib.showToast.red("Erro ao salvar a imagem no servidor.");
-					}
-				} else
-					lib.showToast.red("Invalid file type. Please select an image.");
-			});
-			input.click();
-		});
-
+		if (lib.userInfo.profileImage)
+			(document.getElementById('profile-image') as HTMLImageElement).src = lib.userInfo.profileImage;
 		// It's not working, but it's a good idea
 		// document.addEventListener('click', (event: MouseEvent) => {
 		// 	const dialogDimensions = document.getElementById('profile-dialog')?.getBoundingClientRect();
@@ -152,33 +104,19 @@ class Profile extends Page {
 	getHtml(): string {
 		return /*html*/`
 			<main class="grid flex-1 card items-center justify-center">
-				<dialog open id="profile-dialog" class="flex  gap-5 bg-c-text/75 fixed top-1/2 left-1/2 -translate-1/2 rounded-4xl p-6 w-fit shadow-lg backdrop:bg-blue-500/50">
-					<div class="t-dashed flex">
-						<form id="profile" class="card flex flex-col overflow-auto" action="#">
-							<h1 class="item text-start text-2xl">Profile</h1>
-							<div class="flex">
-								<button id="profile-image-button" class="relative size-60 group">
-									<img id="profile-image" class="rounded-full size-full object-cover border-2 shadow-lg shadow-neutral-400"/>
-									<div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 rounded-full transition-opacity">
-										<i class="fa-solid fa-camera"></i>
-									</div>
-								</button>
-								<div class="flex flex-col justify-center self-center gap-4 ml-20">
-									<label class="text-left font-bold" for="profile-username">Username</label>
-									<input class="p-1 t-dashed pl-4" type="text" id="profile-username" placeholder="Enter username" value="Sir Barkalot" />
-									<label class="text-left font-bold" for="profile-codename">Codename</label>
-									<input class="p-1 t-dashed pl-4" type="text" id="profile-codename" placeholder="Enter codename" value="The mighty tail-wagger"/>
-									<label class="text-left font-bold" for="profile-email">Email</label>
-									<input class="p-1 t-dashed pl-4" type="text" id="profile-email" placeholder="Enter email" value="example@email.com"/>
-								</div>
+				<dialog open id="profile-dialog" class="flex gap-5 bg-c-text/75 fixed top-1/2 left-1/2 -translate-1/2 rounded-4xl p-6 w-fit shadow-lg backdrop:bg-blue-500/50">
+					<div class="card t-dashed grid overflow-auto gap-10">
+						<div class="flex gap-16">
+							<img id="profile-image" class="object-cover rounded-full size-48 shadow-xl shadow-neutral-400 border-2" src="https://picsum.photos/id/237/200">
+							<div class="justify-center self-center">
+								<h1 id="profile-username" class="text-3xl">Sir Barkalot</h1>
+								<p id="profile-codename" class="text-xl">The mighty tail-wagger</p>
 							</div>
-							<label class="text-left font-bold" for="profile-bio">Biography</label>
-							<textarea class="p-1 t-dashed pl-4" name="bio" id="profile-bio">Champion of belly rubs, fetch, and fierce squirrel chases. Sir Barkalot is the first to answer the doorbell with a royal bark. His hobbies include digging to China and chewing shoes.</textarea>
-							<button class="item t-dashed" type="submit">Save</button>
-						</form>
+						</div>
+						<p id="profile-bio">Champion of belly rubs, fetch, and fierce squirrel chases. Sir Barkalot is the first to answer the doorbell with a royal bark. His hobbies include digging to China and chewing shoes.</p>
 					</div>
-					<div class="t-dashed flex">
-						<div class="card flex flex-col w-70 pt-15 px-0">
+					<div class="t-dashed flex card gap-0">
+						<div class="flex flex-col w-50">
 							<h1 class="text-xl">Pong match history</h1>
 							<ul id="stats-list" class="flex flex-col gap-2 overflow-auto"></ul>
 						</div>

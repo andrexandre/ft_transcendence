@@ -61,6 +61,8 @@ const sidebar = {
 						<i class="fa-solid fa-right-from-bracket"></i>
 						<p>Logout</p>
 					</button>
+				</li>
+				<li>
 					<button id="goto-settings-button" class="sidebar-component">
 						<i class="fa-solid fa-gear"></i>
 						<p>Settings</p>
@@ -116,14 +118,13 @@ const sidebar = {
 					const response = await fetch('http://127.0.0.1:7000/logout', {
 						credentials: 'include',
 					});
-					if (!response.ok) {
+					if (!response.ok)
 						throw new Error(`${response.status} - ${response.statusText}`);
-					}
-					lib.showToast.green(`${response.status} - ${response.statusText}`);
 					lib.navigate('/login');
 					lib.userInfo.username = '';
 					lib.userInfo.userId = '';
 					lib.userInfo.auth_method = '';
+					lib.showToast(`Logged out successfully`);
 				} catch (error) {
 					console.log(error);
 					lib.showToast.red(error as string);

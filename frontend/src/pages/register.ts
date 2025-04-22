@@ -55,10 +55,9 @@ class Register extends Page {
 					},
 					body: JSON.stringify(userData)
 				});
-				if (!response.ok) {
+				if (!response.ok)
 					throw new Error(`${response.status} - ${response.statusText}`);
-				}
-				lib.showToast.green(`${response.status} - ${response.statusText}`);
+				lib.showToast.green(`${userData.username} registered successfully`);
 				lib.navigate("/login");
 			} catch (error) {
 				console.log(error);
