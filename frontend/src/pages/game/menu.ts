@@ -1,4 +1,4 @@
-import { showToast } from "../../utils";
+import * as lib from "../../utils";
 import dropdown from "../../components/dropdown";
 import { startSingleClassic } from "./single";
 import * as lobbyClient from "./lobbyClient";
@@ -26,7 +26,7 @@ function initializeGameMainMenu() {
 			});
 	}
 	dropdown.addElement('Single', 'button', 'item g-t-border-alt',
-		'Infinity', () => showToast(`Single Infinity clicked`));
+		'Infinity', () => lib.showToast(`Single Infinity clicked`));
 
 	// Set Multi dropdown
 	dropdown.initialize('Multi', async () => {
@@ -53,9 +53,9 @@ function initializeGameMainMenu() {
 		const userId = Number(sessionStorage.getItem("user_id")!);
 		try {
 			const result = await lobbyClient.createLobby(username, userId, "TNMT", 2);
-			showToast.green(`✅ Created TNMT lobby ${result.id}`);
+			lib.showToast.green(`✅ Created TNMT lobby ${result.id}`);
 		} catch (err) {
-			showToast.red("❌ Failed to create lobby");
+			lib.showToast.red("❌ Failed to create lobby");
 		}
 	});
 
@@ -64,9 +64,9 @@ function initializeGameMainMenu() {
 		const userId = Number(sessionStorage.getItem("user_id")!);
 		try {
 			const result = await lobbyClient.createLobby(username, userId, "1V1", 2);
-			showToast.green(`✅ Created 1V1 lobby: ${result.id}`);
+			lib.showToast.green(`✅ Created 1V1 lobby: ${result.id}`);
 		} catch (err) {
-			showToast.red("❌ Failed to create 1V1 lobby");
+			lib.showToast.red("❌ Failed to create 1V1 lobby");
 		}
 	});
 
@@ -99,9 +99,9 @@ function initializeGameMainMenu() {
 		const userId = Number(sessionStorage.getItem("user_id")!);
 		try {
 			const result = await lobbyClient.createLobby(username, userId, "MTC", 4);
-			showToast.green(`✅ Created Matrecos lobby: ${result.id}`);
+			lib.showToast.green(`✅ Created Matrecos lobby: ${result.id}`);
 		} catch (err) {
-			showToast.red("❌ Failed to create Matrecos lobby");
+			lib.showToast.red("❌ Failed to create Matrecos lobby");
 		}
 	});
 	
@@ -111,54 +111,53 @@ function initializeGameMainMenu() {
 		const userId = Number(sessionStorage.getItem("user_id")!);
 		try {
 			const result = await lobbyClient.createLobby(username, userId, "FFA", 4);
-			showToast.green(`✅ Created FFA lobby: ${result.id}`);
+			lib.showToast.green(`✅ Created FFA lobby: ${result.id}`);
 		} catch (err) {
-			showToast.red("❌ Failed to create FFA lobby");
+			lib.showToast.red("❌ Failed to create FFA lobby");
 		}
 	});
-	
 }
 
 function removeLobbyEntry(id: string) {
 	const lobby = document.getElementById('lobby-list');
 	const entries = lobby?.querySelectorAll(`[id^="entry-${id}-"]`);
 	entries?.forEach(entry => entry.remove());
-	showToast.yellow(`Lobby entry n: ${id} removed`);
+	lib.showToast.yellow(`Lobby entry n: ${id} removed`);
 }
 
 export async function initUserData() {
 	console.log("📌 Menu Loaded, checking user...");
-	
+
 	const difficultySelect = document.getElementById('difficulty') as HTMLSelectElement;
 	const tableSizeSelect = document.getElementById('table-size') as HTMLSelectElement;
 	const soundSelect = document.getElementById('sound') as HTMLSelectElement;
-	
+
 	try {
-		const response = await fetch("http://127.0.0.1:5000/get-user-data", { credentials: "include" });
-		
+		const response = await fetch(`http://${lib.userInfo.ip}:5000/get-user-data`, { credentials: "include" });
+
 		if (!response.ok) {
 			throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
 		}
-		
+
 		const userData = await response.json();
 		console.log("✅ User & Settings Loaded:", userData);
-		
+
 		// Store settings in sessionStorage
 		sessionStorage.setItem("username", userData.user_name);
 		sessionStorage.setItem("user_id", userData.user_id);
 		sessionStorage.setItem("user_set_dificulty", userData.user_set_dificulty);
 		sessionStorage.setItem("user_set_tableSize", userData.user_set_tableSize);
 		sessionStorage.setItem("user_set_sound", userData.user_set_sound.toString());
-		
+
 		// Update UI dropdowns with loaded settings
 		difficultySelect.value = userData.user_set_dificulty;
 		tableSizeSelect.value = userData.user_set_tableSize;
 		soundSelect.value = userData.user_set_sound === 1 ? "On" : "Off";
-		
+
 		initializeGameMainMenu();
 		initGameCanvas();
 	} catch (error) {
-		showToast.red(error as string);
+		lib.showToast.red(error as string);
 		console.error("❌ Error loading user data:", error);
 	}
 }
@@ -169,12 +168,12 @@ export async function saveSettingsHandler() {
 		console.error("❌ No username found! Cannot save settings.");
 		return;
 	}
-	
+
 	// Read values from dropdowns
 	const difficultySelect = document.getElementById('difficulty') as HTMLSelectElement;
 	const tableSizeSelect = document.getElementById('table-size') as HTMLSelectElement;
 	const soundSelect = document.getElementById('sound') as HTMLSelectElement;
-	
+
 	const difficulty = difficultySelect.value;
 	const tableSize = tableSizeSelect.value;
 	const sound = soundSelect.value === "On" ? 1 : 0;
@@ -185,20 +184,20 @@ export async function saveSettingsHandler() {
 	sessionStorage.setItem("user_set_dificulty", difficulty);
 	sessionStorage.setItem("user_set_tableSize", tableSize);
 	sessionStorage.setItem("user_set_sound", sound.toString());
-	
+
 	// Send settings update to the database
 	try {
-		const response = await fetch("http://127.0.0.1:5000/save-settings", {
+		const response = await fetch(`http://${lib.userInfo.ip}:5000/save-settings`, {
 			method: "PATCH",
 			headers: { "Content-Type": "application/json" },
 			credentials: 'include',
 			body: JSON.stringify({ username, difficulty, tableSize, sound }),
 		});
-		
+
 		if (!response.ok)
 			throw new Error(`Failed to save settings (${response.status})`);
-		showToast.green('Settings saved');
-		
+		lib.showToast.green('Settings saved');
+
 	} catch (error) {
 		console.error("❌ Error saving settings:", error);
 	}

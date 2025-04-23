@@ -58,7 +58,7 @@ function displayMatchHistory(matchHistory: MatchHistoryI[]) {
 
 async function updateMatchHistory() {
 	try {
-		const response = await fetch('http://127.0.0.1:5000/user-game-history', {
+		const response = await fetch(`http://${lib.userInfo.ip}:5000/user-game-history`, {
 			credentials: "include",
 		});
 		if (!response.ok) {
@@ -77,7 +77,7 @@ async function updateMatchHistory() {
 
 async function getAndUpdateInfo() {
 	try {
-		const response = await fetch('http://127.0.0.1:7000/fetchDashboardData', {
+		const response = await fetch(`http://${lib.userInfo.ip}:7000/fetchDashboardData`, {
 			credentials: 'include',
 		});
 		if (!response.ok) {

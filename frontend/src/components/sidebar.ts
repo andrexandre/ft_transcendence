@@ -115,16 +115,17 @@ const sidebar = {
 		document.getElementById("logout-button")!.addEventListener("click", () => {
 			(async () => {
 				try {
-					const response = await fetch('http://127.0.0.1:7000/logout', {
+					const response = await fetch(`http://${lib.userInfo.ip}:7000/logout`, {
 						credentials: 'include',
 					});
 					if (!response.ok)
 						throw new Error(`${response.status} - ${response.statusText}`);
-					lib.navigate('/login');
 					lib.userInfo.username = '';
 					lib.userInfo.userId = '';
 					lib.userInfo.auth_method = '';
+					lib.daemon(false);
 					lib.showToast(`Logged out successfully`);
+					lib.navigate('/login');
 				} catch (error) {
 					console.log(error);
 					lib.showToast.red(error as string);

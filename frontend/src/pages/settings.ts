@@ -6,25 +6,25 @@ const safeColors: string[] = ["bg-red-500", "bg-orange-500", "bg-amber-500", "bg
 
 async function loadInformation() {
 
-	const response = await fetch('http://127.0.0.1:3000/api/user/settings', {
+	const response = await fetch(`http://${lib.userInfo.ip}:3000/api/user/settings`, {
 		credentials: 'include'
 	})
 	if (!response.ok) return lib.showToast.red('Failed too load user Information!');
-	
+
 	// Set user information
 	const userData = await response.json();
 	(document.getElementById("profile-username") as HTMLInputElement).value = userData.username;
 	(document.getElementById("profile-codename") as HTMLInputElement).value = userData.codename;
 	(document.getElementById("profile-email") as HTMLInputElement).value = userData.email;
-	
+
 	if (userData.auth_method === 'google') // Google sign people can not change the email
-		(document.getElementById("profile-email") as HTMLInputElement).disabled	 = true;
+		(document.getElementById("profile-email") as HTMLInputElement).disabled = true;
 
 	(document.getElementById("profile-bio") as HTMLInputElement).value = userData.biography;
 	(document.getElementById('2fa-toggle') as HTMLInputElement).checked = userData.two_FA_status
 
 	// Set user avatar
-	const imageResponse = await fetch('http://127.0.0.1:3000/api/user/avatar', {
+	const imageResponse = await fetch(`http://${lib.userInfo.ip}:3000/api/user/avatar`, {
 		credentials: 'include'
 	})
 	if (!imageResponse.ok) return lib.showToast.red('Failed too load user Avatar!');
@@ -61,7 +61,7 @@ class Settings extends Page {
 					if (file.size > 2 * 1024 * 1024) {
 						lib.showToast.red("Image is too big. Max: 2MB");
 						return;
-					  }					  
+					}
 					const reader = new FileReader();
 					reader.onload = () => {
 						lib.userInfo.profileImage = reader.result as string;
@@ -76,7 +76,7 @@ class Settings extends Page {
 						const avatarFormData = new FormData();
 						avatarFormData.append('image', file);
 
-						const response = await fetch('http://127.0.0.1:3000/api/user/update/avatar', {
+						const response = await fetch(`http://${lib.userInfo.ip}:3000/api/user/update/avatar`, {
 							method: 'POST',
 							credentials: "include",
 							body: avatarFormData
@@ -102,7 +102,7 @@ class Settings extends Page {
 				two_FA_status: twoFAButton.checked
 			};
 			try {
-				const response = await fetch('http://127.0.0.1:3000/api/users/save-settings-2fa', {
+				const response = await fetch(`http://${lib.userInfo.ip}:3000/api/users/save-settings-2fa`, {
 					method: 'POST',
 					credentials: "include",
 					headers: {
@@ -118,7 +118,6 @@ class Settings extends Page {
 					lib.showToast.green("2FA enabled");
 				else
 					lib.showToast.red("2FA disabled");
-				
 			} catch (error) {
 				console.log(error);
 				lib.showToast.red(error as string);
@@ -131,7 +130,7 @@ class Settings extends Page {
 			radioButton.addEventListener('change', () => lib.setTheme(radioButton.value, true));
 		});
 		(document.querySelector(`input[name="theme"][value="${lib.getTheme()}"]`) as HTMLInputElement).checked = true;
-		
+
 		// Set up color selector
 		const colorSelector = document.getElementById('color-selector');
 		for (const color of lib.colors) {
@@ -224,7 +223,7 @@ class Settings extends Page {
 		const form = document.querySelector('form');
 		const handler = async (e: Event) => {
 			e.preventDefault();
-			const userData: { username: string; codename: string; email: string; biography: string; two_FA_status: boolean} = {
+			const userData: { username: string; codename: string; email: string; biography: string; two_FA_status: boolean } = {
 				username: (document.getElementById('profile-username') as HTMLInputElement).value,
 				codename: (document.getElementById('profile-codename') as HTMLInputElement).value,
 				email: (document.getElementById('profile-email') as HTMLInputElement).value,
@@ -232,7 +231,7 @@ class Settings extends Page {
 				two_FA_status: (document.getElementById('2fa-toggle') as HTMLInputElement).checked
 			};
 			try {
-				const response = await fetch('http://127.0.0.1:3000/api/users/save-settings', {
+				const response = await fetch(`http://${lib.userInfo.ip}:3000/api/users/save-settings`, {
 					method: 'POST',
 					credentials: "include",
 					headers: {

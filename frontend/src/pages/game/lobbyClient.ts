@@ -1,6 +1,6 @@
-import { showToast } from "../../utils";
+import * as lib from "../../utils";
 
-const SERVER_URL = "http://127.0.0.1:5000";
+const SERVER_URL = `http://${lib.userInfo.ip}:5000`;
 
 export async function renderLobbyList(): Promise<void> {
 	try {
@@ -23,14 +23,14 @@ export async function renderLobbyList(): Promise<void> {
 				if (isFull) {
 					buttonLabel = "START";
 					handler = async () => {
-						showToast.green("🕹️ Starting game...");
+						lib.showToast.green("🕹️ Starting game...");
 						await startGameFromLobby(lobbyObj.id);
 					};
 				} else {
 					buttonLabel = "QUIT";
 					handler = async () => {
 						await leaveLobby(lobbyObj.id, currentUserId, true);
-						showToast.red("❌ Lobby disbanded");
+						lib.showToast.red("❌ Lobby disbanded");
 					};
 				}
 			}
@@ -47,7 +47,7 @@ export async function renderLobbyList(): Promise<void> {
 
 	} catch (err) {
 		console.error("❌ Failed to load lobbies:", err);
-		showToast.red("Failed to load lobbies");
+		lib.showToast.red("Failed to load lobbies");
 	}
 }
 
@@ -115,11 +115,11 @@ export async function joinLobby(lobbyId: string, username: string, userId: numbe
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ username, userId }),
 	});
-	if (!res.ok){
-		showToast.red("Cannot join lobby");
-		throw new Error("Cannot join lobby");	
+	if (!res.ok) {
+		lib.showToast.red("Cannot join lobby");
+		throw new Error("Cannot join lobby");
 	}
-	showToast.green("Lobby joined");
+	lib.showToast.green("Lobby joined");
 	return await res.json();
 }
 
@@ -141,6 +141,6 @@ export async function startGameFromLobby(lobbyId: string) {
 
 	} catch (err) {
 		console.error("❌ Error starting game:", err);
-		showToast.red("Failed to start game");
+		lib.showToast.red("Failed to start game");
 	}
 }

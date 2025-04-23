@@ -10,6 +10,7 @@ export var userInfo = {
 	userId: "",
 	auth_method: "",
 	profileImage: "",
+	ip: location.hostname,
 }
 
 export function showToast(message?: string, type: string = "") {
@@ -77,6 +78,17 @@ export function setColor(color: string, save?: boolean) {
 	document.documentElement.style.setProperty('--color-c-primary', `var(--color-c-${color}-primary)`);
 	if (save) localStorage.setItem('color', color);
 	// console.debug(`Color set to ${color}`);
+}
+
+/**
+ * @param {boolean} on - start or stops services such as game and chat sockets
+ */
+export function daemon(on: boolean) {
+	if (on) {
+		// showToast('Athenticated');
+	} else {
+		// showToast('Unathenticated');
+	}
 }
 
 // lib.fullScreenOverlay(

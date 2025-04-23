@@ -13,10 +13,12 @@ import * as lib from "./utils"
 
 let currentPage: Page | undefined;
 
+let firstPageLoad = true;
+
 async function loadApp(path: string) {
 	// check authentication
 	try {
-		const response = await fetch('http://127.0.0.1:7000/fetchDashboardData', {
+		const response = await fetch(`http://${lib.userInfo.ip}:7000/fetchDashboardData`, {
 			credentials: 'include',
 		});
 		if (!response.ok)
@@ -24,7 +26,7 @@ async function loadApp(path: string) {
 		let responseData = await response.json();
 		// lib.userInfo.username = responseData.username
 		// lib.userInfo.userId = responseData.userId
-		// lib.userInfo.auth_method = responseData.auth_method
+		lib.userInfo.auth_method = responseData.auth_method
 		if (path == "/register" || path == "/login") {
 			lib.showToast(`Already authenticated`);
 			history.replaceState(null, "", "/");
@@ -39,6 +41,11 @@ async function loadApp(path: string) {
 			history.replaceState(null, "", "/login");
 			path = '/login';
 		}
+	}
+	if (firstPageLoad) {
+		firstPageLoad = false;
+		if (lib.userInfo.auth_method)
+			lib.daemon(true);
 	}
 	loadPage(path);
 }

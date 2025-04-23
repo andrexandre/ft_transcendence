@@ -34,7 +34,7 @@ function displayMatchHistory(matchHistory: MatchHistoryI[]) {
 
 export async function updateMatchHistory() {
 	try {
-		const response = await fetch('http://127.0.0.1:5000/user-game-history', {
+		const response = await fetch(`http://${lib.userInfo.ip}:5000/user-game-history`, {
 			credentials: "include",
 		});
 		if (!response.ok) {
@@ -52,11 +52,10 @@ export async function updateMatchHistory() {
 }
 
 async function loadInformation() {
-	const response = await fetch('http://127.0.0.1:3000/api/user/settings', {
+	const response = await fetch(`http://${lib.userInfo.ip}:3000/api/user/settings`, {
 		credentials: 'include'
 	})
 	if (!response.ok) return lib.showToast.red('Failed to load user Information!');
-	
 	// Set user information
 	const userData = await response.json();
 	(document.getElementById("profile-username") as HTMLInputElement).value = userData.username;
@@ -64,7 +63,7 @@ async function loadInformation() {
 	(document.getElementById("profile-bio") as HTMLInputElement).value = userData.biography;
 
 	// Set user avatar
-	const imageResponse = await fetch('http://127.0.0.1:3000/api/user/avatar', {
+	const imageResponse = await fetch(`http://${lib.userInfo.ip}:3000/api/user/avatar`, {
 		credentials: 'include'
 	})
 	if (!imageResponse.ok) return lib.showToast.red('Failed to load user Avatar!');
@@ -90,7 +89,7 @@ class Profile extends Page {
 		// 		event.clientX > dialogDimensions!.right ||
 		// 		event.clientY < dialogDimensions!.top ||
 		// 		event.clientY > dialogDimensions!.bottom;
-			
+
 		// 	if (isBackdropClick) {
 		// 		window.history.back();
 		// 	}
@@ -100,7 +99,7 @@ class Profile extends Page {
 		updateMatchHistory();
 		this.saveProfileInformation();
 	}
-	onCleanup(): void {}
+	onCleanup(): void { }
 	getHtml(): string {
 		return /*html*/`
 			<main class="grid flex-1 card items-center justify-center">
@@ -141,7 +140,7 @@ class Profile extends Page {
 				biography: (document.getElementById('profile-bio') as HTMLTextAreaElement).value
 			};
 			try {
-				const response = await fetch('http://127.0.0.1:3000/api/users/save-settings', {
+				const response = await fetch(`http://${lib.userInfo.ip}:3000/api/users/save-settings`, {
 					method: 'POST',
 					credentials: "include",
 					headers: {
