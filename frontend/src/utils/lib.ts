@@ -13,13 +13,14 @@ export var userInfo = {
 	ip: location.hostname,
 }
 
+// onBeforeClose?: Promise<void> / waitForEvent?: { element: HTMLElement; event: string }
 export function showToast(message?: string, type: string = "") {
 	const toast = document.createElement('div');
 	toast.id = 'toast';
 	toast.textContent = message || "Bro, you just got Toasted!";
 	document.getElementById('toast-container')!.appendChild(toast);
 
-	if (type !== "green" && type !== "red" && type !== "blue" && type !== "yellow")
+	if (type != "green" && type != "red" && type != "blue" && type != "yellow")
 		type = "default";
 	toast.className = `toast-${type}`;
 	setTimeout(() => toast.remove(), 3100);

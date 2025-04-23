@@ -75,6 +75,10 @@ const sidebar = {
 		if (buttonName == 'home' || buttonName == 'chat' || buttonName == 'game' || buttonName == 'settings' || buttonName == 'profile') {
 			document.getElementById(`goto-${buttonName}-button`)?.classList.add('bg-c-secondary');
 			document.getElementById(`goto-${buttonName}-button`)?.classList.add('dark:bg-c-primary');
+			// if (buttonName == 'game')
+			// 	document.querySelector('.sidebar-component')?.classList.add('text-c-bg');
+			// else
+			// 	document.querySelector('.sidebar-component')?.classList.remove('text-c-bg');
 		}
 		document.getElementById('hide-sidebar-button')!.addEventListener('click', () => {
 			const sidebar = document.getElementById('sidebar')!;

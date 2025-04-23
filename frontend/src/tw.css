@@ -34,6 +34,8 @@ img { @apply pointer-events-none; }
 
 input, textarea { @apply outline-none disabled:opacity-50; }
 
+/* h1, p, label, input, textarea, i { @apply text-c-bg dark:text-c-text; } */
+
 @layer components {
 	.t-border {
 		@apply border-2 text-c-text border-c-secondary hover:border-c-primary
