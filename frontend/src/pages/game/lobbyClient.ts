@@ -1,6 +1,6 @@
 // frontend/src/pages/game/lobbyClient.ts
 import { showToast } from "../../utils";
-import { initGameCanvas } from "./rendering";
+import { connectToMatch } from "./rendering";
 
 let socket: WebSocket | null = null;
 let lobbyId: string | null = null;
@@ -23,7 +23,7 @@ export function connectToGameServer(userInfo: { username: string; userId: number
 	};
 
 	socket.onmessage = (event) => {
-		console.log("🧪 Raw WS data:", event.data);  // 👈 vê se está mesmo a vir algo
+		// console.log("🧪 Raw WS data:", event.data);
 		const data = JSON.parse(event.data);
 		console.log("📨 WS Message:", data);
 		
@@ -52,7 +52,7 @@ export function connectToGameServer(userInfo: { username: string; userId: number
 			
 				matchSocket.onopen = () => {
 					console.log("✅ Connected to match WebSocket for game:", data.gameId);
-					// initGameCanvas(matchSocket, data.playerRole);
+					connectToMatch(matchSocket, data.playerRole);
 				};
 			
 				matchSocket.onerror = () => {

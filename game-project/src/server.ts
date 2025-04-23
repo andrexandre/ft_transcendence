@@ -43,6 +43,7 @@ gameserver.get('/game-ws', { websocket: true }, async (connection, req) => {
 
 		// Listen for messages
 		connection.on('message', (msg) => {
+			console.log("📥 Mensagem recebida:", msg.toString()); 
 			try {
 				const data = JSON.parse(msg.toString());
 				handleSocketMessage(connection, data);
@@ -103,7 +104,7 @@ function handleSocketMessage(connection: any, data: any) {
 			text: data.text
 		};
 		for (const player of lobby.players) {
-			if (player.socket.readyState === 1) { // WebSocket.OPEN === 1
+			if (player.socket.readyState === 1) {
 				player.socket.send(JSON.stringify(payload));
 			}
 		}

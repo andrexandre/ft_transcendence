@@ -158,7 +158,6 @@ export async function initUserData() {
 		soundSelect.value = userData.user_set_sound === 1 ? "On" : "Off";
 		
 		initializeGameMainMenu();
-		// initGameCanvas();
 	} catch (error) {
 		showToast.red(error as string);
 		console.error("❌ Error loading user data:", error);
