@@ -75,23 +75,19 @@ const sidebar = {
 		if (buttonName == 'home' || buttonName == 'chat' || buttonName == 'game' || buttonName == 'settings' || buttonName == 'profile') {
 			document.getElementById(`goto-${buttonName}-button`)?.classList.add('bg-c-secondary');
 			document.getElementById(`goto-${buttonName}-button`)?.classList.add('dark:bg-c-primary');
-			// if (buttonName == 'game')
-			// 	document.querySelector('.sidebar-component')?.classList.add('text-c-bg');
-			// else
-			// 	document.querySelector('.sidebar-component')?.classList.remove('text-c-bg');
 		}
 		document.getElementById('hide-sidebar-button')!.addEventListener('click', () => {
 			const sidebar = document.getElementById('sidebar')!;
 			const sidebarList = document.getElementById('sidebar-list')!;
 			const pElements = sidebar?.querySelectorAll('p');
 			if (pElements?.[0].style.display == 'none') {
-				sidebar.style.width = '200px',
-				sidebarList.classList.remove('place-items-center'),
-				lib.Cookies.remove('sidebarClosed')
+				sidebar.style.width = '200px';
+				sidebarList.classList.remove('place-items-center');
+				lib.Cookies.remove('sidebarClosed');
 			} else {
-				sidebar.style.width = '70px',
-				sidebarList.classList.add('place-items-center'),
-				lib.Cookies.set('sidebarClosed', 'true')
+				sidebar.style.width = '70px';
+				sidebarList.classList.add('place-items-center');
+				lib.Cookies.set('sidebarClosed', 'true');
 			}
 			pElements?.forEach(p => {
 				if (p.style.display === 'none') {
@@ -119,7 +115,7 @@ const sidebar = {
 		document.getElementById("logout-button")!.addEventListener("click", () => {
 			(async () => {
 				try {
-					const response = await fetch(`http://${lib.userInfo.ip}:7000/logout`, {
+					const response = await fetch(`http://${location.hostname}:7000/logout`, {
 						credentials: 'include',
 					});
 					if (!response.ok)

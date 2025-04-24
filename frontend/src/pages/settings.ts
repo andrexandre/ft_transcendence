@@ -6,7 +6,7 @@ const safeColors: string[] = ["bg-red-500", "bg-orange-500", "bg-amber-500", "bg
 
 async function loadInformation() {
 
-	const response = await fetch(`http://${lib.userInfo.ip}:3000/api/user/settings`, {
+	const response = await fetch(`http://${location.hostname}:3000/api/user/settings`, {
 		credentials: 'include'
 	})
 	if (!response.ok) return lib.showToast.red('Failed too load user Information!');
@@ -24,7 +24,7 @@ async function loadInformation() {
 	(document.getElementById('2fa-toggle') as HTMLInputElement).checked = userData.two_FA_status
 
 	// Set user avatar
-	const imageResponse = await fetch(`http://${lib.userInfo.ip}:3000/api/user/avatar`, {
+	const imageResponse = await fetch(`http://${location.hostname}:3000/api/user/avatar`, {
 		credentials: 'include'
 	})
 	if (!imageResponse.ok) return lib.showToast.red('Failed too load user Avatar!');
@@ -76,7 +76,7 @@ class Settings extends Page {
 						const avatarFormData = new FormData();
 						avatarFormData.append('image', file);
 
-						const response = await fetch(`http://${lib.userInfo.ip}:3000/api/user/update/avatar`, {
+						const response = await fetch(`http://${location.hostname}:3000/api/user/update/avatar`, {
 							method: 'POST',
 							credentials: "include",
 							body: avatarFormData
@@ -102,7 +102,7 @@ class Settings extends Page {
 				two_FA_status: twoFAButton.checked
 			};
 			try {
-				const response = await fetch(`http://${lib.userInfo.ip}:3000/api/users/save-settings-2fa`, {
+				const response = await fetch(`http://${location.hostname}:3000/api/users/save-settings-2fa`, {
 					method: 'POST',
 					credentials: "include",
 					headers: {
@@ -231,7 +231,7 @@ class Settings extends Page {
 				two_FA_status: (document.getElementById('2fa-toggle') as HTMLInputElement).checked
 			};
 			try {
-				const response = await fetch(`http://${lib.userInfo.ip}:3000/api/users/save-settings`, {
+				const response = await fetch(`http://${location.hostname}:3000/api/users/save-settings`, {
 					method: 'POST',
 					credentials: "include",
 					headers: {

@@ -1,4 +1,4 @@
-import * as lib from "../../utils";
+import { showToast } from "../../utils";
 import dropdown from "../../components/dropdown";
 import { startSingleClassic } from "./single";
 import * as lobbyClient from "./lobbyClient";
@@ -12,11 +12,11 @@ function initializeGameMainMenu() {
 	const username = sessionStorage.getItem("username");
 	if (!username) {
 		console.error("❌ No username found in sessionStorage!");
-		dropdown.addElement('Single', 'button', 'item g-t-border-alt',
+		dropdown.addElement('Single', 'button', 'item t-border-alt',
 			'User not found');
 	}
 	else {
-		dropdown.addElement('Single', 'button', 'item g-t-border-alt',
+		dropdown.addElement('Single', 'button', 'item t-border-alt',
 			'Classic', () => {
 				const difficulty = sessionStorage.getItem("user_set_dificulty") || "Normal";
 				const tableSize = sessionStorage.getItem("user_set_tableSize") || "Medium";
@@ -25,8 +25,8 @@ function initializeGameMainMenu() {
 				startSingleClassic(username, { difficulty, tableSize, sound })
 			});
 	}
-	dropdown.addElement('Single', 'button', 'item g-t-border-alt',
-		'Infinity', () => lib.showToast(`Single Infinity clicked`));
+	dropdown.addElement('Single', 'button', 'item t-border-alt',
+		'Infinity', () => showToast(`Single Infinity clicked`));
 
 	// Set Multi dropdown
 	dropdown.initialize('Multi', async () => {
@@ -48,30 +48,30 @@ function initializeGameMainMenu() {
 		}
 	});
 	// Tournament
-	dropdown.addElement('Multi', 'button', 'item g-t-border-alt', 'Tournament', async () => {
+	dropdown.addElement('Multi', 'button', 'item t-border-alt', 'Tournament', async () => {
 		const username = sessionStorage.getItem("username")!;
 		const userId = Number(sessionStorage.getItem("user_id")!);
 		try {
 			const result = await lobbyClient.createLobby(username, userId, "TNMT", 2);
-			lib.showToast.green(`✅ Created TNMT lobby ${result.id}`);
+			showToast.green(`✅ Created TNMT lobby ${result.id}`);
 		} catch (err) {
-			lib.showToast.red("❌ Failed to create lobby");
+			showToast.red("❌ Failed to create lobby");
 		}
 	});
 
-	dropdown.addElement('Multi', 'button', 'item g-t-border-alt', '1V1', async () => {
+	dropdown.addElement('Multi', 'button', 'item t-border-alt', '1V1', async () => {
 		const username = sessionStorage.getItem("username")!;
 		const userId = Number(sessionStorage.getItem("user_id")!);
 		try {
 			const result = await lobbyClient.createLobby(username, userId, "1V1", 2);
-			lib.showToast.green(`✅ Created 1V1 lobby: ${result.id}`);
+			showToast.green(`✅ Created 1V1 lobby: ${result.id}`);
 		} catch (err) {
-			lib.showToast.red("❌ Failed to create 1V1 lobby");
+			showToast.red("❌ Failed to create 1V1 lobby");
 		}
 	});
 
 	// Dont click
-	dropdown.addElement('Multi', 'button', 'item g-t-border-alt', 'Don\'t click',
+	dropdown.addElement('Multi', 'button', 'item t-border-alt', 'Don\'t click',
 		() => {
 			document.body.innerHTML = "";
 			document.body.className = "h-screen m-0 bg-cover bg-center bg-no-repeat";
@@ -92,28 +92,28 @@ function initializeGameMainMenu() {
 			lobbyRefreshInterval = setInterval(lobbyClient.renderLobbyList, 50000);
 		}
 	});
-	
+
 	// Matrecos
-	dropdown.addElement('Co-Op', 'button', 'item g-t-border-alt', 'Matrecos', async () => {
+	dropdown.addElement('Co-Op', 'button', 'item t-border-alt', 'Matrecos', async () => {
 		const username = sessionStorage.getItem("username")!;
 		const userId = Number(sessionStorage.getItem("user_id")!);
 		try {
 			const result = await lobbyClient.createLobby(username, userId, "MTC", 4);
-			lib.showToast.green(`✅ Created Matrecos lobby: ${result.id}`);
+			showToast.green(`✅ Created Matrecos lobby: ${result.id}`);
 		} catch (err) {
-			lib.showToast.red("❌ Failed to create Matrecos lobby");
+			showToast.red("❌ Failed to create Matrecos lobby");
 		}
 	});
-	
+
 	// Free for All
-	dropdown.addElement('Co-Op', 'button', 'item g-t-border-alt', 'Free for All', async () => {
+	dropdown.addElement('Co-Op', 'button', 'item t-border-alt', 'Free for All', async () => {
 		const username = sessionStorage.getItem("username")!;
 		const userId = Number(sessionStorage.getItem("user_id")!);
 		try {
 			const result = await lobbyClient.createLobby(username, userId, "FFA", 4);
-			lib.showToast.green(`✅ Created FFA lobby: ${result.id}`);
+			showToast.green(`✅ Created FFA lobby: ${result.id}`);
 		} catch (err) {
-			lib.showToast.red("❌ Failed to create FFA lobby");
+			showToast.red("❌ Failed to create FFA lobby");
 		}
 	});
 }
@@ -122,7 +122,7 @@ function removeLobbyEntry(id: string) {
 	const lobby = document.getElementById('lobby-list');
 	const entries = lobby?.querySelectorAll(`[id^="entry-${id}-"]`);
 	entries?.forEach(entry => entry.remove());
-	lib.showToast.yellow(`Lobby entry n: ${id} removed`);
+	showToast.yellow(`Lobby entry n: ${id} removed`);
 }
 
 export async function initUserData() {
@@ -133,7 +133,7 @@ export async function initUserData() {
 	const soundSelect = document.getElementById('sound') as HTMLSelectElement;
 
 	try {
-		const response = await fetch(`http://${lib.userInfo.ip}:5000/get-user-data`, { credentials: "include" });
+		const response = await fetch(`http://${location.hostname}:5000/get-user-data`, { credentials: "include" });
 
 		if (!response.ok) {
 			throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
@@ -157,7 +157,7 @@ export async function initUserData() {
 		initializeGameMainMenu();
 		initGameCanvas();
 	} catch (error) {
-		lib.showToast.red(error as string);
+		showToast.red(error as string);
 		console.error("❌ Error loading user data:", error);
 	}
 }
@@ -187,7 +187,7 @@ export async function saveSettingsHandler() {
 
 	// Send settings update to the database
 	try {
-		const response = await fetch(`http://${lib.userInfo.ip}:5000/save-settings`, {
+		const response = await fetch(`http://${location.hostname}:5000/save-settings`, {
 			method: "PATCH",
 			headers: { "Content-Type": "application/json" },
 			credentials: 'include',
@@ -196,7 +196,7 @@ export async function saveSettingsHandler() {
 
 		if (!response.ok)
 			throw new Error(`Failed to save settings (${response.status})`);
-		lib.showToast.green('Settings saved');
+		showToast.green('Settings saved');
 
 	} catch (error) {
 		console.error("❌ Error saving settings:", error);

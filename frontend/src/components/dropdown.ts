@@ -3,7 +3,7 @@ import * as lib from "../utils"
 const dropdown = {
 	getHtml: (componentId: string) => /*html*/`
 		<div class="text-left my-1 flex flex-col w-full">
-			<button id="dropdownButton-${componentId}" class="item g-t-border m-0">
+			<button id="dropdownButton-${componentId}" class="item t-border m-0">
 				${componentId}
 			</button>
 

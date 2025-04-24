@@ -18,7 +18,7 @@ let firstPageLoad = true;
 async function loadApp(path: string) {
 	// check authentication
 	try {
-		const response = await fetch(`http://${lib.userInfo.ip}:7000/fetchDashboardData`, {
+		const response = await fetch(`http://${location.hostname}:7000/fetchDashboardData`, {
 			credentials: 'include',
 		});
 		if (!response.ok)

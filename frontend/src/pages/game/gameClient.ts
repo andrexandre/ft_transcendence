@@ -1,4 +1,4 @@
-const SERVER_URL = "ws://127.0.0.1:5000/ws";
+const SERVER_URL = `ws://${location.hostname}:5000/ws`;
 
 export let gameCanvas: HTMLCanvasElement;
 export let ctx: CanvasRenderingContext2D;
@@ -64,7 +64,7 @@ function drawGame() {
 		ctx.fillStyle = p.userId.toString() === currentPlayerId ? "blue" : "red";
 		ctx.fillRect(x, y, paddleWidth, paddleHeight);
 	});
-	
+
 	// draw ball
 	ctx.fillStyle = "green";
 	ctx.beginPath();
@@ -130,14 +130,14 @@ function connectWebSocket(username: string) {
 		const data = JSON.parse(event.data);
 		if (data.type === "startGame") {
 			console.log("📩 Received 'startGame' WebSocket message");
-			startGameClient(); 
+			startGameClient();
 		}
-		
+
 		if (data.type === "welcome") {
 			currentPlayerId = data.playerId;
 			console.log("🎮 Player ID:", currentPlayerId);
 		}
-		
+
 		if (data.type === "countdown") {
 			drawGameMessage(data.value.toString(), "green");
 			if (data.value === 1) {
@@ -155,12 +155,12 @@ function connectWebSocket(username: string) {
 			ball = data.state.ball;
 			drawGame();
 		}
-		
+
 		if (data.type === "end") {
 			const winner = data.winner;
 			drawGameMessage(`${winner} wins!`, winner === username ? "blue" : "red");
 			GameMessageVisibility("show");
-		
+
 			setTimeout(() => {
 				document.getElementById("gameCanvas")?.classList.add("hidden");
 				document.getElementById("game-main-menu")?.classList.remove("hidden");

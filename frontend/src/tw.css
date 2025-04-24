@@ -18,13 +18,13 @@ focus:border- (excluding auth)
 	--color-c-text: var(--color-c-stone-text); /* text */
 	--color-c-primary: var(--color-c-stone-primary); /* border hover */
 	--color-c-secondary: var(--color-c-stone-secondary); /* border */
-	--color-c-game-bg: theme(colors.black);
-	--color-c-game-text: theme(colors.green.600);
-	--color-c-game-primary: theme(colors.green.400);
-	--color-c-game-secondary: theme(colors.green.800);
+	--color-c-game-bg: theme(colors.green.600);
+	--color-c-game-text: theme(colors.green.400);
+	--color-c-game-primary: theme(colors.green.800);
+	--color-c-game-secondary: theme(colors.green.600);
 }
 
-body { @apply bg-c-bg dark:bg-black select-none; }
+body { @apply bg-white dark:bg-black select-none; }
 
 h1 { @apply font-bold; }
 
@@ -95,19 +95,16 @@ input, textarea { @apply outline-none disabled:opacity-50; }
 }
 
 /* game */
-.g-t-border {
-	@apply border-2 text-c-game-text border-c-game-secondary hover:border-c-game-primary;
-}
-.g-t-border-alt {
-	@apply border-2 text-c-game-text border-orange-700 hover:border-orange-500;
+.t-border-alt {
+	@apply border-2 border-orange-700 hover:border-orange-500;
 }
 
 canvas {
-	@apply absolute top-1/2 left-1/2 z-10 transform -translate-1/2 border-2 border-c-game-text;
+	@apply absolute top-1/2 left-1/2 z-10 transform -translate-1/2 border-2;
 }
 
 #scoreboard {
-	@apply absolute top-12 left-1/2 text-3xl font-bold transform -translate-x-1/2 text-c-game-text;
+	@apply absolute top-12 left-1/2 text-3xl font-bold transform -translate-x-1/2;
 }
 
 #main-menu-title {
