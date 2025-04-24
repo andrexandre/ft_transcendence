@@ -5,13 +5,11 @@ import sidebar from "../components/sidebar"
 export async function renderProfileUsername() {
 	const profileUsername = document.getElementById("profile-username")!;
 	let line: string = '';
-	if (lib.userInfo.username) {
-		if (lib.userInfo.auth_method === "google")
-			line = "G. ";
-		else if (lib.userInfo.auth_method === "email")
-			line = "E. ";
-		profileUsername.textContent = line + lib.userInfo.username;
-	}
+	if (lib.userInfo.auth_method === "google")
+		line = "G. ";
+	else if (lib.userInfo.auth_method === "email")
+		line = "E. ";
+	profileUsername.textContent = line + lib.userInfo.username;
 }
 
 export interface MatchHistoryI {

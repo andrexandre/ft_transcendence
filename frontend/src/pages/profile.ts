@@ -103,7 +103,7 @@ class Profile extends Page {
 	getHtml(): string {
 		return /*html*/`
 			<main class="grid flex-1 card items-center justify-center">
-				<dialog open id="profile-dialog" class="flex gap-5 bg-c-text/75 fixed top-1/2 left-1/2 -translate-1/2 rounded-4xl p-6 w-fit shadow-lg backdrop:bg-blue-500/50">
+				<dialog open id="profile-dialog" class="flex gap-5 bg-c-bg/75 dark:bg-c-text/25 dark:text-c-bg fixed top-1/2 left-1/2 -translate-1/2 rounded-4xl p-6 w-fit shadow-lg">
 					<div class="card t-dashed grid overflow-auto gap-10">
 						<div class="flex gap-16">
 							<img id="profile-image" class="object-cover rounded-full size-48 shadow-xl shadow-neutral-400 border-2" src="https://picsum.photos/id/237/200">

@@ -1,3 +1,4 @@
+import { socketOnMessage } from "../pages/chat/friends"
 export { default as Cookies } from 'js-cookie';
 
 export const colors: string[] = ["red", "orange", "amber", "yellow", "lime", "green", "emerald", "teal", "cyan", "sky", "blue", "slate", "gray", "zinc", "neutral", "stone", "rose", "pink", "fuchsia", "purple", "violet", "indigo"];
@@ -10,7 +11,8 @@ export var userInfo = {
 	userId: "",
 	auth_method: "",
 	profileImage: "",
-	ip: location.hostname,
+	path: "",
+	chat_sock: null as WebSocket | null
 }
 
 // onBeforeClose?: Promise<void> / waitForEvent?: { element: HTMLElement; event: string }
@@ -80,14 +82,41 @@ export function setColor(color: string, save?: boolean) {
 	if (save) localStorage.setItem('color', color);
 	// console.debug(`Color set to ${color}`);
 }
-
 /**
  * @param {boolean} on - start or stops services such as game and chat sockets
  */
 export function daemon(on: boolean) {
 	if (on) {
+		if (!userInfo.chat_sock || userInfo.chat_sock.readyState === WebSocket.CLOSED) {
+			userInfo.chat_sock = new WebSocket(`ws://${location.hostname}:2000/chat-ws`);
+
+			userInfo.chat_sock.onopen = () => {
+				console.debug('Chat socket created');
+			}
+			
+			userInfo.chat_sock.onerror = (error) => {
+				console.log('WebSocket error: ', error);
+			};
+			
+			userInfo.chat_sock.onclose = (event) => {
+				console.debug('WebSocket connection closed:', event.code, event.reason);
+				// Maybe add some reconnection logic here
+			};
+			
+			userInfo.chat_sock.onmessage = (event) => {
+				socketOnMessage(event);
+			};
+		} else {
+			showToast.red('Called daemon on and the sock is already on');
+		}
 		// showToast('Athenticated');
 	} else {
+		if (userInfo.chat_sock) {
+			userInfo.chat_sock.close(1000, 'User logged out');
+			userInfo.chat_sock = null;
+		}
+		else
+			showToast.red('Called daemon off and the sock is already off');
 		// showToast('Unathenticated');
 	}
 }

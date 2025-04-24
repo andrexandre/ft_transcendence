@@ -37,8 +37,9 @@ export default abstract class Page {
 				lib.Cookies.set('outline', 'true');
 			}
 		}, 50);
+		lib.userInfo.path = this.path;
 		return this.root;
-	} 
+	}
 	abstract getHtml(): string;
 	addCleanupHandler(fn: () => void) {
 		this.cleanupHandlers.push(fn);

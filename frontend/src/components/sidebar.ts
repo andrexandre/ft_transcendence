@@ -120,9 +120,6 @@ const sidebar = {
 					});
 					if (!response.ok)
 						throw new Error(`${response.status} - ${response.statusText}`);
-					lib.userInfo.username = '';
-					lib.userInfo.userId = '';
-					lib.userInfo.auth_method = '';
 					lib.daemon(false);
 					lib.showToast(`Logged out successfully`);
 					lib.navigate('/login');

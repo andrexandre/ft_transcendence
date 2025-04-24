@@ -29,7 +29,7 @@ class Chat extends Page {
 					<hr class="text-c-primary">
 					<div class="flex flex-col gap-6 flex-1">
 						<ul id="friend-requests-list" class="flex flex-col flex-1 overflow-auto"></ul>
-						<button id="friend-request-button" class="flex justify-around items-center item t-dashed p-4">
+						<button id="friend-requests-refresh" class="flex justify-around items-center item t-dashed p-4">
 							<span>Friend Requests</span>
 							<i class="fa-solid fa-rotate-right"></i>
 						</button>
