@@ -18,16 +18,16 @@ class Chat extends Page {
 		return /*html*/`
 			${sidebar.getHtml()}
 			<main class="flex flex-1">
-				<div class="grid grid-rows-2 card t-dashed p-5">
-					<div class="flex flex-col w-75 gap-6 border-b border-c-primary">
+				<div class="flex flex-col card t-dashed p-5 w-75">
+					<div class="flex flex-col gap-6 flex-1">
 						<button id="online-friends-refresh" class="flex justify-around items-center item t-dashed p-4">
 							<span>Online Friends</span>
 							<i class="fa-solid fa-rotate-right"></i>
 						</button>
 						<ul id="online-friends-list" class="flex flex-col flex-1 overflow-auto"></ul>
 					</div>
-					<!-- <hr class="text-c-primary"> -->
-					<div class="flex flex-col w-75 gap-6">
+					<hr class="text-c-primary">
+					<div class="flex flex-col gap-6 flex-1">
 						<ul id="friend-requests-list" class="flex flex-col flex-1 overflow-auto"></ul>
 						<button id="friend-request-button" class="flex justify-around items-center item t-dashed p-4">
 							<span>Friend Requests</span>

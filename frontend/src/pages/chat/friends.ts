@@ -1,6 +1,6 @@
 import { showToast } from "../../utils";
 
-const host = `ws://127.0.0.1:2000/chat-ws`;
+const host = `ws://${location.hostname}:2000/chat-ws`;
 const socket = new WebSocket(host);
 
 socket.onopen = () => {
@@ -46,9 +46,9 @@ function renderMessage(user: string, from: string, message: string, timestamp: s
 		alignment = 'justify-start';
 	entryElement.className = `chat-box-message-entry flex ${alignment}`;
 	entryElement.innerHTML = /*html*/`
-	<div class="flex flex-col item t-dashed">
-		<p>${message}</p>
-		<p class="self-end text-c-secondary">${timestamp}</p>		
+	<div class="flex flex-col item t-dashed break-all">
+		<p class="self-start pr-4">${message}</p>
+		<p class="self-end text-c-primary pl-4">${timestamp}</p>		
 	</div>
 	`;
 	listElement.appendChild(entryElement);
@@ -283,7 +283,6 @@ export function setChatEventListeners() {
 			e.preventDefault();
 			const messageText = (document.getElementById('chat-box-input') as HTMLInputElement).value.trim();
 			if (messageText) {
-				showToast.green(`Message sent: ${messageText}`);
 				socket.send(JSON.stringify({
 					type: 'chat-message',
 					message: messageText

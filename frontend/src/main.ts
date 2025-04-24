@@ -13,31 +13,46 @@ import * as lib from "./utils"
 
 let currentPage: Page | undefined;
 
-// TODO fix already logged in user
-async function checkLogin() {
+let firstPageLoad = true;
+
+async function loadApp(path: string) {
+	// check authentication
 	try {
-		const response = await fetch('http://127.0.0.1:7000/fetchDashboardData', {
+		const response = await fetch(`http://${location.hostname}:7000/fetchDashboardData`, {
 			credentials: 'include',
 		});
-		if (!response.ok) {
-			lib.navigate('/login');
+		if (!response.ok)
 			throw new Error(`${response.status} - ${response.statusText}`);
+		let responseData = await response.json();
+		// lib.userInfo.username = responseData.username
+		// lib.userInfo.userId = responseData.userId
+		lib.userInfo.auth_method = responseData.auth_method
+		if (path == "/register" || path == "/login") {
+			lib.showToast(`Already authenticated`);
+			history.replaceState(null, "", "/");
+			path = '/';
 		}
-		let dashData = await response.json();
-		lib.userInfo.username = dashData.username
-		lib.userInfo.userId = dashData.userId
-		lib.userInfo.auth_method = dashData.auth_method
 	} catch (error) {
-		console.log(error);
-		lib.showToast.red(error as string);
+		if (path != "/register" && path != "/login") {
+			console.log(error);
+			if (error == 'TypeError: NetworkError when attempting to fetch resource.')
+				error = 'Server is not reachable';
+			lib.showToast.red(error as string);
+			history.replaceState(null, "", "/login");
+			path = '/login';
+		}
 	}
+	if (firstPageLoad) {
+		firstPageLoad = false;
+		if (lib.userInfo.auth_method)
+			lib.daemon(true);
+	}
+	loadPage(path);
 }
 
 function loadPage(path: string) {
 	let newPage: Page;
 
-	if (path != "/register" && path != "/login")
-		checkLogin();
 	switch (path) {
 		case "/register":
 			newPage = register;
@@ -67,22 +82,16 @@ function loadPage(path: string) {
 	currentPage?.cleanup();
 	document.getElementById("app")!.innerHTML = newPage.getHtml();
 	newPage.mount();
-	setTimeout(() => {
-		if (lib.Cookies.get('outline')) {
-			document.dispatchEvent(new KeyboardEvent('keydown', { key: ' ' }));
-			lib.Cookies.set('outline', 'true');
-		}
-	}, 50);
 	currentPage = newPage;
 }
 
 // fix circular dependency for navigate function
 window.addEventListener('navigateTo', (e) => {
-	loadPage((e as CustomEvent).detail);
+	loadApp((e as CustomEvent).detail);
 });
 
 window.addEventListener("popstate", () => {
-	loadPage(location.pathname);
+	loadApp(location.pathname);
 });
 
-loadPage(location.pathname);
+loadApp(location.pathname);

@@ -10,7 +10,7 @@ class Login extends Page {
 		lib.assignButtonNavigation('goto-register-button', '/register');
 		lib.assignButtonNavigation('goto-dashboard-button', '/');
 		document.getElementById("google-auth-button")!.addEventListener("click", () => {
-			window.location.href = "http://127.0.0.1:7000/loginOAuth";
+			window.location.href = `http://${location.hostname}:7000/loginOAuth`;
 		});
 	}
 	onCleanup(): void { }
@@ -46,7 +46,7 @@ class Login extends Page {
 				password: (document.getElementById('password') as HTMLInputElement).value
 			};
 			try {
-				const response = await fetch('http://127.0.0.1:7000/login', {
+				const response = await fetch(`http://${location.hostname}:7000/login`, {
 					method: 'POST',
 					credentials: "include",
 					headers: {
@@ -54,9 +54,10 @@ class Login extends Page {
 					},
 					body: JSON.stringify(userData)
 				});
-				if (!response.ok) {
+				if (!response.ok)
 					throw new Error(`${response.status} - ${response.statusText}`);
-				}
+				lib.daemon(true);
+				lib.showToast(`Logged in successfully`);
 				lib.navigate("/");
 			} catch (error) {
 				console.log(error);

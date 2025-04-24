@@ -9,7 +9,7 @@ class Register extends Page {
 		this.setSubmissionHandler();
 		lib.assignButtonNavigation('goto-login-button', '/login');
 		document.getElementById("google-auth-button")!.addEventListener("click", () => {
-			window.location.href = "http://127.0.0.1:7000/loginOAuth";
+			window.location.href = `http://${location.hostname}:7000/loginOAuth`;
 		});
 	}
 	onCleanup(): void { }
@@ -47,7 +47,7 @@ class Register extends Page {
 				email: (document.getElementById('email') as HTMLInputElement).value
 			};
 			try {
-				const response = await fetch('http://127.0.0.1:7000/register', {
+				const response = await fetch(`http://${location.hostname}:7000/register`, {
 					method: 'POST',
 					credentials: "include",
 					headers: {
@@ -55,10 +55,9 @@ class Register extends Page {
 					},
 					body: JSON.stringify(userData)
 				});
-				if (!response.ok) {
+				if (!response.ok)
 					throw new Error(`${response.status} - ${response.statusText}`);
-				}
-				lib.showToast.green(`${response.status} - ${response.statusText}`);
+				lib.showToast.green(`${userData.username} registered successfully`);
 				lib.navigate("/login");
 			} catch (error) {
 				console.log(error);

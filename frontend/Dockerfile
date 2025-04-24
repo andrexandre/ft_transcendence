@@ -1,4 +1,3 @@
-FROM node
-# FROM node:slim
+FROM node:slim
 
 COPY package.json package-lock.json ./

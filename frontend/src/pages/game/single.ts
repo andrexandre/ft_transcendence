@@ -161,7 +161,7 @@ export function startSingleClassic(username: string, settings: { difficulty: str
     
     async function saveMatchToDatabase(player1Id: number, player2Id: number, player1Score: number, player2Score: number, gameMode: string, winnerId: number) {
         try {
-            const response = await fetch("http://127.0.0.1:7000/save-matchHistory", {
+            const response = await fetch(`http://${location.hostname}:7000/save-matchHistory`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ player1Id, player2Id, player1Score, player2Score, gameMode, winnerId }),

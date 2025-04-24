@@ -1,6 +1,6 @@
 import { showToast } from "../../utils";
 
-const SERVER_URL = "http://127.0.0.1:5000";
+const SERVER_URL = `http://${location.hostname}:5000`;
 
 export async function renderLobbyList(): Promise<void> {
 	try {
@@ -34,7 +34,7 @@ export async function renderLobbyList(): Promise<void> {
 					};
 				}
 			}
-			
+
 			addLobbyEntry(
 				lobbyObj.id,
 				lobbyObj.hostUsername,
@@ -115,9 +115,9 @@ export async function joinLobby(lobbyId: string, username: string, userId: numbe
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ username, userId }),
 	});
-	if (!res.ok){
+	if (!res.ok) {
 		showToast.red("Cannot join lobby");
-		throw new Error("Cannot join lobby");	
+		throw new Error("Cannot join lobby");
 	}
 	showToast.green("Lobby joined");
 	return await res.json();

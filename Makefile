@@ -7,14 +7,14 @@ MAGENTA		:= \033[1;35m
 CYAN		:= \033[1;36m
 WHITE		:= \033[1;37m
 
-build-up: backend/Gateway/.env
+up: backend/Gateway/.env
+	docker compose up
+
+build-up:
 	docker compose up --build
 
 build:
 	docker compose build 
-
-up:
-	docker compose up
 
 upd:
 	docker compose up -d
@@ -38,11 +38,11 @@ status:
 backend/Gateway/.env:
 	curl -s https://gist.githubusercontent.com/andrexandre/8c011820a35117d005016151cfd46207/raw/83a0d67fbf775a78355dd617e6502d9c03f496ad/.env > backend/Gateway/.env
 
-destroy: down rmi
+destroy: down
 	find . -type f -iname '*.db' -delete
 	find . -type f -iname '*.jsonl' -delete
 
-rm-node_modules:
+rm-node_modules: rmi
 	docker run --rm -v ./backend/user/userManagement/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
 	docker run --rm -v ./backend/Gateway/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
 	docker run --rm -v ./game-project/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
@@ -51,14 +51,10 @@ rm-node_modules:
 	find . -type d -iname 'node_modules' -delete
 
 rmi:
-	docker-compose down --rmi all
+	-docker rmi -f $$(docker images -a -q)
 
 rmv:
 	docker volume rm $$(docker volume ls -q)
-
-re: down db-clean build-up
-
-rep: destroy db-clean build-up
 
 DB-PATH = backend/user/userManagement/user.db
 
