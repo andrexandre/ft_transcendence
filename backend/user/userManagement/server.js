@@ -54,19 +54,8 @@ async function start() {
 		await server.register(db, { dbPath: './user.db'});
 		await server.register(fastifyCookie);
 		await server.register(fastifyMultipart, {
-			limits: {
-			  fileSize: 12 * 1024 * 1024 // Limite de 2 MB para o arquivo
-			},
-			// onFile: (field, file, filename, encoding, mimeType) => {
-			//   // Este evento será chamado sempre que um arquivo for processado
-			//   file.on('limit', () => {
-			// 	console.error(`Arquivo ${filename} excedeu o limite de tamanho!`);
-			//   });
-		  
-			//   // Você também pode logar informações do arquivo que está sendo enviado
-			//   console.log(`Arquivo recebido: ${filename} | Tamanho: ${file.truncated ? 'Excedido limite!' : file.length}`);
-			// }
-		  });	
+			limits: { fileSize: 2 * 1024 * 1024 },// Limite de 2 MB para o arquivo
+			});
 		await server.register(RegisterRoute);
 		await server.register(LoginRoute);
 		await server.register(googleSignRoute);
