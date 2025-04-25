@@ -10,9 +10,10 @@ import { randomUUID } from 'crypto'
 
 async function userAvatarRoutes(server, opts) {
     
+
 	server.route({
         method: 'GET',
-        url: '/api/user/avatar',
+        url: '/api/users/avatar',
         handler:  async (request, reply) => {
 			
 			try {
@@ -32,9 +33,36 @@ async function userAvatarRoutes(server, opts) {
         }
     });
 
+	//temporario
+	server.route({
+        method: 'GET',
+        url: '/api/users/:username/avatar',
+        handler:  async (request, reply) => {
+			
+			try {
+				const { username } = request.params;
+
+				const user = await server.getUserByUsername(username);
+
+				const filePath = path.join(uploadDirectory, user.avatar);
+				await fs.promises.access(filePath, fs.constants.F_OK);
+
+				const stream = fs.createReadStream(filePath);
+				const fileSize = (await fs.promises.stat(filePath)).size;
+				
+				// tipo dependendo da extensao
+				return reply.type('image/jpeg').header('content-Length', fileSize).send(stream);
+			} catch(err) {
+				console.log(err);
+				reply.status(500).send({error: "Internal server error!"});
+				return;
+			}
+        }
+    });
+
 	server.route({
         method: 'POST',
-        url: '/api/user/update/avatar',
+        url: '/api/users/update/avatar',
         handler:  async (request, reply) => {
 			
 			try {
@@ -55,9 +83,11 @@ async function userAvatarRoutes(server, opts) {
 				await server.updateUserAvatar(name, request.authenticatedUser.id);
 				
 				// Delete old avatar
-				const fileToDelete = path.join(uploadDirectory, request.authenticatedUser.avatar);
-				await unlink(fileToDelete);
-				console.log('Ficheiro removido:', fileToDelete);
+				if (request.authenticatedUser.avatar !== 'default.jpeg') {
+					const fileToDelete = path.join(uploadDirectory, request.authenticatedUser.avatar);
+					await unlink(fileToDelete);
+					console.log('Ficheiro removido:', fileToDelete);
+				}
 
 				return;
 			} catch(err) {

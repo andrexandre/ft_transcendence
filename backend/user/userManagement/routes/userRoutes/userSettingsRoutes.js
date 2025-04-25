@@ -4,7 +4,7 @@ async function userSettingsRoutes(server, opts) {
     
 	server.route({
         method: 'GET',
-        url: '/api/user/settings',
+        url: '/api/users/settings',
         handler:  async (request, reply) => {
            
 			console.log('AuthenticatedUser: ', request.authenticatedUser);

@@ -1,6 +1,7 @@
 
 import userSettingsRoutes from "./userSettingsRoutes.js";
 import userAvatarRoutes from "./userAvatarRoutes.js";
+import { UserNotFoundError } from "../../utils/error.js";
 
 async function extractInformationFromToken(request, reply) {
 	try {
@@ -33,6 +34,40 @@ async function userRoutes(server, opts) {
 
 	server.register(userSettingsRoutes);
 	server.register(userAvatarRoutes);
+
+	server.route({
+		method: 'GET',
+		url: '/api/users/:username',
+		schema: {
+			params: {
+				type: 'object',
+				required: ['username'],
+				properties: {
+				  username: { type: 'string', minLength: 1 }
+				}
+			}
+		},
+		handler:  async (request, reply) => {
+			
+			try {
+				const { username } = request.params;
+				const user = await server.getUserByUsername(username);
+				if (!user)
+					throw new UserNotFoundError();
+				reply.send({
+					username: user.username,
+					email: user.email,
+					codename: user.codename,
+					biography: user.biography
+				});
+				return;
+
+			} catch(err) {
+				reply.status(404).send(err.formatError());
+				return;
+			}
+		}
+	});
 
 }
 
