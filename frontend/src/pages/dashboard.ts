@@ -37,7 +37,7 @@ function displayMatchHistory(matchHistory: MatchHistoryI[]) {
 		matchDiv.className = "relative item t-dashed " + matchBgColor;
 		matchDiv.innerHTML = /*html*/`
 			<p class="text-sm absolute top-0 left-1/2 transform -translate-x-1/2">${match.Mode}</p>
-			<div class="flex justify-around text-3xl pt-1 items-center">
+			<div class="grid grid-cols-[5rem_1fr_5rem_1fr_5rem] text-3xl pt-1">
 				<p>${match.winner.score}</p>
 				<p>${match.winner.username}</p>
 				<p>vs</p>
@@ -84,8 +84,8 @@ async function getAndUpdateInfo() {
 		}
 		let dashData = await response.json();
 		lib.userInfo.username = dashData.username
-		// lib.userInfo.codename = dashData.codename
-		// lib.userInfo.biography = dashData.biography
+		lib.userInfo.codename = dashData.codename
+		lib.userInfo.biography = dashData.biography
 		lib.userInfo.userId = dashData.userId
 		lib.userInfo.auth_method = dashData.auth_method
 		renderProfileUsername();
@@ -96,6 +96,37 @@ async function getAndUpdateInfo() {
 	}
 }
 
+async function loadInformation() {
+	const response = await fetch(`http://${location.hostname}:3000/api/user/settings`, {
+		credentials: 'include'
+	})
+	if (!response.ok) return lib.showToast.red('Failed to load user Information!');
+	// Set user information
+	const userData = await response.json();
+	(document.getElementById("profile-username") as HTMLElement).textContent = userData.username;
+	(document.getElementById("profile-codename") as HTMLElement).textContent = userData.codename;
+	(document.getElementById("profile-bio") as HTMLElement).textContent = userData.biography;
+	lib.userInfo.username = userData.username;
+	lib.userInfo.codename = userData.codename;
+	lib.userInfo.biography = userData.biography;
+	lib.userInfo.userId = userData.userId;
+	lib.userInfo.auth_method = userData.auth_method;
+
+	// Set user avatar
+	const imageResponse = await fetch(`http://${location.hostname}:3000/api/user/avatar`, {
+		credentials: 'include'
+	})
+	if (!imageResponse.ok) return lib.showToast.red('Failed to load user Avatar!');
+
+	const blob = await imageResponse.blob();
+	console.log(blob);
+	const url = URL.createObjectURL(blob);
+	(document.getElementById("profile-image") as HTMLImageElement).src = url || 'https://picsum.photos/id/63/300';
+	// renderProfileUsername();
+	updateMatchHistory();
+
+}
+
 class Dashboard extends Page {
 	constructor() {
 		super("dashboard", '/');
@@ -103,9 +134,10 @@ class Dashboard extends Page {
 	onMount(): void {
 		sidebar.setSidebarToggler('home');
 		document.getElementById("game-ad-button")!.addEventListener("click", () => lib.navigate('/game'));
-		if (lib.userInfo.profileImage)
-			(document.getElementById('profile-image') as HTMLImageElement).src = lib.userInfo.profileImage;
-		getAndUpdateInfo();
+		// if (lib.userInfo.profileImage)
+		// 	(document.getElementById('profile-image') as HTMLImageElement).src = lib.userInfo.profileImage;
+		// getAndUpdateInfo();
+		loadInformation();
 		document.getElementById("profile")!.addEventListener("click", () => lib.navigate('/profile'));
 	}
 	onCleanup(): void { }
@@ -121,7 +153,7 @@ class Dashboard extends Page {
 							<p id="profile-codename" class="text-xl">The mighty tail-wagger</p>
 						</div>
 					</div>
-					<p id="profile-bio">Champion of belly rubs, fetch, and fierce squirrel chases. Sir Barkalot is the first to answer the doorbell with a royal bark. His hobbies include digging to China and chewing shoes.</p>
+					<p id="profile-bio" class="max-w-3xl whitespace-pre-wrap text-start">Champion of belly rubs, fetch, and fierce squirrel chases. Sir Barkalot is the first to answer the doorbell with a royal bark. His hobbies include digging to China and chewing shoes.</p>
 				</button>
 				<div class="card t-dashed relative">
 					<div class="ball size-4 rounded-xl bg-c-secondary absolute animate-[ball-animation_6s_infinite_linear]"></div>

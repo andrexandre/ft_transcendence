@@ -1,5 +1,6 @@
 import { socketOnMessage } from "../pages/chat/friends"
 export { default as Cookies } from 'js-cookie';
+import { renderPattern } from "./patterns";
 
 export const colors: string[] = ["red", "orange", "amber", "yellow", "lime", "green", "emerald", "teal", "cyan", "sky", "blue", "slate", "gray", "zinc", "neutral", "stone", "rose", "pink", "fuchsia", "purple", "violet", "indigo"];
 export const defaultColor = 'slate';
@@ -39,6 +40,7 @@ export function loadTheme() {
 		document.documentElement.classList.remove('dark');
 	else if (window.matchMedia('(prefers-color-scheme: dark)').matches)
 		document.documentElement.classList.add('dark');
+	renderPattern();
 	// else { // to replace in case the previous else if is not working
 	// 	document.documentElement.classList.remove('dark');
 	// 	if (window.matchMedia('(prefers-color-scheme: dark)').matches) 
@@ -62,6 +64,7 @@ export function setTheme(option: string, save?: boolean) {
 		htmlElement.classList.remove('dark');
 		if (save) localStorage.setItem('theme', 'light');
 	}
+	renderPattern();
 	// console.debug(`Theme set to ${option}`);
 }
 
@@ -80,6 +83,7 @@ export function setColor(color: string, save?: boolean) {
 	document.documentElement.style.setProperty('--color-c-text', `var(--color-c-${color}-text)`);
 	document.documentElement.style.setProperty('--color-c-primary', `var(--color-c-${color}-primary)`);
 	if (save) localStorage.setItem('color', color);
+	renderPattern();
 	// console.debug(`Color set to ${color}`);
 }
 /**

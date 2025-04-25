@@ -291,5 +291,5 @@ export function setChatEventListeners() {
 		document.getElementById('friend-requests-refresh')?.click();
 	// if (userInfo.username != '42Transcendence')
 	// 	setTimeout(() => document.getElementById(`online-friends-list-entry-42Transcendence`)?.click(), 100);
-	}, 500);
+	}, 300);
 }
