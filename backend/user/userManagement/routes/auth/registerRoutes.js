@@ -8,7 +8,7 @@ async function RegisterRoute(server, opts) {
         method: 'POST',
         url: '/api/users',
         schema: registerSchema,
-        handler:  async (request, response) => {
+        handler:  async function (request, response) {
            
             const { username, email, password } = request.body;
             try {
@@ -16,7 +16,9 @@ async function RegisterRoute(server, opts) {
 				// Password hashing
                 const salt = await bcrypt.genSalt(10);
                 const hashedPassword = await bcrypt.hash(password, salt);
-				await server.createUser(username, email, hashedPassword, 'email');
+				console.log(this);
+				await this.createUser(username, email, hashedPassword, 'email');
+				console.log('AQUIIIIIIIIIIIIII');
 				response.status(201).send({
 					statusCode: 201,
 					message: `Successfully created user ${username}`
