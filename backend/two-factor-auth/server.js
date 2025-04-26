@@ -1,6 +1,7 @@
 import Fastify from 'fastify';
 import dotenv from 'dotenv';
 import googleAuthRoutes from './google-auth-app-routes/google-app-routes.js';
+import { verifyGoogleAuthenticator } from './google-auth-app-routes/google-app-routes.js';
 
 dotenv.config();
 
@@ -11,7 +12,8 @@ const fastify = Fastify({
     },
   });
 
-fastify.register(googleAuthRoutes);
+fastify.register(googleAuthRoutes, { prefix: '/2fa' });
+fastify.register(verifyGoogleAuthenticator, { prefix: '/2fa' });
 
 fastify.ready().then(() => {
   console.log('Registered Routes:', fastify.printRoutes());
