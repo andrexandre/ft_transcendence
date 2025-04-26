@@ -14,10 +14,13 @@
   "dependencies": {
     "@fastify/cookie": "^11.0.2",
     "@fastify/cors": "^10.0.2",
+    "@fastify/csrf-protection": "^7.1.0",
     "@fastify/jwt": "^9.0.4",
     "@fastify/oauth2": "^8.1.2",
     "dotenv": "^16.4.7",
     "fastify": "^5.2.1",
+    "i": "^0.3.7",
+    "npm": "^11.3.0",
     "qrcode": "^1.5.4",
     "speakeasy": "^2.0.0"
   },
