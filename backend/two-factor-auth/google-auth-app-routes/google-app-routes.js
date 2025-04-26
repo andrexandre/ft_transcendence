@@ -2,6 +2,7 @@ import speakeasy from 'speakeasy';
 import qrcode from 'qrcode';
 
 const secret = speakeasy.generateSecret();
+
 console.log('Secret:', secret.base32);
 export default async function generateQrCode(fastify, options) {
     fastify.get('/set-google-authenticator', async (request, reply) => {
@@ -14,7 +15,7 @@ export default async function generateQrCode(fastify, options) {
 export async function verifyGoogleAuthenticator(fastify, options) {
   fastify.post('/verify-google-authenticator', async (req, res) => {
     const token = req.body.token;
-    const Bsecret = req.body.secret; // Use the secret from the request or the generated one
+    const Bsecret = req.body.secret;
     console.log('Token:', token);
     console.log('Secret:', secret);
     const verified = speakeasy.totp.verify({
@@ -29,4 +30,17 @@ export async function verifyGoogleAuthenticator(fastify, options) {
         return res.status(401).send('Token is invalid');
     }
   });
+}
+
+export async function fetchTwoFactorAuthData(fastify, options){
+  fastify.post('/fetch-2fa-data', async (req, res) => {
+    const code = req.body.code;
+    //const secret = fetch(http://user_management:3000/get-secret);
+    //implement the fetch function to get the secret from the user management service
+    //implement logic to verify the code with the secret
+  });
+}
+
+function sendSecretToUserService(secret) {
+  // Implement the logic to send the secret to the user management service
 }
