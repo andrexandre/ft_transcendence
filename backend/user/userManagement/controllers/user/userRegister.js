@@ -1,5 +1,4 @@
 import bcrypt from 'bcrypt'
-import registerSchema from '../../schemas/auth/registerSchema.js';
 
 async function register(request, response) {
 	
@@ -9,9 +8,7 @@ async function register(request, response) {
 		// Password hashing
 		const salt = await bcrypt.genSalt(10);
 		const hashedPassword = await bcrypt.hash(password, salt);
-		console.log(this);
 		await this.createUser(username, email, hashedPassword, 'email');
-		console.log('AQUIIIIIIIIIIIIII');
 		response.status(201).send({
 			statusCode: 201,
 			message: `Successfully created user ${username}`
@@ -31,4 +28,4 @@ async function register(request, response) {
 	}
 }
 
-export default register;
+export { register };

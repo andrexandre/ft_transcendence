@@ -52,7 +52,7 @@ export async function updateMatchHistory() {
 }
 
 async function loadInformation() {
-	const response = await fetch(`http://${location.hostname}:3000/api/user/settings`, {
+	const response = await fetch(`http://${location.hostname}:3000/api/users/settings`, {
 		credentials: 'include'
 	})
 	if (!response.ok) return lib.showToast.red('Failed to load user Information!');
@@ -63,7 +63,7 @@ async function loadInformation() {
 	(document.getElementById("profile-bio") as HTMLInputElement).value = userData.biography;
 
 	// Set user avatar
-	const imageResponse = await fetch(`http://${location.hostname}:3000/api/user/avatar`, {
+	const imageResponse = await fetch(`http://${location.hostname}:3000/api/users/avatar`, {
 		credentials: 'include'
 	})
 	if (!imageResponse.ok) return lib.showToast.red('Failed to load user Avatar!');

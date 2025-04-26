@@ -42,8 +42,7 @@ async function save2faSettings(request, reply) {
 
 }
 
-export {}; // <- força ESM
-module.exports = {
+export {
 	getSettings,
 	saveSettings,
 	save2faSettings

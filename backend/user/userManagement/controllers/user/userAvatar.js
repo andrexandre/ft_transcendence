@@ -65,7 +65,7 @@ async function saveAvatar(request, reply) {
 		// Creating the avatar with a random id and saving the new path
 		const filepath = path.join(uploadDirectory, name);
 		await pipeline(data.file, fs.createWriteStream(filepath));
-		await server.updateUserAvatar(name, request.authenticatedUser.id);
+		await this.updateUserAvatar(name, request.authenticatedUser.id);
 		
 		// Delete old avatar
 		if (request.authenticatedUser.avatar !== 'default.jpeg') {
@@ -85,8 +85,7 @@ async function saveAvatar(request, reply) {
 	}
 }
 
-
-module.exports = {
+export {
 	getAvatar,
 	getProfileAvatar,
 	saveAvatar

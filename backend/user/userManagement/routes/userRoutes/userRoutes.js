@@ -1,7 +1,9 @@
 
-import userSettingsRoutes from "./userSettingsRoutes.js";
-import userAvatarRoutes from "./userAvatarRoutes.js";
+import * as settingsControllers from '../../controllers/user/userSettings.js';
+import * as registerControllers from '../../controllers/user/userRegister.js';
+import * as avatarControllers from '../../controllers/user/userAvatar.js';
 import { UserNotFoundError } from "../../utils/error.js";
+import registerSchema from '../../schemas/auth/registerSchema.js';
 
 async function extractInformationFromToken(request, reply) {
 	try {
@@ -30,10 +32,22 @@ async function extractInformationFromToken(request, reply) {
 
 async function userRoutes(server, opts) {
     
-	server.addHook('onRequest', extractInformationFromToken);
+	// server.addHook('onRequest', extractInformationFromToken);
 
-	server.register(userSettingsRoutes);
-	server.register(userAvatarRoutes);
+	server.route({ method: 'POST', url: '/api/users', schema: registerSchema, handler: registerControllers.register });
+
+	// Settings Routes
+	server.route({ method: 'GET', url: '/api/users/settings', onRequest: extractInformationFromToken , handler:  settingsControllers.getSettings });
+	// User PUT or PATCH to update
+	server.route({ method: 'POST', url: '/api/users/save-settings', onRequest: extractInformationFromToken , handler: settingsControllers.saveSettings });
+	server.route({ method: 'POST', url: '/api/users/save-settings-2fa', onRequest: extractInformationFromToken , handler: settingsControllers.save2faSettings });
+
+	// Avatar Routes
+	server.route({ method: 'GET', url: '/api/users/avatar', onRequest: extractInformationFromToken , handler: avatarControllers.getAvatar });
+	server.route({ method: 'GET', url: '/api/users/:username/avatar', onRequest: extractInformationFromToken , handler: avatarControllers.getProfileAvatar });
+	// User PUT or PATCH to update
+	server.route({ method: 'POST', url: '/api/users/update/avatar', onRequest: extractInformationFromToken , handler: avatarControllers.saveAvatar });
+
 
 	server.route({
 		method: 'GET',
@@ -47,6 +61,7 @@ async function userRoutes(server, opts) {
 				}
 			}
 		},
+		onRequest: extractInformationFromToken,
 		handler:  async (request, reply) => {
 			
 			try {
