@@ -114,16 +114,16 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
   
 	matchSocket.onmessage = (event) => {
 	  const data = JSON.parse(event.data);
-	  console.log("📥 Mensagem recebida:", data);
+	//   console.log("📥 Mensagem recebida:", data);
   
 	  if (data.type === "countdown") {
 		gameStarting = true;
-		console.log("⏳ Countdown iniciado:", data.value);
+		// console.log("⏳ Countdown iniciado:", data.value);
 		GameMessageVisibility(true);
-		drawGameMessage(data.value.toString(), "orange");
+		drawGameMessage(data.value.toString(), "green");
   
 		if (data.value === 1) {
-		  console.log("✅ Countdown finalizou, escondendo mensagem e mostrando canvas");
+		//   console.log("✅ Countdown finalizou, escondendo mensagem e mostrando canvas");
 		  setTimeout(() => {
 			GameMessageVisibility(false);
 			if (!gameStarted) {
@@ -137,7 +137,7 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
 	  }
   
 	  if (data.type === "update") {
-		console.log("🎯 Atualização de estado de jogo recebida");
+		// console.log("🎯 Atualização de estado de jogo recebida");
   
 		if (!gameStarted && !gameStarting) {
 		  console.warn("⚠️ Fallback: Canvas ainda não visível, forçando início");

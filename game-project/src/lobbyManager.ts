@@ -76,9 +76,6 @@ export function startGame(lobbyId: string, requesterId: number): { success: bool
 		console.log("❌ Lobby not found");
 		return { success: false };
 	}
-	// console.log("🧪 Comparando requesterId:", typeof requesterId, requesterId);
-	// console.log("🧪 com lobby.hostId:", typeof lobby.hostId, lobby.hostId);
-	// console.log("  Lobby found with hostId:", lobby.hostId, "and", lobby.players.length, "/", lobby.maxPlayers, "players");
 
 	if (Number(lobby.hostId) !== Number(requesterId)) {
 		console.log("❌ Not host");
@@ -100,10 +97,7 @@ export function startGame(lobbyId: string, requesterId: number): { success: bool
 		console.log(`📤 Enviando game-start para ${player.username}`);
 		console.log("   ↳ Socket readyState:", player.socket.readyState);
 		console.log("   ↳ Socket info:", (player.socket as any)._socket?.remoteAddress ?? "N/A");
-		console.log(`📤 Enviando game-start para ${player.username}`);
-		console.log("   ↳ typeof socket:", typeof player.socket);
-		console.log("   ↳ readyState exists?", 'readyState' in player.socket);
-		console.log("   ↳ _socket exists?", '_socket' in player.socket);
+		console.log("Socket OPEN constante:", WebSocket.OPEN);
 
 		if (player.socket.readyState === WebSocket.OPEN) {
 			player.socket.send(JSON.stringify({
@@ -111,7 +105,9 @@ export function startGame(lobbyId: string, requesterId: number): { success: bool
 				playerRole: index === 0 ? "left" : "right",
 				opponent: lobby.players[1 - index].username,
 				gameId
-			}));
+		}));
+		console.log("✅ game-start enviado para o frontend.");
+
 		} else {
 			console.warn(`⚠️ Socket do jogador ${player.username} não está aberto!`);
 		}

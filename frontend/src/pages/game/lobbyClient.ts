@@ -23,7 +23,7 @@ export function connectToGameServer(userInfo: { username: string; userId: number
 	};
 
 	socket.onmessage = (event) => {
-		// console.log("🧪 Raw WS data:", event.data);
+		console.log("📨 RAW EVENT RECEIVED:", event.data);
 		const data = JSON.parse(event.data);
 		console.log("📨 WS Message:", data);
 		
@@ -31,6 +31,12 @@ export function connectToGameServer(userInfo: { username: string; userId: number
 			case "lobby-created":
 				lobbyId = data.lobbyId;
 				showToast.green(`✅ Lobby created: ${data.lobbyId}`);
+
+				if (data.maxPlayers === 1) {
+					console.log("🎯 Singleplayer detected! Auto-starting game.");
+					setTimeout(() => matchStartGame(), 500);
+					// startGame(); // Ai
+				}
 				break;
 
 			case "lobby-joined":
@@ -44,7 +50,9 @@ export function connectToGameServer(userInfo: { username: string; userId: number
 				break;
 
 			case "game-start":
+				console.log("🎮 Game start recebido! A abrir ligação para /match-ws");
 				showToast.green(`🎮 Game started! You are: ${data.playerRole}`);
+
 				document.getElementById('sidebar')?.classList.add('hidden');
 			
 				const matchSocket = new WebSocket(`ws://127.0.0.1:5000/match-ws?gameId=${data.gameId}`);
@@ -95,9 +103,13 @@ export function leaveLobby() {
 	lobbyId = null;
 }
 
-export function startGame() {
-	if (!socket || !lobbyId || !user) return;
+export function matchStartGame() {
+	if (!socket || !lobbyId || !user) {
+        console.error("❌ Não é possível iniciar jogo. socket, lobbyId ou user faltando.");
+        return;
+    }
 
+	console.log("🚀 A pedir ao servidor para startar o jogo:", lobbyId);
 	socket.send(JSON.stringify({
 		type: "start-game",
 		lobbyId,
@@ -155,7 +167,7 @@ function renderLobbyList(lobbies: any[]) {
 			btn.textContent = "START";
 			btn.onclick = () => {
 				showToast.green("🕹️ Starting game...");
-				startGame();
+				matchStartGame();
 			};
 		} else if (isHost && isInLobby) {
 			btn.textContent = "QUIT";

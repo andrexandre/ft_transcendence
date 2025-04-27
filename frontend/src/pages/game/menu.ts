@@ -1,6 +1,5 @@
 import { showToast } from "../../utils";
 import dropdown from "../../components/dropdown";
-import { startSingleClassic } from "./single";
 
 import { connectToGameServer, createLobby, fetchLobbies } from "./lobbyClient";
 
@@ -19,11 +18,12 @@ function initializeGameMainMenu() {
 	}
 	else {
 		dropdown.addElement('Single', 'button', 'item g-t-border-alt', 'Classic', () => {
-			const difficulty = sessionStorage.getItem("user_set_dificulty") || "Normal";
-			const tableSize = sessionStorage.getItem("user_set_tableSize") || "Medium";
-			const sound = sessionStorage.getItem("user_set_sound") === "1";
+			// const difficulty = sessionStorage.getItem("user_set_dificulty") || "Normal";
+			// const tableSize = sessionStorage.getItem("user_set_tableSize") || "Medium";
+			// const sound = sessionStorage.getItem("user_set_sound") === "1";
 			document.getElementById('sidebar')?.classList.toggle('hidden');
-			// startSingleClassic(username, {difficulty, tableSize, sound});
+			
+			createLobby("Single", 1);
 		});
 	}
 	dropdown.addElement('Single', 'button', 'item g-t-border-alt','Infinity',
