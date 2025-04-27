@@ -32,8 +32,6 @@ async function extractInformationFromToken(request, reply) {
 
 async function userRoutes(server, opts) {
     
-	// server.addHook('onRequest', extractInformationFromToken);
-
 	server.route({ method: 'POST', url: '/api/users', schema: registerSchema, handler: registerControllers.register });
 
 	// Settings Routes
@@ -47,7 +45,6 @@ async function userRoutes(server, opts) {
 	server.route({ method: 'GET', url: '/api/users/:username/avatar', onRequest: extractInformationFromToken , handler: avatarControllers.getProfileAvatar });
 	// User PUT or PATCH to update
 	server.route({ method: 'POST', url: '/api/users/update/avatar', onRequest: extractInformationFromToken , handler: avatarControllers.saveAvatar });
-
 
 	server.route({
 		method: 'GET',
@@ -83,7 +80,6 @@ async function userRoutes(server, opts) {
 			}
 		}
 	});
-
 }
 
 export default userRoutes;
