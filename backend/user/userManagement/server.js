@@ -5,8 +5,8 @@ import fastifyMultipart from '@fastify/multipart'
 import fastifyCors from "@fastify/cors"; // temporario
 
 // Routes
-import authRoutes from "./routes/auth/auth.js";
-import userRoutes from "./routes/userRoutes/userRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 
 // Utils
 import { errorResponseSchema } from "./utils/error.js";

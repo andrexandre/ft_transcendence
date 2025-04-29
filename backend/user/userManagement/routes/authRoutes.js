@@ -1,7 +1,7 @@
-import login from '../../controllers/auth/login.js';
-import loginSchema from '../../schemas/auth/loginSchema.js';
-import googleSign from '../../controllers/auth/googleSign.js';
-import googleSignSchema from "../../schemas/auth/googleSignSchema.js";
+import login from '../controllers/auth/login.js';
+import loginSchema from '../schemas/auth/loginSchema.js';
+import googleSign from '../controllers/auth/googleSign.js';
+import googleSignSchema from "../schemas/auth/googleSignSchema.js";
 
 async function authRoutes(server, opts) {
     

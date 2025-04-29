@@ -1,9 +1,9 @@
 
-import * as settingsControllers from '../../controllers/user/userSettings.js';
-import * as registerControllers from '../../controllers/user/userRegister.js';
-import * as avatarControllers from '../../controllers/user/userAvatar.js';
-import { UserNotFoundError } from "../../utils/error.js";
-import registerSchema from '../../schemas/auth/registerSchema.js';
+import * as settingsControllers from '../controllers/user/userSettings.js';
+import * as registerControllers from '../controllers/user/userRegister.js';
+import * as avatarControllers from '../controllers/user/userAvatar.js';
+import { UserNotFoundError } from '../utils/error.js';
+import registerSchema from '../schemas/auth/registerSchema.js';
 
 async function extractInformationFromToken(request, reply) {
 	try {
