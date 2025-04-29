@@ -20,7 +20,7 @@ class Login extends Page {
 				<h1 class="text-3xl">Login</h1>
 				<form class="space-y-3 flex flex-col" action="#">
 					<label for="username">Username</label>
-					<input class="item t-dashed pl-4 focus:border-blue-500" type="text" id="username" placeholder="Enter username" required />
+					<input class="item t-dashed pl-4 focus:border-blue-500" type="text" id="username" placeholder="Enter username" required autofocus />
 					<label for="password">Password</label>
 					<input class="item t-dashed pl-4 focus:border-blue-500" type="password" id="password" placeholder="Enter password" required />
 					<button class="item t-dashed focus:outline-none focus:border-blue-500" type="submit">Submit</button>

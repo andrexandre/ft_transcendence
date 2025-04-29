@@ -51,8 +51,8 @@ export async function updateMatchHistory() {
 	}
 }
 
-async function loadInformation() {
-	const response = await fetch(`http://${location.hostname}:3000/api/user/settings`, {
+async function loadInformation(profileUsername: string) {
+	const response = await fetch(`http://${location.hostname}:3000/api/users/${profileUsername}`, {
 		credentials: 'include'
 	})
 	if (!response.ok) return lib.showToast.red('Failed to load user Information!');
@@ -97,7 +97,9 @@ class Profile extends Page {
 		// 	}
 		// });
 		(document.getElementById('profile-dialog') as HTMLDialogElement).addEventListener('close', () => window.history.back());
-		loadInformation();
+		if (lib.userInfo.path == '/profile' || lib.userInfo.path == '/profile/')
+			lib.userInfo.path = '/profile/' + lib.userInfo.username;
+		loadInformation(lib.userInfo.path.split('/profile/')[1]);
 		this.saveProfileInformation();
 	}
 	onCleanup(): void { }

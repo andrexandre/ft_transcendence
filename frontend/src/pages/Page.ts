@@ -28,7 +28,8 @@ export default abstract class Page {
 	// this.root.id = `page-${this.name}`;
 	// this.root.classList.add('w-full', 'h-full');
 	// this.root.innerHTML = content;
-	mount() {
+	mount(url: string) {
+		lib.userInfo.path = url;
 		this.mounted = true;
 		this.onMount();
 		setTimeout(() => {
@@ -37,7 +38,6 @@ export default abstract class Page {
 				lib.Cookies.set('outline', 'true');
 			}
 		}, 50);
-		lib.userInfo.path = this.path;
 		return this.root;
 	}
 	abstract getHtml(): string;

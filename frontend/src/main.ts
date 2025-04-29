@@ -24,7 +24,7 @@ async function loadApp(path: string) {
 		if (!response.ok)
 			throw new Error(`${response.status} - ${response.statusText}`);
 		let responseData = await response.json();
-		// lib.userInfo.username = responseData.username
+		lib.userInfo.username = responseData.username
 		// lib.userInfo.userId = responseData.userId
 		lib.userInfo.auth_method = responseData.auth_method
 		if (path == "/register" || path == "/login") {
@@ -63,7 +63,7 @@ function loadPage(path: string) {
 		case "/settings":
 			newPage = settings;
 			break;
-		case "/profile":
+		case (path.startsWith("/profile") && path):
 			newPage = profile;
 			break;
 		case "/game":
@@ -81,7 +81,7 @@ function loadPage(path: string) {
 	}
 	currentPage?.cleanup();
 	document.getElementById("app")!.innerHTML = newPage.getHtml();
-	newPage.mount();
+	newPage.mount(path);
 	currentPage = newPage;
 }
 
