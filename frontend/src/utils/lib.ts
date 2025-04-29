@@ -23,7 +23,7 @@ export function showToast(message?: string, type: string = "") {
 	toast.textContent = message || "Bro, you just got Toasted!";
 	document.getElementById('toast-container')!.appendChild(toast);
 
-	if (type != "green" && type != "red" && type != "blue" && type != "yellow")
+	if (!["green", "red", "blue", "yellow"].includes(type))
 		type = "default";
 	toast.className = `toast-${type}`;
 	setTimeout(() => toast.remove(), 3100);

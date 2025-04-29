@@ -35,11 +35,11 @@ class Chat extends Page {
 						</button>
 					</div>
 				</div>
-				<div class="flex flex-col flex-1 card t-dashed p-5">
+				<div id="chat-box" class="flex flex-col flex-1 card t-dashed p-5">
 					<div class="flex px-4 item t-dashed gap-3">
 						<button id="chat-box-profile" class="flex gap-4 mr-auto">
 							<img id="chat-box-profile-image" class="object-cover size-10 rounded-full" src="https://picsum.photos/id/237/200">
-							<span id="chat-box-header-username" class="flex items-center">Name</span>
+							<span id="chat-box-header-username" class="flex items-center">No user selected</span>
 						</button>
 						<button id="chat-box-invite" class="px-3 rounded-2xl hover:bg-c-secondary dark:hover:bg-c-primary">Invite</button>
 						<button id="chat-box-block" class="px-3 rounded-2xl hover:bg-c-secondary dark:hover:bg-c-primary">Block</button>

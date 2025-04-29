@@ -1,4 +1,4 @@
-import { showToast, userInfo } from "../../utils";
+import { navigate, showToast, userInfo } from "../../utils";
 
 export function socketOnMessage(event: MessageEvent<any>) {
 	const data = JSON.parse(event.data);
@@ -135,6 +135,7 @@ function renderOnlineUsersList(name: string) {
 		`;
 		userButton.style.pointerEvents = 'none';
 		userButton.disabled = true;
+		refreshEverything();
 	});
 	onlineUsersList.appendChild(userButton);
 }
@@ -163,6 +164,7 @@ function renderFriendRequest(name: string) {
 		friendRequestEntry.remove();
 		// removeListEntry('friend-requests-list', name);
 		showToast.green(`Friend request from ${name} accepted`);
+		refreshEverything();
 	});
 
 	const declineButton = document.getElementById(`friend-requests-list-entry-${name}-reject`)!
@@ -241,6 +243,13 @@ function removeListEntry(list: string, name: string) {
 	document.removeChild(entry);
 }
 
+function refreshEverything() {
+	showToast.blue('Refreshing...')
+	document.getElementById('online-users-refresh')?.click();
+	document.getElementById('online-friends-refresh')?.click();
+	document.getElementById('friend-requests-refresh')?.click();
+}
+
 export function setChatEventListeners() {
 	document.getElementById('online-friends-refresh')?.addEventListener('click',
 		() => {
@@ -248,14 +257,12 @@ export function setChatEventListeners() {
 			userInfo.chat_sock!.send(JSON.stringify({
 				type: 'get-friends-list'
 			}));
-			showToast.blue('Refreshing online friends...');
 		});
 	document.getElementById('friend-requests-refresh')?.addEventListener('click',
 		() => {
 			userInfo.chat_sock!.send(JSON.stringify({
 				type: 'get-friend-request',
 			}));
-			showToast.blue('Checking friend requests...')
 		});
 	document.getElementById('online-users-refresh')?.addEventListener('click',
 		() => {
@@ -263,7 +270,6 @@ export function setChatEventListeners() {
 			userInfo.chat_sock!.send(JSON.stringify({
 				type: 'get-online-users'
 			}));
-			showToast.blue('Refreshing online users...')
 		});
 	document.getElementById('chat-box-form')?.addEventListener('submit',
 		(e: Event) => {
@@ -280,15 +286,13 @@ export function setChatEventListeners() {
 			}
 		});
 	document.getElementById('chat-box-profile')?.addEventListener('click',
-		() => showToast.green('Viewing profile...'));
+		() => navigate(`/profile/${document.getElementById('chat-box-header-username')!.textContent}`));
 	document.getElementById('chat-box-invite')?.addEventListener('click',
 		() => showToast.yellow('Inviting player...'));
 	setupBlockButtonListener();
 	setTimeout(() => {
 		//* TEMP auto-refresh
-		document.getElementById('online-users-refresh')?.click();
-		document.getElementById('online-friends-refresh')?.click();
-		document.getElementById('friend-requests-refresh')?.click();
+		refreshEverything();
 	// if (userInfo.username != '42Transcendence')
 	// 	setTimeout(() => document.getElementById(`online-friends-list-entry-42Transcendence`)?.click(), 100);
 	}, 300);

@@ -2,16 +2,6 @@ import Page from "./Page"
 import * as lib from "../utils"
 import sidebar from "../components/sidebar"
 
-export async function renderProfileUsername() {
-	const profileUsername = document.getElementById("profile-username")!;
-	let line: string = '';
-	if (lib.userInfo.auth_method === "google")
-		line = "G. ";
-	else if (lib.userInfo.auth_method === "email")
-		line = "E. ";
-	profileUsername.textContent = line + lib.userInfo.username;
-}
-
 export interface MatchHistoryI {
 	Mode: string;
 	winner: {
@@ -66,7 +56,7 @@ async function updateMatchHistory() {
 		displayMatchHistory(matchHistory);
 	} catch (error) {
 		console.log(error);
-		lib.showToast.red(error as string);
+		// lib.showToast.red(error as string); //* TEMP
 		document.getElementById("stats-list")!.innerHTML = /*html*/`
 			<li class="item text-c-secondary">Invalid match history</li>
 		`;
@@ -83,12 +73,12 @@ async function getAndUpdateInfo() {
 			throw new Error(`${response.status} - ${response.statusText}`);
 		}
 		let dashData = await response.json();
-		lib.userInfo.username = dashData.username
-		lib.userInfo.codename = dashData.codename
-		lib.userInfo.biography = dashData.biography
-		lib.userInfo.userId = dashData.userId
-		lib.userInfo.auth_method = dashData.auth_method
-		renderProfileUsername();
+		lib.userInfo.username = dashData.username;
+		lib.userInfo.codename = dashData.codename;
+		lib.userInfo.biography = dashData.biography;
+		lib.userInfo.userId = dashData.userId;
+		lib.userInfo.auth_method = dashData.auth_method;
+		document.getElementById("profile-username")!.textContent = dashData.username;
 		updateMatchHistory();
 	} catch (error) {
 		console.log(error);
@@ -97,7 +87,7 @@ async function getAndUpdateInfo() {
 }
 
 async function loadInformation() {
-	const response = await fetch(`http://${location.hostname}:3000/api/user/settings`, {
+	const response = await fetch(`http://${location.hostname}:3000/api/users/settings`, {
 		credentials: 'include'
 	})
 	if (!response.ok) return lib.showToast.red('Failed to load user Information!');
@@ -107,24 +97,22 @@ async function loadInformation() {
 	(document.getElementById("profile-codename") as HTMLElement).textContent = userData.codename;
 	(document.getElementById("profile-bio") as HTMLElement).textContent = userData.biography;
 	lib.userInfo.username = userData.username;
-	lib.userInfo.codename = userData.codename;
-	lib.userInfo.biography = userData.biography;
-	lib.userInfo.userId = userData.userId;
-	lib.userInfo.auth_method = userData.auth_method;
+	// lib.userInfo.codename = userData.codename;
+	// lib.userInfo.biography = userData.biography;
+	// lib.userInfo.userId = userData.userId;
+	// lib.userInfo.auth_method = userData.auth_method;
 
 	// Set user avatar
-	const imageResponse = await fetch(`http://${location.hostname}:3000/api/user/avatar`, {
+	const imageResponse = await fetch(`http://${location.hostname}:3000/api/users/avatar`, {
 		credentials: 'include'
 	})
 	if (!imageResponse.ok) return lib.showToast.red('Failed to load user Avatar!');
 
 	const blob = await imageResponse.blob();
-	console.log(blob);
+	// console.log(blob);
 	const url = URL.createObjectURL(blob);
 	(document.getElementById("profile-image") as HTMLImageElement).src = url || 'https://picsum.photos/id/63/300';
-	// renderProfileUsername();
 	updateMatchHistory();
-
 }
 
 class Dashboard extends Page {

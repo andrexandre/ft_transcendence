@@ -64,7 +64,7 @@ async function loadInformation(profileUsername: string) {
 	lib.userInfo.username = userData.username;
 
 	// Set user avatar
-	const imageResponse = await fetch(`http://${location.hostname}:3000/api/user/avatar`, {
+	const imageResponse = await fetch(`http://${location.hostname}:3000/api/users/${profileUsername}/avatar`, {
 		credentials: 'include'
 	})
 	if (!imageResponse.ok) return lib.showToast.red('Failed to load user Avatar!');
