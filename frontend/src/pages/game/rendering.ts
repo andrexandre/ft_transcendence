@@ -1,4 +1,5 @@
 // frontend/src/pages/game/rendering.ts
+import { clearLobbyId } from './lobbyClient'; 
 export let gameCanvas: HTMLCanvasElement;
 export let ctx: CanvasRenderingContext2D;
 
@@ -11,6 +12,9 @@ let players: { username: string; userId: number; posiY: number; posiX: number; s
 let ball = { x: 800, y: 600 };
 let gameStarted = false;
 let matchSocket: WebSocket;
+let localUsername: string = "";
+
+
 
 export function initGameCanvas() {
 	gameCanvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
@@ -44,25 +48,31 @@ function updateScoreboard(players: any[]) {
 }
 
 function drawGame() {
-  ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-  ctx.fillStyle = "green";
-  ctx.fillRect(gameCanvas.width / 2 - 1, 0, 2, gameCanvas.height);
+	ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+	ctx.fillStyle = "green";
+	// linha do meio
+	const gradient = ctx.createLinearGradient(0, 0, 0, gameCanvas.height);
+	gradient.addColorStop(0, "transparent");
+	gradient.addColorStop(0.5, "green");
+	gradient.addColorStop(1, "transparent");
+	ctx.fillStyle = gradient;
+	ctx.fillRect(gameCanvas.width / 2 - 1, 0, 2, gameCanvas.height);
 
-  // Draw paddles
-  players.forEach((p) => {
-    const x = (p.posiX / 100) * (gameCanvas.width - paddleWidth);
-    const y = (p.posiY / 100) * (gameCanvas.height - paddleHeight);
-    ctx.fillStyle = p.userId === currentPlayerId ? "blue" : "red";
-    ctx.fillRect(x, y, paddleWidth, paddleHeight);
-  });
+	// Draw paddles
+	players.forEach((p) => {
+		const x = (p.posiX / 100) * (gameCanvas.width - paddleWidth);
+		const y = (p.posiY / 100) * (gameCanvas.height - paddleHeight);
+		ctx.fillStyle = p.username === localUsername ? "blue" : "red";
+		ctx.fillRect(x, y, paddleWidth, paddleHeight);
+	});
 
-  // Draw ball
-  ctx.fillStyle = "green";
-  ctx.beginPath();
-  ctx.arc(ball.x + ballSize / 2, ball.y + ballSize / 2, ballSize / 2, 0, Math.PI * 2);
-  ctx.fill();
+	// Draw ball
+	ctx.fillStyle = "green";
+	ctx.beginPath();
+	ctx.arc(ball.x + ballSize / 2, ball.y + ballSize / 2, ballSize / 2, 0, Math.PI * 2);
+	ctx.fill();
 
-  updateScoreboard(players);
+	updateScoreboard(players);
 }
 
 function setupControls() {
@@ -114,70 +124,71 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
   
 	matchSocket.onmessage = (event) => {
 	  const data = JSON.parse(event.data);
-	//   console.log("📥 Mensagem recebida:", data);
-  
-	  if (data.type === "countdown") {
-		gameStarting = true;
-		// console.log("⏳ Countdown iniciado:", data.value);
-		GameMessageVisibility(true);
-		drawGameMessage(data.value.toString(), "green");
-  
-		if (data.value === 1) {
-		//   console.log("✅ Countdown finalizou, escondendo mensagem e mostrando canvas");
-		  setTimeout(() => {
-			GameMessageVisibility(false);
-			if (!gameStarted) {
-			  hideMenuShowCanvas();
-			  gameStarted = true;
-			  console.log("🟢 Jogo marcado como iniciado");
+		//   console.log("📥 Mensagem recebida:", data);
+		if (data.type === "welcome") {
+			console.log("🎉 Welcome recebido:", data);
+			currentPlayerId = data.playerId;
+			return;
+		}
+	  
+		if (data.type === "countdown") {
+			gameStarting = true;
+			// console.log("⏳ Countdown iniciado:", data.value);
+			GameMessageVisibility(true);
+			drawGameMessage(data.value.toString(), "green");
+	
+			if (data.value === 1) {
+			setTimeout(() => {
+				GameMessageVisibility(false);
+				if (!gameStarted) {
+				hideMenuShowCanvas();
+				gameStarted = true;
+				console.log("🟢 Jogo marcado como iniciado");
+				}
+			}, 1000);
 			}
-		  }, 1000);
-		}
-		return;
-	  }
-  
-	  if (data.type === "update") {
-		// console.log("🎯 Atualização de estado de jogo recebida");
-  
-		if (!gameStarted && !gameStarting) {
-		  console.warn("⚠️ Fallback: Canvas ainda não visível, forçando início");
-		  hideMenuShowCanvas();
-		  gameStarted = true;
+			return;
 		}
   
-		players = data.state.players;
-		ball = data.state.ball;
-		drawGame();
-		return;
-	  }
+		if (data.type === "update") {
+			if (!gameStarted && !gameStarting) {
+			console.warn("⚠️ Fallback: Canvas ainda não visível, forçando início");
+			hideMenuShowCanvas();
+			gameStarted = true;
+			}
+
+			localUsername = data.you;
+	
+			players = data.state.players;
+			ball = data.state.ball;
+			drawGame();
+			return;
+		}
+
+		if (data.type === "end" && !gameEnded) {
+			gameEnded = true;
+			drawGameMessage(`${data.winner} wins!`, data.winner === sessionStorage.getItem("username") ? "blue" : "red");
+			GameMessageVisibility(true);
+	
+			setTimeout(() => {
+			console.log("🔁 Reset visual para menu principal");
+			document.getElementById("gameCanvas")?.classList.add("hidden");
+			document.getElementById("game-main-menu")?.classList.remove("hidden");
+			document.getElementById("scoreboard")!.style.display = "none";
+			GameMessageVisibility(false);
+			document.getElementById("sidebar")?.classList.remove("hidden");
+
+			clearLobbyId();	
+			gameStarted = false;
+			gameStarting = false;
+			gameEnded = false;
+			}, 5000);
+		}
+	};
   
-	  if (data.type === "end" && !gameEnded) {
-		gameEnded = true;
-		console.log("🏁 Jogo terminado → Vencedor:", data.winner);
-  
-		drawGameMessage(`${data.winner} wins!`, data.winner === sessionStorage.getItem("username") ? "blue" : "red");
+		matchSocket.onclose = () => {
+		console.log("❌ Socket do jogo foi encerrado");
 		GameMessageVisibility(true);
-  
-		setTimeout(() => {
-		  console.log("🔁 Reset visual para menu principal");
-		  document.getElementById("gameCanvas")?.classList.add("hidden");
-		  document.getElementById("game-main-menu")?.classList.remove("hidden");
-		  document.getElementById("scoreboard")!.style.display = "none";
-		  GameMessageVisibility(false);
-		  document.getElementById("sidebar")?.classList.remove("hidden");
-  
-		  // reset flags
-		  gameStarted = false;
-		  gameStarting = false;
-		  gameEnded = false;
-		}, 5000);
-	  }
-	};
-  
-	matchSocket.onclose = () => {
-	  console.log("❌ Socket do jogo foi encerrado");
-	  GameMessageVisibility(true);
-	  drawGameMessage("Disconnected from match", "red");
-	};
-  }
-  
+		drawGameMessage("Disconnected from match", "red");
+		};
+}

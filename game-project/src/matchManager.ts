@@ -1,5 +1,5 @@
 // src/matchManager.ts
-import { getGamePlayers } from './lobbyManager.js';
+import { getGamePlayers, removeLobbyByGameId } from './lobbyManager.js';
 import { updateBotPlayer } from './bot.js';
 
 const winningScore = 2;
@@ -19,6 +19,7 @@ export type MatchState = {
   interval: NodeJS.Timeout;
   paused: boolean;
   isSinglePlayer: boolean;
+//   gameMode: "Classic" | "1V1" | "Matrecos" | "Tournament";
 };
 
 const matches = new Map<string, MatchState>();
@@ -40,7 +41,7 @@ export function handleMatchConnection(gameId: string, connection: any) {
     id: p.userId,
     username: p.username,
     posiY: 50,
-    posiX: index === 1 ? 0 : 100,
+    posiX: index === 0 ? 0 : 100,
     score: 0
   }));
 
@@ -49,7 +50,7 @@ export function handleMatchConnection(gameId: string, connection: any) {
       id: 9999,
       username: "BoTony",
       posiY: 50,
-      posiX: 0,
+      posiX: 100,
       score: 0
     });
   }
@@ -59,8 +60,10 @@ export function handleMatchConnection(gameId: string, connection: any) {
     console.log(`🌟 Sala criada para jogo ${gameId}`);
   }
 
-  matchSockets.get(gameId)!.push(connection);
-  console.log(`👥 Total de sockets no jogo ${gameId}: ${matchSockets.get(gameId)!.length}`);
+  const socketArray = matchSockets.get(gameId)!;
+  const index = socketArray.length;
+  socketArray.push(connection);
+  console.log(`👥 Total de sockets no jogo ${gameId}: ${socketArray.length}`);
 
   // Cria o estado do jogo
   if (!matches.has(gameId)) {
@@ -90,12 +93,7 @@ export function handleMatchConnection(gameId: string, connection: any) {
     try {
       const data = JSON.parse(msg.toString());
       const match = matches.get(gameId);
-      const sockets = matchSockets.get(gameId);
-
-      if (!match || !sockets) return;
-
-      const index = sockets.indexOf(connection);
-      if (index === -1) return;
+      if (!match) return;
 
       const player = match.players[index];
       if (!player) return;
@@ -115,16 +113,17 @@ export function handleMatchConnection(gameId: string, connection: any) {
 
   connection.on("close", () => {
     console.log(`❌ Player desconectado do jogo ${gameId}`);
-    const remaining = matchSockets.get(gameId)?.filter(c => c !== connection);
-    if (!remaining || remaining.length === 0) {
+    const sockets = matchSockets.get(gameId)?.filter((c) => c !== connection);
+    if (!sockets || sockets.length === 0) {
       matchSockets.delete(gameId);
       const match = matches.get(gameId);
       if (match) clearInterval(match.interval);
       matches.delete(gameId);
+      removeLobbyByGameId(gameId);
       console.log(`🧹 Match ${gameId} limpo (todos os jogadores saíram)`);
     } else {
-      matchSockets.set(gameId, remaining);
-      console.log(`👥 Jogadores restantes: ${remaining.length}`);
+      matchSockets.set(gameId, sockets);
+      console.log(`👥 Jogadores restantes: ${sockets.length}`);
     }
   });
 }
@@ -142,7 +141,7 @@ function updateMatchState(gameId: string) {
 
   if (match.ball.y <= 0 || match.ball.y >= 590) match.ball.dy *= -1;
 
-  match.players.forEach(player => {
+  match.players.forEach((player) => {
     const paddleX = (player.posiX / 100) * 790;
     const paddleY = (player.posiY / 100) * 520;
 
@@ -185,22 +184,24 @@ function updateMatchState(gameId: string) {
   const sockets = matchSockets.get(gameId);
   if (!sockets) return;
 
-  sockets.forEach((sock, index) => {
-    const player = match.players[index];
+  sockets.forEach((sock, i) => {
+    const player = match.players[i];
     if (sock.readyState === sock.OPEN) {
-      sock.send(JSON.stringify({
-        type: "update",
-        you: player.username,
-        state: {
-          players: match.players,
-          ball: { x: match.ball.x, y: match.ball.y }
-        }
-      }));
+      sock.send(
+        JSON.stringify({
+          type: "update",
+          you: player.username,
+          state: {
+            players: match.players,
+            ball: { x: match.ball.x, y: match.ball.y }
+          }
+        })
+      );
     }
   });
 }
 
-function startCountdown(gameId: string) {
+export function startCountdown(gameId: string) {
   const match = matches.get(gameId);
   const sockets = matchSockets.get(gameId);
   if (!match || !sockets) return;
@@ -209,7 +210,7 @@ function startCountdown(gameId: string) {
   let count = 3;
 
   const countdown = setInterval(() => {
-    sockets.forEach(sock => {
+    sockets.forEach((sock) => {
       if (sock.readyState === sock.OPEN) {
         sock.send(JSON.stringify({ type: "countdown", value: count }));
       }
@@ -226,7 +227,7 @@ function endMatch(gameId: string, winner: string) {
   const sockets = matchSockets.get(gameId);
   if (!sockets) return;
 
-  sockets.forEach(sock => {
+  sockets.forEach((sock) => {
     if (sock.readyState === sock.OPEN) {
       sock.send(JSON.stringify({ type: "end", winner }));
     }
@@ -235,6 +236,7 @@ function endMatch(gameId: string, winner: string) {
   clearInterval(matches.get(gameId)?.interval);
   matches.delete(gameId);
   matchSockets.delete(gameId);
+  removeLobbyByGameId(gameId);
   console.log(`🌟 Match ${gameId} terminado. WINNER: ${winner}`);
 }
 
@@ -242,7 +244,7 @@ function sendCountdown(sockets: WebSocket[] | undefined) {
   if (!sockets) return;
   let count = 3;
   const interval = setInterval(() => {
-    sockets.forEach(sock => {
+    sockets.forEach((sock) => {
       if (sock.readyState === sock.OPEN)
         sock.send(JSON.stringify({ type: "countdown", value: count }));
     });

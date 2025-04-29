@@ -9,6 +9,7 @@ interface MatchData {
 	player1Score: number;
 	player2Score: number;
 	winnerId: string;
+	gameTournamentId: string;
 }
 
 interface UserData {
@@ -33,6 +34,31 @@ interface SaveSettingsRequest {
         tableSize: string;
         sound: number;
     };
+}
+
+export async function saveMatchToDatabase(player1Id: number, player2Id: number, player1Score: number, player2Score: number, gameMode: string, winnerId: number, tournamentId?: number) {
+    try {
+        const response = await fetch("http://127.0.0.1:5000/save-match", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                player1Id,
+                player2Id,
+                player1Score,
+                player2Score,
+                gameMode,
+                winnerId,
+                gameTournamentId: tournamentId ?? null
+            }),
+        });
+
+        if (!response.ok) throw new Error("Failed to save match");
+
+        console.log("✅ Match saved successfully!");
+
+    } catch (error) {
+        console.error("❌ Error saving match:", error);
+    }
 }
 
 export async function getUserDatafGateway(token: string | undefined): Promise<UserData | null> {
@@ -137,10 +163,11 @@ export async function userRoutes(gameserver: FastifyInstance) {
 
 	// Save match
 	gameserver.post("/save-match", (request, reply) => {
-		const { gameMode, player1Id, player2Id, player1Score, player2Score, winnerId } = request.body as MatchData;
+		const { gameMode, player1Id, player2Id, player1Score, player2Score, winnerId, gameTournamentId } = request.body as MatchData;
 		db_game.run(
-			`INSERT INTO games (game_mode, game_player1_id, game_player2_id, game_player1_score, game_player2_score, game_winner) VALUES (?, ?, ?, ?, ?, ?)`,
-			[gameMode, player1Id, player2Id, player1Score, player2Score, winnerId],
+			`INSERT INTO games (game_tournament_id, game_mode, game_player1_id, game_player2_id, game_player1_score, game_player2_score, game_winner)
+			VALUES (?, ?, ?, ?, ?, ?, ?)`,
+			[gameTournamentId ?? null, gameMode, player1Id, player2Id, player1Score, player2Score, winnerId],
 			(err) => {
 			  if (err) {
 				console.error("❌ DB Insert Error:", err.message);

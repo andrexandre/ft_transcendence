@@ -5,6 +5,8 @@ import { connectToMatch } from "./rendering";
 let socket: WebSocket | null = null;
 let lobbyId: string | null = null;
 let user: { username: string; userId: number } | null = null;
+let matchSocketStarted = false;
+let localPlayerRole: "left" | "right" = "left";
 
 
 export function connectToGameServer(userInfo: { username: string; userId: number }) {
@@ -23,7 +25,6 @@ export function connectToGameServer(userInfo: { username: string; userId: number
 	};
 
 	socket.onmessage = (event) => {
-		console.log("📨 RAW EVENT RECEIVED:", event.data);
 		const data = JSON.parse(event.data);
 		console.log("📨 WS Message:", data);
 		
@@ -35,7 +36,6 @@ export function connectToGameServer(userInfo: { username: string; userId: number
 				if (data.maxPlayers === 1) {
 					console.log("🎯 Singleplayer detected! Auto-starting game.");
 					setTimeout(() => matchStartGame(), 500);
-					// startGame(); // Ai
 				}
 				break;
 
@@ -50,22 +50,25 @@ export function connectToGameServer(userInfo: { username: string; userId: number
 				break;
 
 			case "game-start":
+				if (matchSocketStarted) return;
+				matchSocketStarted = true;
+
 				console.log("🎮 Game start recebido! A abrir ligação para /match-ws");
 				showToast.green(`🎮 Game started! You are: ${data.playerRole}`);
-
 				document.getElementById('sidebar')?.classList.add('hidden');
-			
+
 				const matchSocket = new WebSocket(`ws://127.0.0.1:5000/match-ws?gameId=${data.gameId}`);
 				console.log("🛰️ Connecting to match-ws:", data.gameId);
-			
+
 				matchSocket.onopen = () => {
 					console.log("✅ Connected to match WebSocket for game:", data.gameId);
 					connectToMatch(matchSocket, data.playerRole);
 				};
-			
+
 				matchSocket.onerror = () => {
 					console.error("❌ Failed to connect to match WebSocket");
 					showToast.red("❌ Falha ao conectar ao jogo");
+					matchSocketStarted = false;
 				};
 				break;
 
@@ -105,9 +108,9 @@ export function leaveLobby() {
 
 export function matchStartGame() {
 	if (!socket || !lobbyId || !user) {
-        console.error("❌ Não é possível iniciar jogo. socket, lobbyId ou user faltando.");
-        return;
-    }
+		console.error("❌ Não é possível iniciar jogo. socket, lobbyId ou user faltando.");
+		return;
+	}
 
 	console.log("🚀 A pedir ao servidor para startar o jogo:", lobbyId);
 	socket.send(JSON.stringify({
@@ -115,6 +118,11 @@ export function matchStartGame() {
 		lobbyId,
 		requesterId: user.userId
 	}));
+}
+
+export function clearLobbyId() {
+	lobbyId = null;
+	matchSocketStarted = false;
 }
 
 export async function fetchLobbies() {
@@ -135,7 +143,7 @@ function renderLobbyList(lobbies: any[]) {
 	const list = document.getElementById("lobby-list");
 	if (!list) return;
 
-	list.innerHTML = ""; 
+	list.innerHTML = "";
 
 	const currentUserId = Number(sessionStorage.getItem("user_id"));
 	if (lobbies.length === 0) {
