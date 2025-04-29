@@ -22,6 +22,11 @@ export const getUserByUsername = function (username) {
 	return this.sqlite.get(querie, [ username ]);
 }
 
+export const getUserById = function (id) {
+	const querie = 'SELECT * FROM users WHERE id = ?';
+	return this.sqlite.get(querie, [ id ]);
+}
+
 export const updateUserInformation = function ({username, email, codename, biography, two_FA_status}, id) {
 
 	const params = [ username, email, codename, biography, two_FA_status, id ];
