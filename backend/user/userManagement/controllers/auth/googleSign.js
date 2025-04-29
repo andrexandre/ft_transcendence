@@ -5,11 +5,11 @@ async function googleSign(request, response) {
     let resContent;
     try {
         
-        let user = await server.getUserByUsername(username);
+        let user = await this.getUserByUsername(username);
         if (!user) {
             // criar o user
-            await server.createUser(username, email, null, auth_method);
-            user = await server.getUserByUsername(username);
+            await this.createUser(username, email, null, auth_method);
+            user = await this.getUserByUsername(username);
             resContent = {
                 userID: `${user.id}`,
                 username: `${user.username}`,
