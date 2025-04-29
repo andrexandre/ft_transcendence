@@ -1,146 +1,207 @@
+// frontend/src/pages/game/lobbyClient.ts
 import { showToast } from "../../utils";
+import { connectToMatch } from "./rendering";
 
-const SERVER_URL = `http://${location.hostname}:5000`;
+let socket: WebSocket | null = null;
+let lobbyId: string | null = null;
+let user: { username: string; userId: number } | null = null;
+let matchSocketStarted = false;
+let localPlayerRole: "left" | "right" = "left";
 
-export async function renderLobbyList(): Promise<void> {
-	try {
-		const lobbies = await fetchLobbies();
-		const list = document.getElementById('lobby-list')!;
-		list.innerHTML = "";
 
-		const currentUsername = sessionStorage.getItem("username");
-		const currentUserId = Number(sessionStorage.getItem("user_id"));
+export function connectToGameServer(userInfo: { username: string; userId: number }) {
+	if (socket && socket.readyState === WebSocket.OPEN) {
+		console.warn("🚫 Já estás conectado ao servidor.");
+		return;
+	}
 
-		lobbies.forEach((lobbyObj: any) => {
-			const isHost = lobbyObj.hostUserId === currentUserId;
-			const isInLobby = lobbyObj.players.some((p: any) => p.userId === currentUserId);
-			const isFull = lobbyObj.players.length === lobbyObj.maxPlayers;
+	user = userInfo;
+	const { username, userId } = user;
 
-			let buttonLabel = "JOIN";
-			let handler = () => joinLobby(lobbyObj.id, currentUsername!, currentUserId);
+	socket = new WebSocket("ws://127.0.0.1:5000/game-ws");
 
-			if (isHost) {
-				if (isFull) {
-					buttonLabel = "START";
-					handler = async () => {
-						showToast.green("🕹️ Starting game...");
-						await startGameFromLobby(lobbyObj.id);
-					};
-				} else {
-					buttonLabel = "QUIT";
-					handler = async () => {
-						await leaveLobby(lobbyObj.id, currentUserId, true);
-						showToast.red("❌ Lobby disbanded");
-					};
+	socket.onopen = () => {
+		console.log(`✅ WebSocket connected for: ${username} → (${userId}) → ${socket!.url}`);
+	};
+
+	socket.onmessage = (event) => {
+		const data = JSON.parse(event.data);
+		console.log("📨 WS Message:", data);
+		
+		switch (data.type) {
+			case "lobby-created":
+				lobbyId = data.lobbyId;
+				showToast.green(`✅ Lobby created: ${data.lobbyId}`);
+
+				if (data.maxPlayers === 1) {
+					console.log("🎯 Singleplayer detected! Auto-starting game.");
+					setTimeout(() => matchStartGame(), 500);
 				}
-			}
+				break;
 
-			addLobbyEntry(
-				lobbyObj.id,
-				lobbyObj.hostUsername,
-				lobbyObj.mode,
-				`${lobbyObj.players.length}/${lobbyObj.maxPlayers}`,
-				handler,
-				buttonLabel
-			);
+			case "lobby-joined":
+				lobbyId = data.lobbyId;
+				showToast.green(`✅ Joined lobby!`);
+				break;
+
+			case "left-lobby":
+				lobbyId = null;
+				showToast.yellow(`👋 Saiu do lobby`);
+				break;
+
+			case "game-start":
+				if (matchSocketStarted) return;
+				matchSocketStarted = true;
+
+				console.log("🎮 Game start recebido! A abrir ligação para /match-ws");
+				showToast.green(`🎮 Game started! You are: ${data.playerRole}`);
+				document.getElementById('sidebar')?.classList.add('hidden');
+
+				const matchSocket = new WebSocket(`ws://127.0.0.1:5000/match-ws?gameId=${data.gameId}`);
+				console.log("🛰️ Connecting to match-ws:", data.gameId);
+
+				matchSocket.onopen = () => {
+					console.log("✅ Connected to match WebSocket for game:", data.gameId);
+					connectToMatch(matchSocket, data.playerRole);
+				};
+
+				matchSocket.onerror = () => {
+					console.error("❌ Failed to connect to match WebSocket");
+					showToast.red("❌ Falha ao conectar ao jogo");
+					matchSocketStarted = false;
+				};
+				break;
+
+			case "error":
+				showToast.red(`❌ ${data.message}`);
+				break;
+		}
+	};
+
+	socket.onerror = () => showToast.red("❌ WebSocket connection error");
+	socket.onclose = () => showToast.red("🔌 Disconnected from server");
+}
+
+export function createLobby(gameMode: string, maxPlayers: number) {
+	if (!socket || socket.readyState !== WebSocket.OPEN) return;
+	if (lobbyId) return showToast.red("🚫 Já estás num lobby");
+
+	socket.send(JSON.stringify({
+		type: "create-lobby",
+		gameMode,
+		maxPlayers
+	}));
+}
+
+export function joinLobby(id: string) {
+	if (!socket || socket.readyState !== WebSocket.OPEN) return;
+	if (lobbyId) return showToast.red("🚫 Já estás num lobby");
+
+	socket.send(JSON.stringify({ type: "join-lobby", lobbyId: id }));
+}
+
+export function leaveLobby() {
+	if (!socket || socket.readyState !== WebSocket.OPEN) return;
+	socket.send(JSON.stringify({ type: "leave-lobby" }));
+	lobbyId = null;
+}
+
+export function matchStartGame() {
+	if (!socket || !lobbyId || !user) {
+		console.error("❌ Não é possível iniciar jogo. socket, lobbyId ou user faltando.");
+		return;
+	}
+
+	console.log("🚀 A pedir ao servidor para startar o jogo:", lobbyId);
+	socket.send(JSON.stringify({
+		type: "start-game",
+		lobbyId,
+		requesterId: user.userId
+	}));
+}
+
+export function clearLobbyId() {
+	lobbyId = null;
+	matchSocketStarted = false;
+}
+
+export async function fetchLobbies() {
+	try {
+		const res = await fetch("http://127.0.0.1:5000/lobbies", {
+			credentials: "include"
 		});
-
+		if (!res.ok) throw new Error("Failed to fetch lobbies");
+		const lobbies = await res.json();
+		renderLobbyList(lobbies);
 	} catch (err) {
 		console.error("❌ Failed to load lobbies:", err);
 		showToast.red("Failed to load lobbies");
 	}
 }
 
-export async function leaveLobby(lobbyId: string, userId: number, isHost: boolean) {
-	const endpoint = isHost
-		? `${SERVER_URL}/lobbies/${lobbyId}`
-		: `${SERVER_URL}/lobbies/${lobbyId}/leave`;
+function renderLobbyList(lobbies: any[]) {
+	const list = document.getElementById("lobby-list");
+	if (!list) return;
 
-	const res = await fetch(endpoint, {
-		method: "DELETE",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ userId }),
-	});
-	if (!res.ok) throw new Error("Failed to leave/disband lobby");
-	await renderLobbyList();
-}
+	list.innerHTML = "";
 
-function addLobbyBlock(gameOptionId: string, gameOption: string | number) {
-	const lobby = document.getElementById('lobby-list');
-	const entry = document.createElement('li') as HTMLElement;
-	entry.id = `entry-${gameOptionId}-${gameOption}`;
-	entry.innerHTML = `${gameOption}`;
-	lobby?.appendChild(entry);
-}
-
-function addLobbyEntry(
-	id: string,
-	userName: string,
-	gameType: string,
-	maxPlayer: string,
-	onClickHandler: () => void,
-	label: string = "JOIN"
-) {
-	addLobbyBlock(id, userName);
-	addLobbyBlock(id, gameType);
-	addLobbyBlock(id, maxPlayer);
-	addLobbyBlock(id, /*html*/`
-		<button id="join-button-${id}" class="text-orange-700 hover:bg-orange-500 hover:text-black">${label}</button>
-	`);
-	document.getElementById(`join-button-${id}`)?.addEventListener("click", onClickHandler);
-}
-
-export async function fetchLobbies() {
-	const res = await fetch(`${SERVER_URL}/lobbies`);
-	if (!res.ok) throw new Error("Failed to fetch lobbies");
-	return await res.json();
-}
-
-export async function createLobby(username: string, userId: number, mode = "classic", maxPlayers = 2) {
-	const res = await fetch(`${SERVER_URL}/lobbies`, {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ username, userId, mode, maxPlayers }),
-	});
-	if (!res.ok) {
-		const errMsg = await res.text();
-		throw new Error(errMsg || "Failed to create lobby");
+	const currentUserId = Number(sessionStorage.getItem("user_id"));
+	if (lobbies.length === 0) {
+		list.innerHTML = "<p class='text-gray-500'>😴 Nenhum lobby disponível.</p>";
+		return;
 	}
-	return await res.json();
-}
 
-export async function joinLobby(lobbyId: string, username: string, userId: number) {
-	const res = await fetch(`${SERVER_URL}/lobbies/${lobbyId}/join`, {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ username, userId }),
-	});
-	if (!res.ok) {
-		showToast.red("Cannot join lobby");
-		throw new Error("Cannot join lobby");
-	}
-	showToast.green("Lobby joined");
-	return await res.json();
-}
+	for (const lobby of lobbies) {
+		const isHost = Number(lobby.hostUserId) === currentUserId;
+		const isInLobby = lobbyId === lobby.id;
+		const isFull = lobby.playerCount === lobby.maxPlayers;
 
-export async function startGameFromLobby(lobbyId: string) {
-	try {
-		const userId = Number(sessionStorage.getItem("user_id"));
-		const response = await fetch(`${SERVER_URL}/lobbies/${lobbyId}/start`, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ userId }), // ✅ Send userId to backend
-		});
-		if (!response.ok) throw new Error("Failed to start game");
+		const div = document.createElement("div");
+		div.className = "lobby-entry flex flex-row justify-between items-center w-full border-b py-2 px-4";
 
-		const data = await response.json();
-		console.log("🎮 Starting game with:", data.players);
+		const host = document.createElement("span");
+		host.textContent = lobby.host || "???";
 
-		document.getElementById("sidebar")?.classList.add("hidden");
-		document.getElementById("game-main-menu")?.classList.add("hidden");
+		const mode = document.createElement("span");
+		mode.textContent = lobby.gameMode;
 
-	} catch (err) {
-		console.error("❌ Error starting game:", err);
-		showToast.red("Failed to start game");
+		const players = document.createElement("span");
+		players.textContent = `${lobby.playerCount}/${lobby.maxPlayers}`;
+
+		const btn = document.createElement("button");
+		btn.className = "px-3 py-1 rounded bg-orange-700 text-black hover:bg-orange-500";
+
+		if (isHost && isFull) {
+			btn.textContent = "START";
+			btn.onclick = () => {
+				showToast.green("🕹️ Starting game...");
+				matchStartGame();
+			};
+		} else if (isHost && isInLobby) {
+			btn.textContent = "QUIT";
+			btn.onclick = () => {
+				showToast.red("❌ Leaving lobby...");
+				leaveLobby();
+				setTimeout(fetchLobbies, 300);
+			};
+		} else if (isInLobby) {
+			btn.textContent = "QUIT";
+			btn.onclick = () => {
+				showToast.red("❌ Leaving lobby...");
+				leaveLobby();
+				setTimeout(fetchLobbies, 300);
+			};
+		} else {
+			btn.textContent = "JOIN";
+			btn.onclick = () => {
+				joinLobby(lobby.id);
+			};
+		}
+
+		div.appendChild(host);
+		div.appendChild(mode);
+		div.appendChild(players);
+		div.appendChild(btn);
+		list.appendChild(div);
 	}
 }
