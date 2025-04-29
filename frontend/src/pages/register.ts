@@ -11,6 +11,13 @@ class Register extends Page {
 		document.getElementById("google-auth-button")!.addEventListener("click", () => {
 			window.location.href = `http://${location.hostname}:7000/loginOAuth`;
 		});
+		document.getElementById('username')?.addEventListener('input', (e) => {
+			const error = document.getElementById('username-error')!;
+			if ((e.target as HTMLInputElement).validity.valid)
+				error.classList.add('hidden');
+			else
+				error.classList.remove('hidden');
+		});
 	}
 	onCleanup(): void { }
 	getHtml(): string {
@@ -19,8 +26,9 @@ class Register extends Page {
 				<h1 class="text-3xl">Register</h1>
 				<form class="space-y-3 flex flex-col" action="#">
 					<label for="username">Username</label>
-					<input class="item t-dashed pl-4 focus:border-blue-500" type="text" id="username" placeholder="Enter username" required
-						autofocus minlength="3" maxlength="20" pattern="^[^<>/\\{}]+$" />
+					<input class="item t-dashed pl-4 valid:focus:border-blue-500 invalid:border-red-500" type="text" id="username" placeholder="Enter username" required
+						autofocus minlength="3" maxlength="20" pattern="^[^<>]+$" />
+					<span id="username-error" class="text-red-500 text-xs hidden">Username has invalid length or characters</span>
 					<label for="email">Email</label>
 					<input class="item t-dashed pl-4 focus:border-blue-500" type="email" id="email" placeholder="Enter email" required />
 					<label for="password">Password</label>

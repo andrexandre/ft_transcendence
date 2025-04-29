@@ -149,6 +149,13 @@ class Settings extends Page {
 
 		loadInformation();
 		this.saveProfileInformation();
+		document.getElementById('profile-username')?.addEventListener('input', (e) => {
+			const error = document.getElementById('username-error')!;
+			if ((e.target as HTMLInputElement).validity.valid)
+				error.classList.add('hidden');
+			else
+				error.classList.remove('hidden');
+		});
 	}
 	onCleanup(): void { }
 	getHtml(): string {
@@ -156,7 +163,7 @@ class Settings extends Page {
 			${sidebar.getHtml()}
 			<main class="grid grid-cols-2 max-2xl:grid-cols-1 flex-1 card t-dashed text-start overflow-auto">
 				<div id="col-1 flex-1">
-					<form id="profile" class="card flex flex-col overflow-auto" action="#">
+					<form class="card flex flex-col overflow-auto" action="#">
 						<h1 class="item text-start text-2xl">Profile</h1>
 						<div class="flex">
 							<button id="profile-image-button" class="relative size-60 group">
@@ -167,7 +174,8 @@ class Settings extends Page {
 							</button>
 							<div class="flex flex-col justify-center self-center gap-4 ml-20">
 								<label class="text-left font-bold" for="profile-username">Username</label>
-								<input class="p-1 t-dashed pl-4" type="text" id="profile-username" placeholder="Enter username" value="Sir Barkalot" />
+								<input class="p-1 t-dashed pl-4 invalid:border-red-500" type="text" id="profile-username" placeholder="Enter username" value="Sir Barkalot" minlength="3" maxlength="20" pattern="^[^<>]+$" />
+								<span id="username-error" class="text-red-500 text-xs hidden">Username has invalid length or characters</span>
 								<label class="text-left font-bold" for="profile-codename">Codename</label>
 								<input class="p-1 t-dashed pl-4" type="text" id="profile-codename" placeholder="Enter codename" value="The mighty tail-wagger"/>
 								<label class="text-left font-bold" for="profile-email">Email</label>
