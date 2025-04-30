@@ -139,6 +139,31 @@ export async function fetchLobbies() {
 	}
 }
 
+function addLobbyBlock(gameOptionId: string, gameOption: string | number) {
+	const lobby = document.getElementById('lobby-list');
+	const entry = document.createElement('li') as HTMLElement;
+	entry.id = `entry-${gameOptionId}-${gameOption}`;
+	entry.innerHTML = `${gameOption}`;
+	entry.className = "truncate";
+	lobby?.appendChild(entry);
+}
+
+function addLobbyEntry(
+	id: string,
+	userName: string,
+	gameType: string,
+	maxPlayer: string,
+	// onClickHandler: () => void
+) {
+	addLobbyBlock(id, userName);
+	addLobbyBlock(id, gameType);
+	addLobbyBlock(id, maxPlayer);
+	addLobbyBlock(id, /*html*/`
+		<button id="join-button-${id}" class="text-orange-700 hover:bg-orange-500 hover:text-black">???</button>
+	`);
+	// document.getElementById(`join-button-${id}`)?.addEventListener("click", onClickHandler);
+}
+
 function renderLobbyList(lobbies: any[]) {
 	const list = document.getElementById("lobby-list");
 	if (!list) return;
@@ -147,7 +172,7 @@ function renderLobbyList(lobbies: any[]) {
 
 	const currentUserId = Number(sessionStorage.getItem("user_id"));
 	if (lobbies.length === 0) {
-		list.innerHTML = "<p class='text-gray-500'>😴 Nenhum lobby disponível.</p>";
+		list.innerHTML = /*html*/`<p class='text-c-secondary col-span-4'>No lobby available</p>`;
 		return;
 	}
 
@@ -156,20 +181,13 @@ function renderLobbyList(lobbies: any[]) {
 		const isInLobby = lobbyId === lobby.id;
 		const isFull = lobby.playerCount === lobby.maxPlayers;
 
-		const div = document.createElement("div");
-		div.className = "lobby-entry flex flex-row justify-between items-center w-full border-b py-2 px-4";
-
-		const host = document.createElement("span");
-		host.textContent = lobby.host || "???";
-
-		const mode = document.createElement("span");
-		mode.textContent = lobby.gameMode;
-
-		const players = document.createElement("span");
-		players.textContent = `${lobby.playerCount}/${lobby.maxPlayers}`;
-
-		const btn = document.createElement("button");
-		btn.className = "px-3 py-1 rounded bg-orange-700 text-black hover:bg-orange-500";
+		addLobbyEntry(
+			lobby.id,
+			lobby.host,
+			lobby.gameMode,
+			`${lobby.playerCount}/${lobby.maxPlayers}`
+		);
+		const btn = document.getElementById(`join-button-${lobby.id}`) as HTMLElement;
 
 		if (isHost && isFull) {
 			btn.textContent = "START";
@@ -197,11 +215,5 @@ function renderLobbyList(lobbies: any[]) {
 				joinLobby(lobby.id);
 			};
 		}
-
-		div.appendChild(host);
-		div.appendChild(mode);
-		div.appendChild(players);
-		div.appendChild(btn);
-		list.appendChild(div);
 	}
 }
