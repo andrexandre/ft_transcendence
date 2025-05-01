@@ -87,7 +87,7 @@ async function getAndUpdateInfo() {
 }
 
 async function loadInformation() {
-	const response = await fetch(`http://${location.hostname}:3000/api/users/settings`, {
+	const response = await fetch(`http://${location.hostname}:80/api/users/settings`, {
 		credentials: 'include'
 	})
 	if (!response.ok) return lib.showToast.red('Failed to load user Information!');
@@ -103,7 +103,7 @@ async function loadInformation() {
 	// lib.userInfo.auth_method = userData.auth_method;
 
 	// Set user avatar
-	const imageResponse = await fetch(`http://${location.hostname}:3000/api/users/avatar`, {
+	const imageResponse = await fetch(`http://${location.hostname}:80/api/users/avatar`, {
 		credentials: 'include'
 	})
 	if (!imageResponse.ok) return lib.showToast.red('Failed to load user Avatar!');

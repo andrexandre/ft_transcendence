@@ -31,10 +31,10 @@ function loginRoute(fastify, options) {
             reply.status(200).setCookie("token", token, {
                 path: '/',
                 httpOnly: true,
-                secure: true,
-                sameSite: 'None'
+                secure: false,
+                sameSite: 'lax',
             });
-            reply.send(payload);
+            return reply.send(payload);
         }
         else{
             reply.status(response.status);

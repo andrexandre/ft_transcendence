@@ -6,7 +6,6 @@ import gameSettings from '../routes/frontend/gameSettings.js';
 async function setProtectedRoutes(fastify, options) {
     fastify.addHook('onRequest', async (request, reply) => {
         try{
-            await fastify.parseToReadableData(request.cookies.token);
             await request.jwtVerify();
         } catch (err) {
             reply.status(403);
