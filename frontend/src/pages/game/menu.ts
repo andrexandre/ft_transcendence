@@ -14,10 +14,10 @@ function initializeGameMainMenu() {
 	dropdown.initialize('Single');
 	if (!username) {
 		console.error("❌ No username found in sessionStorage!");
-		dropdown.addElement('Single', 'button', 'item g-t-border-alt', 'User not found');
+		dropdown.addElement('Single', 'button', 'item t-border-alt', 'User not found');
 	}
 	else {
-		dropdown.addElement('Single', 'button', 'item g-t-border-alt', 'Classic', () => {
+		dropdown.addElement('Single', 'button', 'item t-border-alt', 'Classic', () => {
 			// const difficulty = sessionStorage.getItem("user_set_dificulty") || "Normal";
 			// const tableSize = sessionStorage.getItem("user_set_tableSize") || "Medium";
 			// const sound = sessionStorage.getItem("user_set_sound") === "1";
@@ -26,7 +26,7 @@ function initializeGameMainMenu() {
 			createLobby("Single", 1);
 		});
 	}
-	dropdown.addElement('Single', 'button', 'item g-t-border-alt','Infinity',
+	dropdown.addElement('Single', 'button', 'item t-border-alt','Infinity',
 		() => showToast(`Single Infinity clicked`));
 
 	// 👥 Multiplayer
@@ -57,17 +57,17 @@ function initializeGameMainMenu() {
 		}
 	});
 
-	dropdown.addElement("Multi", "button", "item g-t-border-alt", "Tournament", () => {
+	dropdown.addElement("Multi", "button", "item t-border-alt", "Tournament", () => {
 		showToast.green(`TNT clicked`)
 		createLobby("TNT", 8);
 	});
 
-	dropdown.addElement("Multi", "button", "item g-t-border-alt", "1V1", () => {
+	dropdown.addElement("Multi", "button", "item t-border-alt", "1V1", () => {
 		showToast(`1V1 clicked`)
 		createLobby("1V1", 2);
 	});
 
-	dropdown.addElement("Multi", "button", "item g-t-border-alt", "Don't click", () => {
+	dropdown.addElement("Multi", "button", "item t-border-alt", "Don't click", () => {
 		document.body.innerHTML = "";
 		document.body.className = "h-screen m-0 bg-cover bg-center bg-no-repeat";
 		document.body.style.backgroundImage =
@@ -101,9 +101,9 @@ function initializeGameMainMenu() {
 			}
 		}
 	});
-	
+
 	// Matrecos
-	dropdown.addElement('Co-Op', 'button', 'item g-t-border-alt', 'Matrecos', async () => {
+	dropdown.addElement('Co-Op', 'button', 'item t-border-alt', 'Matrecos', async () => {
 		const username = sessionStorage.getItem("username")!;
 		const userId = Number(sessionStorage.getItem("user_id")!);
 		try {
@@ -113,9 +113,9 @@ function initializeGameMainMenu() {
 			showToast.red("❌ Failed to create Matrecos lobby");
 		}
 	});
-	
+
 	// Free for All
-	dropdown.addElement('Co-Op', 'button', 'item g-t-border-alt', 'Free for All', async () => {
+	dropdown.addElement('Co-Op', 'button', 'item t-border-alt', 'Free for All', async () => {
 		const username = sessionStorage.getItem("username")!;
 		const userId = Number(sessionStorage.getItem("user_id")!);
 		try {
@@ -130,33 +130,33 @@ function initializeGameMainMenu() {
 
 export async function initUserData() {
 	console.log("📌 Menu Loaded, checking user...");
-	
+
 	const difficultySelect = document.getElementById('difficulty') as HTMLSelectElement;
 	const tableSizeSelect = document.getElementById('table-size') as HTMLSelectElement;
 	const soundSelect = document.getElementById('sound') as HTMLSelectElement;
-	
+
 	try {
-		const response = await fetch("http://127.0.0.1:5000/get-user-data", { credentials: "include" });
-		
+		const response = await fetch(`http://${location.hostname}:5000/get-user-data`, { credentials: "include" });
+
 		if (!response.ok) {
 			throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
 		}
-		
+
 		const userData = await response.json();
 		console.log("✅ User & Settings Loaded:", userData);
-		
+
 		// Store settings in sessionStorage
 		sessionStorage.setItem("username", userData.user_name);
 		sessionStorage.setItem("user_id", userData.user_id);
 		sessionStorage.setItem("user_set_dificulty", userData.user_set_dificulty);
 		sessionStorage.setItem("user_set_tableSize", userData.user_set_tableSize);
 		sessionStorage.setItem("user_set_sound", userData.user_set_sound.toString());
-		
+
 		// Update UI dropdowns with loaded settings
 		difficultySelect.value = userData.user_set_dificulty;
 		tableSizeSelect.value = userData.user_set_tableSize;
 		soundSelect.value = userData.user_set_sound === 1 ? "On" : "Off";
-		
+
 		initializeGameMainMenu();
 	} catch (error) {
 		showToast.red(error as string);
@@ -170,12 +170,12 @@ export async function saveSettingsHandler() {
 		console.error("❌ No username found! Cannot save settings.");
 		return;
 	}
-	
+
 	// Read values from dropdowns
 	const difficultySelect = document.getElementById('difficulty') as HTMLSelectElement;
 	const tableSizeSelect = document.getElementById('table-size') as HTMLSelectElement;
 	const soundSelect = document.getElementById('sound') as HTMLSelectElement;
-	
+
 	const difficulty = difficultySelect.value;
 	const tableSize = tableSizeSelect.value;
 	const sound = soundSelect.value === "On" ? 1 : 0;
@@ -186,20 +186,20 @@ export async function saveSettingsHandler() {
 	sessionStorage.setItem("user_set_dificulty", difficulty);
 	sessionStorage.setItem("user_set_tableSize", tableSize);
 	sessionStorage.setItem("user_set_sound", sound.toString());
-	
+
 	// Send settings update to the database
 	try {
-		const response = await fetch("http://127.0.0.1:5000/save-settings", {
+		const response = await fetch(`http://${location.hostname}:5000/save-settings`, {
 			method: "PATCH",
 			headers: { "Content-Type": "application/json" },
 			credentials: 'include',
 			body: JSON.stringify({ username, difficulty, tableSize, sound }),
 		});
-		
+
 		if (!response.ok)
 			throw new Error(`Failed to save settings (${response.status})`);
 		showToast.green('Settings saved');
-		
+
 	} catch (error) {
 		console.error("❌ Error saving settings:", error);
 	}

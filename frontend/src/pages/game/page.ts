@@ -4,22 +4,20 @@ import sidebar from "../../components/sidebar"
 import dropdown from "../../components/dropdown"
 import * as menu from "./menu"
 
-let currentTheme: string;
-
 class Game extends Page {
 	constructor() {
 		super("game", '/game');
 	}
 	onMount(): void {
-		currentTheme = lib.getTheme();
-		lib.setTheme('light')
+		lib.setTheme('dark')
+		lib.setColor('game');
 		sidebar.setSidebarToggler('game');
 		// Set Settings dropdown
 		dropdown.initialize('Settings');
 		dropdown.addElement('Settings', 'div', 'flex flex-col', /*html*/`
 			<div class="grid grid-cols-[1fr_2fr] items-center">
 				<label for="difficulty">Difficulty</label>
-				<select id="difficulty" class="item g-t-border justify-center">
+				<select id="difficulty" class="item t-border justify-center">
 					<option>Easy</option>
 					<option>Normal</option>
 					<option>Hard</option>
@@ -27,7 +25,7 @@ class Game extends Page {
 			</div>
 			<div class="grid grid-cols-[1fr_2fr] items-center">
 				<label for="table-size">Table Size</label>
-				<select id="table-size" class="item g-t-border justify-center">
+				<select id="table-size" class="item t-border justify-center">
 					<option>Small</option>
 					<option>Medium</option>
 					<option>Large</option> 
@@ -35,12 +33,12 @@ class Game extends Page {
 			</div>
 			<div class="grid grid-cols-[1fr_2fr] items-center">
 				<label for="sound">Sound</label>
-				<select id="sound" class="item g-t-border justify-center">
+				<select id="sound" class="item t-border justify-center">
 					<option>On</option>
 					<option>Off</option>
 				</select>
 			</div>
-			<button id="save-settings" type="button" class="item g-t-border">Save</button>
+			<button id="save-settings" type="button" class="item t-border">Save</button>
 		`);
 		document.getElementById('save-settings')!.addEventListener('click', menu.saveSettingsHandler);
 
@@ -50,13 +48,14 @@ class Game extends Page {
 		// document.getElementById('dropdownButton-Multi')?.click();
 		document.getElementById('game-main-menu')!.addEventListener('click', (event) => this.setGameMenuToggler(event));
 	}
-	onCleanup() {
-		lib.setTheme(currentTheme);
+	onCleanup(): void {
+		lib.setTheme(lib.getTheme());
+		lib.setColor(localStorage.getItem('color') || lib.defaultColor);
 	}
 	getHtml(): string {
 		return /*html*/`
 			${sidebar.getHtml()}
-			<main class="card g-t-border flex flex-1 justify-around items-center font-['Press_Start_2P']">
+			<main class="card t-border flex flex-1 justify-around items-center font-['Press_Start_2P']">
 				<div id="game-main-menu" class="flex flex-col items-center">
 					<h1 id="main-menu-title" class="text-8xl mb-20 max-lg:text-7xl">PONGIFY</h1>
 					<div class="flex gap-5">
@@ -66,14 +65,14 @@ class Game extends Page {
 							${dropdown.getHtml('Co-Op')}
 							${dropdown.getHtml('Settings')}
 						</div>
-						<div id="lobby" class="hidden flex-col w-100 space-y-3 item g-t-border text-sm">
+						<div id="lobby" class="hidden flex-col w-100 space-y-3 item t-border text-sm">
 							<ul class="grid grid-cols-[1fr_1fr_4.5rem_4.5rem]">
 								<li class="text-c-secondary">Host</li>
 								<li class="text-c-secondary">Mode</li>
 								<li class="text-c-secondary">#/#</li>
 								<li class="text-c-secondary"></li>
 							</ul>
-							<ul id="lobby-list" class="grid grid-cols-[1fr_1fr_4.5rem_4.5rem] overflow-scroll text-sm">
+							<ul id="lobby-list" class="grid grid-cols-[1fr_1fr_4.5rem_4.5rem] overflow-auto text-sm">
 							</ul>
 						</div>
 					</div>

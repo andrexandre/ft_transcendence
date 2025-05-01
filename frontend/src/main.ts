@@ -6,57 +6,53 @@ import register from "./pages/register"
 import login from "./pages/login"
 import dashboard from "./pages/dashboard"
 import settings from "./pages/settings"
+import profile from "./pages/profile"
 import game from "./pages/game/page"
 import chat from "./pages/chat/page"
 import * as lib from "./utils"
 
 let currentPage: Page | undefined;
 
-// TODO fix already logged in user
-async function checkLogin() {
+let firstPageLoad = true;
+
+async function loadApp(path: string) {
+	// check authentication
 	try {
-		const response = await fetch('http://127.0.0.1:7000/frontend/fetchDashboardData', {
+		const response = await fetch(`http://${location.hostname}:7000/fetchDashboardData`, {
 			credentials: 'include',
 		});
-		if (!response.ok) {
-			lib.navigate('/login');
+		if (!response.ok)
 			throw new Error(`${response.status} - ${response.statusText}`);
+		let responseData = await response.json();
+		lib.userInfo.username = responseData.username
+		// lib.userInfo.userId = responseData.userId
+		lib.userInfo.auth_method = responseData.auth_method
+		if (path == "/register" || path == "/login") {
+			lib.showToast(`Already authenticated`);
+			history.replaceState(null, "", "/");
+			path = '/';
 		}
-		let dashData = await response.json();
-		lib.userInfo.username = dashData.username
-		lib.userInfo.userId = dashData.userId
-		lib.userInfo.auth_method = dashData.auth_method
 	} catch (error) {
-		console.log(error);
-		lib.showToast.red(error as string);
+		if (path != "/register" && path != "/login") {
+			console.log(error);
+			if (error == 'TypeError: NetworkError when attempting to fetch resource.')
+				error = 'Server is not reachable';
+			lib.showToast.red(error as string);
+			history.replaceState(null, "", "/login");
+			path = '/login';
+		}
 	}
+	if (firstPageLoad) {
+		firstPageLoad = false;
+		if (lib.userInfo.auth_method)
+			lib.daemon(true);
+	}
+	loadPage(path);
 }
 
-function setColorTheme(theme: string, _color?: string) {
-	if (theme === "game") {
-		document.documentElement.style.setProperty('--color-c-bg', 'var(--color-g-c-bg)');
-		document.documentElement.style.setProperty('--color-c-secondary', 'var(--color-g-c-secondary)');
-		document.documentElement.style.setProperty('--color-c-text', 'var(--color-g-c-text)');
-		document.documentElement.style.setProperty('--color-c-primary', 'var(--color-g-c-primary)');
-	}
-	else {
-		document.documentElement.style.setProperty('--color-c-bg', 'var(--color-d-c-bg)');
-		document.documentElement.style.setProperty('--color-c-secondary', 'var(--color-d-c-secondary)');
-		document.documentElement.style.setProperty('--color-c-text', 'var(--color-d-c-text)');
-		document.documentElement.style.setProperty('--color-c-primary', 'var(--color-d-c-primary)');
-	}
-}
-
-function loadPage(path: string): void {
+function loadPage(path: string) {
 	let newPage: Page;
 
-	if (path != "/register" && path != "/login")
-		checkLogin();
-	if (path === "/game") {
-		setColorTheme("game");
-	} else {
-		setColorTheme("light", "stone");
-	}
 	switch (path) {
 		case "/register":
 			newPage = register;
@@ -66,6 +62,9 @@ function loadPage(path: string): void {
 			break;
 		case "/settings":
 			newPage = settings;
+			break;
+		case (path.startsWith("/profile") && path):
+			newPage = profile;
 			break;
 		case "/game":
 			newPage = game;
@@ -82,23 +81,17 @@ function loadPage(path: string): void {
 	}
 	currentPage?.cleanup();
 	document.getElementById("app")!.innerHTML = newPage.getHtml();
-	newPage.mount();
-	setTimeout(() => {
-		if (lib.Cookies.get('outline')) {
-			document.dispatchEvent(new KeyboardEvent('keydown', { key: ' ' }));
-			lib.Cookies.set('outline', 'true');
-		}
-	}, 50);
+	newPage.mount(path);
 	currentPage = newPage;
 }
 
 // fix circular dependency for navigate function
 window.addEventListener('navigateTo', (e) => {
-	loadPage((e as CustomEvent).detail);
+	loadApp((e as CustomEvent).detail);
 });
 
 window.addEventListener("popstate", () => {
-	loadPage(location.pathname);
+	loadApp(location.pathname);
 });
 
-loadPage(location.pathname);
+loadApp(location.pathname);

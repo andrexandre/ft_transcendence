@@ -66,5 +66,13 @@ profile*
 *clinic*
 *flamegraph*
 
+# andre
 .vite
 frontend/**/*.js
+profile.ts
+
+# alex
+backend/user/userManagement/uploads/*.png
+backend/user/userManagement/uploads/*.jpeg
+backend/user/userManagement/uploads/*.jpg
+!backend/user/userManagement/uploads/default.jpeg

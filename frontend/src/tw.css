@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./colors";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -13,28 +14,34 @@ focus:border- (excluding auth)
 /* theme */
 @theme static {
 	/* 0 = lighter, 1000 = darker */
-	--color-c-bg: var(--color-d-c-bg); /* background */
-	--color-c-text: var(--color-d-c-text); /* text */
-	--color-c-primary: var(--color-d-c-primary); /* border hover */
-	--color-c-secondary: var(--color-d-c-secondary); /* border */
-	--color-d-c-bg: theme(colors.white);
-	--color-d-c-text: theme(colors.stone.800);
-	--color-d-c-primary: theme(colors.stone.600);
-	--color-d-c-secondary: theme(colors.stone.400);
-	--color-g-c-bg: theme(colors.black);
-	--color-g-c-text: theme(colors.green.600);
-	--color-g-c-primary: theme(colors.green.400);
-	--color-g-c-secondary: theme(colors.green.800);
+	--color-c-bg: var(--color-c-game-bg); /* background */
+	--color-c-text: var(--color-c-game-text); /* text */
+	--color-c-primary: var(--color-c-game-primary); /* border hover */
+	--color-c-secondary: var(--color-c-game-secondary); /* border */
+	--color-c-game-bg: theme(colors.green.600);
+	--color-c-game-text: theme(colors.green.400);
+	--color-c-game-primary: theme(colors.green.800);
+	--color-c-game-secondary: theme(colors.green.600);
 }
+
+body { @apply bg-white dark:bg-black select-none text-c-text dark:text-c-bg; }
+
+h1 { @apply font-bold; }
+
+button { @apply cursor-pointer; }
+
+img { @apply pointer-events-none; }
+
+input, textarea { @apply outline-none disabled:opacity-50; }
 
 @layer components {
 	.t-border {
-		@apply border-2 text-c-text border-c-secondary hover:border-c-primary
-			dark:text-c-bg dark:border-c-primary dark:hover:border-c-secondary;
+		@apply border-2 border-c-secondary hover:border-c-primary
+			dark:border-c-primary dark:hover:border-c-secondary;
 	}
 	.t-dashed { /* dashed rounded border */
-		@apply border-2 text-c-text border-c-secondary hover:border-c-primary border-dashed rounded-3xl
-			dark:text-c-bg dark:border-c-primary dark:hover:border-c-secondary;
+		@apply border-2 border-c-secondary hover:border-c-primary border-dashed rounded-3xl
+			dark:border-c-primary dark:hover:border-c-secondary;
 	}
 	.item {
 		@apply m-1 p-2;
@@ -44,34 +51,9 @@ focus:border- (excluding auth)
 	}
 }
 
-@layer utilities {
-	input:-webkit-autofill {
-		transition: background-color 100000s ease-in-out 0s;
-		box-shadow: 0 0 0px 1000px rgb(225, 245, 255) inset !important;
-	}
-}
-
-/* global */
-body {
-	@apply bg-c-bg select-none dark:bg-black;
-}
-
-h1 {
-	@apply font-bold;
-}
-
-img {
-	@apply pointer-events-none;
-}
-
-input, textarea {
-	@apply outline-none;
-}
-
-/* other */
 .sidebar-component {
 	@apply flex p-3 rounded-2xl justify-between items-center w-full transition-all
-		text-c-text dark:text-c-bg hover:bg-c-secondary dark:hover:bg-c-primary;
+	 hover:bg-c-secondary dark:hover:bg-c-primary;
 }
 
 /* toast */
@@ -80,7 +62,7 @@ input, textarea {
 }
 
 #toast {
-	@apply flex p-4 rounded-lg shadow-lg border-2 select-all;
+	@apply flex p-4 rounded-lg shadow-lg border-2 select-all overflow-hidden max-h-100;
 	animation: toast-animation 3000ms forwards;
 	/* animation: name duration timing-function delay iteration-count direction fill-mode play-state; */
 }
@@ -111,19 +93,16 @@ input, textarea {
 }
 
 /* game */
-.g-t-border {
-	@apply border-2 text-g-c-text border-g-c-secondary hover:border-g-c-primary;
-}
-.g-t-border-alt {
-	@apply border-2 text-g-c-text border-orange-700 hover:border-orange-500;
+.t-border-alt {
+	@apply border-2 border-orange-700 hover:border-orange-500;
 }
 
 canvas {
-	@apply absolute top-1/2 left-1/2 z-10 transform -translate-1/2 border-2 border-g-c-text;
+	@apply absolute top-1/2 left-1/2 z-10 transform -translate-1/2 border-2;
 }
 
 #scoreboard {
-	@apply absolute top-12 left-1/2 text-3xl font-bold transform -translate-x-1/2 text-g-c-text;
+	@apply absolute top-12 left-1/2 text-3xl font-bold transform -translate-x-1/2;
 }
 
 #main-menu-title {
@@ -139,7 +118,7 @@ canvas {
 /* dashboard menu animation */
 @keyframes ball-animation {
 	0%, 100% {
-		bottom: 15%;
+		bottom: var(--btn-height);
 		left: 50%;
 	}
 	25% {
@@ -158,6 +137,7 @@ canvas {
 
 :root {
 	--btn-width: 7rem;
+	--btn-height: 4rem;
 	--btn-start: 0%;
 	--btn-end: calc(100% - var(--btn-width));
 	--btn-half: calc((var(--btn-end) - var(--btn-start)) / 2);
@@ -177,4 +157,28 @@ canvas {
 	75% {
 		left: var(--btn-start);
 	}
+}
+
+/* ugly browser defaults fix */
+input:-webkit-autofill {
+	transition: background-color 100000s ease-in-out 0s;
+	box-shadow: 0 0 0px 1000px rgb(225, 245, 255, 0.75) inset;
+}
+
+::-webkit-scrollbar { /* Scrollbar track */
+	width: 2px;
+	height: 2px;
+}
+
+::-webkit-scrollbar-track { /* Scrollbar background */
+	background: transparent;
+}
+
+::-webkit-scrollbar-thumb { /* Scrollbar paddle */
+	background: #555;
+	border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover { /* Paddle hover */
+	background: #777;
 }

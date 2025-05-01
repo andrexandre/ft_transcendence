@@ -1,19 +1,29 @@
+import { socketOnMessage } from "../pages/chat/friends"
 export { default as Cookies } from 'js-cookie';
+import { renderPattern } from "./patterns";
+
+export const colors: string[] = ["red", "orange", "amber", "yellow", "lime", "green", "emerald", "teal", "cyan", "sky", "blue", "slate", "gray", "zinc", "neutral", "stone", "rose", "pink", "fuchsia", "purple", "violet", "indigo"];
+export const defaultColor = 'slate';
 
 export var userInfo = {
 	username: "",
+	codename: "",
+	biography: "",
 	userId: "",
 	auth_method: "",
 	profileImage: "",
+	path: "",
+	chat_sock: null as WebSocket | null
 }
 
-export function showToast(message?: string, type: string = ""): void {
+// onBeforeClose?: Promise<void> / waitForEvent?: { element: HTMLElement; event: string }
+export function showToast(message?: string, type: string = "") {
 	const toast = document.createElement('div');
 	toast.id = 'toast';
 	toast.textContent = message || "Bro, you just got Toasted!";
 	document.getElementById('toast-container')!.appendChild(toast);
 
-	if (type !== "green" && type !== "red" && type !== "blue" && type !== "yellow")
+	if (!["green", "red", "blue", "yellow"].includes(type))
 		type = "default";
 	toast.className = `toast-${type}`;
 	setTimeout(() => toast.remove(), 3100);
@@ -30,6 +40,7 @@ export function loadTheme() {
 		document.documentElement.classList.remove('dark');
 	else if (window.matchMedia('(prefers-color-scheme: dark)').matches)
 		document.documentElement.classList.add('dark');
+	renderPattern();
 	// else { // to replace in case the previous else if is not working
 	// 	document.documentElement.classList.remove('dark');
 	// 	if (window.matchMedia('(prefers-color-scheme: dark)').matches) 
@@ -53,6 +64,7 @@ export function setTheme(option: string, save?: boolean) {
 		htmlElement.classList.remove('dark');
 		if (save) localStorage.setItem('theme', 'light');
 	}
+	renderPattern();
 	// console.debug(`Theme set to ${option}`);
 }
 
@@ -63,6 +75,54 @@ export function getTheme() {
 		return 'light';
 	else
 		return 'auto';
+}
+
+export function setColor(color: string, save?: boolean) {
+	document.documentElement.style.setProperty('--color-c-bg', `var(--color-c-${color}-bg)`);
+	document.documentElement.style.setProperty('--color-c-secondary', `var(--color-c-${color}-secondary)`);
+	document.documentElement.style.setProperty('--color-c-text', `var(--color-c-${color}-text)`);
+	document.documentElement.style.setProperty('--color-c-primary', `var(--color-c-${color}-primary)`);
+	if (save) localStorage.setItem('color', color);
+	renderPattern();
+	// console.debug(`Color set to ${color}`);
+}
+/**
+ * @param {boolean} on - start or stops services such as game and chat sockets
+ */
+export function daemon(on: boolean) {
+	if (on) {
+		if (!userInfo.chat_sock || userInfo.chat_sock.readyState === WebSocket.CLOSED) {
+			userInfo.chat_sock = new WebSocket(`ws://${location.hostname}:2000/chat-ws`);
+
+			userInfo.chat_sock.onopen = () => {
+				console.debug('Chat socket created');
+			}
+			
+			userInfo.chat_sock.onerror = (error) => {
+				console.log('WebSocket error: ', error);
+			};
+			
+			userInfo.chat_sock.onclose = (event) => {
+				console.debug('WebSocket connection closed:', event.code, event.reason);
+				// Maybe add some reconnection logic here
+			};
+			
+			userInfo.chat_sock.onmessage = (event) => {
+				socketOnMessage(event);
+			};
+		} else {
+			showToast.red('Called daemon on and the sock is already on');
+		}
+		// showToast('Athenticated');
+	} else {
+		if (userInfo.chat_sock) {
+			userInfo.chat_sock.close(1000, 'User logged out');
+			userInfo.chat_sock = null;
+		}
+		else
+			showToast.red('Called daemon off and the sock is already off');
+		// showToast('Unathenticated');
+	}
 }
 
 // lib.fullScreenOverlay(

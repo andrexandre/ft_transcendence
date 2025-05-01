@@ -3,7 +3,7 @@ import * as lib from "../utils"
 const sidebar = {
 	getHtml: () => /*html*/`
 		<aside id="sidebar" class="card t-dashed transition-all p-3 w-50">
-			<ul id="sidebar-list" class="flex flex-col h-full">
+			<ul id="sidebar-list" class="flex flex-col h-full gap-1">
 				<li>
 					<button id="hide-sidebar-button" class="sidebar-component">
 						<i class="fa-solid fa-arrow-left"></i>
@@ -55,6 +55,8 @@ const sidebar = {
 						<i class="fa-solid fa-right-from-bracket"></i>
 						<p>Logout</p>
 					</button>
+				</li>
+				<li>
 					<button id="goto-settings-button" class="sidebar-component">
 						<i class="fa-solid fa-gear"></i>
 						<p>Settings</p>
@@ -64,7 +66,7 @@ const sidebar = {
 		</aside>
 	`,
 	setSidebarToggler: (buttonName?: string) => {
-		if (buttonName == 'home' || buttonName == 'chat' || buttonName == 'game' || buttonName == 'settings') {
+		if (buttonName == 'home' || buttonName == 'chat' || buttonName == 'game' || buttonName == 'settings' || buttonName == 'profile') {
 			document.getElementById(`goto-${buttonName}-button`)?.classList.add('bg-c-secondary');
 			document.getElementById(`goto-${buttonName}-button`)?.classList.add('dark:bg-c-primary');
 		}
@@ -73,13 +75,13 @@ const sidebar = {
 			const sidebarList = document.getElementById('sidebar-list')!;
 			const pElements = sidebar?.querySelectorAll('p');
 			if (pElements?.[0].style.display == 'none') {
-				sidebar.style.width = '200px',
-				sidebarList.classList.remove('place-items-center'),
-				lib.Cookies.remove('sidebarClosed')
+				sidebar.style.width = '200px';
+				sidebarList.classList.remove('place-items-center');
+				lib.Cookies.remove('sidebarClosed');
 			} else {
-				sidebar.style.width = '70px',
-				sidebarList.classList.add('place-items-center'),
-				lib.Cookies.set('sidebarClosed', 'true')
+				sidebar.style.width = '70px';
+				sidebarList.classList.add('place-items-center');
+				lib.Cookies.set('sidebarClosed', 'true');
 			}
 			pElements?.forEach(p => {
 				if (p.style.display === 'none') {
@@ -96,6 +98,7 @@ const sidebar = {
 		lib.assignButtonNavigation('goto-home-button', '/');
 		lib.assignButtonNavigation('goto-chat-button', '/chat');
 		lib.assignButtonNavigation('goto-game-button', '/game');
+		lib.assignButtonNavigation('goto-settings-button', '/settings');
 		//* Important comment for testing
 		// document.getElementById("test-default-notifications-button")!.addEventListener("click", () => lib.showToast());
 		// document.getElementById("test-green-notifications-button")!.addEventListener("click", () => lib.showToast.green());
@@ -105,24 +108,20 @@ const sidebar = {
 		document.getElementById("logout-button")!.addEventListener("click", () => {
 			(async () => {
 				try {
-					const response = await fetch('http://127.0.0.1:7000/logout', {
+					const response = await fetch(`http://${location.hostname}:7000/logout`, {
 						credentials: 'include',
 					});
-					if (!response.ok) {
+					if (!response.ok)
 						throw new Error(`${response.status} - ${response.statusText}`);
-					}
-					lib.showToast.green(`${response.status} - ${response.statusText}`);
+					lib.daemon(false);
+					lib.showToast(`Logged out successfully`);
 					lib.navigate('/login');
-					lib.userInfo.username = '';
-					lib.userInfo.userId = '';
-					lib.userInfo.auth_method = '';
 				} catch (error) {
 					console.log(error);
 					lib.showToast.red(error as string);
 				}
 			})();
 		});
-		lib.assignButtonNavigation('goto-settings-button', '/settings');
 	}
 }
 

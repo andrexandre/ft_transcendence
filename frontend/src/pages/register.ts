@@ -9,7 +9,14 @@ class Register extends Page {
 		this.setSubmissionHandler();
 		lib.assignButtonNavigation('goto-login-button', '/login');
 		document.getElementById("google-auth-button")!.addEventListener("click", () => {
-			window.location.href = "http://127.0.0.1:7000/loginOAuth";
+			window.location.href = `http://${location.hostname}:7000/loginOAuth`;
+		});
+		document.getElementById('username')?.addEventListener('input', (e) => {
+			const error = document.getElementById('username-error')!;
+			if ((e.target as HTMLInputElement).validity.valid)
+				error.classList.add('hidden');
+			else
+				error.classList.remove('hidden');
 		});
 	}
 	onCleanup(): void { }
@@ -19,7 +26,9 @@ class Register extends Page {
 				<h1 class="text-3xl">Register</h1>
 				<form class="space-y-3 flex flex-col" action="#">
 					<label for="username">Username</label>
-					<input class="item t-dashed pl-4 focus:border-blue-500" type="text" id="username" placeholder="Enter username" required />
+					<input class="item t-dashed pl-4 valid:focus:border-blue-500 invalid:border-red-500" type="text" id="username" placeholder="Enter username" required
+						autofocus minlength="3" maxlength="20" pattern="^[^<>]+$" />
+					<span id="username-error" class="text-red-500 text-xs hidden">Username has invalid length or characters</span>
 					<label for="email">Email</label>
 					<input class="item t-dashed pl-4 focus:border-blue-500" type="email" id="email" placeholder="Enter email" required />
 					<label for="password">Password</label>
@@ -47,7 +56,7 @@ class Register extends Page {
 				email: (document.getElementById('email') as HTMLInputElement).value
 			};
 			try {
-				const response = await fetch('http://127.0.0.1:7000/register', {
+				const response = await fetch(`http://${location.hostname}:7000/register`, {
 					method: 'POST',
 					credentials: "include",
 					headers: {
@@ -55,10 +64,9 @@ class Register extends Page {
 					},
 					body: JSON.stringify(userData)
 				});
-				if (!response.ok) {
+				if (!response.ok)
 					throw new Error(`${response.status} - ${response.statusText}`);
-				}
-				lib.showToast.green(`${response.status} - ${response.statusText}`);
+				lib.showToast.green(`${userData.username} registered successfully`);
 				lib.navigate("/login");
 			} catch (error) {
 				console.log(error);

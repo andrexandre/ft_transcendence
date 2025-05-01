@@ -1,46 +1,44 @@
-import { showToast } from "../../utils";
+import { navigate, showToast, userInfo } from "../../utils";
 
-const host = `ws://127.0.0.1:2000/chat-ws`;
-const socket = new WebSocket(host);
-
-socket.onopen = () => {
-	console.debug('Chat socket created');
-}
-
-socket.onerror = (error) => {
-	console.log('WebSocket error: ', error);
-};
-
-socket.onclose = (event) => {
-	console.debug('WebSocket connection closed:', event.code, event.reason);
-	// Maybe add some reconnection logic here
-};
-
-
-socket.onmessage = (event) => {
+export function socketOnMessage(event: MessageEvent<any>) {
 	const data = JSON.parse(event.data);
 	// console.log(data);
-	if (data.type === 'message-emit')
-		addMessage(data.user, data.data.from, data.data.message, data.data.timestamp);
+	if (data.type === 'message-emit') {
+		if (userInfo.path == '/chat')
+			renderMessage(data.user, data.data.from, data.data.message, data.data.timestamp);
+		else
+			showToast(`${data.user}: ${data.data.message}`);
+	}
 	else if (data.type === 'load-messages')
-		data.data.forEach((msg: { user: string, from: string, message: string, timestamp: string }) => addMessage(data.user, msg.from, msg.message, msg.timestamp));
+		data.data.forEach((msg: { user: string, from: string, message: string, timestamp: string }) => renderMessage(data.user, msg.from, msg.message, msg.timestamp));
 	else if (data.type === 'get-friends-list')
-		data.data.forEach((friend: string) => createFriendList(friend));
+		data.data.forEach((friend: string) => renderOnlineFriendList(friend));
 	else if (data.type === 'get-online-users')
-		data.data.forEach((user: string) => addOnlineUser(user));
-	else if	(data.type === 'add-requests')
-		showFriendRequests(data.data);
+		data.data.forEach((user: string) => renderOnlineUsersList(user));
+	else if (data.type === 'add-requests')
+		renderFriendRequestsList(data.data);
 	else if (data.type === 'block-status')
-		createRoom(data.friend, data.isBlocked, data.load);
+		renderChatRoom(data.friend, data.isBlocked, data.load);
 };
 
-function addMessage(user: string, from: string, message: string, timestamp: string) {
-	const List = document.getElementById(`chat-box-message-list`)!;
-	const Entry = document.createElement('div');
-	Entry.style.textAlign = user === from ? 'right' : 'left';
-	Entry.classList.add(`chat-box-message-entry`);
-	Entry.textContent = `${timestamp} ${from}: ${message}`;
-	List.appendChild(Entry);
+function renderMessage(user: string, from: string, message: string, timestamp: string) {
+	const listElement = document.getElementById(`chat-box-message-list`)!;
+	const entryElement = document.createElement('li');
+	let alignment;
+	if (user == from)
+		alignment = 'justify-end ml';
+	else if (user == 'system')
+		alignment = 'justify-center mx';
+	else
+		alignment = 'justify-start mr';
+	entryElement.className = `chat-box-message-entry flex ${alignment}-20`;
+	entryElement.innerHTML = /*html*/`
+	<div class="flex flex-col item t-dashed break-all">
+		<p class="self-start pr-4 select-all">${message}</p>
+		<p class="self-end text-c-primary pl-4">${timestamp}</p>		
+	</div>
+	`;
+	listElement.appendChild(entryElement);
 }
 
 // Global variable to track the current friend
@@ -48,100 +46,116 @@ let currentFriend: string | null = null;
 
 // This function will remain the same
 function listenerA(name: string) {
-    const chatHeaderBlockButton = document.getElementById('chat-box-block')!;
-    const isBlocking = chatHeaderBlockButton.textContent!.includes('Block');
-    if (isBlocking) {
-        chatHeaderBlockButton.textContent = 'Unblock';
-        showToast.red(`User ${name} has been blocked`);
-        socket.send(JSON.stringify({
-            type: 'block-user',
-            friend: name,
-            load: false
-        }));
-    } else {
-        chatHeaderBlockButton.textContent = 'Block';
-        showToast.green(`User ${name} has been unblocked`);
-        socket.send(JSON.stringify({
-            type: 'unblock-user',
-            friend: name,
-            load: false
-        }));
-    }
-    socket.send(JSON.stringify({
-        type: 'join-room',
-        friend: name
-    }));
+	const chatHeaderBlockButton = document.getElementById('chat-box-block')!;
+	const isBlocking = chatHeaderBlockButton.textContent!.includes('Block');
+	if (isBlocking) {
+		chatHeaderBlockButton.textContent = 'Unblock';
+		showToast.red(`User ${name} has been blocked`);
+		userInfo.chat_sock!.send(JSON.stringify({
+			type: 'block-user',
+			friend: name,
+			load: false
+		}));
+	} else {
+		chatHeaderBlockButton.textContent = 'Block';
+		showToast.green(`User ${name} has been unblocked`);
+		userInfo.chat_sock!.send(JSON.stringify({
+			type: 'unblock-user',
+			friend: name,
+			load: false
+		}));
+	}
+	userInfo.chat_sock!.send(JSON.stringify({
+		type: 'join-room',
+		friend: name
+	}));
 }
 
 function setupBlockButtonListener() {
-    const chatHeaderBlockButton = document.getElementById('chat-box-block')!;
-    
-    // Remove any existing listeners by cloning the button
-    const newButton = chatHeaderBlockButton.cloneNode(true);
-    if (chatHeaderBlockButton.parentNode) {
-        chatHeaderBlockButton.parentNode.replaceChild(newButton, chatHeaderBlockButton);
-    }
-    
-    // Add a single listener that uses the currentFriend variable
-    const updatedButton = document.getElementById('chat-box-block')!;
-    updatedButton.addEventListener('click', () => {
-        if (currentFriend) {
-            listenerA(currentFriend);
-        }
-    });
+	const chatHeaderBlockButton = document.getElementById('chat-box-block')!;
+
+	// Remove any existing listeners by cloning the button
+	const newButton = chatHeaderBlockButton.cloneNode(true);
+	if (chatHeaderBlockButton.parentNode) {
+		chatHeaderBlockButton.parentNode.replaceChild(newButton, chatHeaderBlockButton);
+	}
+
+	// Add a single listener that uses the currentFriend variable
+	const updatedButton = document.getElementById('chat-box-block')!;
+	updatedButton.addEventListener('click', () => {
+		if (currentFriend) {
+			listenerA(currentFriend);
+		}
+	});
 }
 
-function createFriendList(name: string) {
-    const friendList = document.getElementById('online-friends-list')!;
-    const roomButton = document.createElement('button');
-    roomButton.appendChild(document.createTextNode(name));
-    
-    roomButton.addEventListener('click', () => {
-        // Update the current friend
-        currentFriend = name;
-        
-        socket.send(JSON.stringify({
-            type: 'check-block',
-            friend: name
-        }));
-        
-        socket.send(JSON.stringify({
-            type: 'join-room',
-            friend: name
-        }));
-        
-        showToast.blue(`Joining room with ${name}`);
-    });
-    
-    friendList.appendChild(roomButton);
+function renderOnlineFriendList(name: string) {
+	const friendList = document.getElementById('online-friends-list')!;
+	const roomButton = document.createElement('button');
+	roomButton.className = 'item t-dashed';
+	roomButton.appendChild(document.createTextNode(name));
+
+	roomButton.addEventListener('click', () => {
+		// Update the current friend
+		currentFriend = name;
+
+		userInfo.chat_sock!.send(JSON.stringify({
+			type: 'check-block',
+			friend: name
+		}));
+
+		userInfo.chat_sock!.send(JSON.stringify({
+			type: 'join-room',
+			friend: name
+		}));
+
+		showToast.blue(`Joining room with ${name}`);
+	});
+	roomButton.id = `online-friends-list-entry-${name}`;
+	friendList.appendChild(roomButton);
 }
 
-function addOnlineUser(name: string) { // refresh online-users-list
+function renderOnlineUsersList(name: string) {
 	const onlineUsersList = document.getElementById('online-users-list')!;
 	const userButton = document.createElement('button');
-	userButton.appendChild(document.createTextNode('[Add Friend] ' + name));
+	userButton.className = 'flex item t-dashed px-4';
+	userButton.innerHTML = /*html*/`
+		<p class="mr-auto">${name}</p>
+		<div><i class="fa-solid fa-user-plus"></i></div>
+	`;
 	userButton.addEventListener('click', () => {
-		socket.send(JSON.stringify({
+		userInfo.chat_sock!.send(JSON.stringify({
 			type: 'add-friend-request',
 			receiver: name
 		}));
 		showToast.blue(`Inviting ${name}...`);
-		userButton.textContent = 'Request Sent to ' + name;
-		userButton.style.backgroundColor = 'lightgray';
+		userButton.innerHTML = /*html*/`
+			<p class="mr-auto">${name}</p>
+			<div><i class="fa-solid fa-user-check text-c-secondary"></i></div>
+		`;
+		userButton.style.pointerEvents = 'none';
 		userButton.disabled = true;
+		refreshEverything();
 	});
 	onlineUsersList.appendChild(userButton);
 }
 
-function addFriendRequest(name: string) {
+function renderFriendRequest(name: string) {
 	const friendRequestsList = document.getElementById('friend-requests-list')!;
-	addListEntry('friend-requests-list', name);
+	addListEntry('friend-requests-list', name, /*html*/`
+			<p class="mr-auto">${name}</p>
+			<button id="friend-requests-list-entry-${name}-accept">
+				<i class="fa-solid fa-check"></i>
+			</button>
+			<button id="friend-requests-list-entry-${name}-reject">
+				<i class="fa-solid fa-xmark"></i>
+			</button>
+		`);
 	const friendRequestEntry = document.getElementById(`friend-requests-list-entry-${name}`)!;
 
-	const acceptButton = document.createElement('button');
-	acceptButton.textContent = '✓';
+	const acceptButton = document.getElementById(`friend-requests-list-entry-${name}-accept`)!;
 	acceptButton.addEventListener('click', () => {
-		socket.send(JSON.stringify({
+		userInfo.chat_sock!.send(JSON.stringify({
 			type: 'friend-request-response',
 			sender: name,
 			response: 'accept'
@@ -150,12 +164,12 @@ function addFriendRequest(name: string) {
 		friendRequestEntry.remove();
 		// removeListEntry('friend-requests-list', name);
 		showToast.green(`Friend request from ${name} accepted`);
+		refreshEverything();
 	});
 
-	const declineButton = document.createElement('button');
-	declineButton.textContent = '✗';
+	const declineButton = document.getElementById(`friend-requests-list-entry-${name}-reject`)!
 	declineButton.addEventListener('click', () => {
-		socket.send(JSON.stringify({
+		userInfo.chat_sock!.send(JSON.stringify({
 			type: 'friend-request-response',
 			sender: name,
 			response: 'decline'
@@ -165,22 +179,20 @@ function addFriendRequest(name: string) {
 		// removeListEntry('friend-requests-list', name);
 		showToast.red(`Friend request from ${name} declined`);
 	});
-	friendRequestEntry.appendChild(acceptButton);
-	friendRequestEntry.appendChild(declineButton);
 	friendRequestsList.appendChild(friendRequestEntry);
 }
 
-function showFriendRequests(requests: {sender: string}[]) {
+function renderFriendRequestsList(requests: { sender: string }[]) {
 	const friendRequestsList = document.getElementById('friend-requests-list')!;
 	friendRequestsList.innerHTML = '';
 	console.log(requests);
 	requests.forEach(request => {
-		addFriendRequest(request.sender);
+		renderFriendRequest(request.sender);
 	});
 }
 let isChatLoaded = false;
 //! needs to fix load variable
-function createRoom(name: string, isBlocked: boolean, _load: boolean) { //* load chat box
+function renderChatRoom(name: string, isBlocked: boolean, _load: boolean) { //* load chat box
 	const roomList = document.getElementById('chat-box-message-list')!;
 	roomList.innerHTML = '';
 
@@ -188,14 +200,14 @@ function createRoom(name: string, isBlocked: boolean, _load: boolean) { //* load
 	chatHeaderUsername.textContent = name;
 	const chatHeaderBlockButton = document.getElementById('chat-box-block')!;
 	chatHeaderBlockButton.textContent = isBlocked ? 'Unblock' : 'Block';
-	
+
 	// if (load) {
 	// 	chatHeaderBlockButton.addEventListener('click', () => {
 	// 		const isBlocking = chatHeaderBlockButton.textContent!.includes('Block');
 	// 		if (isBlocking) {
 	// 			chatHeaderBlockButton.textContent = 'Unblock';
 	// 			showToast.red(`User ${name} has been blocked`);
-	// 			socket.send(JSON.stringify({
+	// 			userInfo.chat_sock!.send(JSON.stringify({
 	// 				type: 'block-user',
 	// 				friend: name,
 	// 				load: false
@@ -203,13 +215,13 @@ function createRoom(name: string, isBlocked: boolean, _load: boolean) { //* load
 	// 		} else {
 	// 			chatHeaderBlockButton.textContent = 'Block';
 	// 			showToast.green(`User ${name} has been unblocked`);
-	// 			socket.send(JSON.stringify({
+	// 			userInfo.chat_sock!.send(JSON.stringify({
 	// 				type: 'unblock-user',
 	// 				friend: name,
 	// 				load: false
 	// 			}));
 	// 		}
-	// 		socket.send(JSON.stringify({
+	// 		userInfo.chat_sock!.send(JSON.stringify({
 	// 			type: 'join-room',
 	// 			friend: name
 	// 		}));
@@ -217,65 +229,54 @@ function createRoom(name: string, isBlocked: boolean, _load: boolean) { //* load
 	// }
 }
 
-function addListEntry(list: string, name: string): void {
-	const List = document.getElementById(`${list}`);
-	if (List) {
-		const Entry = document.createElement('div');
-		Entry.classList.add(`${list}-entry`);
-		Entry.textContent = name;
-		Entry.id = `${list}-entry-${name}`;
-		List.appendChild(Entry);
-	}
-	else //* remove after chat is stable
-		showToast.red(`List ${list} not found`);
+function addListEntry(listName: string, name: string, html: string, classes?: string) {
+	const listElement = document.getElementById(`${listName}`)!;
+	const entryElement = document.createElement('li');
+	entryElement.className = classes || 'flex item t-dashed gap-4 justify-around px-4';
+	entryElement.innerHTML = html;
+	entryElement.id = `${listName}-entry-${name}`;
+	listElement.appendChild(entryElement);
 }
 
-function removeListEntry(list: string, name: string): void {
-	const List = document.getElementById(`${list}`);
-	if (List) {
-		const Entries = List.getElementsByClassName(`${list}-entry`);
-		for (const entry of Array.from(Entries)) {
-			if (entry.textContent?.trim() === name) {
-				List.removeChild(entry);
-				break;
-			}
-		}
-	}
-	else //* remove after chat is stable
-		showToast.red(`List ${list} not found`);
+function removeListEntry(list: string, name: string) {
+	const entry = document.getElementById(`${list}-entry-${name}`)!;
+	document.removeChild(entry);
+}
+
+function refreshEverything() {
+	showToast.blue('Refreshing...')
+	document.getElementById('online-users-refresh')?.click();
+	document.getElementById('online-friends-refresh')?.click();
+	document.getElementById('friend-requests-refresh')?.click();
 }
 
 export function setChatEventListeners() {
 	document.getElementById('online-friends-refresh')?.addEventListener('click',
 		() => {
 			document.getElementById('online-friends-list')!.innerHTML = '';
-			socket.send(JSON.stringify({
+			userInfo.chat_sock!.send(JSON.stringify({
 				type: 'get-friends-list'
 			}));
-			showToast.blue('Refreshing online friends...');
 		});
-	document.getElementById('friend-request-button')?.addEventListener('click',
+	document.getElementById('friend-requests-refresh')?.addEventListener('click',
 		() => {
-			socket.send(JSON.stringify({
+			userInfo.chat_sock!.send(JSON.stringify({
 				type: 'get-friend-request',
 			}));
-			showToast.blue('Checking friend requests...')	
 		});
 	document.getElementById('online-users-refresh')?.addEventListener('click',
 		() => {
 			document.getElementById('online-users-list')!.innerHTML = '';
-			socket.send(JSON.stringify({
+			userInfo.chat_sock!.send(JSON.stringify({
 				type: 'get-online-users'
 			}));
-			showToast.blue('Refreshing online users...')
 		});
 	document.getElementById('chat-box-form')?.addEventListener('submit',
-		(event) => {
-			event.preventDefault();
+		(e: Event) => {
+			e.preventDefault();
 			const messageText = (document.getElementById('chat-box-input') as HTMLInputElement).value.trim();
 			if (messageText) {
-				showToast.green(`Message sent: ${messageText}`);
-				socket.send(JSON.stringify({
+				userInfo.chat_sock!.send(JSON.stringify({
 					type: 'chat-message',
 					message: messageText
 				}));
@@ -285,8 +286,14 @@ export function setChatEventListeners() {
 			}
 		});
 	document.getElementById('chat-box-profile')?.addEventListener('click',
-		() => showToast.green('Viewing profile...'));
+		() => navigate(`/profile/${document.getElementById('chat-box-header-username')!.textContent}`));
 	document.getElementById('chat-box-invite')?.addEventListener('click',
 		() => showToast.yellow('Inviting player...'));
 	setupBlockButtonListener();
+	setTimeout(() => {
+		//* TEMP auto-refresh
+		refreshEverything();
+	// if (userInfo.username != '42Transcendence')
+	// 	setTimeout(() => document.getElementById(`online-friends-list-entry-42Transcendence`)?.click(), 100);
+	}, 300);
 }

@@ -1,11 +1,11 @@
 import * as lib from "./utils"
 
 document.addEventListener('keydown', (event: KeyboardEvent) => {
-	if (document.activeElement instanceof HTMLInputElement || 
-		document.activeElement instanceof HTMLTextAreaElement || 
+	if (document.activeElement instanceof HTMLInputElement ||
+		document.activeElement instanceof HTMLTextAreaElement ||
 		(document.activeElement && document.activeElement.getAttribute("contenteditable") === "true")) {
-	  return;
-	}  
+		return;
+	}
 	if (event.key === " ") {
 		event.preventDefault();
 		const allElements = document.querySelectorAll('*');
@@ -24,4 +24,5 @@ document.addEventListener('keydown', (event: KeyboardEvent) => {
 	}
 });
 
+lib.setColor(localStorage.getItem('color') || lib.defaultColor, true);
 lib.loadTheme();

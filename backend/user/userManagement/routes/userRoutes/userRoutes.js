@@ -1,70 +1,73 @@
 
+import userSettingsRoutes from "./userSettingsRoutes.js";
+import userAvatarRoutes from "./userAvatarRoutes.js";
+import { UserNotFoundError } from "../../utils/error.js";
+
+async function extractInformationFromToken(request, reply) {
+	try {
+		const response = await fetch('http://gateway-api:7000/userData', {
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+				"Cookie": `token=${request.cookies.token}`,
+			},
+			credentials: "include"
+		});
+
+		// throw
+		if (!response.ok) reply.status(401).send({error: "User not authenticated!"});
+
+		const userData = await response.json();
+		request.authenticatedUser = await this.getUserById(userData.userId);
+		// if (!request.targetUser)
+		// 	throw new UserNotFoundError();
+	} catch (err) {
+		console.log(err);
+		reply.status(500).send({error: "Internal server error!"});
+		return;
+	}
+}
 
 async function userRoutes(server, opts) {
     
-    server.route({
-        method: 'GET',
-        url: '/api/user/info',
-        handler:  async (request, reply) => {
-           
-			//aqui provavlemente vai ter de ser multipart/form-data
-			const token = request.cookies.token;
-			const response = await fetch('http://services-api:7000/userData', {
-				method: "GET",
-				headers: {
-					"Content-Type": "application/json",
-					"Cookie": `token=${token}`,
-				},
-				credentials: "include"
-			});
+	server.addHook('onRequest', extractInformationFromToken);
 
-			if (!response.ok) reply.status(500).send({error: "Internal server error!"});
+	server.register(userSettingsRoutes);
+	server.register(userAvatarRoutes);
 
-			const userData = await response.json();
-			const targetUser = await server.getUserByUsername(userData.username);
+	server.route({
+		method: 'GET',
+		url: '/api/users/:username',
+		schema: {
+			params: {
+				type: 'object',
+				required: ['username'],
+				properties: {
+				  username: { type: 'string', minLength: 1 }
+				}
+			}
+		},
+		handler:  async (request, reply) => {
+			
+			try {
+				const { username } = request.params;
+				const user = await server.getUserByUsername(username);
+				if (!user)
+					throw new UserNotFoundError();
+				reply.send({
+					username: user.username,
+					email: user.email,
+					codename: user.codename,
+					biography: user.biography
+				});
+				return;
 
-			reply.status(200).send({
-				username: targetUser.username,
-				email: targetUser.email,
-				codename: targetUser.codename,
-				biography: targetUser.biography
-			});
-            
-        },
-    });
-
-	 
-    server.route({
-        method: 'POST',
-        url: '/api/users/update',
-        handler:  async (request, reply) => {
-
-			// const data = request.parts();
-			// for await (const part of data) 
-			// {
-			// 	if (part.file) {
-			// 	  // ficheiro: part.file é um stream
-			// 	  console.log(`Ficheiro: ${part.filename}`);
-			// 	  part.file.resume();
-			// 	} else {
-			// 	  // campo de texto
-			// 	  console.log('ALEXXXXXXXXXXXX');
-			// 	  if (part.fieldname === 'user') {
-			// 		const json = JSON.parse(part.value);
-			// 		console.log(json);
-			// 	  }
-
-			// 	}
-				
-			//   }
-
-
-			// console.log('FIMMMMMMMMMMMMMMMMMMMM');
-
-
-			// reply.status(200).send({message: 'END OF REQUEST'});
-		}}
-	);
+			} catch(err) {
+				reply.status(404).send(err.formatError());
+				return;
+			}
+		}
+	});
 
 }
 

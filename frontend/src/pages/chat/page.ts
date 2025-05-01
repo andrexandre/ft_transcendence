@@ -10,48 +10,52 @@ class Chat extends Page {
 	onMount(): void {
 		sidebar.setSidebarToggler('chat');
 		setChatEventListeners();
+		if (lib.userInfo.profileImage)
+			(document.getElementById('chat-box-profile-image') as HTMLImageElement).src = lib.userInfo.profileImage;
 	}
 	onCleanup(): void { }
 	getHtml(): string {
 		return /*html*/`
 			${sidebar.getHtml()}
-			<main class="card p-5 t-dashed flex w-full **:p-5 **:border **:border-c-secondary">
-				<div id="friends" class="grid grid-rows-2">
-					<div id="online-friends" class="flex flex-col w-75">
-						<div id="online-friends-header" class="flex justify-around">
+			<main class="flex flex-1">
+				<div class="flex flex-col card t-dashed p-5 w-75">
+					<div class="flex flex-col gap-6 flex-1">
+						<button id="online-friends-refresh" class="flex justify-around items-center item t-dashed p-4">
 							<span>Online Friends</span>
-							<button id="online-friends-refresh">
-								<i class="fa-solid fa-rotate-right"></i>
-							</button>
-						</div>
-						<div id="online-friends-list" class="flex flex-col flex-1 overflow-scroll"></div>
+							<i class="fa-solid fa-rotate-right"></i>
+						</button>
+						<ul id="online-friends-list" class="flex flex-col flex-1 overflow-auto"></ul>
 					</div>
-					<div id="friend-requests" class="flex flex-col w-75">
-						<div id="friend-requests-list" class="flex flex-col flex-1 overflow-scroll"></div>
-						<button id="friend-request-button" class="mt-auto">🔔 Friend Requests</button>
-					</div>
-				</div>
-				<div id="chat-box" class="flex flex-col flex-1">
-					<div id="chat-box-header" class="flex justify-around">
-						<span id="chat-box-header-username" class="mr-auto">Name</span>
-						<button id="chat-box-profile">profile</button>
-						<button id="chat-box-invite">invite</button>
-						<button id="chat-box-block">block</button>
-					</div>
-					<div id="chat-box-message-list" class="flex flex-col flex-1 overflow-scroll"></div>
-					<form id="chat-box-form" class="flex mt-auto">
-						<input id="chat-box-input" class="size-full" type="text" placeholder="Type a message..." autocomplete="off"/>
-						<button id="chat-box-submit" class="ml-auto">Send</button>
-					</form>
-				</div>
-				<div id="online-users" class="flex flex-col w-75">
-					<div id="online-users-header" class="flex justify-around">
-						<div id="online-users">Online Users</div>
-						<button id="online-users-refresh">
+					<hr class="text-c-primary">
+					<div class="flex flex-col gap-6 flex-1">
+						<ul id="friend-requests-list" class="flex flex-col flex-1 overflow-auto"></ul>
+						<button id="friend-requests-refresh" class="flex justify-around items-center item t-dashed p-4">
+							<span>Friend Requests</span>
 							<i class="fa-solid fa-rotate-right"></i>
 						</button>
 					</div>
-					<div id="online-users-list" class="flex flex-col flex-1 overflow-scroll"></div>
+				</div>
+				<div id="chat-box" class="flex flex-col flex-1 card t-dashed p-5">
+					<div class="flex px-4 item t-dashed gap-3">
+						<button id="chat-box-profile" class="flex gap-4 mr-auto">
+							<img id="chat-box-profile-image" class="object-cover size-10 rounded-full" src="https://picsum.photos/id/237/200">
+							<span id="chat-box-header-username" class="flex items-center">No user selected</span>
+						</button>
+						<button id="chat-box-invite" class="px-3 rounded-2xl hover:bg-c-secondary dark:hover:bg-c-primary">Invite</button>
+						<button id="chat-box-block" class="px-3 rounded-2xl hover:bg-c-secondary dark:hover:bg-c-primary">Block</button>
+					</div>
+					<ul id="chat-box-message-list" class="flex flex-col flex-1 overflow-auto"></ul>
+					<form id="chat-box-form" class="flex item t-dashed gap-4">
+						<input id="chat-box-input" class="size-full pl-2" type="text" placeholder="Type a message..." name="nope" autocomplete="new-password"/>
+						<button class="p-2 rounded-2xl hover:bg-c-secondary dark:hover:bg-c-primary">Send</button>
+					</form>
+				</div>
+				<div class="flex flex-col w-75 gap-6 card t-dashed p-5">
+					<button id="online-users-refresh" class="flex justify-around items-center item t-dashed p-4">
+						<span>Online Users</span>
+						<i class="fa-solid fa-rotate-right"></i>
+					</button>
+					<ul id="online-users-list" class="flex flex-col flex-1 overflow-auto"></ul>
 				</div>
 			</main>
 		`;
