@@ -3,6 +3,7 @@ import Fastify from 'fastify'
 import fastifyJwt from '@fastify/jwt';
 import fastifyCookie from '@fastify/cookie';
 import fastifyOAuth from '@fastify/oauth2';
+import fastifyCsrfProtection from '@fastify/csrf-protection';
 import cors from '@fastify/cors';
 import dotenv from 'dotenv';
 
@@ -62,6 +63,8 @@ fastify.register(fastifyJwt, {
     signed: false
   }
 });
+
+fastify.register(fastifyCsrfProtection, { cookieOpts: { signed: true } })
 
 fastify.register(cors, {
   origin: ['http://127.0.0.1:5500', 'http://127.0.0.1:5000', 'http://chat:2000', 'http://127.0.0.1:80'], // Allow frontend origin

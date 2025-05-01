@@ -46,7 +46,7 @@ class Login extends Page {
 				password: (document.getElementById('password') as HTMLInputElement).value
 			};
 			try {
-				const response = await fetch('http://127.0.0.1:80/login', {
+				const response = await fetch('http://127.0.0.1:7000/login', {
 					method: 'POST',
 					credentials: "include",
 					headers: {

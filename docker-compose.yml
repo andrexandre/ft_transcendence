@@ -37,17 +37,17 @@ services:
     networks:
       - ft_transcendence
 
-  # two-factor-auth:
-  #   image: two-factor-auth
-  #   container_name: two-factor-auth
-  #   build: 
-  #     context: ./backend/two-factor-auth/conf
-  #   ports:
-  #     - "8000:8000"
-  #   volumes:
-  #     - ./backend/two-factor-auth:/backend/:rw #Vai guardar na home 
-  #   networks:
-  #     - ft_transcendence
+  two-factor-auth:
+    image: two-factor-auth
+    container_name: two-factor-auth
+    build: 
+      context: ./backend/two-factor-auth/conf
+    ports:
+      - "3500:3500"
+    volumes:
+      - ./backend/two-factor-auth:/backend/:rw #Vai guardar na home 
+    networks:
+      - ft_transcendence
 
   chat:
     image: chat
