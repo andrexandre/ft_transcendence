@@ -13,6 +13,9 @@ build-up: backend/services-api/.env
 build:
 	docker compose build 
 
+up:
+	docker compose up
+
 upd:
 	docker compose up -d
 
@@ -33,7 +36,7 @@ status:
 	@echo
 
 backend/services-api/.env:
-	curl -s https://gist.githubusercontent.com/andrexandre/8c011820a35117d005016151cfd46207/raw/83a0d67fbf775a78355dd617e6502d9c03f496ad/.env > backend/Gateway/.env
+	curl -s https://gist.githubusercontent.com/andrexandre/8c011820a35117d005016151cfd46207/raw/83a0d67fbf775a78355dd617e6502d9c03f496ad/.env > backend/services-api/.env
 
 destroy: down
 	find . -type f -iname '*.db' -delete
