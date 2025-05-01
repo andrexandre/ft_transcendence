@@ -5,10 +5,8 @@ import fastifyMultipart from '@fastify/multipart'
 import fastifyCors from "@fastify/cors"; // temporario
 
 // Routes
-import LoginRoute from "./routes/auth/loginRoutes.js";
-import googleSignRoute from "./routes/auth/googleSign.js";
-import RegisterRoute from "./routes/auth/registerRoutes.js";
-import userRoutes from "./routes/userRoutes/userRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 
 // Utils
 import { errorResponseSchema } from "./utils/error.js";
@@ -57,9 +55,7 @@ async function start() {
 		await server.register(fastifyMultipart, {
 			limits: { fileSize: 2 * 1024 * 1024 },// Limite de 2 MB para o arquivo
 			});
-		await server.register(RegisterRoute);
-		await server.register(LoginRoute);
-		await server.register(googleSignRoute);
+		await server.register(authRoutes);
 		await server.register(userRoutes);
 		
 		server.listen(listenOptions, async () => {
@@ -81,4 +77,3 @@ async function start() {
 }
 
 start();
-
