@@ -4,6 +4,7 @@ import * as registerControllers from '../controllers/user/userRegister.js';
 import * as avatarControllers from '../controllers/user/userAvatar.js';
 import { UserNotFoundError } from '../utils/error.js';
 import registerSchema from '../schemas/user/registerSchema.js';
+import two_FA_settings_schema from '../schemas/user/twoFaSettingsSchema.js'
 
 async function extractInformationFromToken(request, reply) {
 	try {
@@ -38,7 +39,7 @@ async function userRoutes(server, opts) {
 	server.route({ method: 'GET', url: '/api/users/settings', onRequest: extractInformationFromToken , handler:  settingsControllers.getSettings });
 	// User PUT or PATCH to update
 	server.route({ method: 'POST', url: '/api/users/save-settings', onRequest: extractInformationFromToken , handler: settingsControllers.saveSettings });
-	server.route({ method: 'POST', url: '/api/users/save-settings-2fa', onRequest: extractInformationFromToken , handler: settingsControllers.save2faSettings });
+	server.route({ method: 'POST', url: '/api/users/save-settings-2fa', schema: two_FA_settings_schema, onRequest: extractInformationFromToken , handler: settingsControllers.save2faSettings });
 
 	// Avatar Routes
 	server.route({ method: 'GET', url: '/api/users/avatar', onRequest: extractInformationFromToken , handler: avatarControllers.getAvatar });

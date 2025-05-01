@@ -31,6 +31,7 @@ async function save2faSettings(request, reply) {
 	try {
 		
 		console.log('AuthenticatedUser: ', request.authenticatedUser);
+		console.log('BODY: ', request.body);
 		await this.updateUser2FAStatus(request.body, request.authenticatedUser.id);
 		reply.status(200).send({message: "Successfully update the information!"});
 
