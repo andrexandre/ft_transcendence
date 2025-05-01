@@ -1,7 +1,18 @@
 
 function loginRoute(fastify, options) {
 
-    fastify.post('/login', async (request, reply) => {
+    fastify.post('/login', {
+        schema: {
+          body: {
+            type: 'object',
+            required: ['username', 'password'],
+            properties: {
+              username: { type: 'string', minLength: 3, maxLength: 20 },
+              password: { type: 'string', minLength: 5, maxLength: 25},
+            }
+          }
+        }
+        },async (request, reply) => {
         const { username, password } = request.body;
         const payload = {
             username: username,
