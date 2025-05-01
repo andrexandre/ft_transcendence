@@ -1,6 +1,40 @@
 import { navigate, showToast, userInfo } from "../../utils";
 
-export function socketOnMessage(event: MessageEvent<any>) {
+export function turnOnChat() {
+	if (!userInfo.chat_sock || userInfo.chat_sock.readyState === WebSocket.CLOSED) {
+		userInfo.chat_sock = new WebSocket(`ws://${location.hostname}:2000/chat-ws`);
+
+		userInfo.chat_sock.onopen = () => {
+			console.debug('Chat socket created');
+		}
+		
+		userInfo.chat_sock.onerror = (error) => {
+			console.log('WebSocket error: ', error);
+		};
+		
+		userInfo.chat_sock.onclose = (event) => {
+			console.debug('WebSocket connection closed:', event.code, event.reason);
+			// Maybe add some reconnection logic here
+		};
+		
+		userInfo.chat_sock.onmessage = (event) => {
+			socketOnMessage(event);
+		};
+	}
+	else
+		showToast.red('The chat socket is already on');
+}
+
+export function turnOffChat() {
+	if (userInfo.chat_sock) {
+		userInfo.chat_sock.close(1000, 'User logged out');
+		userInfo.chat_sock = null;
+	}
+	else
+		showToast.red('The chat socket is already off');
+}
+
+function socketOnMessage(event: MessageEvent<any>) {
 	const data = JSON.parse(event.data);
 	// console.log(data);
 	if (data.type === 'message-emit') {

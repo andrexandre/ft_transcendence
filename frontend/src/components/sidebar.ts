@@ -113,7 +113,7 @@ const sidebar = {
 					});
 					if (!response.ok)
 						throw new Error(`${response.status} - ${response.statusText}`);
-					lib.daemon(false);
+					lib.toggleUserServices(false);
 					lib.showToast(`Logged out successfully`);
 					lib.navigate('/login');
 				} catch (error) {

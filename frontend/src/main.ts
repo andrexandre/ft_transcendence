@@ -45,7 +45,7 @@ async function loadApp(path: string) {
 	if (firstPageLoad) {
 		firstPageLoad = false;
 		if (lib.userInfo.auth_method)
-			lib.daemon(true);
+			lib.toggleUserServices(true);
 	}
 	loadPage(path);
 }
