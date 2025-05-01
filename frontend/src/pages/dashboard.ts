@@ -127,6 +127,9 @@ class Dashboard extends Page {
 		// getAndUpdateInfo();
 		loadInformation();
 		document.getElementById("profile")!.addEventListener("click", () => lib.navigate('/profile'));
+		lib.userInfo.chat_sock!.send(JSON.stringify({
+			type: 'get-friends-list'
+		}));
 	}
 	onCleanup(): void { }
 	getHtml(): string {
@@ -151,25 +154,9 @@ class Dashboard extends Page {
 					<h1 class="text-xl">Pong match history</h1>
 					<ul id="stats-list" class="flex flex-col gap-2 overflow-auto"></ul>
 				</div>
-				<div class="card t-dashed flex flex-col justify-around">
+				<div class="card t-dashed flex flex-col">
 					<h1 class="text-xl">Active friends</h1>
-					<ul id="friends-list" class="flex flex-col overflow-auto">
-						<li class="item t-dashed p-3 flex">
-							<img src="https://api.dicebear.com/9.x/avataaars-neutral/svg?seed=Brian" class="size-10 rounded-4xl">
-							<svg height="10" width="10"><circle cx="5" cy="5" r="5" fill="green" /></svg>
-							<h1 class="self-center ml-5">Brian</h1>
-						</li>
-						<li class="item t-dashed p-3 flex">
-							<img src="https://api.dicebear.com/9.x/avataaars-neutral/svg?seed=Eliza" class="size-10 rounded-4xl">
-							<svg height="10" width="10"><circle cx="5" cy="5" r="5" fill="grey" /></svg>
-							<h1 class="self-center ml-5">Eliza</h1>
-						</li>
-						<li class="item t-dashed p-3 flex">
-							<img src="https://api.dicebear.com/9.x/avataaars-neutral/svg?seed=Alexander" class="size-10 rounded-4xl">
-							<svg height="10" width="10"><circle cx="5" cy="5" r="5" fill="grey" /></svg>
-							<h1 class="self-center ml-5">Alexander</h1>
-						</li>
-					</ul>
+					<ul id="friends-list" class="flex flex-col gap-2 overflow-auto"></ul>
 				</div>
 			</main>
 		`

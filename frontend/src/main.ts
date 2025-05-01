@@ -63,13 +63,15 @@ function loadPage(path: string) {
 		case "/settings":
 			newPage = settings;
 			break;
-		case (path.startsWith("/profile") && path):
+		case "/profile":
+		case path.startsWith("/profile/") ? path : "":
 			newPage = profile;
 			break;
 		case "/game":
 			newPage = game;
 			break;
 		case "/chat":
+		case path.startsWith("/chat/") ? path : "":
 			newPage = chat;
 			break;
 		default:

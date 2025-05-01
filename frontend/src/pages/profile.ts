@@ -55,7 +55,11 @@ async function loadInformation(profileUsername: string) {
 	const response = await fetch(`http://${location.hostname}:3000/api/users/${profileUsername}`, {
 		credentials: 'include'
 	})
-	if (!response.ok) return lib.showToast.red('Failed to load user Information!');
+	if (!response.ok) {
+		window.history.replaceState({}, '', '/profile');
+		lib.navigate('/profile');
+		return lib.showToast.red('Failed to load user Information!');
+	}
 	// Set user information
 	const userData = await response.json();
 	(document.getElementById("profile-username") as HTMLElement).textContent = userData.username;

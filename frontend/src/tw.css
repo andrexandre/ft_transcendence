@@ -24,6 +24,10 @@ focus:border- (excluding auth)
 	--color-c-game-secondary: theme(colors.green.600);
 }
 
+:disabled {
+	@apply opacity-50;
+}
+
 body { @apply bg-white dark:bg-black select-none text-c-text dark:text-c-bg; }
 
 h1 { @apply font-bold; }

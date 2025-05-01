@@ -10,8 +10,6 @@ class Chat extends Page {
 	onMount(): void {
 		sidebar.setSidebarToggler('chat');
 		setChatEventListeners();
-		if (lib.userInfo.profileImage)
-			(document.getElementById('chat-box-profile-image') as HTMLImageElement).src = lib.userInfo.profileImage;
 	}
 	onCleanup(): void { }
 	getHtml(): string {
@@ -37,17 +35,17 @@ class Chat extends Page {
 				</div>
 				<div id="chat-box" class="flex flex-col flex-1 card t-dashed p-5">
 					<div class="flex px-4 item t-dashed gap-3">
-						<button id="chat-box-profile" class="flex gap-4 mr-auto">
+						<button id="chat-box-profile" class="flex gap-4 mr-auto" disabled>
 							<img id="chat-box-profile-image" class="object-cover size-10 rounded-full" src="https://picsum.photos/id/237/200">
 							<span id="chat-box-header-username" class="flex items-center">No user selected</span>
 						</button>
-						<button id="chat-box-invite" class="px-3 rounded-2xl hover:bg-c-secondary dark:hover:bg-c-primary">Invite</button>
-						<button id="chat-box-block" class="px-3 rounded-2xl hover:bg-c-secondary dark:hover:bg-c-primary">Block</button>
+						<button id="chat-box-invite" class="px-3 rounded-2xl hover:bg-c-secondary dark:hover:bg-c-primary" disabled>Invite</button>
+						<button id="chat-box-block" class="px-3 rounded-2xl hover:bg-c-secondary dark:hover:bg-c-primary" disabled>Block</button>
 					</div>
 					<ul id="chat-box-message-list" class="flex flex-col flex-1 overflow-auto"></ul>
 					<form id="chat-box-form" class="flex item t-dashed gap-4">
-						<input id="chat-box-input" class="size-full pl-2" type="text" placeholder="Type a message..." name="nope" autocomplete="new-password"/>
-						<button class="p-2 rounded-2xl hover:bg-c-secondary dark:hover:bg-c-primary">Send</button>
+						<input id="chat-box-input" class="size-full pl-2" type="text" placeholder="Type a message..." name="nope" autocomplete="new-password" disabled/>
+						<button class="p-2 rounded-2xl hover:bg-c-secondary dark:hover:bg-c-primary" id="chat-box-send-button" disabled>Send</button>
 					</form>
 				</div>
 				<div class="flex flex-col w-75 gap-6 card t-dashed p-5">

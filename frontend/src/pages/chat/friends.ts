@@ -34,6 +34,19 @@ export function turnOffChat() {
 		showToast.red('The chat socket is already off');
 }
 
+function renderDashboardFriend(friend: string) {
+	const friendsList = document.getElementById('friends-list')!;
+	const matchDiv = document.createElement("li");
+	matchDiv.className = "item t-dashed p-3 flex";
+	matchDiv.innerHTML = /*html*/`
+		<img src="https://api.dicebear.com/9.x/avataaars-neutral/svg?seed=Alexander" class="size-10 rounded-4xl">
+		<svg height="10" width="10"><circle cx="5" cy="5" r="5" fill="currentColor" class="text-green-600"/></svg>
+		<h1 class="self-center ml-5">${friend}</h1>
+	`;
+	matchDiv.addEventListener('click', () => navigate(`/chat/${friend}`));
+	friendsList.appendChild(matchDiv);
+}
+
 function socketOnMessage(event: MessageEvent<any>) {
 	const data = JSON.parse(event.data);
 	// console.log(data);
@@ -46,7 +59,19 @@ function socketOnMessage(event: MessageEvent<any>) {
 	else if (data.type === 'load-messages')
 		data.data.forEach((msg: { user: string, from: string, message: string, timestamp: string }) => renderMessage(data.user, msg.from, msg.message, msg.timestamp));
 	else if (data.type === 'get-friends-list')
-		data.data.forEach((friend: string) => renderOnlineFriendList(friend));
+	{
+		if (userInfo.path == '/chat')
+			data.data.forEach((friend: string) => renderOnlineFriendList(friend));
+		else if (userInfo.path == '/') {
+			data.data.forEach((friend: string) => renderDashboardFriend(friend));
+			const friendsList = document.getElementById('friends-list')!;
+			if (friendsList.innerHTML == '') {
+				friendsList.innerHTML = /*html*/`
+					<li class="item text-c-secondary">Empty active friends list</li>
+				`;
+			}
+		}
+	}
 	else if (data.type === 'get-online-users')
 		data.data.forEach((user: string) => renderOnlineUsersList(user));
 	else if (data.type === 'add-requests')
@@ -235,6 +260,14 @@ function renderChatRoom(name: string, isBlocked: boolean, _load: boolean) { //* 
 	const chatHeaderBlockButton = document.getElementById('chat-box-block')!;
 	chatHeaderBlockButton.textContent = isBlocked ? 'Unblock' : 'Block';
 
+	const chatBoxProfileImage = document.getElementById('chat-box-profile') as HTMLButtonElement;
+	if (chatBoxProfileImage.disabled) {
+		chatBoxProfileImage.disabled = false;
+		const chatBoxElements = document.querySelectorAll('#chat-box input, #chat-box button');
+		chatBoxElements.forEach(element => (element as HTMLInputElement).disabled = false);
+	}
+	window.history.replaceState({}, '', `/chat/${name}`);
+
 	// if (load) {
 	// 	chatHeaderBlockButton.addEventListener('click', () => {
 	// 		const isBlocking = chatHeaderBlockButton.textContent!.includes('Block');
@@ -261,6 +294,23 @@ function renderChatRoom(name: string, isBlocked: boolean, _load: boolean) { //* 
 	// 		}));
 	// 	});
 	// }
+	// Load user profile image
+	(async () => {
+		try {
+			const imageResponse = await fetch(`http://${location.hostname}:3000/api/users/${name}/avatar`, {
+				credentials: 'include'
+			})
+			if (!imageResponse.ok)
+				throw new Error(`Failed to load user Avatar!`);
+			const blob = await imageResponse.blob();
+			// console.log(blob);
+			const url = URL.createObjectURL(blob);
+			(document.getElementById("chat-box-profile-image") as HTMLImageElement).src = url || 'https://picsum.photos/id/63/300';
+		} catch (error) {
+			console.log(error);
+			showToast.red(error as string);
+		}
+	})();
 }
 
 function addListEntry(listName: string, name: string, html: string, classes?: string) {
@@ -327,7 +377,14 @@ export function setChatEventListeners() {
 	setTimeout(() => {
 		//* TEMP auto-refresh
 		refreshEverything();
-	// if (userInfo.username != '42Transcendence')
-	// 	setTimeout(() => document.getElementById(`online-friends-list-entry-42Transcendence`)?.click(), 100);
 	}, 300);
+	// setTimeout(() => {
+	// 	if (userInfo.path != '/chat' && userInfo.path != '/chat/') {
+	// 		const friendsListEntry = document.getElementById(`online-friends-list-entry-${userInfo.path.split('/chat/')[1]}`)
+	// 		if (!friendsListEntry)
+	// 			showToast.red(`User ${userInfo.path.split('/chat/')[1]} is not an online friend`);
+	// 		else
+	// 			friendsListEntry.click()
+	// 	}
+	// }, 300);
 }
