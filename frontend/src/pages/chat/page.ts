@@ -1,7 +1,7 @@
 import Page from "../Page"
 import * as lib from "../../utils"
 import sidebar from "../../components/sidebar"
-import { setChatEventListeners } from "./friends";
+import { setChatEventListeners, disableReload } from "./friends";
 
 class Chat extends Page {
 	constructor() {
@@ -13,7 +13,9 @@ class Chat extends Page {
 		if (lib.userInfo.profileImage)
 			(document.getElementById('chat-box-profile-image') as HTMLImageElement).src = lib.userInfo.profileImage;
 	}
-	onCleanup(): void { }
+	onCleanup(): void {
+		disableReload()
+	}
 	getHtml(): string {
 		return /*html*/`
 			${sidebar.getHtml()}

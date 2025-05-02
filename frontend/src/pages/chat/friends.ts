@@ -254,6 +254,29 @@ function removeListEntry(list: string, name: string) {
 	document.removeChild(entry);
 }
 
+function reload()
+{
+	document.getElementById('online-friends-list')!.innerHTML = '';
+	socket.send(JSON.stringify({
+		type: 'get-friends-list'
+	}));
+	showToast.blue('Refreshing online friends...');
+	document.getElementById('friend-requests-list')!.innerHTML = '';
+	socket.send(JSON.stringify({
+		type : 'get-friend-requests'
+	}));
+	showToast.blue('Checking friend requests...')
+}
+
+let reloadInterval: number | null = null;
+
+export function disableReload() {
+	if (reloadInterval !== null) {
+		clearInterval(reloadInterval);
+		reloadInterval = null;
+	}
+}
+
 export function setChatEventListeners() {
 	document.getElementById('online-friends-refresh')?.addEventListener('click',
 		() => {
@@ -268,7 +291,7 @@ export function setChatEventListeners() {
 			socket.send(JSON.stringify({
 				type: 'get-friend-request',
 			}));
-			showToast.blue('Checking friend requests...')	
+			showToast.blue('Checking friend requests...')
 		});
 	document.getElementById('online-users-refresh')?.addEventListener('click',
 		() => {
@@ -297,4 +320,6 @@ export function setChatEventListeners() {
 	document.getElementById('chat-box-invite')?.addEventListener('click',
 		() => showToast.yellow('Inviting player...'));
 	setupBlockButtonListener();
+
+	reloadInterval = setInterval(reload, 3000);
 }
