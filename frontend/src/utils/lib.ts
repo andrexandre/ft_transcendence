@@ -1,4 +1,6 @@
+import { turnOnChat, turnOffChat } from "../pages/chat/friends"
 export { default as Cookies } from 'js-cookie';
+import { renderPattern } from "./patterns";
 
 export const colors: string[] = ["red", "orange", "amber", "yellow", "lime", "green", "emerald", "teal", "cyan", "sky", "blue", "slate", "gray", "zinc", "neutral", "stone", "rose", "pink", "fuchsia", "purple", "violet", "indigo"];
 export const defaultColor = 'slate';
@@ -10,7 +12,9 @@ export var userInfo = {
 	userId: "",
 	auth_method: "",
 	profileImage: "",
-	ip: location.hostname,
+	path: "",
+	chat_sock: null as WebSocket | null,
+	// game_sock: null as WebSocket | null
 }
 
 // onBeforeClose?: Promise<void> / waitForEvent?: { element: HTMLElement; event: string }
@@ -20,7 +24,7 @@ export function showToast(message?: string, type: string = "") {
 	toast.textContent = message || "Bro, you just got Toasted!";
 	document.getElementById('toast-container')!.appendChild(toast);
 
-	if (type != "green" && type != "red" && type != "blue" && type != "yellow")
+	if (!["green", "red", "blue", "yellow"].includes(type))
 		type = "default";
 	toast.className = `toast-${type}`;
 	setTimeout(() => toast.remove(), 3100);
@@ -37,6 +41,7 @@ export function loadTheme() {
 		document.documentElement.classList.remove('dark');
 	else if (window.matchMedia('(prefers-color-scheme: dark)').matches)
 		document.documentElement.classList.add('dark');
+	renderPattern();
 	// else { // to replace in case the previous else if is not working
 	// 	document.documentElement.classList.remove('dark');
 	// 	if (window.matchMedia('(prefers-color-scheme: dark)').matches) 
@@ -60,6 +65,7 @@ export function setTheme(option: string, save?: boolean) {
 		htmlElement.classList.remove('dark');
 		if (save) localStorage.setItem('theme', 'light');
 	}
+	renderPattern();
 	// console.debug(`Theme set to ${option}`);
 }
 
@@ -78,17 +84,17 @@ export function setColor(color: string, save?: boolean) {
 	document.documentElement.style.setProperty('--color-c-text', `var(--color-c-${color}-text)`);
 	document.documentElement.style.setProperty('--color-c-primary', `var(--color-c-${color}-primary)`);
 	if (save) localStorage.setItem('color', color);
+	renderPattern();
 	// console.debug(`Color set to ${color}`);
 }
 
-/**
- * @param {boolean} on - start or stops services such as game and chat sockets
- */
-export function daemon(on: boolean) {
+export function toggleUserServices(on: boolean) {
 	if (on) {
-		// showToast('Athenticated');
+		turnOnChat();
+		// turnOnGame();
 	} else {
-		// showToast('Unathenticated');
+		turnOffChat();
+		// turnOffGame();
 	}
 }
 

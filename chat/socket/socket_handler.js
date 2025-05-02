@@ -169,10 +169,10 @@ async function joinRoom(username, friend, socket)
 async function sendFriendList(username, socket)
 {
 	const friends = await getFriends(username);
-	const online_friends = await checkFriendOnline(friends);
+	// const online_friends = await checkFriendOnline(friends); // ve os online friends
 	socket.send(JSON.stringify({
 		type: 'get-friends-list',
-		data: online_friends
+		data: friends
 	}));
 }
 

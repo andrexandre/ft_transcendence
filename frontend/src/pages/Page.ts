@@ -28,7 +28,9 @@ export default abstract class Page {
 	// this.root.id = `page-${this.name}`;
 	// this.root.classList.add('w-full', 'h-full');
 	// this.root.innerHTML = content;
-	mount() {
+	mount(url: string) {
+		document.title = `${this.name.charAt(0).toUpperCase() + this.name.slice(1)} - Transcendence`;
+		lib.userInfo.path = url;
 		this.mounted = true;
 		this.onMount();
 		setTimeout(() => {
@@ -38,7 +40,7 @@ export default abstract class Page {
 			}
 		}, 50);
 		return this.root;
-	} 
+	}
 	abstract getHtml(): string;
 	addCleanupHandler(fn: () => void) {
 		this.cleanupHandlers.push(fn);

@@ -28,12 +28,6 @@ const sidebar = {
 						<p>Game</p>
 					</button>
 				</li>
-				<li>
-					<button id="goto-profile-button" class="sidebar-component">
-						<i class="fa-solid fa-circle-user"></i>
-						<p>Profile</p>
-					</button>
-				</li>
 				<!--* Important comment for testing -->
 				<!-- <li class="flex">
 					<button id="test-default-notifications-button" class="sidebar-component">
@@ -104,7 +98,6 @@ const sidebar = {
 		lib.assignButtonNavigation('goto-home-button', '/');
 		lib.assignButtonNavigation('goto-chat-button', '/chat');
 		lib.assignButtonNavigation('goto-game-button', '/game');
-		lib.assignButtonNavigation('goto-profile-button', '/profile');
 		lib.assignButtonNavigation('goto-settings-button', '/settings');
 		//* Important comment for testing
 		// document.getElementById("test-default-notifications-button")!.addEventListener("click", () => lib.showToast());
@@ -120,10 +113,7 @@ const sidebar = {
 					});
 					if (!response.ok)
 						throw new Error(`${response.status} - ${response.statusText}`);
-					lib.userInfo.username = '';
-					lib.userInfo.userId = '';
-					lib.userInfo.auth_method = '';
-					lib.daemon(false);
+					lib.toggleUserServices(false);
 					lib.showToast(`Logged out successfully`);
 					lib.navigate('/login');
 				} catch (error) {

@@ -1,6 +1,2 @@
-- mais tarde fazer o redirect para o profile quando se clica no botão de profile no dropdown menu
 - fazer match do id das duas bases de dados
 - mudar os ficheiros de js para ts
-- parar de fazer reaload das listas quando se sai do chat
-- apagar o que existe antes de voltar a meter com o reload automático
-- user não é criado quando dá login no chat, nem quando clico no chat apenas é criado quando dou refresh
