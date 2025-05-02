@@ -56,6 +56,12 @@ export async function initializeDatabase()
 	return db;
 }
 
+export async function getAll()
+{
+	const users = await db.all('SELECT * from users');
+	return users;
+}
+
 export async function createUser(username)
 {
 	const user = await db.get('SELECT username FROM users WHERE username = ?', [username]);

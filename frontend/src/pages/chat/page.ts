@@ -1,7 +1,7 @@
 import Page from "../Page"
 import * as lib from "../../utils"
 import sidebar from "../../components/sidebar"
-import { setChatEventListeners } from "./friends";
+import { setChatEventListeners, disableReload } from "./friends";
 
 class Chat extends Page {
 	constructor() {
@@ -11,7 +11,9 @@ class Chat extends Page {
 		sidebar.setSidebarToggler('chat');
 		setChatEventListeners();
 	}
-	onCleanup(): void { }
+	onCleanup(): void {
+		disableReload()
+	}
 	getHtml(): string {
 		return /*html*/`
 			${sidebar.getHtml()}
@@ -19,7 +21,7 @@ class Chat extends Page {
 				<div class="flex flex-col card t-dashed p-5 w-75">
 					<div class="flex flex-col gap-6 flex-1">
 						<button id="online-friends-refresh" class="flex justify-around items-center item t-dashed p-4">
-							<span>Online Friends</span>
+							<span>Friends</span>
 							<i class="fa-solid fa-rotate-right"></i>
 						</button>
 						<ul id="online-friends-list" class="flex flex-col flex-1 overflow-auto"></ul>
@@ -50,7 +52,7 @@ class Chat extends Page {
 				</div>
 				<div class="flex flex-col w-75 gap-6 card t-dashed p-5">
 					<button id="online-users-refresh" class="flex justify-around items-center item t-dashed p-4">
-						<span>Online Users</span>
+						<span>Users</span>
 						<i class="fa-solid fa-rotate-right"></i>
 					</button>
 					<ul id="online-users-list" class="flex flex-col flex-1 overflow-auto"></ul>
