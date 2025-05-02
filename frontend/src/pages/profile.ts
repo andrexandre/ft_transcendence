@@ -1,55 +1,7 @@
 import Page from "./Page"
 import * as lib from "../utils"
 import sidebar from "../components/sidebar"
-import { MatchHistoryI } from "./dashboard";
-
-function displayMatchHistory(matchHistory: MatchHistoryI[]) {
-	const statsDiv = document.getElementById("stats-list")!;
-	matchHistory.forEach(match => {
-		const matchDiv = document.createElement("li");
-		let matchBgColor = '';
-		if (match.winner.username === lib.userInfo.username)
-			matchBgColor = "border-green-500 hover:border-green-700 dark:border-green-700 dark:hover:border-green-500";
-		else if (match.loser.username === lib.userInfo.username)
-			matchBgColor = "border-red-500 hover:border-red-700 dark:border-red-700 dark:hover:border-red-500";
-		matchDiv.className = "relative item t-dashed " + matchBgColor;
-		matchDiv.innerHTML = /*html*/`
-			<p class="text-sm absolute top-0 left-1/2 transform -translate-x-1/2">${match.Mode}</p>
-			<div class="grid grid-cols-[1rem_1fr_1rem_1fr_1rem] text-xl pt-1">
-				<p>${match.winner.score}</p>
-				<p>${match.winner.username}</p>
-				<p>vs</p>
-				<p>${match.loser.username}</p>
-				<p>${match.loser.score}</p>
-			</div>
-		`;
-		statsDiv.appendChild(matchDiv);
-	});
-	if (matchHistory.length === 0) {
-		statsDiv.innerHTML = /*html*/`
-			<li class="item text-c-secondary">Empty match history</li>
-		`;
-	}
-}
-
-export async function updateMatchHistory() {
-	try {
-		const response = await fetch(`http://${location.hostname}:5000/user-game-history`, {
-			credentials: "include",
-		});
-		if (!response.ok) {
-			throw new Error(`${response.status} - ${response.statusText}`);
-		}
-		let matchHistory = await response.json();
-		displayMatchHistory(matchHistory);
-	} catch (error) {
-		console.log(error);
-		lib.showToast.red(error as string);
-		document.getElementById("stats-list")!.innerHTML = /*html*/`
-			<li class="item text-c-secondary">Invalid match history</li>
-		`;
-	}
-}
+import { setProfileImage, updateMatchHistory } from "./dashboard";
 
 async function loadInformation(profileUsername: string) {
 	const response = await fetch(`http://${location.hostname}:3000/api/users/${profileUsername}`, {
@@ -67,16 +19,8 @@ async function loadInformation(profileUsername: string) {
 	(document.getElementById("profile-bio") as HTMLElement).textContent = userData.biography;
 	lib.userInfo.username = userData.username;
 
-	// Set user avatar
-	const imageResponse = await fetch(`http://${location.hostname}:3000/api/users/${profileUsername}/avatar`, {
-		credentials: 'include'
-	})
-	if (!imageResponse.ok) return lib.showToast.red('Failed to load user Avatar!');
-
-	const blob = await imageResponse.blob();
-	const url = URL.createObjectURL(blob);
-	(document.getElementById("profile-image") as HTMLImageElement).src = url || 'https://picsum.photos/id/63/300';
-	updateMatchHistory();
+	setProfileImage("profile-image", profileUsername);
+	updateMatchHistory("1rem_1fr_1rem_1fr_1rem");
 }
 
 class Profile extends Page {

@@ -1,4 +1,5 @@
 import { navigate, showToast, userInfo } from "../../utils";
+import { renderDashboardFriend, setProfileImage } from "../dashboard";
 
 export function turnOnChat() {
 	if (!userInfo.chat_sock || userInfo.chat_sock.readyState === WebSocket.CLOSED) {
@@ -34,26 +35,8 @@ export function turnOffChat() {
 		showToast.red('The chat socket is already off');
 }
 
-function renderDashboardFriend(friend: string) {
-	const friendsList = document.getElementById('friends-list')!;
-	const friendsListEntry = document.createElement("li");
-	friendsListEntry.className = "item t-dashed p-3 flex";
-	friendsListEntry.innerHTML = /*html*/`
-		<img src="https://api.dicebear.com/9.x/avataaars-neutral/svg?seed=Alexander" class="size-10 rounded-4xl">
-		<svg height="10" width="10"><circle cx="5" cy="5" r="5" fill="currentColor" class="text-blue-600"/></svg>
-		<h1 class="self-center ml-5">${friend}</h1>
-	`;
-	friendsListEntry.addEventListener('click', () => navigate(`/chat/${friend}`));
-	friendsList.appendChild(friendsListEntry);
-}
-
 function handleEmptyList(name: string, value?: string) {
-	const listElement = document.getElementById(name);
-	if (!listElement) {
-		//! remove when get-friens-request is removed
-		console.log(`Element ${name} not found${value ? ` of value: ${value}` : ''}`);
-		return;
-	}
+	const listElement = document.getElementById(name)!;
 	if (listElement.innerHTML == '') {
 		listElement.innerHTML = /*html*/`
 			<li class="item text-c-secondary">${value || 'Empty ' + name}</li>
@@ -74,11 +57,12 @@ function socketOnMessage(event: MessageEvent<any>) {
 	else if (data.type === 'get-friends-list') {
 		if (userInfo.path.startsWith('/chat')) {
 			data.data.forEach((friend: { username: string }) => renderFriendList(friend.username));
+			handleEmptyList('friends-list', 'No friends, sad life');
 		}
 		else if (userInfo.path == '/') {
 			data.data.forEach((friend: { username: string }) => renderDashboardFriend(friend.username));
+			handleEmptyList('friends-list', 'No friends online');
 		}
-		handleEmptyList('friends-list', 'No friends, sad life');
 	}
 	else if (data.type === 'get-online-users') {
 		data.data.forEach((user: string) => renderUsersList(user));
@@ -163,8 +147,11 @@ function setupBlockButtonListener() {
 function renderFriendList(name: string) {
 	const friendList = document.getElementById('friends-list')!;
 	const roomButton = document.createElement('button');
-	roomButton.className = 'item t-dashed';
-	roomButton.appendChild(document.createTextNode(name));
+	roomButton.className = 'item t-dashed flex p-1 items-center gap-4';
+	roomButton.innerHTML = /*html*/`
+		<img id="profile-image-${name}" class="size-8 rounded-4xl">
+		<p>${name}</p>
+	`;
 
 	roomButton.addEventListener('click', () => {
 		// Update the current friend
@@ -179,11 +166,10 @@ function renderFriendList(name: string) {
 			type: 'join-room',
 			friend: name
 		}));
-
-		showToast.blue(`Joining room with ${name}`);
 	});
 	roomButton.id = `friends-list-entry-${name}`;
 	friendList.appendChild(roomButton);
+	setProfileImage(`profile-image-${name}`, name);
 }
 
 function renderUsersList(name: string) {
@@ -273,23 +259,7 @@ function renderChatRoom(name: string, isBlocked: boolean) {
 		chatBoxElements.forEach(element => (element as HTMLInputElement).disabled = false);
 	}
 	window.history.replaceState({}, '', `/chat/${name}`);
-
-	// Load user profile image
-	(async () => {
-		try {
-			const imageResponse = await fetch(`http://${location.hostname}:3000/api/users/${name}/avatar`, {
-				credentials: 'include'
-			})
-			if (!imageResponse.ok)
-				throw new Error(`Failed to load user Avatar!`);
-			const blob = await imageResponse.blob();
-			const url = URL.createObjectURL(blob);
-			(document.getElementById("chat-box-profile-image") as HTMLImageElement).src = url || 'https://picsum.photos/id/63/300';
-		} catch (error) {
-			console.log(error);
-			showToast.red(error as string);
-		}
-	})();
+	setProfileImage("chat-box-profile-image", name);
 }
 
 function addListEntry(listName: string, name: string, html: string, classes?: string) {
@@ -372,8 +342,8 @@ export function setChatEventListeners() {
 	setTimeout(() => {
 		document.getElementById('users-list-refresh')?.click();
 		reloadLists()
-		if (userInfo.path != '/chat' && userInfo.path != '/chat/') {
-			setTimeout(() => {
+		setTimeout(() => {
+			if (userInfo.path != '/chat' && userInfo.path != '/chat/') {
 				const friendsListEntry = document.getElementById(`friends-list-entry-${userInfo.path.split('/chat/')[1]}`)
 				if (!friendsListEntry) {
 					showToast.red(`${userInfo.path.split('/chat/')[1]} is not an friend`);
@@ -381,7 +351,8 @@ export function setChatEventListeners() {
 				}
 				else
 					friendsListEntry.click()
-			}, 100);
-		}
+			} else if (currentFriend)
+				document.getElementById(`friends-list-entry-${currentFriend}`)?.click();
+		}, 100);
 	}, 100);
 }
