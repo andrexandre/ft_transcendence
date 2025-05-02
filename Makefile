@@ -36,7 +36,7 @@ status:
 	@echo
 
 backend/Gateway/.env:
-	curl -s https://gist.githubusercontent.com/andrexandre/8c011820a35117d005016151cfd46207/raw/83a0d67fbf775a78355dd617e6502d9c03f496ad/.env > backend/Gateway/.env
+	curl -s https://gist.githubusercontent.com/andrexandre/8c011820a35117d005016151cfd46207/raw/810bbb2e23e23c19e788f0a310021d23f77132c9/.env > backend/Gateway/.env
 
 destroy: down
 	find . -type f -iname '*.db' -delete

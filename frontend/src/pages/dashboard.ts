@@ -2,6 +2,29 @@ import Page from "./Page"
 import * as lib from "../utils"
 import sidebar from "../components/sidebar"
 
+// async function getAndUpdateInfo() {
+// 	try {
+// 		const response = await fetch(`http://${location.hostname}:7000/fetchDashboardData`, {
+// 			credentials: 'include',
+// 		});
+// 		if (!response.ok) {
+// 			lib.navigate('/login');
+// 			throw new Error(`${response.status} - ${response.statusText}`);
+// 		}
+// 		let dashData = await response.json();
+// 		lib.userInfo.username = dashData.username;
+// 		lib.userInfo.codename = dashData.codename;
+// 		lib.userInfo.biography = dashData.biography;
+// 		lib.userInfo.userId = dashData.userId;
+// 		lib.userInfo.auth_method = dashData.auth_method;
+// 		document.getElementById("profile-username")!.textContent = dashData.username;
+// 		updateMatchHistory();
+// 	} catch (error) {
+// 		console.log(error);
+// 		lib.showToast.red(error as string);
+// 	}
+// }
+
 export interface MatchHistoryI {
 	Mode: string;
 	winner: {
@@ -63,29 +86,6 @@ async function updateMatchHistory() {
 	}
 }
 
-async function getAndUpdateInfo() {
-	try {
-		const response = await fetch(`http://${location.hostname}:7000/fetchDashboardData`, {
-			credentials: 'include',
-		});
-		if (!response.ok) {
-			lib.navigate('/login');
-			throw new Error(`${response.status} - ${response.statusText}`);
-		}
-		let dashData = await response.json();
-		lib.userInfo.username = dashData.username;
-		lib.userInfo.codename = dashData.codename;
-		lib.userInfo.biography = dashData.biography;
-		lib.userInfo.userId = dashData.userId;
-		lib.userInfo.auth_method = dashData.auth_method;
-		document.getElementById("profile-username")!.textContent = dashData.username;
-		updateMatchHistory();
-	} catch (error) {
-		console.log(error);
-		lib.showToast.red(error as string);
-	}
-}
-
 async function loadInformation() {
 	const response = await fetch(`http://${location.hostname}:3000/api/users/settings`, {
 		credentials: 'include'
@@ -109,7 +109,6 @@ async function loadInformation() {
 	if (!imageResponse.ok) return lib.showToast.red('Failed to load user Avatar!');
 
 	const blob = await imageResponse.blob();
-	// console.log(blob);
 	const url = URL.createObjectURL(blob);
 	(document.getElementById("profile-image") as HTMLImageElement).src = url || 'https://picsum.photos/id/63/300';
 	updateMatchHistory();
@@ -127,9 +126,12 @@ class Dashboard extends Page {
 		// getAndUpdateInfo();
 		loadInformation();
 		document.getElementById("profile")!.addEventListener("click", () => lib.navigate('/profile'));
-		lib.userInfo.chat_sock!.send(JSON.stringify({
-			type: 'get-friends-list'
-		}));
+		setTimeout(() => {
+			document.getElementById("friends-list")!.innerHTML = "";
+			lib.userInfo.chat_sock!.send(JSON.stringify({
+				type: 'get-friends-list'
+			}));
+		}, 100);
 	}
 	onCleanup(): void { }
 	getHtml(): string {
@@ -155,7 +157,7 @@ class Dashboard extends Page {
 					<ul id="stats-list" class="flex flex-col gap-2 overflow-auto"></ul>
 				</div>
 				<div class="card t-dashed flex flex-col">
-					<h1 class="text-xl">Active friends</h1>
+					<h1 class="text-xl">Friends</h1>
 					<ul id="friends-list" class="flex flex-col gap-2 overflow-auto"></ul>
 				</div>
 			</main>

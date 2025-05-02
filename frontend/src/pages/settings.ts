@@ -30,9 +30,8 @@ async function loadInformation() {
 	if (!imageResponse.ok) return lib.showToast.red('Failed too load user Avatar!');
 
 	const blob = await imageResponse.blob();
-	console.log(blob);
 	const url = URL.createObjectURL(blob);
-	console.log(url);
+	console.debug(url);
 	const errorUrl = 'https://fastly.picsum.photos/id/63/300/300.jpg?hmac=NZIxadbJNvrTZPpf2SgsLhZ4Up4GlWVwar-bI6FcTE8';
 	(document.getElementById("profile-image") as HTMLImageElement).src = url || errorUrl;
 	// URL.revokeObjectURL(url);

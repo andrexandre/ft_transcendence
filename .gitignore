@@ -70,6 +70,7 @@ profile*
 .vite
 frontend/**/*.js
 profile.ts
+chat/database/messages/*.jsonl
 
 # alex
 backend/user/userManagement/uploads/*.png

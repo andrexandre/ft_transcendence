@@ -74,7 +74,6 @@ async function loadInformation(profileUsername: string) {
 	if (!imageResponse.ok) return lib.showToast.red('Failed to load user Avatar!');
 
 	const blob = await imageResponse.blob();
-	console.log(blob);
 	const url = URL.createObjectURL(blob);
 	(document.getElementById("profile-image") as HTMLImageElement).src = url || 'https://picsum.photos/id/63/300';
 	updateMatchHistory();

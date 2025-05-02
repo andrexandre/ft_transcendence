@@ -35,8 +35,6 @@ async function loadApp(path: string) {
 	} catch (error) {
 		if (path != "/register" && path != "/login") {
 			console.log(error);
-			if (error == 'TypeError: NetworkError when attempting to fetch resource.')
-				error = 'Server is not reachable';
 			lib.showToast.red(error as string);
 			history.replaceState(null, "", "/login");
 			path = '/login';
