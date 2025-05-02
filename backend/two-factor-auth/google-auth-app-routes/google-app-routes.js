@@ -6,6 +6,7 @@ const secret = speakeasy.generateSecret();
 console.log('Secret:', secret.base32);
 export default async function generateQrCode(fastify, options) {
     fastify.get('/set-google-authenticator', async (request, reply) => {
+    console.log("Request received from frontend");
     var url = speakeasy.otpauthURL({ secret: secret.base32, label: 'ft_transcendence', issuer: '2FAManager' ,encoding: 'base32' });
     const data_url = await qrcode.toDataURL(url);
     return reply.send(`<img src="${data_url}" alt="QR Code"> ${secret.base32}`);

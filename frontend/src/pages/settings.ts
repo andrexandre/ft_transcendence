@@ -103,13 +103,9 @@ class Settings extends Page {
 				two_FA_status: twoFAButton.checked
 			};
 			try {
-				const response = await fetch(`http://${location.hostname}:80/api/users/save-settings-2fa`, {
-					method: 'POST',
+				const response = await fetch(`http://${location.hostname}:3500/2fa/set-google-authenticator`, {
+					method: 'GET',
 					credentials: "include",
-					headers: {
-						'Content-Type': 'application/json'
-					},
-					body: JSON.stringify(userData)
 				});
 				if (!response.ok) {
 					throw new Error(`${response.status} - ${response.statusText}`);
