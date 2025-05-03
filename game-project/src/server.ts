@@ -70,11 +70,11 @@ function handleSocketMessage(connection: any, data: any) {
 	}
 
 	switch (data.type) {
-		case "create-lobby": {
-			if (getLobbyBySocket(user.socket)) {
-				connection.send(JSON.stringify({ type: "error", message: "Já estás num lobby" }));
-				return;
-			}
+		case "create-lobby": { // uncoment
+			// if (getLobbyBySocket(user.socket)) {
+			// 	connection.send(JSON.stringify({ type: "error", message: "Já estás num lobby" }));
+			// 	return;
+			// }
 			const { gameMode, maxPlayers } = data;
 			if (!gameMode || !maxPlayers) {
 				connection.send(JSON.stringify({ type: "error", message: "Missing lobby info" }));

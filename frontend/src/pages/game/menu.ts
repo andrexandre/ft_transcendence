@@ -18,11 +18,7 @@ function initializeGameMainMenu() {
 	}
 	else {
 		dropdown.addElement('Single', 'button', 'item t-border-alt', 'Classic', () => {
-			// const difficulty = sessionStorage.getItem("user_set_dificulty") || "Normal";
-			// const tableSize = sessionStorage.getItem("user_set_tableSize") || "Medium";
-			// const sound = sessionStorage.getItem("user_set_sound") === "1";
 			document.getElementById('sidebar')?.classList.toggle('hidden');
-			
 			createLobby("Classic", 1);
 		});
 	}
@@ -59,7 +55,7 @@ function initializeGameMainMenu() {
 
 	dropdown.addElement("Multi", "button", "item t-border-alt", "Tournament", () => {
 		showToast.green(`TNT clicked`)
-		createLobby("TNT", 8);
+		createLobby("TNT", 4);
 	});
 
 	dropdown.addElement("Multi", "button", "item t-border-alt", "1V1", () => {
@@ -104,8 +100,6 @@ function initializeGameMainMenu() {
 
 	// Matrecos
 	dropdown.addElement('Co-Op', 'button', 'item t-border-alt', 'Matrecos', async () => {
-		const username = sessionStorage.getItem("username")!;
-		const userId = Number(sessionStorage.getItem("user_id")!);
 		try {
 			showToast(`MTC clicked`)
 			createLobby("MTC", 4);
@@ -116,8 +110,6 @@ function initializeGameMainMenu() {
 
 	// Free for All
 	dropdown.addElement('Co-Op', 'button', 'item t-border-alt', 'Free for All', async () => {
-		const username = sessionStorage.getItem("username")!;
-		const userId = Number(sessionStorage.getItem("user_id")!);
 		try {
 			showToast(`FFA clicked`)
 			createLobby("FFA", 4);

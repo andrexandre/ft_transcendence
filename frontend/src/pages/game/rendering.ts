@@ -15,7 +15,6 @@ let matchSocket: WebSocket;
 let localUsername: string = "";
 
 
-
 export function initGameCanvas() {
 	gameCanvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
 	ctx = gameCanvas.getContext("2d")!;
@@ -45,6 +44,45 @@ function updateScoreboard(players: any[]) {
     <span style='color: red;'>${p2.username}</span>
   `;
   el.style.display = "block";
+}
+
+export const tournamentState = {
+	rounds: [] as { player1: string; player2: string; winner?: string }[][],
+	currentRound: 0,
+};
+
+function renderTournamentBracket() {
+	const bracketDiv = document.getElementById("tournament-bracket")!;
+	bracketDiv.innerHTML = "";
+
+	tournamentState.rounds.forEach((round, roundIndex) => {
+	const roundDiv = document.createElement("div");
+	roundDiv.className = "mb-4";
+	const title = document.createElement("h3");
+	title.textContent = `Round ${roundIndex + 1}`;
+	roundDiv.appendChild(title);
+
+	round.forEach((match) => {
+		const matchDiv = document.createElement("div");
+		matchDiv.className = "flex gap-4 text-lg";
+		const p1 = document.createElement("span");
+		const p2 = document.createElement("span");
+		p1.textContent = match.player1;
+		p2.textContent = match.player2;
+
+		if (match.winner) {
+		p1.style.color = match.winner === match.player1 ? "green" : "gray";
+		p2.style.color = match.winner === match.player2 ? "green" : "gray";
+		}
+
+		matchDiv.appendChild(p1);
+		matchDiv.appendChild(document.createTextNode("vs"));
+		matchDiv.appendChild(p2);
+		roundDiv.appendChild(matchDiv);
+	});
+
+	bracketDiv.appendChild(roundDiv);
+	});
 }
 
 function drawGame() {
@@ -130,10 +168,18 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
 			currentPlayerId = data.playerId;
 			return;
 		}
+
+		if (data.gameMode === "TNT" && tournamentState.rounds.length === 0) {
+			tournamentState.rounds = [
+				[{ player1: data.players[0].username, player2: data.players[1].username }]
+			];
+			tournamentState.currentRound = 0;
+			renderTournamentBracket();
+		}
+		
 	  
 		if (data.type === "countdown") {
 			gameStarting = true;
-			// console.log("⏳ Countdown iniciado:", data.value);
 			GameMessageVisibility(true);
 			drawGameMessage(data.value.toString(), "green");
 	
@@ -152,9 +198,9 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
   
 		if (data.type === "update") {
 			if (!gameStarted && !gameStarting) {
-			console.warn("⚠️ Fallback: Canvas ainda não visível, forçando início");
-			hideMenuShowCanvas();
-			gameStarted = true;
+				console.warn("⚠️ Fallback: Canvas ainda não visível, forçando início");
+				hideMenuShowCanvas();
+				gameStarted = true;
 			}
 
 			localUsername = data.you;
@@ -163,27 +209,47 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
 			ball = data.state.ball;
 			drawGame();
 			return;
+			
 		}
+		
+		if (data.type === "scoreboard") {
+			players = data.players;
+			updateScoreboard(players);
+			return;
+		  }
 
 		if (data.type === "end" && !gameEnded) {
 			gameEnded = true;
+		  
+			if (data.gameMode === "TNT") {
+				// Atualiza o visual da bracket do torneio
+				const round = tournamentState.rounds[tournamentState.currentRound] || [];
+				const match = round.find(m =>
+					(m.player1 === data.players[0].username && m.player2 === data.players[1].username) ||
+					(m.player1 === data.players[1].username && m.player2 === data.players[0].username)
+				);
+				if (match) match.winner = data.winner;
+				renderTournamentBracket();
+				document.getElementById("tournament-bracket")?.classList.remove("hidden");
+			}
+		  
 			drawGameMessage(`${data.winner} wins!`, data.winner === sessionStorage.getItem("username") ? "blue" : "red");
 			GameMessageVisibility(true);
-	
+		  
 			setTimeout(() => {
-			console.log("🔁 Reset visual para menu principal");
-			document.getElementById("gameCanvas")?.classList.add("hidden");
-			document.getElementById("game-main-menu")?.classList.remove("hidden");
-			document.getElementById("scoreboard")!.style.display = "none";
-			GameMessageVisibility(false);
-			document.getElementById("sidebar")?.classList.remove("hidden");
-
-			clearLobbyId();	
-			gameStarted = false;
-			gameStarting = false;
-			gameEnded = false;
+			  console.log("🔁 Reset visual para menu principal");
+			  document.getElementById("gameCanvas")?.classList.add("hidden");
+			  document.getElementById("game-main-menu")?.classList.remove("hidden");
+			  document.getElementById("scoreboard")!.style.display = "none";
+			  GameMessageVisibility(false);
+			  document.getElementById("sidebar")?.classList.remove("hidden");
+		  
+			//   clearLobbyId();
+			  gameStarted = false;
+			  gameStarting = false;
+			  gameEnded = false;
 			}, 5000);
-		}
+		  }
 	};
   
 		matchSocket.onclose = () => {

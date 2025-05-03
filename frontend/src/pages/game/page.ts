@@ -80,6 +80,7 @@ class Game extends Page {
 				<canvas id="gameCanvas" class="hidden"></canvas>
 				<div id="scoreboard" class="hidden"></div>
 				<div id="game-message" class="hidden z-1000 text-7xl"></div>
+				<div id="tournament-bracket" class="hidden p-4 text-white"></div>
 			</main>
 		`;
 	}
