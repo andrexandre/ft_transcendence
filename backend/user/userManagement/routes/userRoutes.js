@@ -18,15 +18,16 @@ async function extractInformationFromToken(request, reply) {
 		});
 
 		// throw
-		if (!response.ok) reply.status(401).send({error: "User not authenticated!"});
+		if (!response.ok) return reply.status(401).send({error: "User not authenticated!"});
 
 		const userData = await response.json();
 		request.authenticatedUser = await this.getUserById(userData.userId);
-		// if (!request.targetUser)
-		// 	throw new UserNotFoundError();
+		if (!request.authenticatedUser)
+			throw new UserNotFoundError();
 	} catch (err) {
 		console.log(err);
-		reply.status(500).send({error: "Internal server error!"});
+		(err.statusCode) ?
+		reply.status(err.statusCode).send(err.formatError()) : reply.status(500).send({error: "Internal server error!"});
 		return;
 	}
 }
@@ -37,6 +38,7 @@ async function userRoutes(server, opts) {
 
 	// Settings Routes
 	server.route({ method: 'GET', url: '/api/users/settings', onRequest: extractInformationFromToken , handler:  settingsControllers.getSettings });
+	server.route({ method: 'GET', url: '/api/users/two-fa-secret', onRequest: extractInformationFromToken , handler:  settingsControllers.get2faSecret });
 	// User PUT or PATCH to update
 	server.route({ method: 'POST', url: '/api/users/save-settings', onRequest: extractInformationFromToken , handler: settingsControllers.saveSettings });
 	server.route({ method: 'POST', url: '/api/users/save-settings-2fa', schema: two_FA_settings_schema, onRequest: extractInformationFromToken , handler: settingsControllers.save2faSettings });

@@ -43,8 +43,17 @@ async function save2faSettings(request, reply) {
 
 }
 
+function get2faSecret(request, reply) {
+
+	console.log('AuthenticatedUser: ', request.authenticatedUser);
+	reply.status(200).send({
+		secret: request.authenticatedUser.two_FA_secret
+	});
+}
+
 export {
 	getSettings,
+	get2faSecret,
 	saveSettings,
 	save2faSettings
 };

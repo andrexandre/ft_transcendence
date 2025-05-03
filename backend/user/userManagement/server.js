@@ -57,21 +57,16 @@ async function start() {
 		await server.register(authRoutes);
 		await server.register(userRoutes);
 		
-		server.listen(listenOptions, async () => {
-			
-			console.log(`Server is running on port: 3000`);
-			try {
-				await server.createTables();
-				console.log("Tables Created!")
-			} catch(err) {
-				console.error(err);
-				process.exit(1);
-			}
-		});
+		const address = await server.listen(listenOptions);
+		console.log(`Server is running on ${address}`);
+	
+		await server.createTables();
+		console.log("Tables Created!");
 
 	} catch(err) {
 		console.error('Entrou no cath do start');
 		console.error(err);
+		process.exit(1);
 	}
 }
 
