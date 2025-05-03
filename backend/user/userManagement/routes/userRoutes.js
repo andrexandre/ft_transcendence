@@ -2,7 +2,6 @@
 import * as settingsControllers from '../controllers/user/userSettings.js';
 import * as registerControllers from '../controllers/user/userRegister.js';
 import * as avatarControllers from '../controllers/user/userAvatar.js';
-import { UserNotFoundError } from '../utils/error.js';
 import registerSchema from '../schemas/user/registerSchema.js';
 import two_FA_settings_schema from '../schemas/user/twoFaSettingsSchema.js'
 
@@ -14,20 +13,21 @@ async function extractInformationFromToken(request, reply) {
 				"Content-Type": "application/json",
 				"Cookie": `token=${request.cookies.token}`,
 			},
-			credentials: "include"
 		});
 
-		// throw
-		if (!response.ok) return reply.status(401).send({error: "User not authenticated!"});
+		if (!response.ok)
+			this.httpErrors.unauthorized('Missing credentials!');
 
 		const userData = await response.json();
 		request.authenticatedUser = await this.getUserById(userData.userId);
 		if (!request.authenticatedUser)
-			throw new UserNotFoundError();
+			throw this.httpErrors.notFound('User not found!');
+		
 	} catch (err) {
-		console.log(err);
-		(err.statusCode) ?
-		reply.status(err.statusCode).send(err.formatError()) : reply.status(500).send({error: "Internal server error!"});
+		if (err.statusCode)
+			reply.status(err.statusCode).send(err);
+		else
+			reply.status(500).send({statusCode: 500, error: "Internal server error", message: 'Error fetching resources!'});
 		return;
 	}
 }

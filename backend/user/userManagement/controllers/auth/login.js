@@ -1,9 +1,4 @@
 import bcrypt from 'bcrypt';
-import {
-	UserNotFoundError,
-	WrongPasswordError,
-	GoogleDefaulLoginError
-} from '../../utils/error.js'
 
 async function login(request, response) {
 
@@ -12,15 +7,15 @@ async function login(request, response) {
     try {
         const user = await this.getUserByUsername(username);
         if (!user)
-            throw new UserNotFoundError();
+            throw this.httpErrors.notFound('User not found!');
         else if (user.auth_method === 'google')
-            throw new GoogleDefaulLoginError();
+            throw this.httpErrors.forbidden('Can only sign with google!');
         
         const login = await bcrypt.compare(password, user.password);
         if (login != true) 
-            throw new WrongPasswordError();
+            throw this.httpErrors.unauthorized('Wrong password!');
 
-        await this.updateUserStatus(user.username);
+        await this.updateUserStatus(user.username); // temporario
 
         resContent = {
             userID: `${user.id}`,
@@ -28,8 +23,8 @@ async function login(request, response) {
         };
 
     } catch(err) {
-        (err.status) ? 
-        response.status(err.status).send(err.formatError()) : response.status(500).send({statusCode: 500, errorMessage: 'Internal server error!'});
+        (err.statusCode) ? 
+        response.status(err.statusCode).send(err) : response.status(500).send({statusCode: 500, errorMessage: 'Internal server error!'});
     }
 
     response.status(200).send(resContent);

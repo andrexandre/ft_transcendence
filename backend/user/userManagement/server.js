@@ -1,6 +1,7 @@
 // Dependencies
 import fastify from "fastify";
 import fastifyCookie from '@fastify/cookie';
+import fastifySensible from "@fastify/sensible";
 import fastifyMultipart from '@fastify/multipart'
 import fastifyCors from "@fastify/cors"; // temporario
 
@@ -50,6 +51,7 @@ async function start() {
 		server.addSchema(errorResponseSchema);
 		server.decorateRequest('authenticatedUser', null); // To be used in the handler
 		await server.register(db, { dbPath: './user.db'});
+		await server.register(fastifySensible);
 		await server.register(fastifyCookie);
 		await server.register(fastifyMultipart, {
 			limits: { fileSize: 2 * 1024 * 1024 },// Limite de 2 MB para o arquivo

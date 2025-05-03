@@ -20,8 +20,7 @@ async function getAvatar(request, reply) {
 		// tipo dependendo da extensao
 		return reply.type('image/jpeg').header('content-Length', fileSize).send(stream);
 	} catch(err) {
-		console.log(err);
-		reply.status(500).send({error: "Internal server error!"});
+		response.status(500).send({statusCode: 500, error: "Internal server error", message: 'Error geting avatar!'});
 		return;
 	}
 }
@@ -32,6 +31,8 @@ async function getProfileAvatar (request, reply) {
 		const { username } = request.params;
 
 		const user = await this.getUserByUsername(username);
+		if (!user)
+			throw this.httpErrors.notFound('User not found!');
 
 		const filePath = path.join(uploadDirectory, user.avatar);
 		await fs.promises.access(filePath, fs.constants.F_OK);
@@ -42,8 +43,8 @@ async function getProfileAvatar (request, reply) {
 		// tipo dependendo da extensao
 		return reply.type('image/jpeg').header('content-Length', fileSize).send(stream);
 	} catch(err) {
-		console.log(err);
-		reply.status(500).send({error: "Internal server error!"});
+		(err.statusCode) ? 
+        response.status(err.statusCode).send(err) : response.status(500).send({statusCode: 500, error: "Internal server error", message: 'Error geting avatar!'});
 		return;
 	}
 }
@@ -76,11 +77,10 @@ async function saveAvatar(request, reply) {
 
 		return;
 	} catch(err) {
-		if (err.code !== 'ENOENT') {
-			console.log(e, 'Falha ao apagar imagem antiga');
-		}
-		console.log(err);
-		reply.status(500).send({error: "Internal server error!"});
+		// if (err.code !== 'ENOENT') {
+		// 	console.log('Falha ao apagar imagem antiga');
+		// }
+		response.status(500).send({statusCode: 500, error: "Internal server error", message: 'Error saving new avatar!'});
 		return;
 	}
 }

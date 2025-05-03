@@ -15,15 +15,18 @@ function getSettings(request, reply) {
 async function saveSettings(request, reply) {
 	try {
 
-		console.log('AuthenticatedUser: ', request.authenticatedUser);
 		await this.updateUserInformation(request.body, request.authenticatedUser.id);
 		reply.status(200).send({message: "Successfully update the information!"});
 
 	} catch (err) {
-		// error if username/email already exist
-		reply.status(500).send({error: "Internal server error!"});
-		return; 
+		if (err.code === 'SQLITE_CONSTRAINT') {
+            const msg = (err.message.includes("email")) ? 'Email' : 'Username';
+            response.status(409).send({statusCode: 409, error: "Conflict", message: `${msg} already exist!`});
+        } else {
+            response.status(500).send({statusCode: 500, error: "Internal server error", message: 'Error in updating information'});
+        } 
 	}
+	return; 
 }
 
 async function save2faSettings(request, reply) {
@@ -33,11 +36,11 @@ async function save2faSettings(request, reply) {
 		console.log('AuthenticatedUser: ', request.authenticatedUser);
 		console.log('BODY: ', request.body);
 		await this.updateUser2FAStatus(request.body, request.authenticatedUser.id);
-		reply.status(200).send({message: "Successfully update the information!"});
+		reply.status(200).send({message: "Successfully updated 2FA!"});
 
 	} catch (err) {
 		// dataBase errors
-		reply.status(500).send({error: "Internal server error!"});
+		reply.status(500).send({statusCode: 500, error: "Internal server error", message: 'Error in updating 2FA'});
 		return;
 	}
 
