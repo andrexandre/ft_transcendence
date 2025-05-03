@@ -20,7 +20,7 @@ await gameserver.register(cors, {
 });
 
 // LOBBY WS
-gameserver.get('/game-ws', { websocket: true }, async (connection, req) => {
+gameserver.get('/lobby-ws', { websocket: true }, async (connection, req) => {
 	try {
 		const token = req.cookies?.token;
 		if (!token) {

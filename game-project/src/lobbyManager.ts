@@ -137,6 +137,14 @@ export function getLobbyByUserId(userId: number): Lobby | null {
   return null;
 }
 
+export function getLobbyByGameId(gameId: string): Lobby | null {
+  for (const lobby of lobbies.values()) {
+    if (lobby.gameId === gameId) return lobby;
+  }
+  return null;
+}
+
+
 export function getLobbyBySocket(socket: WebSocket): Lobby | null {
   for (const lobby of lobbies.values()) {
     if (lobby.players.some(p => p.socket === socket)) {
@@ -146,12 +154,12 @@ export function getLobbyBySocket(socket: WebSocket): Lobby | null {
   return null;
 }
 
-export function getGamePlayers(gameId: string) {
-  for (const lobby of lobbies.values()) {
-    if (lobby.gameId === gameId) return lobby.players;
-  }
-  return null;
-}
+// export function getGamePlayers(gameId: string) {
+//   for (const lobby of lobbies.values()) {
+//     if (lobby.gameId === gameId) return lobby.players;
+//   }
+//   return null;
+// }
 
 export function removeLobbyByGameId(gameId: string) {
   for (const [id, lobby] of lobbies.entries()) {

@@ -6,7 +6,7 @@ let socket: WebSocket | null = null;
 let lobbyId: string | null = null;
 let user: { username: string; userId: number } | null = null;
 let matchSocketStarted = false;
-let localPlayerRole: "left" | "right" = "left";
+
 
 
 export function connectToGameServer(userInfo: { username: string; userId: number }) {
@@ -18,7 +18,7 @@ export function connectToGameServer(userInfo: { username: string; userId: number
 	user = userInfo;
 	const { username, userId } = user;
 
-	socket = new WebSocket("ws://127.0.0.1:5000/game-ws");
+	socket = new WebSocket("ws://127.0.0.1:5000/lobby-ws");
 
 	socket.onopen = () => {
 		console.log(`✅ WebSocket connected for: ${username} → (${userId}) → ${socket!.url}`);

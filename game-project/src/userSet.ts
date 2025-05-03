@@ -1,5 +1,6 @@
 import { FastifyInstance } from "fastify";
 import db_game from "./db_game.js";
+import { MatchState } from "./matchManager.js";
 
 // Interfaces
 interface MatchData {
@@ -36,30 +37,61 @@ interface SaveSettingsRequest {
     };
 }
 
-export async function saveMatchToDatabase(player1Id: number, player2Id: number, player1Score: number, player2Score: number, gameMode: string, winnerId: number, tournamentId?: number) {
-    try {
-        const response = await fetch("http://127.0.0.1:5000/save-match", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                player1Id,
-                player2Id,
-                player1Score,
-                player2Score,
-                gameMode,
-                winnerId,
-                gameTournamentId: tournamentId ?? null
-            }),
-        });
+// export async function saveMatchToDatabase(player1Id: number, player2Id: number, player1Score: number, player2Score: number, gameMode: string, winnerId: number, tournamentId?: number) {
+//     try {
+//         const response = await fetch("http://127.0.0.1:5000/save-match", {
+//             method: "POST",
+//             headers: { "Content-Type": "application/json" },
+//             body: JSON.stringify({
+//                 player1Id,
+//                 player2Id,
+//                 player1Score,
+//                 player2Score,
+//                 gameMode,
+//                 winnerId,
+//                 gameTournamentId: tournamentId ?? null
+//             }),
+//         });
 
-        if (!response.ok) throw new Error("Failed to save match");
+//         if (!response.ok) throw new Error("Failed to save match");
 
-        console.log("✅ Match saved successfully!");
+//         console.log("✅ Match saved successfully!");
 
-    } catch (error) {
-        console.error("❌ Error saving match:", error);
-    }
+//     } catch (error) {
+//         console.error("❌ Error saving match:", error);
+//     }
+// }
+
+export async function saveMatchToDatabase(match: MatchState) {
+	if (match.players.length < 2) return;
+
+	const [p1, p2] = match.players;
+	const gameMode = match.gameMode;
+	const winnerId = p1.score > p2.score ? p1.id : p2.id;
+
+	const body = {
+	player1Id: p1.id,
+	player2Id: p2.id,
+	player1Score: p1.score,
+	player2Score: p2.score,
+	gameMode,
+	winnerId
+	};
+
+	try {
+	const res = await fetch("http://127.0.0.1:5000/save-match", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify(body)
+	});
+
+	if (!res.ok) throw new Error("Failed to save match");
+	console.log("✅ Match saved from server.");
+	} catch (err) {
+	console.error("❌ Error saving match from backend:", err);
+	}
 }
+  
 
 export async function getUserDatafGateway(token: string | undefined): Promise<UserData | null> {
 	try {
