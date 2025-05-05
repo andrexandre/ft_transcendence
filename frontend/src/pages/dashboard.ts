@@ -38,23 +38,23 @@ interface MatchHistoryI {
 	time: string;
 }
 
-function displayMatchHistory(matchHistory: MatchHistoryI[], gridCols: string) {
+function displayMatchHistory(matchHistory: MatchHistoryI[]) {
 	const statsDiv = document.getElementById("stats-list")!;
-	matchHistory.forEach(match => {
+	matchHistory.reverse().forEach(match => {
 		const matchDiv = document.createElement("li");
 		let matchBgColor = '';
 		if (match.winner.username === lib.userInfo.username)
 			matchBgColor = "border-green-500 hover:border-green-700 dark:border-green-700 dark:hover:border-green-500";
 		else if (match.loser.username === lib.userInfo.username)
 			matchBgColor = "border-red-500 hover:border-red-700 dark:border-red-700 dark:hover:border-red-500";
-		matchDiv.className = "relative item t-dashed " + matchBgColor;
+		matchDiv.className = "@container relative item t-dashed " + matchBgColor;
 		matchDiv.innerHTML = /*html*/`
 			<p class="text-sm absolute top-0 left-1/2 transform -translate-x-1/2">${match.Mode}</p>
-			<div class="grid grid-cols-[${gridCols}] text-3xl pt-1">
+			<div id="test" class="grid grid-cols-[auto_1fr_auto_1fr_auto] gap-4 text-2xl @xl:text-3xl pt-1 @xl:px-10">
 				<p>${match.winner.score}</p>
-				<p>${match.winner.username}</p>
-				<p>vs</p>
-				<p>${match.loser.username}</p>
+				<p class="truncate">${match.winner.username}</p>
+				<p class="text-c-secondary">vs</p>
+				<p class="truncate">${match.loser.username}</p>
 				<p>${match.loser.score}</p>
 			</div>
 		`;
@@ -67,7 +67,7 @@ function displayMatchHistory(matchHistory: MatchHistoryI[], gridCols: string) {
 	}
 }
 
-export async function updateMatchHistory(gridCols: string) {
+export async function updateMatchHistory() {
 	try {
 		const response = await fetch(`http://${location.hostname}:5000/user-game-history`, {
 			credentials: "include",
@@ -76,7 +76,7 @@ export async function updateMatchHistory(gridCols: string) {
 			throw new Error(`${response.status} - ${response.statusText}`);
 		}
 		let matchHistory = await response.json();
-		displayMatchHistory(matchHistory, gridCols);
+		displayMatchHistory(matchHistory);
 	} catch (error) {
 		console.log(error);
 		// lib.showToast.red(error as string); //* TEMP
@@ -134,7 +134,7 @@ async function loadInformation() {
 	// lib.userInfo.auth_method = userData.auth_method;
 
 	setProfileImage("profile-image");
-	updateMatchHistory("5rem_1fr_5rem_1fr_5rem");
+	updateMatchHistory();
 }
 
 class Dashboard extends Page {

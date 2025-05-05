@@ -1,4 +1,5 @@
 import { turnOnChat, turnOffChat } from "../pages/chat/friends"
+// import { turnOnGame, turnOffGame } from "../pages/game/page"
 export { default as Cookies } from 'js-cookie';
 import { renderPattern } from "./patterns";
 
