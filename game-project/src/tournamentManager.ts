@@ -18,6 +18,7 @@ interface TournamentMatch {
 interface Tournament {
   id: string;
   players: TournamentPlayer[];
+  //[round/games][players de cada game]
   matches: TournamentMatch[][]; // Rounds
   currentRound: number;
   inProgress: boolean;
@@ -133,7 +134,8 @@ function startNextRound(tournamentId: string) {
 export function handleMatchEndFromTournament(gameId: string, winnerId: number) {
   for (const tournament of tournaments.values()) {
     const round = tournament.matches[tournament.currentRound];
-    const match = round.find(m => m.gameId === gameId);
+    const match = round.find(m => m.gameId === gameId); // check id
+    console.log("🏆🏆🏆🏆", match);
     if (!match) continue;
 
     match.winnerId = winnerId;

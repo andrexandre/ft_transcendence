@@ -122,7 +122,7 @@ export function handleMatchConnection(gameId: string, connection: any) {
 		const match = matches.get(gameId);
 		if (match) clearInterval(match.interval);
 		matches.delete(gameId);
-		removeLobbyByGameId(gameId);
+		// removeLobbyByGameId(gameId);
 		console.log(`🧹 Match ${gameId} limpo (todos os jogadores saíram)`);
 		} else {
 		matchSockets.set(gameId, sockets);

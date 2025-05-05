@@ -186,6 +186,7 @@ export async function userRoutes(gameserver: FastifyInstance) {
 			
 			// Array de resultados formatados
 			const result: any[] = [];
+			
 	
 			for (const element of history) {
 				let user2: any;
