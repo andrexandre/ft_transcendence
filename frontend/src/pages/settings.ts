@@ -103,9 +103,16 @@ class Settings extends Page {
 				}
 
 				if (twoFAButton.checked)
+				{
+					const imageElement = document.createElement('img');
+					imageElement.src = 'https://picsum.photos/id/63/200';
+					imageElement.id = 'qr-code-img';
+					document.getElementById('col-1')?.appendChild(imageElement);
 					lib.showToast.green("2FA enabled");
-				else
+				} else {
+					document.getElementById('qr-code-img')?.remove();					
 					lib.showToast.red("2FA disabled");
+				}
 			} catch (error) {
 				console.log(error);
 				lib.showToast.red(error as string);
@@ -150,7 +157,7 @@ class Settings extends Page {
 		return /*html*/`
 			${sidebar.getHtml()}
 			<main class="grid grid-cols-2 max-2xl:grid-cols-1 flex-1 card t-dashed text-start overflow-auto">
-				<div id="col-1 flex-1">
+				<div id="col-1">
 					<form class="card flex flex-col overflow-auto" action="#">
 						<h1 class="item text-start text-2xl">Profile</h1>
 						<div class="flex">
@@ -182,7 +189,7 @@ class Settings extends Page {
 						</label>
 					</div>
 				</div>
-				<div id="col-2" class="flex flex-col">
+				<div class="flex flex-col">
 					<div class="flex justify-between item items-center">
 						<h1>Themes</h1>
 						<ul class="flex t-dashed rounded-full p-1">
