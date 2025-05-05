@@ -3,12 +3,13 @@ import Fastify from "fastify";
 import fastifyWebsocket from '@fastify/websocket';
 import fastifyCookie from "@fastify/cookie";
 import cors from '@fastify/cors';
-import { createLobby, joinLobby, startGame, listLobbies, leaveLobby, getLobbyByUserId, getLobbyBySocket } from './lobbyManager.js';
+import { getLobbyByLobbyId, createLobby, joinLobby, startGame, listLobbies, leaveLobby, getLobbyByUserId, getLobbyBySocket } from './lobbyManager.js';
 import { getUserDatafGateway, userRoutes } from './userSet.js';
 import { handleMatchConnection } from './matchManager.js';
+import { createTournament } from "./tournamentManager.js";
 
 const PORT = 5000;
-const gameserver = Fastify({ logger: true });
+const gameserver = Fastify({ logger: false }); // alterar true
 
 await gameserver.register(fastifyWebsocket);
 await gameserver.register(fastifyCookie);
@@ -117,12 +118,13 @@ function handleSocketMessage(connection: any, data: any) {
 			break;
 		}
 		case "start-game": {
-			const { success, gameId } = startGame(data.lobbyId, data.requesterId);
-			if (!success) {
-				connection.send(JSON.stringify({ type: "error", message: "Start not allowed" }));
-			} else {
-				const lobby = getLobbyByUserId(user.userId);
-				if (lobby) {
+			const lobby = getLobbyByLobbyId(data.lobbyId);
+
+			if (lobby && lobby.gameMode !== "TNT") {
+				const { success, gameId } = startGame(data.lobbyId, data.requesterId);
+				if (!success) {
+					connection.send(JSON.stringify({ type: "error", message: "Start not allowed" }));
+				} else {
 					lobby.players.forEach((player, index) => {
 						player.socket.send(JSON.stringify({
 							type: "game-start",
@@ -132,9 +134,13 @@ function handleSocketMessage(connection: any, data: any) {
 						}));
 					});
 				}
+				break;
+			} else if (lobby && lobby.gameMode === "TNT"){
+				createTournament(lobby?.id, lobby?.players);
+				startGame(data.lobbyId, data.requesterId);
 			}
-			break;
 		}
+
 		case "leave-lobby": {
 			const left = leaveLobby(user.userId);
 			if (left) {

@@ -27,7 +27,7 @@ export function connectToGameServer(userInfo: { username: string; userId: number
 	socket.onmessage = (event) => {
 		const data = JSON.parse(event.data);
 		console.log("📨 WS Message:", data);
-		
+
 		switch (data.type) {
 			case "lobby-created":
 				lobbyId = data.lobbyId;
@@ -56,7 +56,9 @@ export function connectToGameServer(userInfo: { username: string; userId: number
 				console.log("🎮 Game start recebido! A abrir ligação para /match-ws");
 				showToast.green(`🎮 Game started! You are: ${data.playerRole}`);
 				document.getElementById('sidebar')?.classList.add('hidden');
-
+				// if (data.gameMode === 'TNT') {
+				// 	createT
+				// }
 				const matchSocket = new WebSocket(`ws://127.0.0.1:5000/match-ws?gameId=${data.gameId}`);
 				console.log("🛰️ Connecting to match-ws:", data.gameId);
 

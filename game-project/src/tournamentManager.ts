@@ -63,6 +63,7 @@ export function createTournament(id: string, players: TournamentPlayer[]) {
   };
 
   tournaments.set(id, tournament);
+  console.log("❌❌❌ ", matches);
   startNextRound(id);
 }
 
@@ -72,7 +73,7 @@ function startNextRound(tournamentId: string) {
     console.error(`❌ Torneio ${tournamentId} não encontrado`);
     return;
   }
-
+  // missig match start do next
   const round = tournament.matches[tournament.currentRound];
   console.log(`📣 ▶️ Iniciando Ronda ${tournament.currentRound + 1} do Torneio ${tournament.id}`);
   console.log(`📦 Ronda contém ${round.length} jogo(s)`);

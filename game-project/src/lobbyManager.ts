@@ -85,7 +85,8 @@ export function startGame(lobbyId: string, requesterId: number): { success: bool
 			type: "game-start",
 			playerRole: index === 0 ? "left" : "right",
 			opponent: lobby.players.length > 1 ? lobby.players[1 - index].username : "BoTony",
-			gameId
+			gameMode: lobby.gameMode,
+			gameId,
 		}));
 		console.log("✅ game-start enviado para o frontend.");
 		} else {
@@ -129,6 +130,10 @@ export function leaveLobby(userId: number): boolean {
   }
   return false;
 }
+
+export function getLobbyByLobbyId(lobbyId: string): Lobby | null {
+	return lobbies.get(lobbyId) || null;
+  }
 
 export function getLobbyByUserId(userId: number): Lobby | null {
   for (const lobby of lobbies.values()) {

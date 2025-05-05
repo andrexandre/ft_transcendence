@@ -5,7 +5,7 @@
 1. **Utilizador clica** em "Classic" no menu.
 2. Frontend chama:
    - `createLobby("Single", 1)`
-3. Frontend envia para o servidor (via WebSocket `game-ws`):
+3. Frontend envia para o servidor (via WebSocket `lobby-ws`):
    - `{ type: "create-lobby", gameMode: "Single", maxPlayers: 1 }`
 4. **Servidor**:
    - Cria lobby (`status: waiting`)
