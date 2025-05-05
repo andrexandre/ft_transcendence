@@ -1,4 +1,4 @@
-import { checkFriend, getFriends } from '../database/db.js';
+import { checkFriend, getFriends, getAll } from '../database/db.js';
 import { users, sockets } from '../socket/socket_handler.js';
 
 export function roomName(user1, user2)
@@ -38,9 +38,21 @@ export async function checkFriendOnline(friends)
 	return online_friends;
 }
 
-export async function getAllUsers(self)
+export async function getAllUsers(self) {
+	const users = await getAll();
+	const result = [];
+
+	for (const user of users) {
+		if (user.username !== self && !(await checkFriend(self, user.username))) {
+			result.push(user.username);
+		}
+	}
+
+	return result;
+}
+
+export async function getOnlineUsers(self)
 {
-	//problema aqui não sei porque binary não sei o que
 	let online_users = [];
 
 	for (const [username, _] of users)

@@ -1,6 +1,7 @@
 import Page from "./Page"
 import * as lib from "../utils"
 import sidebar from "../components/sidebar"
+import { setProfileImage } from "./dashboard";
 
 const safeColors: string[] = ["bg-red-500", "bg-orange-500", "bg-amber-500", "bg-yellow-500", "bg-lime-500", "bg-green-500", "bg-emerald-500", "bg-teal-500", "bg-cyan-500", "bg-sky-500", "bg-blue-500", "bg-indigo-500", "bg-violet-500", "bg-purple-500", "bg-fuchsia-500", "bg-pink-500", "bg-rose-500", "bg-slate-500", "bg-gray-500", "bg-zinc-500", "bg-neutral-500", "bg-stone-500"];
 
@@ -23,21 +24,7 @@ async function loadInformation() {
 	(document.getElementById("profile-bio") as HTMLInputElement).value = userData.biography;
 	(document.getElementById('2fa-toggle') as HTMLInputElement).checked = userData.two_FA_status
 
-	// Set user avatar
-	const imageResponse = await fetch(`http://${location.hostname}:3000/api/users/avatar`, {
-		credentials: 'include'
-	})
-	if (!imageResponse.ok) return lib.showToast.red('Failed too load user Avatar!');
-
-	const blob = await imageResponse.blob();
-	console.log(blob);
-	const url = URL.createObjectURL(blob);
-	console.log(url);
-	const errorUrl = 'https://fastly.picsum.photos/id/63/300/300.jpg?hmac=NZIxadbJNvrTZPpf2SgsLhZ4Up4GlWVwar-bI6FcTE8';
-	(document.getElementById("profile-image") as HTMLImageElement).src = url || errorUrl;
-	// URL.revokeObjectURL(url);
-	lib.userInfo.profileImage = url;
-
+	setProfileImage("profile-image");
 }
 
 class Settings extends Page {
@@ -150,6 +137,13 @@ class Settings extends Page {
 
 		loadInformation();
 		this.saveProfileInformation();
+		document.getElementById('profile-username')?.addEventListener('input', (e) => {
+			const error = document.getElementById('username-error')!;
+			if ((e.target as HTMLInputElement).validity.valid)
+				error.classList.add('hidden');
+			else
+				error.classList.remove('hidden');
+		});
 	}
 	onCleanup(): void { }
 	getHtml(): string {
@@ -157,7 +151,7 @@ class Settings extends Page {
 			${sidebar.getHtml()}
 			<main class="grid grid-cols-2 max-2xl:grid-cols-1 flex-1 card t-dashed text-start overflow-auto">
 				<div id="col-1 flex-1">
-					<form id="profile" class="card flex flex-col overflow-auto" action="#">
+					<form class="card flex flex-col overflow-auto" action="#">
 						<h1 class="item text-start text-2xl">Profile</h1>
 						<div class="flex">
 							<button id="profile-image-button" class="relative size-60 group">
@@ -168,7 +162,8 @@ class Settings extends Page {
 							</button>
 							<div class="flex flex-col justify-center self-center gap-4 ml-20">
 								<label class="text-left font-bold" for="profile-username">Username</label>
-								<input class="p-1 t-dashed pl-4" type="text" id="profile-username" placeholder="Enter username" value="Sir Barkalot" />
+								<input class="p-1 t-dashed pl-4 invalid:border-red-500" type="text" id="profile-username" placeholder="Enter username" value="Sir Barkalot" minlength="3" maxlength="20" pattern="^[^<>]+$" />
+								<span id="username-error" class="text-red-500 text-xs hidden">Username has invalid length or characters</span>
 								<label class="text-left font-bold" for="profile-codename">Codename</label>
 								<input class="p-1 t-dashed pl-4" type="text" id="profile-codename" placeholder="Enter codename" value="The mighty tail-wagger"/>
 								<label class="text-left font-bold" for="profile-email">Email</label>

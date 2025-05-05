@@ -13,11 +13,7 @@ export async function SocketHandler(socket, username)
 		users.set(username, socket);
 		sockets.set(socket, username);
 		console.log(`${username} connected`);
-	
-		const friends = await getFriends(username);
-		const online_friends = await checkFriendOnline(friends);
-		socket.send(JSON.stringify({ type: 'get-friends-list', data: online_friends }));
-	
+		
 		socket.on('message', async (message) => {
 			let data;
 			try {
@@ -44,11 +40,17 @@ export async function SocketHandler(socket, username)
 					break;
 				case 'friend-request-response':
 					if (data.response === 'accept')
+					{
 						await addFriend(username, data.sender);
+						// await sendFriendList(username, socket);
+						// await sendFriendList(data.sender, users.get(data.sender));
+					}
 					await deleteFriendRequest(username, data.sender);
 					break;
 				case 'add-friend-request':
 					await addRequest(username, data.receiver);
+					//await sendRequests(data.receiver, users.get(data.receiver));
+					//send the request to update automatically
 					break;
 				case 'get-friend-request':
 					await sendRequests(username, socket);
@@ -165,10 +167,10 @@ async function joinRoom(username, friend, socket)
 async function sendFriendList(username, socket)
 {
 	const friends = await getFriends(username);
-	const online_friends = await checkFriendOnline(friends);
+	// const online_friends = await checkFriendOnline(friends); // ve os online friends
 	socket.send(JSON.stringify({
 		type: 'get-friends-list',
-		data: online_friends
+		data: friends
 	}));
 }
 

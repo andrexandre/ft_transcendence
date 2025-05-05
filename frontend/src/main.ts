@@ -24,7 +24,7 @@ async function loadApp(path: string) {
 		if (!response.ok)
 			throw new Error(`${response.status} - ${response.statusText}`);
 		let responseData = await response.json();
-		// lib.userInfo.username = responseData.username
+		lib.userInfo.username = responseData.username
 		// lib.userInfo.userId = responseData.userId
 		lib.userInfo.auth_method = responseData.auth_method
 		if (path == "/register" || path == "/login") {
@@ -35,8 +35,6 @@ async function loadApp(path: string) {
 	} catch (error) {
 		if (path != "/register" && path != "/login") {
 			console.log(error);
-			if (error == 'TypeError: NetworkError when attempting to fetch resource.')
-				error = 'Server is not reachable';
 			lib.showToast.red(error as string);
 			history.replaceState(null, "", "/login");
 			path = '/login';
@@ -45,7 +43,7 @@ async function loadApp(path: string) {
 	if (firstPageLoad) {
 		firstPageLoad = false;
 		if (lib.userInfo.auth_method)
-			lib.daemon(true);
+			lib.toggleUserServices(true);
 	}
 	loadPage(path);
 }
@@ -64,12 +62,14 @@ function loadPage(path: string) {
 			newPage = settings;
 			break;
 		case "/profile":
+		case path.startsWith("/profile/") ? path : "":
 			newPage = profile;
 			break;
 		case "/game":
 			newPage = game;
 			break;
 		case "/chat":
+		case path.startsWith("/chat/") ? path : "":
 			newPage = chat;
 			break;
 		default:
@@ -81,7 +81,7 @@ function loadPage(path: string) {
 	}
 	currentPage?.cleanup();
 	document.getElementById("app")!.innerHTML = newPage.getHtml();
-	newPage.mount();
+	newPage.mount(path);
 	currentPage = newPage;
 }
 
