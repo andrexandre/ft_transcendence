@@ -67,12 +67,12 @@ class Game extends Page {
 						</div>
 						<div id="lobby" class="hidden flex-col w-100 space-y-3 item t-border text-sm">
 							<ul class="grid grid-cols-[1fr_1fr_4.5rem_4.5rem]">
-								<li class="text-c-secondary">Host</li>
-								<li class="text-c-secondary">Mode</li>
-								<li class="text-c-secondary">#/#</li>
-								<li class="text-c-secondary"></li>
+								<li class="text-c-primary">Host</li>
+								<li class="text-c-primary">Mode</li>
+								<li class="text-c-primary">#/#</li>
+								<li class="text-c-primary"></li>
 							</ul>
-							<ul id="lobby-list" class="grid grid-cols-[1fr_1fr_4.5rem_4.5rem] overflow-auto text-sm">
+							<ul id="lobby-list" class="grid grid-cols-[1fr_1fr_4.5rem_4.5rem] overflow-auto text-sm space-y-2">
 							</ul>
 						</div>
 					</div>

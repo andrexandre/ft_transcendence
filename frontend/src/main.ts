@@ -35,8 +35,6 @@ async function loadApp(path: string) {
 	} catch (error) {
 		if (path != "/register" && path != "/login") {
 			console.log(error);
-			if (error == 'TypeError: NetworkError when attempting to fetch resource.')
-				error = 'Server is not reachable';
 			lib.showToast.red(error as string);
 			history.replaceState(null, "", "/login");
 			path = '/login';
@@ -45,7 +43,7 @@ async function loadApp(path: string) {
 	if (firstPageLoad) {
 		firstPageLoad = false;
 		if (lib.userInfo.auth_method)
-			lib.daemon(true);
+			lib.toggleUserServices(true);
 	}
 	loadPage(path);
 }
@@ -63,13 +61,15 @@ function loadPage(path: string) {
 		case "/settings":
 			newPage = settings;
 			break;
-		case (path.startsWith("/profile") && path):
+		case "/profile":
+		case path.startsWith("/profile/") ? path : "":
 			newPage = profile;
 			break;
 		case "/game":
 			newPage = game;
 			break;
 		case "/chat":
+		case path.startsWith("/chat/") ? path : "":
 			newPage = chat;
 			break;
 		default:

@@ -1,24 +1,79 @@
 import { navigate, showToast, userInfo } from "../../utils";
+import { renderDashboardFriend, setProfileImage } from "../dashboard";
 
-export function socketOnMessage(event: MessageEvent<any>) {
+export function turnOnChat() {
+	if (!userInfo.chat_sock || userInfo.chat_sock.readyState === WebSocket.CLOSED) {
+		userInfo.chat_sock = new WebSocket(`ws://${location.hostname}:2000/chat-ws`);
+
+		userInfo.chat_sock.onopen = () => {
+			// console.debug('Chat socket created');
+		}
+
+		userInfo.chat_sock.onerror = (error) => {
+			console.log('WebSocket error: ', error);
+		};
+
+		userInfo.chat_sock.onclose = (event) => {
+			console.debug('WebSocket connection closed:', event.code, event.reason);
+			// Maybe add some reconnection logic here
+		};
+
+		userInfo.chat_sock.onmessage = (event) => {
+			socketOnMessage(event);
+		};
+	}
+	else
+		showToast.red('The chat socket is already on');
+}
+
+export function turnOffChat() {
+	if (userInfo.chat_sock) {
+		userInfo.chat_sock.close(1000, 'User logged out');
+		userInfo.chat_sock = null;
+	}
+	else
+		showToast.red('The chat socket is already off');
+}
+
+function handleEmptyList(name: string, value?: string) {
+	const listElement = document.getElementById(name)!;
+	if (listElement.innerHTML == '') {
+		listElement.innerHTML = /*html*/`
+			<li class="item text-c-secondary">${value || 'Empty ' + name}</li>
+		`;
+	}
+}
+function socketOnMessage(event: MessageEvent<any>) {
 	const data = JSON.parse(event.data);
 	// console.log(data);
 	if (data.type === 'message-emit') {
-		if (userInfo.path == '/chat')
+		if (userInfo.path.startsWith('/chat'))
 			renderMessage(data.user, data.data.from, data.data.message, data.data.timestamp);
 		else
 			showToast(`${data.user}: ${data.data.message}`);
 	}
 	else if (data.type === 'load-messages')
 		data.data.forEach((msg: { user: string, from: string, message: string, timestamp: string }) => renderMessage(data.user, msg.from, msg.message, msg.timestamp));
-	else if (data.type === 'get-friends-list')
-		data.data.forEach((friend: string) => renderOnlineFriendList(friend));
-	else if (data.type === 'get-online-users')
-		data.data.forEach((user: string) => renderOnlineUsersList(user));
-	else if (data.type === 'add-requests')
+	else if (data.type === 'get-friends-list') {
+		if (userInfo.path.startsWith('/chat')) {
+			data.data.forEach((friend: { username: string }) => renderFriendList(friend.username));
+			handleEmptyList('friends-list', 'No friends, sad life');
+		}
+		else if (userInfo.path == '/') {
+			data.data.forEach((friend: { username: string }) => renderDashboardFriend(friend.username));
+			handleEmptyList('friends-list', 'No friends online');
+		}
+	}
+	else if (data.type === 'get-online-users') {
+		data.data.forEach((user: string) => renderUsersList(user));
+		handleEmptyList('users-list', 'No unfriended users');
+	}
+	else if (data.type === 'add-requests') {
 		renderFriendRequestsList(data.data);
+		handleEmptyList('friend-requests-list', 'No friend requests');
+	}
 	else if (data.type === 'block-status')
-		renderChatRoom(data.friend, data.isBlocked, data.load);
+		renderChatRoom(data.friend, data.isBlocked);
 };
 
 function renderMessage(user: string, from: string, message: string, timestamp: string) {
@@ -89,11 +144,14 @@ function setupBlockButtonListener() {
 	});
 }
 
-function renderOnlineFriendList(name: string) {
-	const friendList = document.getElementById('online-friends-list')!;
+function renderFriendList(name: string) {
+	const friendList = document.getElementById('friends-list')!;
 	const roomButton = document.createElement('button');
-	roomButton.className = 'item t-dashed';
-	roomButton.appendChild(document.createTextNode(name));
+	roomButton.className = 'item t-dashed flex p-1 items-center gap-4';
+	roomButton.innerHTML = /*html*/`
+		<img id="profile-image-${name}" class="size-8 rounded-4xl">
+		<p>${name}</p>
+	`;
 
 	roomButton.addEventListener('click', () => {
 		// Update the current friend
@@ -108,15 +166,14 @@ function renderOnlineFriendList(name: string) {
 			type: 'join-room',
 			friend: name
 		}));
-
-		showToast.blue(`Joining room with ${name}`);
 	});
-	roomButton.id = `online-friends-list-entry-${name}`;
+	roomButton.id = `friends-list-entry-${name}`;
 	friendList.appendChild(roomButton);
+	setProfileImage(`profile-image-${name}`, name);
 }
 
-function renderOnlineUsersList(name: string) {
-	const onlineUsersList = document.getElementById('online-users-list')!;
+function renderUsersList(name: string) {
+	const usersList = document.getElementById('users-list')!;
 	const userButton = document.createElement('button');
 	userButton.className = 'flex item t-dashed px-4';
 	userButton.innerHTML = /*html*/`
@@ -135,22 +192,21 @@ function renderOnlineUsersList(name: string) {
 		`;
 		userButton.style.pointerEvents = 'none';
 		userButton.disabled = true;
-		refreshEverything();
 	});
-	onlineUsersList.appendChild(userButton);
+	usersList.appendChild(userButton);
 }
 
 function renderFriendRequest(name: string) {
 	const friendRequestsList = document.getElementById('friend-requests-list')!;
 	addListEntry('friend-requests-list', name, /*html*/`
-			<p class="mr-auto">${name}</p>
-			<button id="friend-requests-list-entry-${name}-accept">
-				<i class="fa-solid fa-check"></i>
-			</button>
-			<button id="friend-requests-list-entry-${name}-reject">
-				<i class="fa-solid fa-xmark"></i>
-			</button>
-		`);
+		<p class="mr-auto">${name}</p>
+		<button id="friend-requests-list-entry-${name}-accept">
+			<i class="fa-solid fa-check"></i>
+		</button>
+		<button id="friend-requests-list-entry-${name}-reject">
+			<i class="fa-solid fa-xmark"></i>
+		</button>
+	`);
 	const friendRequestEntry = document.getElementById(`friend-requests-list-entry-${name}`)!;
 
 	const acceptButton = document.getElementById(`friend-requests-list-entry-${name}-accept`)!;
@@ -164,7 +220,6 @@ function renderFriendRequest(name: string) {
 		friendRequestEntry.remove();
 		// removeListEntry('friend-requests-list', name);
 		showToast.green(`Friend request from ${name} accepted`);
-		refreshEverything();
 	});
 
 	const declineButton = document.getElementById(`friend-requests-list-entry-${name}-reject`)!
@@ -183,16 +238,12 @@ function renderFriendRequest(name: string) {
 }
 
 function renderFriendRequestsList(requests: { sender: string }[]) {
-	const friendRequestsList = document.getElementById('friend-requests-list')!;
-	friendRequestsList.innerHTML = '';
-	console.log(requests);
 	requests.forEach(request => {
 		renderFriendRequest(request.sender);
 	});
 }
-let isChatLoaded = false;
-//! needs to fix load variable
-function renderChatRoom(name: string, isBlocked: boolean, _load: boolean) { //* load chat box
+
+function renderChatRoom(name: string, isBlocked: boolean) {
 	const roomList = document.getElementById('chat-box-message-list')!;
 	roomList.innerHTML = '';
 
@@ -201,32 +252,14 @@ function renderChatRoom(name: string, isBlocked: boolean, _load: boolean) { //* 
 	const chatHeaderBlockButton = document.getElementById('chat-box-block')!;
 	chatHeaderBlockButton.textContent = isBlocked ? 'Unblock' : 'Block';
 
-	// if (load) {
-	// 	chatHeaderBlockButton.addEventListener('click', () => {
-	// 		const isBlocking = chatHeaderBlockButton.textContent!.includes('Block');
-	// 		if (isBlocking) {
-	// 			chatHeaderBlockButton.textContent = 'Unblock';
-	// 			showToast.red(`User ${name} has been blocked`);
-	// 			userInfo.chat_sock!.send(JSON.stringify({
-	// 				type: 'block-user',
-	// 				friend: name,
-	// 				load: false
-	// 			}));
-	// 		} else {
-	// 			chatHeaderBlockButton.textContent = 'Block';
-	// 			showToast.green(`User ${name} has been unblocked`);
-	// 			userInfo.chat_sock!.send(JSON.stringify({
-	// 				type: 'unblock-user',
-	// 				friend: name,
-	// 				load: false
-	// 			}));
-	// 		}
-	// 		userInfo.chat_sock!.send(JSON.stringify({
-	// 			type: 'join-room',
-	// 			friend: name
-	// 		}));
-	// 	});
-	// }
+	const chatBoxProfileImage = document.getElementById('chat-box-profile') as HTMLButtonElement;
+	if (chatBoxProfileImage.disabled) {
+		chatBoxProfileImage.disabled = false;
+		const chatBoxElements = document.querySelectorAll('#chat-box input, #chat-box button');
+		chatBoxElements.forEach(element => (element as HTMLInputElement).disabled = false);
+	}
+	window.history.replaceState({}, '', `/chat/${name}`);
+	setProfileImage("chat-box-profile-image", name);
 }
 
 function addListEntry(listName: string, name: string, html: string, classes?: string) {
@@ -243,30 +276,44 @@ function removeListEntry(list: string, name: string) {
 	document.removeChild(entry);
 }
 
-function refreshEverything() {
-	showToast.blue('Refreshing...')
-	document.getElementById('online-users-refresh')?.click();
-	document.getElementById('online-friends-refresh')?.click();
-	document.getElementById('friend-requests-refresh')?.click();
+function reloadLists() {
+	document.getElementById('friends-list')!.innerHTML = '';
+	userInfo.chat_sock!.send(JSON.stringify({
+		type: 'get-friends-list'
+	}));
+	document.getElementById('friend-requests-list')!.innerHTML = '';
+	userInfo.chat_sock!.send(JSON.stringify({
+		type: 'get-friend-request'
+	}));
+}
+
+let reloadInterval: number | null = null;
+
+export function disableAutoReload() {
+	if (reloadInterval !== null) {
+		clearInterval(reloadInterval);
+		reloadInterval = null;
+	}
 }
 
 export function setChatEventListeners() {
-	document.getElementById('online-friends-refresh')?.addEventListener('click',
+	document.getElementById('friends-list-refresh')?.addEventListener('click',
 		() => {
-			document.getElementById('online-friends-list')!.innerHTML = '';
+			document.getElementById('friends-list')!.innerHTML = '';
 			userInfo.chat_sock!.send(JSON.stringify({
 				type: 'get-friends-list'
 			}));
 		});
-	document.getElementById('friend-requests-refresh')?.addEventListener('click',
+	document.getElementById('friend-requests-list-refresh')?.addEventListener('click',
 		() => {
+			document.getElementById('friend-requests-list')!.innerHTML = '';
 			userInfo.chat_sock!.send(JSON.stringify({
 				type: 'get-friend-request',
 			}));
 		});
-	document.getElementById('online-users-refresh')?.addEventListener('click',
+	document.getElementById('users-list-refresh')?.addEventListener('click',
 		() => {
-			document.getElementById('online-users-list')!.innerHTML = '';
+			document.getElementById('users-list')!.innerHTML = '';
 			userInfo.chat_sock!.send(JSON.stringify({
 				type: 'get-online-users'
 			}));
@@ -290,10 +337,22 @@ export function setChatEventListeners() {
 	document.getElementById('chat-box-invite')?.addEventListener('click',
 		() => showToast.yellow('Inviting player...'));
 	setupBlockButtonListener();
+
+	reloadInterval = setInterval(reloadLists, 5000); // set auto reload
 	setTimeout(() => {
-		//* TEMP auto-refresh
-		refreshEverything();
-	// if (userInfo.username != '42Transcendence')
-	// 	setTimeout(() => document.getElementById(`online-friends-list-entry-42Transcendence`)?.click(), 100);
-	}, 300);
+		document.getElementById('users-list-refresh')?.click();
+		reloadLists()
+		setTimeout(() => {
+			if (userInfo.path != '/chat' && userInfo.path != '/chat/') {
+				const friendsListEntry = document.getElementById(`friends-list-entry-${userInfo.path.split('/chat/')[1]}`)
+				if (!friendsListEntry) {
+					showToast.red(`${userInfo.path.split('/chat/')[1]} is not an friend`);
+					window.history.replaceState({}, '', `/chat`);
+				}
+				else
+					friendsListEntry.click()
+			} else if (currentFriend)
+				document.getElementById(`friends-list-entry-${currentFriend}`)?.click();
+		}, 100);
+	}, 100);
 }

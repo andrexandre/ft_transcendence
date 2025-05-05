@@ -56,7 +56,7 @@ class Login extends Page {
 				});
 				if (!response.ok)
 					throw new Error(`${response.status} - ${response.statusText}`);
-				lib.daemon(true);
+				lib.toggleUserServices(true);
 				lib.showToast(`Logged in successfully`);
 				lib.navigate("/");
 			} catch (error) {

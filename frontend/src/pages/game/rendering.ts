@@ -35,15 +35,16 @@ function GameMessageVisibility(show: boolean) {
 }
 
 function updateScoreboard(players: any[]) {
-  const el = document.getElementById("scoreboard") as HTMLDivElement;
-  if (players.length < 2) return;
-  const [p1, p2] = players;
-  el.innerHTML = `
-    <span style='color: blue;'>${p1.username}</span>
-    <b>${p1.score}</b> vs <b>${p2.score}</b>
-    <span style='color: red;'>${p2.username}</span>
-  `;
-  el.style.display = "block";
+	const el = document.getElementById("scoreboard") as HTMLDivElement;
+	if (players.length < 2) return;
+	const [p1, p2] = players;
+	el.innerHTML = /*html*/`
+		<div class="grid grid-cols-[1fr_15rem_1fr]">
+			<div class="text-right truncate" style='color: blue;'>${p1.username}</div>
+			<div class="text-center">${p1.score} vs ${p2.score}</div>
+			<div class="text-left truncate" style='color: red;'>${p2.username}</div>
+		</div>
+	`;
 }
 
 export const tournamentState = {

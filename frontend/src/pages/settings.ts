@@ -1,6 +1,7 @@
 import Page from "./Page"
 import * as lib from "../utils"
 import sidebar from "../components/sidebar"
+import { setProfileImage } from "./dashboard";
 
 const safeColors: string[] = ["bg-red-500", "bg-orange-500", "bg-amber-500", "bg-yellow-500", "bg-lime-500", "bg-green-500", "bg-emerald-500", "bg-teal-500", "bg-cyan-500", "bg-sky-500", "bg-blue-500", "bg-indigo-500", "bg-violet-500", "bg-purple-500", "bg-fuchsia-500", "bg-pink-500", "bg-rose-500", "bg-slate-500", "bg-gray-500", "bg-zinc-500", "bg-neutral-500", "bg-stone-500"];
 
@@ -23,21 +24,7 @@ async function loadInformation() {
 	(document.getElementById("profile-bio") as HTMLInputElement).value = userData.biography;
 	(document.getElementById('2fa-toggle') as HTMLInputElement).checked = userData.two_FA_status
 
-	// Set user avatar
-	const imageResponse = await fetch(`http://${location.hostname}:3000/api/users/avatar`, {
-		credentials: 'include'
-	})
-	if (!imageResponse.ok) return lib.showToast.red('Failed too load user Avatar!');
-
-	const blob = await imageResponse.blob();
-	console.log(blob);
-	const url = URL.createObjectURL(blob);
-	console.log(url);
-	const errorUrl = 'https://fastly.picsum.photos/id/63/300/300.jpg?hmac=NZIxadbJNvrTZPpf2SgsLhZ4Up4GlWVwar-bI6FcTE8';
-	(document.getElementById("profile-image") as HTMLImageElement).src = url || errorUrl;
-	// URL.revokeObjectURL(url);
-	lib.userInfo.profileImage = url;
-
+	setProfileImage("profile-image");
 }
 
 class Settings extends Page {
