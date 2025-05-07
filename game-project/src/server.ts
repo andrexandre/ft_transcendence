@@ -137,7 +137,7 @@ function handleSocketMessage(connection: any, data: any) {
 				break;
 			} else if (lobby && lobby.gameMode === "TNT"){
 				createTournament(lobby?.id, lobby?.players);
-				startGame(data.lobbyId, data.requesterId);
+				// startGame(data.lobbyId, data.requesterId);
 			}
 		}
 

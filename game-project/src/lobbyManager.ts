@@ -11,6 +11,7 @@ type Player = {
 	username: string;
 	socket: WebSocket;
 	isHost: boolean;
+	difficulty?: string;
 };
 
 type Lobby = {
@@ -25,16 +26,17 @@ type Lobby = {
 
 const lobbies = new Map<string, Lobby>();
 
-export function createLobby(socket: WebSocket, user: UserData, gameMode: string, maxPlayers: number): string {
+export function createLobby(socket: WebSocket, user: UserData, gameMode: string, maxPlayers: number, difficulty?: string) {
 	const lobbyId = `lob-${crypto.randomUUID().slice(0, 8)}`;
 
 	const player: Player = {
 		userId: user.userId,
 		username: user.username,
 		socket,
-		isHost: true
+		isHost: true,
+		difficulty: difficulty || "medium"
 	};
-
+	  
 	const lobby: Lobby = {
 		id: lobbyId,
 		hostId: user.userId,

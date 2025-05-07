@@ -84,14 +84,15 @@ export function connectToGameServer(userInfo: { username: string; userId: number
 	socket.onclose = () => showToast.red("🔌 Disconnected from server");
 }
 
-export function createLobby(gameMode: string, maxPlayers: number) {
+export function createLobby(gameMode: string, maxPlayers: number, difficulty?: string){
 	if (!socket || socket.readyState !== WebSocket.OPEN) return;
 	if (lobbyId) return showToast.red("🚫 Já estás num lobby");
 
 	socket.send(JSON.stringify({
 		type: "create-lobby",
 		gameMode,
-		maxPlayers
+		maxPlayers,
+		difficulty
 	}));
 }
 
@@ -172,7 +173,7 @@ function renderLobbyList(lobbies: any[]) {
 
 	list.innerHTML = "";
 
-	const currentUserId = Number(sessionStorage.getItem("user_id"));
+	const currentUserId = (window as any).appUser?.user_id;
 	if (lobbies.length === 0) {
 		list.innerHTML = /*html*/`<p class='text-c-secondary col-span-4'>No lobby available</p>`;
 		return;
@@ -219,3 +220,4 @@ function renderLobbyList(lobbies: any[]) {
 		}
 	}
 }
+

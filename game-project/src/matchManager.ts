@@ -7,22 +7,24 @@ import { handleMatchEndFromTournament } from './tournamentManager.js';
 const winningScore = 2;
 
 interface PlayerState {
-id: number;
-username: string;
-posiY: number;
-posiX: number;
-score: number;
+	id: number;
+	username: string;
+	posiY: number;
+	posiX: number;
+	score: number;
 }
 
 export type MatchState = {
-gameId: string;
-players: PlayerState[];
-ball: { x: number; y: number; dx: number; dy: number };
-interval: NodeJS.Timeout;
-paused: boolean;
-isSinglePlayer: boolean;
-gameMode: string;
+	gameId: string;
+	players: PlayerState[];
+	ball: { x: number; y: number; dx: number; dy: number };
+	interval: NodeJS.Timeout;
+	paused: boolean;
+	isSinglePlayer: boolean;
+	gameMode: string;
+	aiDifficulty?: string;
 };
+  
 
 const matches = new Map<string, MatchState>();
 const matchSockets = new Map<string, WebSocket[]>();
@@ -39,6 +41,7 @@ export function handleMatchConnection(gameId: string, connection: any) {
 	const players = lobby.players;
 	const isSingle = players.length === 1;
 	const gameMode = lobby.gameMode;
+	const aiDifficulty = isSingle ? players[0].difficulty || "medium" : undefined;
 
 	let realPlayers = players.map((p, index) => ({
 		id: p.userId,
@@ -47,6 +50,7 @@ export function handleMatchConnection(gameId: string, connection: any) {
 		posiX: index === 0 ? 0 : 100,
 		score: 0
 	}));
+
 
 	if (isSingle) {
 		realPlayers.push({
@@ -70,13 +74,14 @@ export function handleMatchConnection(gameId: string, connection: any) {
 
 	if (!matches.has(gameId)) {
 		const matchState: MatchState = {
-		gameId,
-		players: realPlayers,
-		ball: { x: 400, y: 300, dx: 3, dy: 3 },
-		paused: true,
-		isSinglePlayer: isSingle,
-		gameMode,
-		interval: setInterval(() => updateMatchState(gameId), 1000 / 60)
+			gameId,
+			players: realPlayers,
+			ball: { x: 400, y: 300, dx: 3, dy: 3 },
+			paused: true,
+			isSinglePlayer: isSingle,
+			gameMode,
+			aiDifficulty,
+			interval: setInterval(() => updateMatchState(gameId), 1000 / 60)
 		};
 		matches.set(gameId, matchState);
 		startCountdown(gameId);
@@ -103,9 +108,9 @@ export function handleMatchConnection(gameId: string, connection: any) {
 
 		if (data.type === "move") {
 			if (data.direction === "up") {
-			player.posiY = Math.max(0, player.posiY - 3);
+			player.posiY = Math.max(0, player.posiY - 2);
 			} else if (data.direction === "down") {
-			player.posiY = Math.min(100, player.posiY + 3);
+			player.posiY = Math.min(100, player.posiY + 2);
 			}
 		}
 		} catch (err) {

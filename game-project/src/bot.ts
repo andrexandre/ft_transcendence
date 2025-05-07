@@ -1,6 +1,12 @@
+// src/bot.ts
 import { MatchState } from "./matchManager.js";
 
-const BOT_UPDATE_INTERVAL = 1000;
+const configByDifficulty = {
+	easy: { interval: 2000 },
+	medium: { interval: 1000 },
+	hard: { interval: 500 }
+} as const;
+
 const botMemory = new Map<string, { targetY: number; lastUpdate?: number }>();
 
 export function updateBotPlayer(match: MatchState) {
@@ -10,13 +16,16 @@ export function updateBotPlayer(match: MatchState) {
 
 	if (bot.posiX !== 100) return;
 
+	type Difficulty = keyof typeof configByDifficulty;
+	const difficulty = (match.aiDifficulty || "medium") as Difficulty;
+	const config = configByDifficulty[difficulty];
+
 	if (!botMemory.has(gameId)) {
 		botMemory.set(gameId, { targetY: 50 });
 	}
-
 	const memory = botMemory.get(gameId)!;
 
-	if (!memory.lastUpdate || Date.now() - memory.lastUpdate > BOT_UPDATE_INTERVAL) {
+	if (!memory.lastUpdate || Date.now() - memory.lastUpdate > config.interval) {
 		memory.targetY = predictBallIntersectionY(ball, 100);
 		memory.lastUpdate = Date.now();
 	}
@@ -31,48 +40,25 @@ export function updateBotPlayer(match: MatchState) {
 
 function simulateBotKey(bot: MatchState["players"][number], direction: "up" | "down") {
 	if (direction === "up") {
-		bot.posiY = Math.max(0, bot.posiY - 1.5);
+		bot.posiY = Math.max(0, bot.posiY - 2);
 	} else {
-		bot.posiY = Math.min(100, bot.posiY + 1.5);
+		bot.posiY = Math.min(100, bot.posiY + 2);
 	}
 }
 
 function predictBallIntersectionY(
-	ball: MatchState["ball"],
-	paddleX: number
-	): number {
+	ball: MatchState["ball"], paddleX: number): number {
 	let { x, y, dx, dy } = { ...ball };
 
 	while ((dx > 0 && x < 790) || (dx < 0 && x > 10)) {
-	x += dx;
-	y += dy;
-	if (y <= 0 || y >= 590) dy *= -1;
+		x += dx;
+		y += dy;
+		if (y <= 0 || y >= 590) dy *= -1;
 
-	if ((dx > 0 && x >= 790) || (dx < 0 && x <= 10)) {
-		break;
-	}
+		if ((dx > 0 && x >= 790) || (dx < 0 && x <= 10)) {
+			break;
+		}
 	}
 
 	return y;
 }
-
-
-// export function updateBotPlayer(match: MatchState) {
-//     const bot = match.players[1];
-//     const ball = match.ball;
-    
-//     if ((ball.dx > 0 && bot.posiX === 0) || (ball.dx < 0 && bot.posiX === 100)) {
-//       return; 
-//     }
-  
-//     const paddleCenter = (bot.posiY / 100) * 600 + 40;
-    
-//     if (paddleCenter < ball.y) {
-//       bot.posiY += 1.5; 
-//     } else if (paddleCenter > ball.y) {
-//       bot.posiY -= 1.5; 
-//     }
-  
-//     bot.posiY = Math.max(0, Math.min(100, bot.posiY));
-//   }
-  
