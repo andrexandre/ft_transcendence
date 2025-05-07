@@ -28,7 +28,7 @@ async function loadApp(path: string) {
 		// lib.userInfo.userId = responseData.userId
 		lib.userInfo.auth_method = responseData.auth_method
 		if (path == "/register" || path == "/login") {
-			lib.showToast(`Already authenticated`);
+			lib.showToast.yellow(`Already authenticated`);
 			history.replaceState(null, "", "/");
 			path = '/';
 		}

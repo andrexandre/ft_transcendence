@@ -12,6 +12,7 @@ class Game extends Page {
 		lib.setTheme('dark')
 		lib.setColor('game');
 		sidebar.setSidebarToggler('game');
+
 		// Set Settings dropdown
 		dropdown.initialize('Settings');
 		dropdown.addElement('Settings', 'div', 'flex flex-col', /*html*/`

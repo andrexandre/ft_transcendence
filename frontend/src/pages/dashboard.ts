@@ -86,13 +86,13 @@ export async function updateMatchHistory() {
 	}
 }
 
-export function renderDashboardFriend(friend: string) {
+export function renderDashboardFriend(friend: string, isOnline: boolean) {
 	const friendsList = document.getElementById('friends-list')!;
 	const friendsListEntry = document.createElement("li");
 	friendsListEntry.className = "item t-dashed p-3 flex";
 	friendsListEntry.innerHTML = /*html*/`
 		<img id="profile-image-${friend}" src="https://picsum.photos/id/63/40" class="size-10 rounded-4xl">
-		<svg height="10" width="10"><circle cx="5" cy="5" r="5" fill="currentColor" class="text-blue-600"/></svg>
+		<svg height="10" width="10"><circle cx="5" cy="5" r="5" fill="currentColor" class="${isOnline ? "text-green-600" : "text-neutral-600"}"/></svg>
 		<h1 class="self-center ml-5">${friend}</h1>
 	`;
 	friendsListEntry.addEventListener('click', () => lib.navigate(`/chat/${friend}`));
@@ -138,6 +138,7 @@ async function loadInformation() {
 }
 
 class Dashboard extends Page {
+	reloadInterval: number | null = null;
 	constructor() {
 		super("dashboard", '/');
 	}
@@ -151,16 +152,27 @@ class Dashboard extends Page {
 
 		// Set dashboard friends
 		if (lib.userInfo.chat_sock!.readyState === WebSocket.OPEN) {
-			lib.userInfo.chat_sock!.send(JSON.stringify({ type: 'get-friends-list' }));
+			lib.userInfo.chat_sock!.send(JSON.stringify({ type: 'get-online-friends' }));
 		} else {
-			const handleOpen = () => {
-				lib.userInfo.chat_sock!.removeEventListener('open', handleOpen);
-				lib.userInfo.chat_sock!.send(JSON.stringify({ type: 'get-friends-list' }));
+			const onChatSocketOpen = () => {
+				lib.userInfo.chat_sock!.removeEventListener('open', onChatSocketOpen);
+				lib.userInfo.chat_sock!.send(JSON.stringify({ type: 'get-online-friends' }));
 			};
-			lib.userInfo.chat_sock!.addEventListener('open', handleOpen);
+			lib.userInfo.chat_sock!.addEventListener('open', onChatSocketOpen);
+		}
+		this.reloadInterval = setInterval(() => {
+			document.getElementById('friends-list')!.innerHTML = '';
+			lib.userInfo.chat_sock!.send(JSON.stringify({
+				type: 'get-online-friends'
+			}));
+		}, 5000);
+	}
+	onCleanup(): void {
+		if (this.reloadInterval !== null) {
+			clearInterval(this.reloadInterval);
+			this.reloadInterval = null;
 		}
 	}
-	onCleanup(): void { }
 	getHtml(): string {
 		return /*html*/`
 			${sidebar.getHtml()}
