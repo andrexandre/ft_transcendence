@@ -14,7 +14,7 @@ export async function SocketHandler(socket, username)
 		sockets.set(socket, username);
 		console.log(`${username} connected`);
 		
-		sendFriendList(username, socket);
+		// sendFriendList(username, socket);
 	
 		socket.on('message', async (message) => {
 			let data;
