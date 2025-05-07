@@ -104,17 +104,27 @@ export async function setProfileImage(elementId: string, profileUsername?: strin
 	let imageUrl = `http://${location.hostname}:3000/api/users/avatar`
 	if (profileUsername)
 		imageUrl = `http://${location.hostname}:3000/api/users/${profileUsername}/avatar`
-	const imageResponse = await fetch(imageUrl, {
-		credentials: 'include'
-	})
-	if (!imageResponse.ok) return lib.showToast.red('Failed to load user Avatar!');
 
-	const blob = await imageResponse.blob();
-	const url = URL.createObjectURL(blob);
-	// console.debug(url);
-	(document.getElementById(elementId) as HTMLImageElement).src = url || 'https://picsum.photos/id/63/300';
-	// URL.revokeObjectURL(url);
-	// lib.userInfo.profileImage = url;
+	try {
+		const imageResponse = await fetch(imageUrl, {
+			credentials: 'include'
+		})
+		if (!imageResponse.ok) {
+			const errorData = await imageResponse.json();
+			throw new Error(errorData.message);
+		}
+	
+		const blob = await imageResponse.blob();
+		const url = URL.createObjectURL(blob);
+		
+		(document.getElementById(elementId) as HTMLImageElement).src = url || 'https://picsum.photos/id/63/300';
+		// URL.revokeObjectURL(url);
+		// lib.userInfo.profileImage = url;
+	} catch (error: any) {
+		// When we have an error loadind the avatar we use this avatar as error
+		(document.getElementById(elementId) as HTMLImageElement).src = 'https://picsum.photos/id/63/300';
+		return lib.showToast.red(error.message);
+	}
 }
 
 async function loadInformation() {

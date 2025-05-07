@@ -21,9 +21,9 @@ async function saveSettings(request, reply) {
 	} catch (err) {
 		if (err.code === 'SQLITE_CONSTRAINT') {
             const msg = (err.message.includes("email")) ? 'Email' : 'Username';
-            response.status(409).send({statusCode: 409, error: "Conflict", message: `${msg} already exist!`});
+            reply.status(409).send({statusCode: 409, error: "Conflict", message: `${msg} already exist!`});
         } else {
-            response.status(500).send({statusCode: 500, error: "Internal server error", message: 'Error in updating information'});
+            reply.status(500).send({statusCode: 500, error: "Internal server error", message: 'Error in updating information'});
         } 
 	}
 	return; 
