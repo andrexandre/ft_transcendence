@@ -20,7 +20,7 @@ async function loadInformation(profileUsername: string) {
 	lib.userInfo.username = userData.username;
 
 	setProfileImage("profile-image", profileUsername);
-	updateMatchHistory("1rem_1fr_1rem_1fr_1rem");
+	updateMatchHistory();
 }
 
 class Profile extends Page {
@@ -65,7 +65,7 @@ class Profile extends Page {
 						<p id="profile-bio" class="h-30 min-w-md max-w-3xl whitespace-pre-wrap text-start">Champion of belly rubs, fetch, and fierce squirrel chases. Sir Barkalot is the first to answer the doorbell with a royal bark. His hobbies include digging to China and chewing shoes.</p>
 					</div>
 					<div class="t-dashed flex card gap-0 px-5">
-						<div class="flex flex-col w-60 gap-5">
+						<div class="flex flex-col w-120 gap-5">
 							<h1 class="text-xl">Pong match history</h1>
 							<ul id="stats-list" class="flex flex-col gap-2 overflow-auto"></ul>
 						</div>

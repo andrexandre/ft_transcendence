@@ -55,14 +55,12 @@ function socketOnMessage(event: MessageEvent<any>) {
 	else if (data.type === 'load-messages')
 		data.data.forEach((msg: { user: string, from: string, message: string, timestamp: string }) => renderMessage(data.user, msg.from, msg.message, msg.timestamp));
 	else if (data.type === 'get-friends-list') {
-		if (userInfo.path.startsWith('/chat')) {
-			data.data.forEach((friend: { username: string }) => renderFriendList(friend.username));
-			handleEmptyList('friends-list', 'No friends, sad life');
-		}
-		else if (userInfo.path == '/') {
-			data.data.forEach((friend: { username: string }) => renderDashboardFriend(friend.username));
-			handleEmptyList('friends-list', 'No friends online');
-		}
+		data.data.forEach((friend: { username: string }) => renderFriendList(friend.username));
+		handleEmptyList('friends-list', 'No friends, sad life');
+	}
+	else if (data.type === 'get-online-friends') {
+		Object.entries(data.data as Record<string, boolean>).forEach(([username, isOnline]) => renderDashboardFriend(username, isOnline));
+		handleEmptyList('friends-list', 'No friends, sad life');
 	}
 	else if (data.type === 'get-online-users') {
 		data.data.forEach((user: string) => renderUsersList(user));
