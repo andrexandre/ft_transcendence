@@ -32,7 +32,7 @@ class Register extends Page {
 					<label for="email">Email</label>
 					<input class="item t-dashed pl-4 focus:border-blue-500" type="email" id="email" placeholder="Enter email" required />
 					<label for="password">Password</label>
-					<input class="item t-dashed pl-4 focus:border-blue-500" type="password" id="password" placeholder="Enter password" required />
+					<input class="item t-dashed pl-4 focus:border-blue-500" type="password" id="password" placeholder="Enter password" required minlength="3" pattern="^[^<>]+$" />
 					<button class="item t-dashed focus:outline-none focus:border-blue-500" type="submit">Submit</button>
 				</form>
 				<hr class="text-c-primary">

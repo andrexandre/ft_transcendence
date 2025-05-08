@@ -26,7 +26,7 @@ async function setPayload(payload){
     body: JSON.stringify(payload)
   });
   const data = await response.json();
-  payload.userID = data.userID;
+  payload.userId = data.userID;
   delete payload.email;
   return payload;
 }

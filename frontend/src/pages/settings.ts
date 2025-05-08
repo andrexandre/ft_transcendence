@@ -169,12 +169,12 @@ class Settings extends Page {
 							</button>
 							<div class="flex flex-col justify-center self-center gap-4 ml-20">
 								<label class="text-left font-bold" for="profile-username">Username</label>
-								<input class="p-1 t-dashed pl-4 invalid:border-red-500" type="text" id="profile-username" placeholder="Enter username" value="Sir Barkalot" minlength="3" maxlength="20" pattern="^[^<>]+$" />
+								<input class="p-1 t-dashed pl-4 invalid:border-red-500" type="text" id="profile-username" placeholder="Enter username" value="Sir Barkalot" minlength="3" maxlength="20" pattern="^[^<>]+$" required />
 								<span id="username-error" class="text-red-500 text-xs hidden">Username has invalid length or characters</span>
 								<label class="text-left font-bold" for="profile-codename">Codename</label>
-								<input class="p-1 t-dashed pl-4" type="text" id="profile-codename" placeholder="Enter codename" value="The mighty tail-wagger"/>
+								<input class="p-1 t-dashed pl-4" type="text" id="profile-codename" placeholder="Enter codename" value="The mighty tail-wagger" required />
 								<label class="text-left font-bold" for="profile-email">Email</label>
-								<input class="p-1 t-dashed pl-4" type="text" id="profile-email" placeholder="Enter email" value="example@email.com"/>
+								<input class="p-1 t-dashed pl-4" type="text" id="profile-email" placeholder="Enter email" value="example@email.com" required />
 							</div>
 						</div>
 						<label class="text-left font-bold" for="profile-bio">Biography</label>

@@ -196,7 +196,7 @@ class Dashboard extends Page {
 					<ul id="stats-list" class="flex flex-col gap-2 overflow-auto"></ul>
 				</div>
 				<div class="card t-dashed flex flex-col">
-					<h1 class="text-xl">Online friends WIP</h1>
+					<h1 class="text-xl">Friends</h1>
 					<ul id="friends-list" class="flex flex-col gap-2 overflow-auto"></ul>
 				</div>
 			</main>
