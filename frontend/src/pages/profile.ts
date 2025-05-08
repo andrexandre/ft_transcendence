@@ -4,7 +4,7 @@ import sidebar from "../components/sidebar"
 import { setProfileImage, updateMatchHistory } from "./dashboard";
 
 async function loadInformation(profileUsername: string) {
-	const response = await fetch(`http://${location.hostname}:3000/api/users/${profileUsername}`, {
+	const response = await fetch(`http://${location.hostname}:80/api/users/${profileUsername}`, {
 		credentials: 'include'
 	})
 	if (!response.ok) {
@@ -56,7 +56,7 @@ class Profile extends Page {
 				<dialog open id="profile-dialog" class="flex gap-5 bg-c-bg/75 dark:bg-c-text/25 dark:text-c-bg fixed top-1/2 left-1/2 -translate-1/2 rounded-4xl p-6 w-fit shadow-lg">
 					<div class="card t-dashed grid overflow-auto gap-10">
 						<div class="flex gap-16">
-							<img id="profile-image" class="object-cover rounded-full size-48 shadow-xl shadow-neutral-400 border-2" src="https://picsum.photos/id/237/200">
+							<img id="profile-image" class="object-cover rounded-full size-48 shadow-xl shadow-neutral-400 border-2" src="https://picsum.photos/id/63/200">
 							<div class="justify-center self-center">
 								<h1 id="profile-username" class="text-3xl">Sir Barkalot</h1>
 								<p id="profile-codename" class="text-xl">The mighty tail-wagger</p>
@@ -90,7 +90,7 @@ class Profile extends Page {
 				biography: (document.getElementById('profile-bio') as HTMLTextAreaElement).value
 			};
 			try {
-				const response = await fetch(`http://${location.hostname}:3000/api/users/save-settings`, {
+				const response = await fetch(`http://${location.hostname}:80/api/users/save-settings`, {
 					method: 'POST',
 					credentials: "include",
 					headers: {

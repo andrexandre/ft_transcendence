@@ -101,40 +101,56 @@ export function renderDashboardFriend(friend: string, isOnline: boolean) {
 }
 
 export async function setProfileImage(elementId: string, profileUsername?: string) {
-	let imageUrl = `http://${location.hostname}:3000/api/users/avatar`
+	let imageUrl = `http://${location.hostname}:8080/api/users/avatar`
 	if (profileUsername)
-		imageUrl = `http://${location.hostname}:3000/api/users/${profileUsername}/avatar`
-	const imageResponse = await fetch(imageUrl, {
-		credentials: 'include'
-	})
-	if (!imageResponse.ok) return lib.showToast.red('Failed to load user Avatar!');
+		imageUrl = `http://${location.hostname}:8080/api/users/${profileUsername}/avatar`
 
-	const blob = await imageResponse.blob();
-	const url = URL.createObjectURL(blob);
-	// console.debug(url);
-	(document.getElementById(elementId) as HTMLImageElement).src = url || 'https://picsum.photos/id/63/300';
-	// URL.revokeObjectURL(url);
-	// lib.userInfo.profileImage = url;
+	try {
+		const imageResponse = await fetch(imageUrl, {
+			credentials: 'include'
+		})
+		if (!imageResponse.ok) {
+			const errorData = await imageResponse.json();
+			throw new Error(errorData.message);
+		}
+	
+		const blob = await imageResponse.blob();
+		const url = URL.createObjectURL(blob);
+		
+		(document.getElementById(elementId) as HTMLImageElement).src = url || 'https://picsum.photos/id/63/300';
+		// URL.revokeObjectURL(url);
+		// lib.userInfo.profileImage = url;
+	} catch (error: any) {
+		// When we have an error loadind the avatar we use this avatar as error
+		(document.getElementById(elementId) as HTMLImageElement).src = 'https://picsum.photos/id/63/300';
+		return lib.showToast.red(error.message);
+	}
 }
 
 async function loadInformation() {
-	const response = await fetch(`http://${location.hostname}:3000/api/users/settings`, {
-		credentials: 'include'
-	})
-	if (!response.ok) return lib.showToast.red('Failed to load user Information!');
-	// Set user information
-	const userData = await response.json();
-	(document.getElementById("profile-username") as HTMLElement).textContent = userData.username;
-	(document.getElementById("profile-codename") as HTMLElement).textContent = userData.codename;
-	(document.getElementById("profile-bio") as HTMLElement).textContent = userData.biography;
-	lib.userInfo.username = userData.username;
-	// lib.userInfo.codename = userData.codename;
-	// lib.userInfo.biography = userData.biography;
-	// lib.userInfo.userId = userData.userId;
-	// lib.userInfo.auth_method = userData.auth_method;
 
-	setProfileImage("profile-image");
-	updateMatchHistory();
+	try {
+		const response = await fetch(`http://${location.hostname}:8080/api/users/settings`, {
+			credentials: 'include'
+		})
+		if (!response.ok)
+			throw new Error((await response.json()).message);
+		// Set user information
+		const userData = await response.json();
+		(document.getElementById("profile-username") as HTMLElement).textContent = userData.username;
+		(document.getElementById("profile-codename") as HTMLElement).textContent = userData.codename;
+		(document.getElementById("profile-bio") as HTMLElement).textContent = userData.biography;
+		lib.userInfo.username = userData.username;
+		// lib.userInfo.codename = userData.codename;
+		// lib.userInfo.biography = userData.biography;
+		// lib.userInfo.userId = userData.userId;
+		// lib.userInfo.auth_method = userData.auth_method;
+	
+		setProfileImage("profile-image");
+		updateMatchHistory();
+	} catch (error: any) {
+		return lib.showToast.red(error.message);
+	}
 }
 
 class Dashboard extends Page {
@@ -179,7 +195,7 @@ class Dashboard extends Page {
 			<main class="grid grid-cols-2 grid-rows-2 flex-1">
 				<button id="profile" class="card t-dashed grid overflow-auto">
 					<div class="flex gap-16">
-						<img id="profile-image" class="object-cover rounded-full size-48 shadow-xl shadow-neutral-400 border-2" src="https://picsum.photos/id/237/200">
+						<img id="profile-image" class="object-cover rounded-full size-48 shadow-xl shadow-neutral-400 border-2" src="https://picsum.photos/id/63/200">
 						<div class="justify-center self-center">
 							<h1 id="profile-username" class="text-3xl">Sir Barkalot</h1>
 							<p id="profile-codename" class="text-xl">The mighty tail-wagger</p>

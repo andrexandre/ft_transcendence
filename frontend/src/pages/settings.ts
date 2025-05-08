@@ -7,24 +7,32 @@ const safeColors: string[] = ["bg-red-500", "bg-orange-500", "bg-amber-500", "bg
 
 async function loadInformation() {
 
-	const response = await fetch(`http://${location.hostname}:3000/api/users/settings`, {
-		credentials: 'include'
-	})
-	if (!response.ok) return lib.showToast.red('Failed too load user Information!');
-
-	// Set user information
-	const userData = await response.json();
-	(document.getElementById("profile-username") as HTMLInputElement).value = userData.username;
-	(document.getElementById("profile-codename") as HTMLInputElement).value = userData.codename;
-	(document.getElementById("profile-email") as HTMLInputElement).value = userData.email;
-
-	if (userData.auth_method === 'google') // Google sign people can not change the email
+	try {
+		const response = await fetch(`http://${location.hostname}:8080/api/users/settings`, {
+			credentials: 'include'
+		})
+		if (!response.ok) {
+			const errorData = await response.json();
+			throw new Error(errorData.message);
+		}
+		
+		// Set user information
+		const userData = await response.json();
+		(document.getElementById("profile-username") as HTMLInputElement).value = userData.username;
+		(document.getElementById("profile-codename") as HTMLInputElement).value = userData.codename;
+		(document.getElementById("profile-email") as HTMLInputElement).value = userData.email;
+		
+		if (userData.auth_method === 'google') // Google sign people can not change the email
 		(document.getElementById("profile-email") as HTMLInputElement).disabled = true;
-
-	(document.getElementById("profile-bio") as HTMLInputElement).value = userData.biography;
-	(document.getElementById('2fa-toggle') as HTMLInputElement).checked = userData.two_FA_status
-
-	setProfileImage("profile-image");
+		
+		(document.getElementById("profile-bio") as HTMLInputElement).value = userData.biography;
+		(document.getElementById('2fa-toggle') as HTMLInputElement).checked = userData.two_FA_status
+		
+		setProfileImage("profile-image");
+		
+	} catch (error: any) {
+		return lib.showToast.red(error.message);
+	}
 }
 
 class Settings extends Page {
@@ -46,10 +54,10 @@ class Settings extends Page {
 				const file = (event.target as HTMLInputElement).files?.[0];
 				console.log(file);
 				if (file) {
-					// if (file.size > 2 * 1024 * 1024) {
-					// 	lib.showToast.red("Image is too big. Max: 2MB");
-					// 	return;
-					//   }					  
+					if (file.size > 2 * 1024 * 1024) {
+						lib.showToast.red("Image is too big. Max: 2MB");
+						return;
+					}					  
 					const reader = new FileReader();
 					reader.onload = () => {
 						lib.userInfo.profileImage = reader.result as string;
@@ -64,18 +72,19 @@ class Settings extends Page {
 						const avatarFormData = new FormData();
 						avatarFormData.append('image', file);
 
-						const response = await fetch(`http://${location.hostname}:3000/api/users/update/avatar`, {
+						const response = await fetch(`http://${location.hostname}:8080/api/users/update/avatar`, {
 							method: 'POST',
 							credentials: "include",
 							body: avatarFormData
 						});
-						if (!response.ok)
-							throw new Error(`${response.status} - ${response.statusText}`);
+						if (!response.ok){
+							const errorData = await response.json();
+							throw new Error(errorData.message);
+						}
 
 						lib.showToast.green("Imagem salva no servidor!");
-					} catch (err) {
-						console.error("Erro ao enviar imagem:", err);
-						lib.showToast.red("Erro ao salvar a imagem no servidor.");
+					} catch (error: any) {
+						return lib.showToast.red(error.message);
 					}
 				}
 			});
@@ -90,20 +99,16 @@ class Settings extends Page {
 				two_FA_status: twoFAButton.checked
 			};
 			try {
-				const response = await fetch(`http://${location.hostname}:3000/api/users/save-settings-2fa`, {
-					method: 'POST',
+				const response = await fetch(`http://${location.hostname}:3500/2fa/set-google-authenticator`, {
+					method: 'GET',
 					credentials: "include",
-					headers: {
-						'Content-Type': 'application/json'
-					},
-					body: JSON.stringify(userData)
 				});
 				if (!response.ok) {
-					throw new Error(`${response.status} - ${response.statusText}`);
+					const errorData = await response.json();
+					throw new Error(errorData.message);
 				}
 
-				if (twoFAButton.checked)
-				{
+				if (twoFAButton.checked) {
 					const imageElement = document.createElement('img');
 					imageElement.src = 'https://picsum.photos/id/63/200';
 					imageElement.id = 'qr-code-img';
@@ -113,9 +118,9 @@ class Settings extends Page {
 					document.getElementById('qr-code-img')?.remove();					
 					lib.showToast.red("2FA disabled");
 				}
-			} catch (error) {
+			} catch (error: any) {
 				console.log(error);
-				lib.showToast.red(error as string);
+				return lib.showToast.red(error.message);
 			}
 		});
 
@@ -162,7 +167,7 @@ class Settings extends Page {
 						<h1 class="item text-start text-2xl">Profile</h1>
 						<div class="flex">
 							<button id="profile-image-button" class="relative size-60 group">
-								<img id="profile-image" class="rounded-full size-full object-cover border-2 shadow-lg shadow-neutral-400"/>
+								<img id="profile-image" class="rounded-full size-full object-cover border-2 shadow-lg shadow-neutral-400" src="https://picsum.photos/id/63/200"/>
 								<div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 rounded-full transition-opacity">
 									<i class="fa-solid fa-camera"></i>
 								</div>
@@ -234,7 +239,7 @@ class Settings extends Page {
 				two_FA_status: (document.getElementById('2fa-toggle') as HTMLInputElement).checked
 			};
 			try {
-				const response = await fetch(`http://${location.hostname}:3000/api/users/save-settings`, {
+				const response = await fetch(`http://${location.hostname}:8080/api/users/save-settings`, {
 					method: 'POST',
 					credentials: "include",
 					headers: {
@@ -243,12 +248,12 @@ class Settings extends Page {
 					body: JSON.stringify(userData)
 				});
 				if (!response.ok) {
-					throw new Error(`${response.status} - ${response.statusText}`);
+					const data = await response.json();
+					throw new Error(data.message);
 				}
 				lib.showToast.green("Updated!");
-			} catch (error) {
-				console.log(error);
-				lib.showToast.red(error as string);
+			} catch (error: any) {
+				return lib.showToast.red(error.message);
 			}
 		};
 		form?.addEventListener('submit', handler);
