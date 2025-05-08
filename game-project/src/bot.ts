@@ -2,9 +2,9 @@
 import { MatchState } from "./matchManager.js";
 
 const configByDifficulty = {
-	easy: { interval: 2000 },
-	medium: { interval: 1000 },
-	hard: { interval: 500 }
+	Easy: { interval: 1000 },
+	Medium: { interval: 500 },
+	Hard: { interval: 250 }
 } as const;
 
 const botMemory = new Map<string, { targetY: number; lastUpdate?: number }>();
@@ -18,6 +18,7 @@ export function updateBotPlayer(match: MatchState) {
 
 	type Difficulty = keyof typeof configByDifficulty;
 	const difficulty = (match.aiDifficulty || "medium") as Difficulty;
+
 	const config = configByDifficulty[difficulty];
 
 	if (!botMemory.has(gameId)) {
@@ -59,6 +60,5 @@ function predictBallIntersectionY(
 			break;
 		}
 	}
-
 	return y;
 }

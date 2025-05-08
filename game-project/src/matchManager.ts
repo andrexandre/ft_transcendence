@@ -42,6 +42,7 @@ export function handleMatchConnection(gameId: string, connection: any) {
 	const isSingle = players.length === 1;
 	const gameMode = lobby.gameMode;
 	const aiDifficulty = isSingle ? players[0].difficulty || "medium" : undefined;
+	console.log(`🧑‍🤝‍🧑Not AI: `, aiDifficulty);
 
 	let realPlayers = players.map((p, index) => ({
 		id: p.userId,

@@ -7,6 +7,7 @@ import { getLobbyByLobbyId, createLobby, joinLobby, startGame, listLobbies, leav
 import { getUserDatafGateway, userRoutes } from './userSet.js';
 import { handleMatchConnection } from './matchManager.js';
 import { createTournament } from "./tournamentManager.js";
+import { diffieHellman } from "crypto";
 
 const PORT = 5000;
 const gameserver = Fastify({ logger: false }); // alterar true
@@ -81,7 +82,7 @@ function handleSocketMessage(connection: any, data: any) {
 				connection.send(JSON.stringify({ type: "error", message: "Missing lobby info" }));
 				return;
 			}
-			const lobbyId = createLobby(connection, connection.user, gameMode, maxPlayers);
+			const lobbyId = createLobby(connection, connection.user, gameMode, maxPlayers, data.difficulty);
 			connection.send(JSON.stringify({ type: "lobby-created", lobbyId, maxPlayers }));
 			break;
 		}
@@ -137,7 +138,6 @@ function handleSocketMessage(connection: any, data: any) {
 				break;
 			} else if (lobby && lobby.gameMode === "TNT"){
 				createTournament(lobby?.id, lobby?.players);
-				// startGame(data.lobbyId, data.requesterId);
 			}
 		}
 

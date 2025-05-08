@@ -1,4 +1,4 @@
-
+// frontend/src/pages/game/menu.ts
 import { showToast } from "../../utils";
 import dropdown from "../../components/dropdown";
 import { connectToGameServer, createLobby, fetchLobbies } from "./lobbyClient";

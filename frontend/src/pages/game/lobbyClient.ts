@@ -7,8 +7,6 @@ let lobbyId: string | null = null;
 let user: { username: string; userId: number } | null = null;
 let matchSocketStarted = false;
 
-
-
 export function connectToGameServer(userInfo: { username: string; userId: number }) {
 	if (socket && socket.readyState === WebSocket.OPEN) {
 		console.warn("🚫 Já estás conectado ao servidor.");
@@ -87,6 +85,7 @@ export function connectToGameServer(userInfo: { username: string; userId: number
 export function createLobby(gameMode: string, maxPlayers: number, difficulty?: string){
 	if (!socket || socket.readyState !== WebSocket.OPEN) return;
 	if (lobbyId) return showToast.red("🚫 Já estás num lobby");
+	console.log("🚀 A criar lobby:", gameMode, maxPlayers, difficulty);
 
 	socket.send(JSON.stringify({
 		type: "create-lobby",
@@ -174,6 +173,13 @@ function renderLobbyList(lobbies: any[]) {
 	list.innerHTML = "";
 
 	const currentUserId = (window as any).appUser?.user_id;
+	console.log("🚀 Current user ID:", currentUserId);
+	if (currentUserId === undefined) {
+		console.error("❌ No current user loaded. Cannot render lobbies.");
+		return;
+	}
+	// sessionStorage.setItem("username", (window as any).appUser?.username);
+	// console.log("🚀 Current user name:", (window as any).appUser?.username);
 	if (lobbies.length === 0) {
 		list.innerHTML = /*html*/`<p class='text-c-secondary col-span-4'>No lobby available</p>`;
 		return;

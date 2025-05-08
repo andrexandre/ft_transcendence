@@ -28,13 +28,14 @@ const lobbies = new Map<string, Lobby>();
 
 export function createLobby(socket: WebSocket, user: UserData, gameMode: string, maxPlayers: number, difficulty?: string) {
 	const lobbyId = `lob-${crypto.randomUUID().slice(0, 8)}`;
+	console.log("🛠️🛠️🛠️ Dif:", difficulty);
 
 	const player: Player = {
 		userId: user.userId,
 		username: user.username,
 		socket,
 		isHost: true,
-		difficulty: difficulty || "medium"
+		difficulty: difficulty
 	};
 	  
 	const lobby: Lobby = {
