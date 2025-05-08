@@ -8,7 +8,7 @@ import two_FA_settings_schema from '../schemas/user/twoFaSettingsSchema.js'
 
 async function extractInformationFromToken(request, reply) {
 	try {
-		const response = await fetch('http://gateway-api:7000/userData', {
+		const response = await fetch('http://services-api:7000/userData', {
 			method: "GET",
 			headers: {
 				"Content-Type": "application/json",

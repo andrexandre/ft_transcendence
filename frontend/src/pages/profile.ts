@@ -4,7 +4,7 @@ import sidebar from "../components/sidebar"
 import { setProfileImage, updateMatchHistory } from "./dashboard";
 
 async function loadInformation(profileUsername: string) {
-	const response = await fetch(`http://${location.hostname}:3000/api/users/${profileUsername}`, {
+	const response = await fetch(`http://${location.hostname}:80/api/users/${profileUsername}`, {
 		credentials: 'include'
 	})
 	if (!response.ok) {
@@ -90,7 +90,7 @@ class Profile extends Page {
 				biography: (document.getElementById('profile-bio') as HTMLTextAreaElement).value
 			};
 			try {
-				const response = await fetch(`http://${location.hostname}:3000/api/users/save-settings`, {
+				const response = await fetch(`http://${location.hostname}:80/api/users/save-settings`, {
 					method: 'POST',
 					credentials: "include",
 					headers: {

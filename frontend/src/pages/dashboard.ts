@@ -101,9 +101,9 @@ export function renderDashboardFriend(friend: string, isOnline: boolean) {
 }
 
 export async function setProfileImage(elementId: string, profileUsername?: string) {
-	let imageUrl = `http://${location.hostname}:3000/api/users/avatar`
+	let imageUrl = `http://${location.hostname}:8080/api/users/avatar`
 	if (profileUsername)
-		imageUrl = `http://${location.hostname}:3000/api/users/${profileUsername}/avatar`
+		imageUrl = `http://${location.hostname}:8080/api/users/${profileUsername}/avatar`
 
 	try {
 		const imageResponse = await fetch(imageUrl, {
@@ -128,7 +128,7 @@ export async function setProfileImage(elementId: string, profileUsername?: strin
 }
 
 async function loadInformation() {
-	const response = await fetch(`http://${location.hostname}:3000/api/users/settings`, {
+	const response = await fetch(`http://${location.hostname}:8080/api/users/settings`, {
 		credentials: 'include'
 	})
 	if (!response.ok) return lib.showToast.red('Failed to load user Information!');

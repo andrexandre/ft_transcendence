@@ -8,7 +8,7 @@ const safeColors: string[] = ["bg-red-500", "bg-orange-500", "bg-amber-500", "bg
 async function loadInformation() {
 
 	try {
-		const response = await fetch(`http://${location.hostname}:3000/api/users/settings`, {
+		const response = await fetch(`http://${location.hostname}:8080/api/users/settings`, {
 			credentials: 'include'
 		})
 		if (!response.ok) {
@@ -72,7 +72,7 @@ class Settings extends Page {
 						const avatarFormData = new FormData();
 						avatarFormData.append('image', file);
 
-						const response = await fetch(`http://${location.hostname}:3000/api/users/update/avatar`, {
+						const response = await fetch(`http://${location.hostname}:8080/api/users/update/avatar`, {
 							method: 'POST',
 							credentials: "include",
 							body: avatarFormData
@@ -99,13 +99,9 @@ class Settings extends Page {
 				two_FA_status: twoFAButton.checked
 			};
 			try {
-				const response = await fetch(`http://${location.hostname}:3000/api/users/save-settings-2fa`, {
-					method: 'POST',
+				const response = await fetch(`http://${location.hostname}:3500/2fa/set-google-authenticator`, {
+					method: 'GET',
 					credentials: "include",
-					headers: {
-						'Content-Type': 'application/json'
-					},
-					body: JSON.stringify(userData)
 				});
 				if (!response.ok) {
 					const errorData = await response.json();
@@ -243,7 +239,7 @@ class Settings extends Page {
 				two_FA_status: (document.getElementById('2fa-toggle') as HTMLInputElement).checked
 			};
 			try {
-				const response = await fetch(`http://${location.hostname}:3000/api/users/save-settings`, {
+				const response = await fetch(`http://${location.hostname}:8080/api/users/save-settings`, {
 					method: 'POST',
 					credentials: "include",
 					headers: {

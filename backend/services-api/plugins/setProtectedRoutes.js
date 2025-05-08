@@ -5,7 +5,7 @@ import gameSettings from '../routes/frontend/gameSettings.js';
 
 async function setProtectedRoutes(fastify, options) {
     fastify.addHook('onRequest', async (request, reply) => {
-        try {
+        try{
             await request.jwtVerify();
         } catch (err) {
             reply.status(403);
@@ -13,9 +13,9 @@ async function setProtectedRoutes(fastify, options) {
         }
     });
     fastify.register(gameRoutes);
-    fastify.register(matchHistory);
-    fastify.register(fetchDashboardData);
-    fastify.register(gameSettings);
+    fastify.register(matchHistory, {prefix : '/game'});
+    fastify.register(gameSettings, {prefix : '/game'});
+    fastify.register(fetchDashboardData, {prefix : '/frontend'});
 }
 
 export default setProtectedRoutes;
