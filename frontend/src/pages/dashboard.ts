@@ -189,7 +189,7 @@ class Dashboard extends Page {
 			<main class="grid grid-cols-2 grid-rows-2 flex-1">
 				<button id="profile" class="card t-dashed grid overflow-auto">
 					<div class="flex gap-16">
-						<img id="profile-image" class="object-cover rounded-full size-48 shadow-xl shadow-neutral-400 border-2" src="https://picsum.photos/id/237/200">
+						<img id="profile-image" class="object-cover rounded-full size-48 shadow-xl shadow-neutral-400 border-2" src="https://picsum.photos/id/63/200">
 						<div class="justify-center self-center">
 							<h1 id="profile-username" class="text-3xl">Sir Barkalot</h1>
 							<p id="profile-codename" class="text-xl">The mighty tail-wagger</p>
