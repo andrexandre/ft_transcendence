@@ -25,7 +25,12 @@ function registerRoute(fastify, options){
             },
             body: JSON.stringify(payload)
         });
-        reply.status(response.status);
+		if (!response.ok) {
+			const errorData = await response.json();
+			reply.status(errorData.statusCode).send(errorData);
+			return;
+		}
+        reply.status(201).send(await response.json());
     });
 }
 export default registerRoute;

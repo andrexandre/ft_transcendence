@@ -128,23 +128,29 @@ export async function setProfileImage(elementId: string, profileUsername?: strin
 }
 
 async function loadInformation() {
-	const response = await fetch(`http://${location.hostname}:8080/api/users/settings`, {
-		credentials: 'include'
-	})
-	if (!response.ok) return lib.showToast.red('Failed to load user Information!');
-	// Set user information
-	const userData = await response.json();
-	(document.getElementById("profile-username") as HTMLElement).textContent = userData.username;
-	(document.getElementById("profile-codename") as HTMLElement).textContent = userData.codename;
-	(document.getElementById("profile-bio") as HTMLElement).textContent = userData.biography;
-	lib.userInfo.username = userData.username;
-	// lib.userInfo.codename = userData.codename;
-	// lib.userInfo.biography = userData.biography;
-	// lib.userInfo.userId = userData.userId;
-	// lib.userInfo.auth_method = userData.auth_method;
 
-	setProfileImage("profile-image");
-	updateMatchHistory();
+	try {
+		const response = await fetch(`http://${location.hostname}:8080/api/users/settings`, {
+			credentials: 'include'
+		})
+		if (!response.ok)
+			throw new Error((await response.json()).message);
+		// Set user information
+		const userData = await response.json();
+		(document.getElementById("profile-username") as HTMLElement).textContent = userData.username;
+		(document.getElementById("profile-codename") as HTMLElement).textContent = userData.codename;
+		(document.getElementById("profile-bio") as HTMLElement).textContent = userData.biography;
+		lib.userInfo.username = userData.username;
+		// lib.userInfo.codename = userData.codename;
+		// lib.userInfo.biography = userData.biography;
+		// lib.userInfo.userId = userData.userId;
+		// lib.userInfo.auth_method = userData.auth_method;
+	
+		setProfileImage("profile-image");
+		updateMatchHistory();
+	} catch (error: any) {
+		return lib.showToast.red(error.message);
+	}
 }
 
 class Dashboard extends Page {
