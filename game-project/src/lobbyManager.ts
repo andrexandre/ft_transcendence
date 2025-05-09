@@ -28,16 +28,16 @@ const lobbies = new Map<string, Lobby>();
 
 export function createLobby(socket: WebSocket, user: UserData, gameMode: string, maxPlayers: number, difficulty?: string) {
 	const lobbyId = `lob-${crypto.randomUUID().slice(0, 8)}`;
-	console.log("🛠️🛠️🛠️ Dif:", difficulty);
+	// console.log("🛠️🛠️🛠️ Dif:", difficulty);
 
 	const player: Player = {
 		userId: user.userId,
 		username: user.username,
 		socket,
 		isHost: true,
-		difficulty: difficulty
+		difficulty //: difficulty
 	};
-	  
+
 	const lobby: Lobby = {
 		id: lobbyId,
 		hostId: user.userId,
@@ -48,7 +48,8 @@ export function createLobby(socket: WebSocket, user: UserData, gameMode: string,
 	};
 
 	lobbies.set(lobbyId, lobby);
-	console.log(`🎮 Lobby criado: ${lobbyId}, Host: ${user.username}`);
+	console.log(`🎮 Lobby criado: ${lobbyId}, Host: ${user.username} (ID: ${user.userId})`);
+	console.log(`👥 Jogadores no lobby: [${lobby.players.map(p => `${p.username} (${p.isHost ? "Host" : "Guest"})`).join(", ")}]`);
 	return lobbyId;
 }
 
@@ -64,7 +65,8 @@ export function joinLobby(lobbyId: string, socket: WebSocket, user: UserData): s
 	};
 
 	lobby.players.push(player);
-	console.log(`✅ ${user.username} joined lobby ${lobbyId}`);
+	console.log(`✅ ${user.username} (ID: ${user.userId}) joined lobby ${lobbyId}`);
+	console.log(`👥 Jogadores no lobby: [${lobby.players.map(p => `${p.username} (${p.isHost ? "Host" : "Guest"})`).join(", ")}]`);
 	return lobbyId;
 }
 
@@ -85,7 +87,7 @@ export function startGame(lobbyId: string, requesterId: number): { success: bool
 	lobby.players.forEach((player, index) => {
 		if (player.socket.readyState === WebSocket.OPEN) {
 		player.socket.send(JSON.stringify({
-			type: "game-start",
+			type: "match-start",
 			playerRole: index === 0 ? "left" : "right",
 			opponent: lobby.players.length > 1 ? lobby.players[1 - index].username : "BoTony",
 			gameMode: lobby.gameMode,
@@ -96,7 +98,6 @@ export function startGame(lobbyId: string, requesterId: number): { success: bool
 		console.warn(`⚠️ Socket do jogador ${player.username} não está aberto!`);
 		}
 	});
-
 	return { success: true, gameId };
 }
 
@@ -118,20 +119,22 @@ export function listLobbies() {
 }
 
 export function leaveLobby(userId: number): boolean {
-  for (const [id, lobby] of lobbies.entries()) {
-    const index = lobby.players.findIndex(p => p.userId === userId);
-    if (index !== -1) {
-      if (lobby.players[index].isHost) {
-        lobbies.delete(id);
-        console.log(`🗑️ Lobby ${id} removido (host saiu)`);
-      } else {
-        lobby.players.splice(index, 1);
-        console.log(`👋 Jogador ${userId} saiu do lobby ${id}`);
-      }
-      return true;
-    }
-  }
-  return false;
+	for (const [id, lobby] of lobbies.entries()) {
+		const index = lobby.players.findIndex(p => p.userId === userId);
+		if (index !== -1) {
+			const leavingUser = lobby.players[index];
+			if (leavingUser.isHost) {
+				lobbies.delete(id);
+				console.log(`🗑️ Lobby ${id} removido (host ${leavingUser.username} saiu)`);
+			} else {
+				lobby.players.splice(index, 1);
+				console.log(`👋 Jogador ${leavingUser.username} saiu do lobby ${id}`);
+				console.log(`👥 Jogadores restantes no lobby: [${lobby.players.map(p => p.username).join(", ")}]`);
+			}
+			return true;
+		}
+	}
+	return false;
 }
 
 export function getLobbyByLobbyId(lobbyId: string): Lobby | null {

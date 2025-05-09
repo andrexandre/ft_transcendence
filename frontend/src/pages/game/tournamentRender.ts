@@ -10,36 +10,36 @@ export type TournamentState = {
     currentRound: number;
 };
 
-// --- DOM Rendering ---
 export function renderTournamentBracket() {
     const container = document.getElementById("tournament-bracket");
+    console.log("🎨 Re-renderizando bracket...", JSON.stringify(state.rounds, null, 2));
     if (!container) return;
 
-    container.classList.remove("hidden");
+
+    container.classList.remove("hidden");  
     container.innerHTML = "<h2 class='text-xl mb-4'>🏆 Tournament Bracket</h2>";
 
     state.rounds.forEach((round, roundIndex) => {
-    const roundDiv = document.createElement("div");
-    roundDiv.className = "mb-4";
+        const roundDiv = document.createElement("div");
+        roundDiv.className = "mb-4";
 
-    const roundTitle = document.createElement("h3");
-    roundTitle.className = "font-bold underline mb-2";
-    roundTitle.textContent = `Round ${roundIndex + 1}`;
-    roundDiv.appendChild(roundTitle);
+        const roundTitle = document.createElement("h3");
+        roundTitle.className = "font-bold underline mb-2";
+        roundTitle.textContent = `Round ${roundIndex + 1}`;
+        roundDiv.appendChild(roundTitle);
 
-    round.forEach((match) => {
+        round.forEach((match) => {
         const matchDiv = document.createElement("div");
         matchDiv.className = "ml-4";
-
         matchDiv.innerHTML = `🎮 ${match.player1} vs ${match.player2} ${match.winner ? `→ 🏅 ${match.winner}` : ""}`;
         roundDiv.appendChild(matchDiv);
-    });
+        });
 
-    container.appendChild(roundDiv);
+        container.appendChild(roundDiv);
     });
 }
 
-// --- Reactive State Proxy ---
+
 const rawState: TournamentState = {
     rounds: [],
     currentRound: 0,
@@ -47,14 +47,14 @@ const rawState: TournamentState = {
 
 export const state: TournamentState = new Proxy(rawState, {
     set(target, prop, value) {
-    // @ts-ignore
-    target[prop] = value;
-    renderTournamentBracket();
-    return true;
+        // @ts-ignore
+        target[prop] = value;
+        renderTournamentBracket();
+        return true;
     },
 });
 
-// --- Utility Functions ---
+
 export function addRound(matches: TournamentMatch[]) {
     state.rounds.push(matches);
     renderTournamentBracket();

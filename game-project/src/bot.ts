@@ -31,7 +31,7 @@ export function updateBotPlayer(match: MatchState) {
 		memory.lastUpdate = Date.now();
 	}
 
-	const paddleCenterY = (bot.posiY / 100) * 600 + 40;
+	const paddleCenterY = (bot.posiY / 100) * 600 - 40;
 	if (paddleCenterY < memory.targetY - 10) {
 		simulateBotKey(bot, "down");
 	} else if (paddleCenterY > memory.targetY + 10) {

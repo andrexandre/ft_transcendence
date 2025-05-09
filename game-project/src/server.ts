@@ -86,25 +86,7 @@ function handleSocketMessage(connection: any, data: any) {
 			connection.send(JSON.stringify({ type: "lobby-created", lobbyId, maxPlayers }));
 			break;
 		}
-		case "lobby-message": {
-			const lobby = getLobbyByUserId(user.userId);
-			if (!lobby) {
-				connection.send(JSON.stringify({ type: "error", message: "You're not in a lobby" }));
-				return;
-			}
-			const payload = {
-				type: "lobby-message",
-				from: user.username,
-				userId: user.userId,
-				text: data.text
-			};
-			for (const player of lobby.players) {
-				if (player.socket.readyState === 1) {
-					player.socket.send(JSON.stringify(payload));
-				}
-			}
-			break;
-		}
+
 		case "join-lobby": {
 			if (getLobbyByUserId(user.userId)) {
 				connection.send(JSON.stringify({ type: "error", message: "Já estás num lobby" }));
@@ -118,6 +100,7 @@ function handleSocketMessage(connection: any, data: any) {
 			}
 			break;
 		}
+		
 		case "start-game": {
 			const lobby = getLobbyByLobbyId(data.lobbyId);
 
@@ -125,16 +108,7 @@ function handleSocketMessage(connection: any, data: any) {
 				const { success, gameId } = startGame(data.lobbyId, data.requesterId);
 				if (!success) {
 					connection.send(JSON.stringify({ type: "error", message: "Start not allowed" }));
-				} else {
-					lobby.players.forEach((player, index) => {
-						player.socket.send(JSON.stringify({
-							type: "game-start",
-							playerRole: index === 0 ? "left" : "right",
-							opponent: lobby.players.length > 1 ? lobby.players[1 - index].username : "BoTony",
-							gameId
-						}));
-					});
-				}
+				} 
 				break;
 			} else if (lobby && lobby.gameMode === "TNT"){
 				createTournament(lobby?.id, lobby?.players);

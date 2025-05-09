@@ -47,16 +47,13 @@ export function connectToGameServer(userInfo: { username: string; userId: number
 				showToast.yellow(`👋 Saiu do lobby`);
 				break;
 
-			case "game-start":
+			case "match-start":
 				if (matchSocketStarted) return;
 				matchSocketStarted = true;
 
 				console.log("🎮 Game start recebido! A abrir ligação para /match-ws");
 				showToast.green(`🎮 Game started! You are: ${data.playerRole}`);
 				document.getElementById('sidebar')?.classList.add('hidden');
-				// if (data.gameMode === 'TNT') {
-				// 	createT
-				// }
 				const matchSocket = new WebSocket(`ws://127.0.0.1:5000/match-ws?gameId=${data.gameId}`);
 				console.log("🛰️ Connecting to match-ws:", data.gameId);
 
@@ -173,7 +170,7 @@ function renderLobbyList(lobbies: any[]) {
 	list.innerHTML = "";
 
 	const currentUserId = (window as any).appUser?.user_id;
-	console.log("🚀 Current user ID:", currentUserId);
+	// console.log("🚀 Current user ID:", currentUserId);
 	if (currentUserId === undefined) {
 		console.error("❌ No current user loaded. Cannot render lobbies.");
 		return;

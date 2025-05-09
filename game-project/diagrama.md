@@ -18,7 +18,7 @@
 7. **Servidor**:
    - Valida se o requester é o host e se o lobby está cheio.
    - Cria `matchId`, marca lobby como `in-game`.
-   - Envia `{ type: "game-start", gameId, playerRole }` para o player.
+   - Envia `{ type: "match-start", gameId, playerRole }` para o player.
 8. **Frontend**:
    - Recebe `game-start`.
    - Abre nova conexão WebSocket para `/match-ws?gameId=...`.

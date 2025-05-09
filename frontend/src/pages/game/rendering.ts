@@ -1,7 +1,5 @@
 import { clearLobbyId } from './lobbyClient'; 
-
 import { state as tournamentState, renderTournamentBracket, handleEndTournament, showRoundTransition } from './tournamentRender';
-
 
 export let gameCanvas: HTMLCanvasElement;
 export let ctx: CanvasRenderingContext2D;
@@ -17,6 +15,8 @@ let gameStarted = false;
 let matchSocket: WebSocket;
 let localUsername: string = "";
 
+
+
 export function initGameCanvas() {
 	gameCanvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
 	ctx = gameCanvas.getContext("2d")!;
@@ -25,15 +25,15 @@ export function initGameCanvas() {
 }
 
 function drawGameMessage(msg: string, color?: string) {
-  const el = document.getElementById("game-message") as HTMLDivElement;
-  el.textContent = msg;
-  if (color) el.style.color = color;
-  el.classList.remove("hidden");
+	const el = document.getElementById("game-message") as HTMLDivElement;
+	el.textContent = msg;
+	if (color) el.style.color = color;
+	el.classList.remove("hidden");
 }
 
 function GameMessageVisibility(show: boolean) {
-  const el = document.getElementById("game-message") as HTMLDivElement;
-  el.classList.toggle("hidden", !show);
+	const el = document.getElementById("game-message") as HTMLDivElement;
+	el.classList.toggle("hidden", !show);
 }
 
 function updateScoreboard(players: any[]) {
@@ -51,7 +51,7 @@ function updateScoreboard(players: any[]) {
 
 function drawGame() {
 	ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-	ctx.fillStyle = "green";
+
 	const gradient = ctx.createLinearGradient(0, 0, 0, gameCanvas.height);
 	gradient.addColorStop(0, "transparent");
 	gradient.addColorStop(0.5, "green");
@@ -62,7 +62,8 @@ function drawGame() {
 	players.forEach((p) => {
 		const x = (p.posiX / 100) * (gameCanvas.width - paddleWidth);
 		const y = (p.posiY / 100) * (gameCanvas.height - paddleHeight);
-		ctx.fillStyle = p.username === localUsername ? "blue" : "red";
+
+		ctx.fillStyle = p.posiX === 0 ? "blue" : "red";
 		ctx.fillRect(x, y, paddleWidth, paddleHeight);
 	});
 
@@ -75,38 +76,38 @@ function drawGame() {
 }
 
 function setupControls() {
-  const keysPressed: Record<string, boolean> = {};
-  let lastMoveTime = 0;
-  const speedDelay = 25;
+	const keysPressed: Record<string, boolean> = {};
+	let lastMoveTime = 0;
+	const speedDelay = 25;
 
-  document.addEventListener("keydown", (e) => {
-    keysPressed[e.key] = true;
-  });
-  document.addEventListener("keyup", (e) => {
-    keysPressed[e.key] = false;
-  });
+	document.addEventListener("keydown", (e) => {
+		keysPressed[e.key] = true;
+	});
+	document.addEventListener("keyup", (e) => {
+		keysPressed[e.key] = false;
+	});
 
-  setInterval(() => {
-    if (!matchSocket || matchSocket.readyState !== WebSocket.OPEN) return;
+	setInterval(() => {
+		if (!matchSocket || matchSocket.readyState !== WebSocket.OPEN) return;
 
-    const now = Date.now();
-    if (now - lastMoveTime < speedDelay) return;
+		const now = Date.now();
+		if (now - lastMoveTime < speedDelay) return;
 
-    if (keysPressed["ArrowUp"]) {
-      matchSocket.send(JSON.stringify({ type: "move", direction: "up" }));
-      lastMoveTime = now;
-    }
-    if (keysPressed["ArrowDown"]) {
-      matchSocket.send(JSON.stringify({ type: "move", direction: "down" }));
-      lastMoveTime = now;
-    }
-  }, 1000 / 60);
+		if (keysPressed["ArrowUp"]) {
+		matchSocket.send(JSON.stringify({ type: "move", direction: "up" }));
+		lastMoveTime = now;
+		}
+		if (keysPressed["ArrowDown"]) {
+		matchSocket.send(JSON.stringify({ type: "move", direction: "down" }));
+		lastMoveTime = now;
+		}
+	}, 1000 / 60);
 }
 
 function hideMenuShowCanvas() {
-  document.getElementById("game-main-menu")?.classList.add("hidden");
-  document.getElementById("gameCanvas")?.classList.remove("hidden");
-  document.getElementById("scoreboard")!.style.display = "block";
+	document.getElementById("game-main-menu")?.classList.add("hidden");
+	document.getElementById("gameCanvas")?.classList.remove("hidden");
+	document.getElementById("scoreboard")!.style.display = "block";
 }
 
 export function connectToMatch(socket: WebSocket, role: "left" | "right") {
@@ -121,14 +122,15 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
 	console.log("🎮 Socket conectado → preparando canvas");
 
 	matchSocket.onmessage = (event) => {
-	  const data = JSON.parse(event.data);
+		const data = JSON.parse(event.data);
 
 		if (data.type === "welcome") {
 			console.log("🎉 Welcome recebido:", data);
 			currentPlayerId = data.playerId;
+			role = data.role; //???
 			return;
 		}
-
+		
 		if (data.type === "countdown") {
 			gameStarting = true;
 			GameMessageVisibility(true);
@@ -145,23 +147,31 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
 			}
 			return;
 		}
-
+		
 		if (data.type === "update") {
 			if (!gameStarted && !gameStarting) {
-				console.warn("⚠️ Fallback: Canvas ainda não visível, forçando início");
 				hideMenuShowCanvas();
 				gameStarted = true;
 			}
+			
 			localUsername = data.you;
+			console.log("🟢🟢🟢🟢:", localUsername);
 			players = data.state.players;
+			role = data.state.role;
+			currentPlayerId = players.find(p => p.username === localUsername)?.userId ?? 0;
 			ball = data.state.ball;
 			drawGame();
 			return;
 		}
-
+		
 		if (data.type === "scoreboard") {
 			players = data.players;
 			updateScoreboard(players);
+			return;
+		}
+		
+		if (data.type === "show-bracket") {
+			renderTournamentBracket();
 			return;
 		}
 
@@ -170,7 +180,7 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
 			tournamentState.rounds[data.roundIndex][data.matchIndex].winner = data.winner;
 			return;
 		}
-
+		
 		if (data.type === "end-tournament") {
 			handleEndTournament(data.winner);
 			return;
@@ -181,8 +191,6 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
 			return;
 		}
 		
-		
-
 		if (data.type === "end" && !gameEnded) {
 			gameEnded = true;
 			drawGameMessage(`${data.winner} wins!`, data.winner === (window as any).appUser?.user_name ? "blue" : "red");
@@ -193,7 +201,8 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
 				document.getElementById("scoreboard")!.style.display = "none";
 				GameMessageVisibility(false);
 				document.getElementById("sidebar")?.classList.remove("hidden");
-				//   clearLobbyId();
+
+				clearLobbyId(); // test
 				gameStarted = false;
 				gameStarting = false;
 				gameEnded = false;

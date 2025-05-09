@@ -48,7 +48,7 @@ export function handleMatchConnection(gameId: string, connection: any) {
 		id: p.userId,
 		username: p.username,
 		posiY: 50,
-		posiX: index === 0 ? 0 : 100,
+		posiX: index === 0 ? 0 : 100, //swap
 		score: 0
 	}));
 
@@ -58,7 +58,7 @@ export function handleMatchConnection(gameId: string, connection: any) {
 		id: 9999,
 		username: "BoTony",
 		posiY: 50,
-		posiX: 100,
+		posiX: 100,	//swap
 		score: 0
 		});
 	}
