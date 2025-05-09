@@ -9,7 +9,7 @@ logs
 *.log
 npm-debug.log*
 
-#env
+#en
 .env
 
 # Runtime data
@@ -46,7 +46,7 @@ jspm_packages
 .node_repl_history
 
 # 0x
-profile-*
+# profile-*
 
 # mac files
 .DS_Store
@@ -62,7 +62,7 @@ profile-*
 *code-workspace
 
 # clinic
-profile*
+# profile*
 *clinic*
 *flamegraph*
 

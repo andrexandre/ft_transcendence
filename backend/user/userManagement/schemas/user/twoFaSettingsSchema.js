@@ -14,7 +14,8 @@ const two_FA_settings_schema = {
 			properties: {
 				message: { type: 'string' },
 			}
-		}
+		},
+		500: { $ref: 'errorResponse#' }
 	},
 };
 
