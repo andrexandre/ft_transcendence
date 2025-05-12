@@ -196,8 +196,8 @@ function renderLobbyList(lobbies: any[]) {
 		const isHost = Number(lobby.hostUserId) === currentUserId;
 		const isFull = lobby.playerCount === lobby.maxPlayers;
 		
-		const isInLobby = lobbyId === lobby.id;
-		// const isInLobby = currentLobbyId === lobby.id;
+		// const isInLobby = lobbyId === lobby.id;
+		const isInLobby = currentLobbyId === lobby.id;
 		// const isInLobby = lobbyObj.players.some((p: any) => p.userId === currentUserId);
 
 		console.log(`📦 Lobby: ${lobby.id} | isHost: ${isHost} | isInLobby: ${isInLobby} | isFull: ${isFull}`);

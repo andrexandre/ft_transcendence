@@ -151,24 +151,7 @@ export async function userRoutes(gameserver: FastifyInstance) {
 		}
 	});
 
-	// // Save match
-	// gameserver.post("/save-match", (request, reply) => {
-	// 	const { gameMode, player1Id, player2Id, player1Score, player2Score, winnerId, gameTournamentId } = request.body as MatchData;
-	// 	db_game.run(
-	// 		`INSERT INTO games (game_tournament_id, game_mode, game_player1_id, game_player2_id, game_player1_score, game_player2_score, game_winner)
-	// 		VALUES (?, ?, ?, ?, ?, ?, ?)`,
-	// 		[gameTournamentId ?? null, gameMode, player1Id, player2Id, player1Score, player2Score, winnerId],
-	// 		(err) => {
-	// 		  if (err) {
-	// 			console.error("❌ DB Insert Error:", err.message);
-	// 			return reply.status(500).send({ error: "Database error" });
-	// 		  }
-	// 		  console.log("✅ Match saved to DB:");
-	// 		  reply.status(200).send({ message: "✅ Match saved & sent!" });
-	// 		}
-	// 	  );
-	// });
-
+	// Get History
 	gameserver.get('/user-game-history', async (request, reply) => {	
 		try {
 			const token: string | undefined = request.cookies.token;

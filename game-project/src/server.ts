@@ -7,7 +7,6 @@ import { getLobbyByLobbyId, createLobby, joinLobby, startGame, listLobbies, leav
 import { getUserDatafGateway, userRoutes } from './userSet.js';
 import { handleMatchConnection } from './matchManager.js';
 import { createTournament } from "./tournamentManager.js";
-import { diffieHellman } from "crypto";
 
 const PORT = 5000;
 const gameserver = Fastify({ logger: false }); // alterar true
