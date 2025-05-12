@@ -4,7 +4,7 @@ import sidebar from "../components/sidebar"
 import { setProfileImage, updateMatchHistory } from "./dashboard";
 
 async function loadInformation(profileUsername: string) {
-	const response = await fetch(`http://${location.hostname}:80/api/users/${profileUsername}`, {
+	const response = await fetch(`http://${location.hostname}:8080/api/users/${profileUsername}`, {
 		credentials: 'include'
 	})
 	if (!response.ok) {
@@ -43,7 +43,12 @@ class Profile extends Page {
 		// 		window.history.back();
 		// 	}
 		// });
-		(document.getElementById('profile-dialog') as HTMLDialogElement).addEventListener('close', () => window.history.back());
+		(document.getElementById('profile-dialog') as HTMLDialogElement).addEventListener('close', () => {
+			if (window.history.length > 1)
+				window.history.back();
+			else
+				lib.navigate('/')
+		});
 		if (lib.userInfo.path == '/profile' || lib.userInfo.path == '/profile/')
 			lib.userInfo.path = '/profile/' + lib.userInfo.username;
 		loadInformation(lib.userInfo.path.split('/profile/')[1]);
@@ -90,7 +95,7 @@ class Profile extends Page {
 				biography: (document.getElementById('profile-bio') as HTMLTextAreaElement).value
 			};
 			try {
-				const response = await fetch(`http://${location.hostname}:80/api/users/save-settings`, {
+				const response = await fetch(`http://${location.hostname}:8080/api/users/save-settings`, {
 					method: 'POST',
 					credentials: "include",
 					headers: {
