@@ -7,7 +7,7 @@ const getSettingsSchema = {
 				username: { type: 'string' },
 				email: { type: 'string' },
 				codename: { type: 'string' },
-				biograohy: { type: 'string' },
+				biography: { type: 'string' },
 				auth_method: { type: 'string' },
 				two_FA_status: { type: 'boolean' }
 			}
@@ -47,8 +47,11 @@ const save2faSettingSchema =  {
 	},
 };
 
+const saveSettingsSchema = {};
+
 export { 
 	save2faSettingSchema,
+	saveSettingsSchema,
 	get2faSecretSchema,
 	getSettingsSchema
 };
