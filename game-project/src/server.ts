@@ -1,123 +1,146 @@
-import fastify from "fastify";
-import fastifyWebsocket from "@fastify/websocket";
+// src/server.ts
+import Fastify from "fastify";
+import fastifyWebsocket from '@fastify/websocket';
 import fastifyCookie from "@fastify/cookie";
 import cors from '@fastify/cors';
-import { userRoutes } from "./userSet.js";
-// import { handleJoin, handleMove, handleDisconnect} from "./gameServer.js";
-import * as lobby from "./lobbyManager.js";
-import { notifyLobbyPlayersStart } from "./lobbyNotifier.js";
-import { registerLobbySocket } from "./lobbyNotifier.js";
-
+import { getLobbyByLobbyId, createLobby, joinLobby, startGame, listLobbies, leaveLobby, getLobbyByUserId, getLobbyBySocket } from './lobbyManager.js';
+import { getUserDatafGateway, userRoutes } from './userSet.js';
+import { handleMatchConnection } from './matchManager.js';
+import { createTournament } from "./tournamentManager.js";
+import { diffieHellman } from "crypto";
 
 const PORT = 5000;
-const gamefast = fastify({ logger: true });
+const gameserver = Fastify({ logger: false }); // alterar true
 
-await gamefast.register(fastifyWebsocket);
-gamefast.register(fastifyCookie);
-gamefast.register(userRoutes);
-
-await gamefast.register(cors, {
+await gameserver.register(fastifyWebsocket);
+await gameserver.register(fastifyCookie);
+await userRoutes(gameserver);
+await gameserver.register(cors, {
 	origin: ['http://127.0.0.1:5500'],
 	methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
 	credentials: true,
 });
 
-// gamefast.get("/ws", { websocket: true }, (conn, req) => {
-// 	const socket = conn;
+// LOBBY WS
+gameserver.get('/lobby-ws', { websocket: true }, async (connection, req) => {
+	try {
+		const token = req.cookies?.token;
+		if (!token) {
+			connection.send(JSON.stringify({ type: "error", message: "Missing token" }));
+			connection.close();
+			return;
+		}
+		const user = await getUserDatafGateway(token);
+		if (!user) {
+			connection.send(JSON.stringify({ type: "error", message: "Invalid token" }));
+			connection.close();
+			return;
+		}
 
-// 	socket.on("message", (raw: string) => {
-// 		try {
-// 			const data = JSON.parse(raw);
-// 			if (data.type === "join") handleJoin(socket, data);
-// 			else if (data.type === "move") handleMove(socket, data.direction);
-// 		} catch (err) {
-// 			console.error("❌ Invalid message:", raw);
-// 		}
-// 	});
+		console.log(`🔌 Connected: ${user.username} (${user.userId})`);
+		(connection as any).user = user;
 
-// 	socket.on("close", () => handleDisconnect(socket));
-// });
+		connection.on('message', (msg) => {
+			try {
+				const data = JSON.parse(msg.toString());
+				handleSocketMessage(connection, data);
+			} catch (err) {
+				connection.send(JSON.stringify({ type: "error", message: "Invalid message format" }));
+			}
+		});
 
-/////// Lobby routes handling ///////
-gamefast.get("/lobbies", (_, reply) => {
-	reply.send(lobby.listLobbies());
-});
-
-gamefast.post("/lobbies", async (req, reply) => {
-	const { username, userId, mode, maxPlayers } = req.body as any;
-	const newLobby = lobby.createLobby(username, userId, mode, maxPlayers);
-
-	if (!newLobby) {
-		return reply.status(400).send({ error: "User is already in a lobby" });
+		connection.on('close', () => {
+			console.log(`❌ Disconnected: ${user.username}`);
+		});
+	} catch (err) {
+		console.error("Erro ao processar conexão WebSocket:", err);
+		connection.send(JSON.stringify({ type: "error", message: "Server error" }));
+		connection.close();
 	}
-
-	reply.send({ id: newLobby.id });
 });
 
-gamefast.post("/lobbies/:id/join", async (req, reply) => {
-	const { username, userId } = req.body as any;
-	const { id } = req.params as any;
-	const updated = lobby.joinLobby(id, username, userId);
-
-	if (!updated) return reply.status(400).send({ error: "Join failed" });
-	reply.send(updated);
+gameserver.get('/lobbies', async (request, reply) => {
+	const lobbies = listLobbies();
+	reply.send(lobbies);
 });
 
-// Leave lobby (non-host)
-gamefast.delete("/lobbies/:id/leave", async (req, reply) => {
-	const { id } = req.params as any;
-	const { userId } = req.body as any;
-	const result = lobby.leaveLobby(id, userId);
-	if (!result) return reply.status(404).send({ error: "Lobby or user not found" });
-	reply.send({ message: "Left lobby" });
-});
-
-// Disband lobby (host only)
-gamefast.delete("/lobbies/:id", async (req, reply) => {
-	const { id } = req.params as any;
-	const { userId } = req.body as any;
-	const success = lobby.removeLobbyIfHost(id, userId);
-	if (!success) return reply.status(403).send({ error: "Not host or lobby not found" });
-	reply.send({ message: "Lobby disbanded" });
-});
-
-// Start game (host only)
-gamefast.post("/lobbies/:id/start", async (req, reply) => {
-	const { id } = req.params as any;
-	const lobbyToStart = lobby.findLobbyById(id);
-	if (!lobbyToStart) return reply.status(404).send({ error: "Lobby not found" });
-
-	const gameId = Math.random().toString(36).slice(2, 8); // ou usa uuid
-	const userIds = lobbyToStart.players.map(p => p.userId);
-
-	// Notifica os jogadores via WebSocket
-	notifyLobbyPlayersStart(userIds, gameId);
-
-	// Remove ou marca lobby como iniciado
-	lobbyToStart.started = true;
-	lobbyToStart.gameId = gameId;
-	lobby.removeLobby(id); // ou mantém se preferires mostrar o bracket depois
-
-	reply.send({ message: "Game started", gameId });
-});
-
-
-gamefast.get("/lobby-ws", { websocket: true }, (conn, req) => {
-	const socket = conn;
-	const url = new URL(req.url!, "http://localhost");
-	const userId = Number(url.searchParams.get("userId"));
-
-	if (!userId || isNaN(userId)) {
-		socket.send(JSON.stringify({ type: "error", message: "Missing or invalid userId" }));
-		socket.close();
+function handleSocketMessage(connection: any, data: any) {
+	const user = connection.user;
+	if (!user) {
+		connection.send(JSON.stringify({ type: "error", message: "User not authenticated" }));
 		return;
 	}
 
-	console.log(`🔌 Lobby WebSocket conectado: userId=${userId}`);
-	registerLobbySocket(userId, socket);
+	switch (data.type) {
+		case "create-lobby": { // uncoment
+			// if (getLobbyBySocket(user.socket)) {
+			// 	connection.send(JSON.stringify({ type: "error", message: "Já estás num lobby" }));
+			// 	return;
+			// }
+			const { gameMode, maxPlayers } = data;
+			if (!gameMode || !maxPlayers) {
+				connection.send(JSON.stringify({ type: "error", message: "Missing lobby info" }));
+				return;
+			}
+			const lobbyId = createLobby(connection, connection.user, gameMode, maxPlayers, data.difficulty);
+			connection.send(JSON.stringify({ type: "lobby-created", lobbyId, maxPlayers }));
+			break;
+		}
+
+		case "join-lobby": {
+			if (getLobbyByUserId(user.userId)) {
+				connection.send(JSON.stringify({ type: "error", message: "Já estás num lobby" }));
+				return;
+			}
+			const playerId = joinLobby(data.lobbyId, connection, user);
+			if (playerId) {
+				connection.send(JSON.stringify({ type: "lobby-joined", playerId }));
+			} else {
+				connection.send(JSON.stringify({ type: "error", message: "Unable to join lobby" }));
+			}
+			break;
+		}
+		
+		case "start-game": {
+			const lobby = getLobbyByLobbyId(data.lobbyId);
+
+			if (lobby && lobby.gameMode !== "TNT") {
+				const { success, gameId } = startGame(data.lobbyId, data.requesterId);
+				if (!success) {
+					connection.send(JSON.stringify({ type: "error", message: "Start not allowed" }));
+				} 
+				break;
+			} else if (lobby && lobby.gameMode === "TNT"){
+				createTournament(lobby?.id, lobby?.players);
+			}
+		}
+
+		case "leave-lobby": {
+			const left = leaveLobby(user.userId);
+			if (left) {
+				connection.send(JSON.stringify({ type: "left-lobby" }));
+			} else {
+				connection.send(JSON.stringify({ type: "error", message: "Not in a lobby" }));
+			}
+			break;
+		}
+		default:
+			connection.send(JSON.stringify({ type: "error", message: "Unknown command" }));
+	}
+}
+
+// MATCH WS
+gameserver.get('/match-ws', { websocket: true }, (connection, req) => {
+	const gameId = new URL(req.url!, 'http://127.0.0.1:').searchParams.get('gameId');
+	if (!gameId) {
+		connection.send(JSON.stringify({ type: "error", message: "Missing gameId" }));
+		connection.close();
+		return;
+	}
+	handleMatchConnection(gameId, connection);
 });
 
-
-gamefast.listen({ port: PORT, host: "0.0.0.0" }, () => {
-	console.log(`🚀 Game server running on ws://localhost:${PORT}`);
+// SERVER LISTENING
+gameserver.listen({ port: PORT, host: "0.0.0.0" }, () => {
+	console.log(`🚀 Game server running on ws://127.0.0.1:${PORT}`);
 });

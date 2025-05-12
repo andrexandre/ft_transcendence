@@ -22,6 +22,11 @@ export const getUserByUsername = function (username) {
 	return this.sqlite.get(querie, [ username ]);
 }
 
+export const getUserById = function (id) {
+	const querie = 'SELECT * FROM users WHERE id = ?';
+	return this.sqlite.get(querie, [ id ]);
+}
+
 export const updateUserInformation = function ({username, email, codename, biography, two_FA_status}, id) {
 
 	const params = [ username, email, codename, biography, two_FA_status, id ];
@@ -41,6 +46,11 @@ export const updateUser2FAStatus = function ({ two_FA_status }, id) {
 export const updateUserStatus = function (username) {
 	const querie = `UPDATE users SET is_online = 'TRUE' WHERE username = ?;`;
 	return this.sqlite.get(querie, [ username ]);
+}
+
+export const updateUserAvatar = function(path, id) {
+	const querie = `UPDATE users SET avatar = ? WHERE id = ?;`;
+	return this.sqlite.get(querie, [ path , id]);
 }
 
 export const createTables = function() {

@@ -6,7 +6,7 @@ async function RegisterRoute(server, opts) {
     
     server.route({
         method: 'POST',
-        url: '/api/create',
+        url: '/api/users',
         schema: registerSchema,
         handler:  async (request, response) => {
            

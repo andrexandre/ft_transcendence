@@ -1,39 +1,30 @@
 import Page from "./Page"
 import * as lib from "../utils"
 import sidebar from "../components/sidebar"
+import { setProfileImage } from "./dashboard";
 
 const safeColors: string[] = ["bg-red-500", "bg-orange-500", "bg-amber-500", "bg-yellow-500", "bg-lime-500", "bg-green-500", "bg-emerald-500", "bg-teal-500", "bg-cyan-500", "bg-sky-500", "bg-blue-500", "bg-indigo-500", "bg-violet-500", "bg-purple-500", "bg-fuchsia-500", "bg-pink-500", "bg-rose-500", "bg-slate-500", "bg-gray-500", "bg-zinc-500", "bg-neutral-500", "bg-stone-500"];
 
 async function loadInformation() {
 
-	const response = await fetch('http://127.0.0.1:3000/api/user/settings', {
+	const response = await fetch(`http://${location.hostname}:3000/api/users/settings`, {
 		credentials: 'include'
 	})
 	if (!response.ok) return lib.showToast.red('Failed too load user Information!');
-	
+
 	// Set user information
 	const userData = await response.json();
 	(document.getElementById("profile-username") as HTMLInputElement).value = userData.username;
 	(document.getElementById("profile-codename") as HTMLInputElement).value = userData.codename;
 	(document.getElementById("profile-email") as HTMLInputElement).value = userData.email;
-	
+
 	if (userData.auth_method === 'google') // Google sign people can not change the email
-		(document.getElementById("profile-email") as HTMLInputElement).disabled	 = true;
+		(document.getElementById("profile-email") as HTMLInputElement).disabled = true;
 
 	(document.getElementById("profile-bio") as HTMLInputElement).value = userData.biography;
 	(document.getElementById('2fa-toggle') as HTMLInputElement).checked = userData.two_FA_status
 
-	// Set user avatar
-	const imageResponse = await fetch('http://127.0.0.1:3000/api/user/avatar', {
-		credentials: 'include'
-	})
-	if (!imageResponse.ok) return lib.showToast.red('Failed too load user Avatar!');
-
-	const blob = await imageResponse.blob();
-	console.log(blob);
-	const url = URL.createObjectURL(blob);
-	const errorUrl = 'https://fastly.picsum.photos/id/63/300/300.jpg?hmac=NZIxadbJNvrTZPpf2SgsLhZ4Up4GlWVwar-bI6FcTE8';
-	(document.getElementById("profile-image") as HTMLImageElement).src = url || errorUrl;
+	setProfileImage("profile-image");
 }
 
 class Settings extends Page {
@@ -44,8 +35,8 @@ class Settings extends Page {
 		sidebar.setSidebarToggler('settings');
 
 		// Set up the image selector
-		if (lib.userInfo.profileImage)
-			(document.getElementById('profile-image') as HTMLImageElement).src = lib.userInfo.profileImage;
+		// if (lib.userInfo.profileImage)
+		// 	(document.getElementById('profile-image') as HTMLImageElement).src = lib.userInfo.profileImage;
 		document.getElementById('profile-image-button')?.addEventListener('click', async (e: Event) => {
 			e.preventDefault();
 			const input = document.createElement('input');
@@ -55,6 +46,10 @@ class Settings extends Page {
 				const file = (event.target as HTMLInputElement).files?.[0];
 				console.log(file);
 				if (file) {
+					// if (file.size > 2 * 1024 * 1024) {
+					// 	lib.showToast.red("Image is too big. Max: 2MB");
+					// 	return;
+					//   }					  
 					const reader = new FileReader();
 					reader.onload = () => {
 						lib.userInfo.profileImage = reader.result as string;
@@ -69,7 +64,7 @@ class Settings extends Page {
 						const avatarFormData = new FormData();
 						avatarFormData.append('image', file);
 
-						const response = await fetch('http://127.0.0.1:3000/api/user/update/avatar', {
+						const response = await fetch(`http://${location.hostname}:3000/api/users/update/avatar`, {
 							method: 'POST',
 							credentials: "include",
 							body: avatarFormData
@@ -95,7 +90,7 @@ class Settings extends Page {
 				two_FA_status: twoFAButton.checked
 			};
 			try {
-				const response = await fetch('http://127.0.0.1:3000/api/users/save-settings-2fa', {
+				const response = await fetch(`http://${location.hostname}:3000/api/users/save-settings-2fa`, {
 					method: 'POST',
 					credentials: "include",
 					headers: {
@@ -111,7 +106,6 @@ class Settings extends Page {
 					lib.showToast.green("2FA enabled");
 				else
 					lib.showToast.red("2FA disabled");
-				
 			} catch (error) {
 				console.log(error);
 				lib.showToast.red(error as string);
@@ -124,7 +118,7 @@ class Settings extends Page {
 			radioButton.addEventListener('change', () => lib.setTheme(radioButton.value, true));
 		});
 		(document.querySelector(`input[name="theme"][value="${lib.getTheme()}"]`) as HTMLInputElement).checked = true;
-		
+
 		// Set up color selector
 		const colorSelector = document.getElementById('color-selector');
 		for (const color of lib.colors) {
@@ -143,6 +137,13 @@ class Settings extends Page {
 
 		loadInformation();
 		this.saveProfileInformation();
+		document.getElementById('profile-username')?.addEventListener('input', (e) => {
+			const error = document.getElementById('username-error')!;
+			if ((e.target as HTMLInputElement).validity.valid)
+				error.classList.add('hidden');
+			else
+				error.classList.remove('hidden');
+		});
 	}
 	onCleanup(): void { }
 	getHtml(): string {
@@ -150,18 +151,19 @@ class Settings extends Page {
 			${sidebar.getHtml()}
 			<main class="grid grid-cols-2 max-2xl:grid-cols-1 flex-1 card t-dashed text-start overflow-auto">
 				<div id="col-1 flex-1">
-					<form id="profile" class="card flex flex-col overflow-auto" action="#">
+					<form class="card flex flex-col overflow-auto" action="#">
 						<h1 class="item text-start text-2xl">Profile</h1>
 						<div class="flex">
 							<button id="profile-image-button" class="relative size-60 group">
-								<img id="profile-image" src="https://picsum.photos/id/237/240" class="rounded-full size-full object-cover border-2 shadow-lg shadow-neutral-400"/>
+								<img id="profile-image" class="rounded-full size-full object-cover border-2 shadow-lg shadow-neutral-400"/>
 								<div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 rounded-full transition-opacity">
 									<i class="fa-solid fa-camera"></i>
 								</div>
 							</button>
 							<div class="flex flex-col justify-center self-center gap-4 ml-20">
 								<label class="text-left font-bold" for="profile-username">Username</label>
-								<input class="p-1 t-dashed pl-4" type="text" id="profile-username" placeholder="Enter username" value="Sir Barkalot" />
+								<input class="p-1 t-dashed pl-4 invalid:border-red-500" type="text" id="profile-username" placeholder="Enter username" value="Sir Barkalot" minlength="3" maxlength="20" pattern="^[^<>]+$" />
+								<span id="username-error" class="text-red-500 text-xs hidden">Username has invalid length or characters</span>
 								<label class="text-left font-bold" for="profile-codename">Codename</label>
 								<input class="p-1 t-dashed pl-4" type="text" id="profile-codename" placeholder="Enter codename" value="The mighty tail-wagger"/>
 								<label class="text-left font-bold" for="profile-email">Email</label>
@@ -217,7 +219,7 @@ class Settings extends Page {
 		const form = document.querySelector('form');
 		const handler = async (e: Event) => {
 			e.preventDefault();
-			const userData: { username: string; codename: string; email: string; biography: string; two_FA_status: boolean} = {
+			const userData: { username: string; codename: string; email: string; biography: string; two_FA_status: boolean } = {
 				username: (document.getElementById('profile-username') as HTMLInputElement).value,
 				codename: (document.getElementById('profile-codename') as HTMLInputElement).value,
 				email: (document.getElementById('profile-email') as HTMLInputElement).value,
@@ -225,7 +227,7 @@ class Settings extends Page {
 				two_FA_status: (document.getElementById('2fa-toggle') as HTMLInputElement).checked
 			};
 			try {
-				const response = await fetch('http://127.0.0.1:3000/api/users/save-settings', {
+				const response = await fetch(`http://${location.hostname}:3000/api/users/save-settings`, {
 					method: 'POST',
 					credentials: "include",
 					headers: {
