@@ -2,6 +2,7 @@
 import { showToast } from "../../utils";
 import dropdown from "../../components/dropdown";
 import { connectToGameServer, createLobby, fetchLobbies } from "./lobbyClient";
+import { sounds, initSounds } from "./audio";
 
 let lobbyRefreshInterval: ReturnType<typeof setInterval> | null = null;
 
@@ -32,7 +33,9 @@ function initializeGameMainMenu(userData: {
 	}
 	// infinite change to shrink
 	dropdown.addElement('Single', 'button', 'item t-border-alt','Infinity',
-		() => showToast(`Single Infinity clicked`));
+		() => {
+			sounds.menuMusic.play();
+		});
 
 	// 👥 Multiplayer
 	dropdown.initialize('Multi', async () => {

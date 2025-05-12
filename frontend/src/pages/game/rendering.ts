@@ -16,7 +16,6 @@ let matchSocket: WebSocket;
 let localUsername: string = "";
 
 
-
 export function initGameCanvas() {
 	gameCanvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
 	ctx = gameCanvas.getContext("2d")!;
