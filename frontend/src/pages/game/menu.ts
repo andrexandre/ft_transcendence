@@ -14,20 +14,20 @@ function initializeGameMainMenu(userData: {
 	}) {
 	const username = userData.user_name;
 	const userId = userData.user_id;    
-	const difficulty = userData.user_set_dificulty;
+	// const difficulty = userData.user_set_dificulty;
 
 	connectToGameServer({ username, userId });
 
 	// Set Single dropdown
 	dropdown.initialize('Single');
-
+	
 	if (!username) {
 		console.error("❌ No username found in DB data!");
 		dropdown.addElement('Single', 'button', 'item t-border-alt', 'User not found');
 	} else {
 		dropdown.addElement('Single', 'button', 'item t-border-alt', 'Classic', () => {
 		document.getElementById('sidebar')?.classList.toggle('hidden');
-		createLobby("Classic", 1, difficulty); // witgh difficulty
+		createLobby("Classic", 1, userData.user_set_dificulty); // witgh difficulty
 		});
 	}
 	// infinite change to shrink
@@ -109,7 +109,7 @@ function initializeGameMainMenu(userData: {
 			showToast.red("❌ Failed to create Matrecos lobby");
 		}
 	});
-
+	// Free for All futuro dele
 	dropdown.addElement('Co-Op', 'button', 'item t-border-alt', 'Free for All', async () => {
 		try {
 			showToast(`FFA clicked`)
@@ -184,6 +184,14 @@ export async function saveSettingsHandler() {
   
 	  if (!response.ok) throw new Error(`Failed to save settings (${response.status})`);
 	  showToast.green('Settings saved');
+	  if (!response.ok) throw new Error(`Failed to save settings (${response.status})`);
+	showToast.green('Settings saved');
+
+	// ✅ Atualiza a variável global após salvar
+	(window as any).appUser.user_set_dificulty = difficulty;
+	(window as any).appUser.user_set_tableSize = tableSize;
+	(window as any).appUser.user_set_sound = sound;
+
 	} catch (error) {
 	  console.error("❌ Error saving settings:", error);
 	}

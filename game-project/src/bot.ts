@@ -3,7 +3,7 @@ import { MatchState } from "./matchManager.js";
 
 const configByDifficulty = {
 	Easy: { interval: 1000 },
-	Medium: { interval: 500 },
+	Normal: { interval: 500 },
 	Hard: { interval: 250 }
 } as const;
 
@@ -17,7 +17,7 @@ export function updateBotPlayer(match: MatchState) {
 	if (bot.posiX !== 100) return;
 
 	type Difficulty = keyof typeof configByDifficulty;
-	const difficulty = (match.aiDifficulty || "medium") as Difficulty;
+	const difficulty = (match.aiDifficulty || "Normal") as Difficulty;
 
 	const config = configByDifficulty[difficulty];
 

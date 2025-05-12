@@ -15,7 +15,6 @@ export function renderTournamentBracket() {
     console.log("🎨 Re-renderizando bracket...", JSON.stringify(state.rounds, null, 2));
     if (!container) return;
 
-
     container.classList.remove("hidden");  
     container.innerHTML = "<h2 class='text-xl mb-4'>🏆 Tournament Bracket</h2>";
 
@@ -39,7 +38,6 @@ export function renderTournamentBracket() {
     });
 }
 
-
 const rawState: TournamentState = {
     rounds: [],
     currentRound: 0,
@@ -53,7 +51,6 @@ export const state: TournamentState = new Proxy(rawState, {
         return true;
     },
 });
-
 
 export function addRound(matches: TournamentMatch[]) {
     state.rounds.push(matches);

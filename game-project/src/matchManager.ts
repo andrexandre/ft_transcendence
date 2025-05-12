@@ -41,8 +41,8 @@ export function handleMatchConnection(gameId: string, connection: any) {
 	const players = lobby.players;
 	const isSingle = players.length === 1;
 	const gameMode = lobby.gameMode;
-	const aiDifficulty = isSingle ? players[0].difficulty || "medium" : undefined;
-	console.log(`🧑‍🤝‍🧑Not AI: `, aiDifficulty);
+	const aiDifficulty = isSingle ? players[0].difficulty || "Normal" : undefined;
+	// console.log(`🧑‍🤝‍🧑Not AI: `, aiDifficulty);
 
 	let realPlayers = players.map((p, index) => ({
 		id: p.userId,
@@ -128,7 +128,7 @@ export function handleMatchConnection(gameId: string, connection: any) {
 		const match = matches.get(gameId);
 		if (match) clearInterval(match.interval);
 		matches.delete(gameId);
-		// removeLobbyByGameId(gameId);
+		removeLobbyByGameId(gameId); /// here
 		console.log(`🧹 Match ${gameId} limpo (todos os jogadores saíram)`);
 		} else {
 		matchSockets.set(gameId, sockets);
