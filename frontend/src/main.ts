@@ -95,3 +95,16 @@ window.addEventListener("popstate", () => {
 });
 
 loadApp(location.pathname);
+
+// import tournamentTree from './components/tournamentTree'
+// lib.fullScreenOverlay(
+// 	/*html*/`
+// 		${tournamentTree.getHtml()}
+// 	`,
+// 	/*style*/`
+// 		.hello-CSS {}
+// 	`,
+// 	() => {
+		
+// 	}
+// );

@@ -91,7 +91,7 @@ export function renderDashboardFriend(friend: string, isOnline: boolean) {
 	const friendsListEntry = document.createElement("li");
 	friendsListEntry.className = "item t-dashed p-3 flex";
 	friendsListEntry.innerHTML = /*html*/`
-		<img id="profile-image-${friend}" src="https://picsum.photos/id/63/40" class="size-10 rounded-4xl">
+		<img id="profile-image-${friend}" class="size-10 rounded-4xl">
 		<svg height="10" width="10"><circle cx="5" cy="5" r="5" fill="currentColor" class="${isOnline ? "text-green-600" : "text-neutral-600"}"/></svg>
 		<h1 class="self-center ml-5">${friend}</h1>
 	`;
@@ -128,7 +128,6 @@ export async function setProfileImage(elementId: string, profileUsername?: strin
 }
 
 async function loadInformation() {
-
 	try {
 		const response = await fetch(`http://${location.hostname}:8080/api/users/settings`, {
 			credentials: 'include'
@@ -195,7 +194,7 @@ class Dashboard extends Page {
 			<main class="grid grid-cols-2 grid-rows-2 flex-1">
 				<button id="profile" class="card t-dashed grid overflow-auto">
 					<div class="flex gap-16">
-						<img id="profile-image" class="object-cover rounded-full size-48 shadow-xl shadow-neutral-400 border-2" src="https://picsum.photos/id/63/200">
+						<img id="profile-image" class="object-cover rounded-full size-48 shadow-xl shadow-neutral-400 border-2">
 						<div class="justify-center self-center">
 							<h1 id="profile-username" class="text-3xl">Sir Barkalot</h1>
 							<p id="profile-codename" class="text-xl">The mighty tail-wagger</p>
