@@ -53,7 +53,7 @@ export function saveMatchToDatabase(match: MatchData) {
   
 export async function getUserDatafGateway(token: string | undefined): Promise<UserData | null> {
 	try {
-		const response = await fetch("http://gateway-api:7000/userData", {
+		const response = await fetch("http://services-api:7000/userData", {
 			method: "GET",
 			headers: {
 				"Content-Type": "application/json",

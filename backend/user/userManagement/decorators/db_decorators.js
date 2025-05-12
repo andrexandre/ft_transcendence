@@ -38,9 +38,12 @@ export const updateUserInformation = function ({username, email, codename, biogr
 	return this.sqlite.run(query, params);
 }
 
-export const updateUser2FAStatus = function ({ two_FA_status }, id) {
-	const query = `UPDATE users SET two_FA_status = ? WHERE id = ?;`;
-	return this.sqlite.run(query, [ two_FA_status, id ]);
+export const updateUser2FAStatus = function ({ two_FA_status, two_FA_secret }, id) {
+	
+	if (!two_FA_secret)
+		two_FA_secret = null;
+	const query = `UPDATE users SET two_FA_status = ?, two_FA_secret = ? WHERE id = ?;`;
+	return this.sqlite.run(query, [ two_FA_status, two_FA_secret, id ]);
 }
 
 export const updateUserStatus = function (username) {
@@ -65,7 +68,8 @@ export const createTables = function() {
 		codename TEXT NOT NULL,
 		biography TEXT NOT NULL,
 		avatar TEXT DEFAULT 'default.jpeg',
-		two_FA_status BOOLEAN DEFAULT TRUE
+		two_FA_status BOOLEAN DEFAULT FALSE,
+		two_FA_secret TEXT DEFAULT NULL
 	);
 	`;
 

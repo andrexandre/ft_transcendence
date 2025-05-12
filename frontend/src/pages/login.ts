@@ -8,15 +8,42 @@ class Login extends Page {
 	onMount(): void {
 		this.setSubmissionHandler();
 		lib.assignButtonNavigation('goto-register-button', '/register');
-		lib.assignButtonNavigation('goto-dashboard-button', '/');
 		document.getElementById("google-auth-button")!.addEventListener("click", () => {
 			window.location.href = `http://${location.hostname}:7000/loginOAuth`;
+		});
+		document.getElementById("2fa-auth-button")!.addEventListener("click", () => {
+			document.getElementById("login")?.classList.remove("flex");
+			document.getElementById("login")?.classList.add("hidden");
+			document.getElementById("2fa")?.classList.remove("hidden");
+			document.getElementById("2fa")?.classList.add("flex");
+		});
+		document.getElementById("2fa-code")!.addEventListener("input", async (event) => {
+			const input = (event.target as HTMLInputElement);
+			if (input.value.length === 6) {
+				try {
+					const response = await fetch(`http://${location.hostname}:7000/verify2fa`, {
+						method: 'POST',
+						credentials: "include",
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify({ code: input.value })
+					});
+					if (!response.ok)
+						throw new Error(`${response.status} - ${response.statusText}`);
+					lib.showToast(`2FA verification successful`);
+					lib.navigate("/");
+				} catch (error) {
+					console.log(error);
+					lib.showToast.red(`2FA verification failed`);
+				}
+			}
 		});
 	}
 	onCleanup(): void { }
 	getHtml(): string {
 		return /*html*/`
-			<div class="flex flex-col gap-5 m-auto h-fit card t-dashed">
+			<div id="login" class="flex flex-col gap-5 m-auto h-fit card t-dashed">
 				<h1 class="text-3xl">Login</h1>
 				<form class="space-y-3 flex flex-col" action="#">
 					<label for="username">Username</label>
@@ -32,8 +59,16 @@ class Login extends Page {
 				</button>
 				<div class="text-sm font-medium text-c-secondary">
 					<p>Not registered? <button id="goto-register-button" class="text-blue-700 hover:underline hover:cursor-pointer">Create account</button></p>
-					<p>Want to login? <button id="goto-dashboard-button" class="text-blue-700 hover:underline hover:cursor-pointer">Go to Dashboard</button></p>
+					<p>Want to debug? <button id="2fa-auth-button" class="text-blue-700 hover:underline hover:cursor-pointer">Go to 2 factor auth</button></p>
 				</div>
+			</div>
+			<div id="2fa" class="hidden flex-col w-100 m-auto card t-dashed">
+				<h1 class="text-3xl">2-Step Verification</h1>
+				<p>To help keep your account safe, <s>mommy</s> wants to make sure it's really you trying to sign in</p>
+				<img src="https://ssl.gstatic.com/accounts/embedded/device_prompt_tap_yes_darkmode.gif">
+				<label for="2fa-code"></label>
+				<input class="item t-dashed pl-4 focus:border-blue-500" type="text" id="2fa-code" placeholder="Enter code" maxlength="6" required autofocus />
+				<button class="item t-dashed" onclick="window.history.back()">TEMP Back</button>
 			</div>
 		`;
 	}

@@ -18,7 +18,7 @@ let firstPageLoad = true;
 async function loadApp(path: string) {
 	// check authentication
 	try {
-		const response = await fetch(`http://${location.hostname}:7000/fetchDashboardData`, {
+		const response = await fetch(`http://${location.hostname}:7000/frontend/fetchDashboardData`, {
 			credentials: 'include',
 		});
 		if (!response.ok)
@@ -28,7 +28,7 @@ async function loadApp(path: string) {
 		// lib.userInfo.userId = responseData.userId
 		lib.userInfo.auth_method = responseData.auth_method
 		if (path == "/register" || path == "/login") {
-			lib.showToast(`Already authenticated`);
+			lib.showToast.yellow(`Already authenticated`);
 			history.replaceState(null, "", "/");
 			path = '/';
 		}

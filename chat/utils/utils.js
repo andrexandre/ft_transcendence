@@ -22,20 +22,14 @@ export function parseRoomName(roomName)
 	return users;
 }
 
-export async function checkFriendOnline(friends)
-{
-	let online_friends = [];
-	let j = 0;
+export async function checkFriendOnline(friends) {
+    let onlineFriends = {};
 
-	for(let i in friends)
-	{
-		if (users.get(friends[i].username))
-		{
-			online_friends[j] = friends[i].username;
-			j++;
-		}
-	}
-	return online_friends;
+    for (const friend of friends) {
+        const isOnline = users.get(friend.username) !== undefined;
+        onlineFriends[friend.username] = isOnline;
+    }
+    return onlineFriends;
 }
 
 export async function getAllUsers(self) {
