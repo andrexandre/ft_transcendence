@@ -44,12 +44,10 @@ destroy: down
 	find . -type f -iname '*.jsonl' -delete
 
 rm-node_modules: rmi
-	docker run --rm -v ./backend/user/userManagement/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
-	docker run --rm -v ./backend/Gateway/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
-	docker run --rm -v ./game-project/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
-	docker run --rm -v ./chat/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
-	docker run --rm -v ./frontend/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
-	find . -type d -iname 'node_modules' -delete
+	find . -type d -name node_modules | while read folder; do \
+		docker run --rm -v "$$(realpath -q "$$folder"):/folder_to_rm" busybox rm -rf /folder_to_rm 2>/dev/null || true; \
+	done
+	find . -type d -iname node_modules -delete
 
 rmi:
 	-docker rmi -f $$(docker images -a -q)
