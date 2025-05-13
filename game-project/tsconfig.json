@@ -6,9 +6,7 @@
       "strict": true,
       "skipLibCheck": true,
       
-      // "allowImportingTsExtensions": true, // lines for vite
-      // "noEmit": true, // lines for vite
     },
-    "include": ["**/*.ts"], 
+    "include": ["src/*.ts"], 
     "exclude": ["node_modules"]
 }

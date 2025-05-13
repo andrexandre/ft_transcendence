@@ -3,13 +3,16 @@ import sqlite3 from 'sqlite3';
 import fp from 'fastify-plugin';
 import {
 	createUser, 
+	getUserById,
 	getUserByUsername,
+	updateUserAvatar,
 	updateUserStatus,
-	createFriendRequest,
-	acceptFriendRequest
+	updateUser2FAStatus,
+	updateUserInformation,
+	createTables
 } from '../decorators/db_decorators.js'
 
-async function dbtest(fastify, options) {
+async function dbPlugin(fastify, options) {
 
 	const modes = sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE;
 	const connection = await open({
@@ -17,19 +20,22 @@ async function dbtest(fastify, options) {
 		driver: (sqlite3.verbose().Database),
 		mode: modes
 	});
-	
+
 	fastify.log.info('Sucessful connection to database!');
 	if (!fastify.sqlite) {
 		fastify.decorate('sqlite', connection);
 		// (name, function, 'decorators dependencies')
 		fastify.decorate('createUser', createUser, ['sqlite']);
+		fastify.decorate('createTables', createTables, ['sqlite']);
+		fastify.decorate('getUserById', getUserById, ['sqlite']);
 		fastify.decorate('getUserByUsername', getUserByUsername, ['sqlite']);
+		fastify.decorate('updateUserAvatar', updateUserAvatar, ['sqlite']);
 		fastify.decorate('updateUserStatus', updateUserStatus, ['sqlite']);
-		fastify.decorate('createFriendRequest', createFriendRequest, ['sqlite']);
-		fastify.decorate('acceptFriendRequest', acceptFriendRequest, ['sqlite']);
-	}	
-	fastify.addHook('onClose', (fastify, done) => connection.end().then(done).catch(done));
+		fastify.decorate('updateUser2FAStatus', updateUser2FAStatus, ['sqlite']);
+		fastify.decorate('updateUserInformation', updateUserInformation, ['sqlite']);
+	}
 	
+	fastify.addHook('onClose', (fastify, done) => connection.end().then(done).catch(done));
 }
 
-export default fp(dbtest, {name: 'db'});
+export default fp(dbPlugin, {name: 'db'});

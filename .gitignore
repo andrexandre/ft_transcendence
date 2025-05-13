@@ -1,6 +1,7 @@
 ### miguel ignore ###
 game-project/node_modules
 game-project/src/*.js
+game-project/tmpDel/*.js
 *.db
 
 # Logs
@@ -8,7 +9,7 @@ logs
 *.log
 npm-debug.log*
 
-#env
+#en
 .env
 
 # Runtime data
@@ -45,7 +46,7 @@ jspm_packages
 .node_repl_history
 
 # 0x
-profile-*
+# profile-*
 
 # mac files
 .DS_Store
@@ -61,9 +62,18 @@ profile-*
 *code-workspace
 
 # clinic
-profile*
+# profile*
 *clinic*
 *flamegraph*
 
+# andre
 .vite
 frontend/**/*.js
+profile.ts
+chat/database/messages/*.jsonl
+
+# alex
+backend/user/userManagement/uploads/*.png
+backend/user/userManagement/uploads/*.jpeg
+backend/user/userManagement/uploads/*.jpg
+!backend/user/userManagement/uploads/default.jpeg

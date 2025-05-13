@@ -5,12 +5,50 @@ import Page from "./pages/Page"
 import register from "./pages/register"
 import login from "./pages/login"
 import dashboard from "./pages/dashboard"
-import game from "./pages/game/game"
+import settings from "./pages/settings"
+import profile from "./pages/profile"
+import game from "./pages/game/page"
+import chat from "./pages/chat/page"
 import * as lib from "./utils"
 
 let currentPage: Page | undefined;
 
-function loadPage(path: string): void {
+let firstPageLoad = true;
+
+async function loadApp(path: string) {
+	// check authentication
+	try {
+		const response = await fetch(`http://${location.hostname}:7000/frontend/fetchDashboardData`, {
+			credentials: 'include',
+		});
+		if (!response.ok)
+			throw new Error(`${response.status} - ${response.statusText}`);
+		let responseData = await response.json();
+		lib.userInfo.username = responseData.username
+		// lib.userInfo.userId = responseData.userId
+		lib.userInfo.auth_method = responseData.auth_method
+		if (path == "/register" || path == "/login") {
+			lib.showToast.yellow(`Already authenticated`);
+			history.replaceState(null, "", "/");
+			path = '/';
+		}
+	} catch (error) {
+		if (path != "/register" && path != "/login") {
+			console.log(error);
+			lib.showToast.red(error as string);
+			history.replaceState(null, "", "/login");
+			path = '/login';
+		}
+	}
+	if (firstPageLoad) {
+		firstPageLoad = false;
+		if (lib.userInfo.auth_method)
+			lib.toggleUserServices(true);
+	}
+	loadPage(path);
+}
+
+function loadPage(path: string) {
 	let newPage: Page;
 
 	switch (path) {
@@ -20,8 +58,19 @@ function loadPage(path: string): void {
 		case "/login":
 			newPage = login;
 			break;
+		case "/settings":
+			newPage = settings;
+			break;
+		case "/profile":
+		case path.startsWith("/profile/") ? path : "":
+			newPage = profile;
+			break;
 		case "/game":
 			newPage = game;
+			break;
+		case "/chat":
+		case path.startsWith("/chat/") ? path : "":
+			newPage = chat;
 			break;
 		default:
 			lib.showToast.red("404 - Page Not Found");
@@ -32,20 +81,30 @@ function loadPage(path: string): void {
 	}
 	currentPage?.cleanup();
 	document.getElementById("app")!.innerHTML = newPage.getHtml();
-	newPage.mount();
-	if (lib.Cookies.get('outline')) {
-		document.dispatchEvent(new KeyboardEvent('keydown', { key: ' ' }));
-		lib.Cookies.set('outline', 'true');
-	}
+	newPage.mount(path);
+	currentPage = newPage;
 }
 
 // fix circular dependency for navigate function
 window.addEventListener('navigateTo', (e) => {
-	loadPage((e as CustomEvent).detail);
+	loadApp((e as CustomEvent).detail);
 });
 
 window.addEventListener("popstate", () => {
-	loadPage(location.pathname);
+	loadApp(location.pathname);
 });
 
-loadPage(location.pathname);
+loadApp(location.pathname);
+
+// import tournamentTree from './components/tournamentTree'
+// lib.fullScreenOverlay(
+// 	/*html*/`
+// 		${tournamentTree.getHtml()}
+// 	`,
+// 	/*style*/`
+// 		.hello-CSS {}
+// 	`,
+// 	() => {
+// 		tournamentTree.updateTree();
+// 	}
+// );

@@ -1,10 +1,11 @@
-import { addFriend, addRequest, getFriends, getRequests, deleteFriendRequest, addBlock } from '../database/db.js';
-import { checkFriendOnline, getAllUsers, getTimeString, parseRoomName, roomName } from '../rooms/user.js';
-import { createMessage, loadMessages, sendMessage } from '../messages/messages.js';
+import { addFriend, addRequest, getFriends, getRequests, deleteFriendRequest, addBlock, checkBlock, deleteBlock } from '../database/db.js';
+import { checkFriendOnline, getAllUsers, getTimeString, parseRoomName, roomName } from '../utils/utils.js';
+import { createMessage, loadMessages, sendMessage, updateBlockRoom } from '../messages/messages.js';
 
 export const users = new Map();
 export const sockets = new Map();
 export const rooms = new Map();
+const load = new Map();
 
 export async function SocketHandler(socket, username)
 {
@@ -12,11 +13,7 @@ export async function SocketHandler(socket, username)
 		users.set(username, socket);
 		sockets.set(socket, username);
 		console.log(`${username} connected`);
-	
-		const friends = await getFriends(username);
-		const online_friends = await checkFriendOnline(friends);
-		socket.send(JSON.stringify({ type: 'get-friends-list', data: online_friends }));
-	
+		
 		socket.on('message', async (message) => {
 			let data;
 			try {
@@ -43,21 +40,51 @@ export async function SocketHandler(socket, username)
 					break;
 				case 'friend-request-response':
 					if (data.response === 'accept')
+					{
 						await addFriend(username, data.sender);
+						// await sendFriendList(username, socket);
+						// await sendFriendList(data.sender, users.get(data.sender));
+					}
 					await deleteFriendRequest(username, data.sender);
 					break;
 				case 'add-friend-request':
 					await addRequest(username, data.receiver);
+					//await sendRequests(data.receiver, users.get(data.receiver));
+					//send the request to update automatically
 					break;
 				case 'get-friend-request':
 					await sendRequests(username, socket);
 					break;
 				case 'block-user':
 					await addBlock(username, data.friend);
+					await updateBlockRoom(username, data.friend);
 					socket.send(JSON.stringify({
-						type: 'block-completed',
-						friend: data.friend
+						type: 'block-status',
+						isBlocked: true,
+						friend: data.friend,
+						load: data.load
 					}));
+					break;
+				case 'unblock-user':
+					await deleteBlock(username, data.friend);
+					socket.send(JSON.stringify({
+						type: 'block-status',
+						isBlocked: false,
+						friend: data.friend,
+						load: data.load
+					}));
+					break;
+				case 'check-block':
+					const block = await checkBlock(username, data.friend);
+					socket.send(JSON.stringify({
+						type: 'block-status',
+						isBlocked: block,
+						friend: data.friend,
+						load: true
+					}));
+					break;
+				case 'get-online-friends':
+					await sendOnlineFriends(username, socket);
 					break;
 			}
 		});
@@ -97,14 +124,14 @@ async function handleChatMessage(username, msg, socket)
 
 	
 	const message = await createMessage(username, msg, getTimeString());
-	const call = await sendMessage(message, room, friend);
+	const call = await sendMessage(message, room, friend, await checkBlock(username, friend));
 
 	socket.send(JSON.stringify({
 		user: username,
 		type: 'message-emit',
 		data: message
 	}));
-	if (call === "emit")
+	if (call === "emit" && !(await checkBlock(friend, username)))
 	{
 		clients.forEach(client =>{
 			if (client !== socket && client.readyState === 1)
@@ -129,14 +156,13 @@ async function joinRoom(username, friend, socket)
 	if (!rooms.has(room))
 		rooms.set(room, new Set());
 	rooms.get(room).add(socket);
-	const msgHistory = await loadMessages(room);
+	const msgHistory = await loadMessages(room, await checkBlock(username, friend));
 	if(msgHistory && msgHistory.length > 0)
 	{
 		socket.send(JSON.stringify({
 			user: username,
 			type: 'load-messages',
 			data: msgHistory,
-			// sender: username
 		}));
 	}
 }
@@ -144,9 +170,18 @@ async function joinRoom(username, friend, socket)
 async function sendFriendList(username, socket)
 {
 	const friends = await getFriends(username);
-	const online_friends = await checkFriendOnline(friends);
 	socket.send(JSON.stringify({
 		type: 'get-friends-list',
+		data: friends
+	}));
+}
+
+async function sendOnlineFriends(username, socket)
+{
+	const friends = await getFriends(username);
+	const online_friends = await checkFriendOnline(friends);
+	socket.send(JSON.stringify({
+		type: 'get-online-friends',
 		data: online_friends
 	}));
 }
@@ -167,5 +202,5 @@ async function sendRequests(receiver, socket)
 	socket.send(JSON.stringify({
 		type: 'add-requests',
 		data: requests
-	}))
+	}));
 }

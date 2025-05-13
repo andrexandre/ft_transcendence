@@ -1,6 +1,5 @@
 
 services:
-
   user_management:
     image: user_management
     container_name: user_management
@@ -12,6 +11,8 @@ services:
       - ./backend/:/backend/:rw #Vai guardar na home 
     networks:
       - ft_transcendence
+    env_file:
+      - .env
 
   game:
     image: pongify
@@ -25,16 +26,30 @@ services:
     build: ./game-project/
     networks:
       - ft_transcendence
+    env_file:
+      - .env
 
-  gateway:
-    image: gateway-api
-    container_name: gateway-api
+  services-api:
+    image: services-api
+    container_name: services-api
     build: 
-      context: ./backend/Gateway/conf
+      context: ./backend/services-api/conf
     ports:
       - "7000:7000"
     volumes:
-      - ./backend/Gateway:/backend/:rw #Vai guardar na home 
+      - ./backend/services-api:/backend/:rw #Vai guardar na home 
+    networks:
+      - ft_transcendence
+
+  two-factor-auth:
+    image: two-factor-auth
+    container_name: two-factor-auth
+    build: 
+      context: ./backend/two-factor-auth/conf
+    ports:
+      - "3500:3500"
+    volumes:
+      - ./backend/two-factor-auth:/backend/:rw #Vai guardar na home 
     networks:
       - ft_transcendence
 
@@ -49,6 +64,8 @@ services:
       - ./chat/:/chat/:rw #Vai guardar na home 
     networks:
       - ft_transcendence
+    env_file:
+      - .env
 
   vite:
     image: vite
@@ -60,6 +77,7 @@ services:
       npm config set fund false;
       npm config set update-notifier false;
       npm install;
+      npm audit fix;
       exec npm run dev
       "
     working_dir: /frontend
@@ -70,14 +88,17 @@ services:
     networks:
       - ft_transcendence
 
-#   nginx:
-#     image: nginx
-#     container_name: nginx
-#     ports:
-#       - "9000:9000"
-#     volumes:
-#       - ./frontend/src:/usr/share/nginx/html:ro
-#       - ./frontend/nginx.conf:/etc/nginx/nginx.conf:ro
+  nginx:
+    image: nginx:latest
+    container_name: nginx-gateway
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - services-api
+    networks:
+      - ft_transcendence
 
 networks:
   ft_transcendence:
