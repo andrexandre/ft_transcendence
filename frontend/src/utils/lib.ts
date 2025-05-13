@@ -102,11 +102,15 @@ export function toggleUserServices(on: boolean) {
 
 
 // lib.fullScreenOverlay(
-// 	/*html*/`<h1>Hello HTML</h1>`,
+// 	/*html*/`
+// 		<h1>Hello HTML</h1>
+// 	`,
 // 	/*style*/`
 // 		.hello-CSS {}
 // 	`,
-// 	() => console.log('Hello JS')
+// 	() => {
+// 		console.log('Hello JS')
+// 	}
 // );
 
 export function fullScreenOverlay(html: string = '', css: string = '', js?: () => void) {

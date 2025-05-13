@@ -351,6 +351,8 @@ export function setChatEventListeners() {
 					friendsListEntry.click()
 			} else if (currentFriend)
 				document.getElementById(`friends-list-entry-${currentFriend}`)?.click();
+			else
+				(document.getElementById('chat-box-profile-image') as HTMLImageElement).src = 'https://picsum.photos/id/63/40';
 		}, 100);
 	}, 100);
 }
