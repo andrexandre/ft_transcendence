@@ -167,19 +167,19 @@ class Settings extends Page {
 						<h1 class="item text-start text-2xl">Profile</h1>
 						<div class="flex">
 							<button id="profile-image-button" class="relative size-60 group">
-								<img id="profile-image" class="rounded-full size-full object-cover border-2 shadow-lg shadow-neutral-400" src="https://picsum.photos/id/63/200"/>
+								<img id="profile-image" class="rounded-full size-full object-cover border-2 shadow-lg shadow-neutral-400"/>
 								<div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 rounded-full transition-opacity">
 									<i class="fa-solid fa-camera"></i>
 								</div>
 							</button>
 							<div class="flex flex-col justify-center self-center gap-4 ml-20">
 								<label class="text-left font-bold" for="profile-username">Username</label>
-								<input class="p-1 t-dashed pl-4 invalid:border-red-500" type="text" id="profile-username" placeholder="Enter username" value="Sir Barkalot" minlength="3" maxlength="20" pattern="^[^<>]+$" />
+								<input class="p-1 t-dashed pl-4 invalid:border-red-500" type="text" id="profile-username" placeholder="Enter username" value="Sir Barkalot" minlength="3" maxlength="20" pattern="^[^<>]+$" required />
 								<span id="username-error" class="text-red-500 text-xs hidden">Username has invalid length or characters</span>
 								<label class="text-left font-bold" for="profile-codename">Codename</label>
-								<input class="p-1 t-dashed pl-4" type="text" id="profile-codename" placeholder="Enter codename" value="The mighty tail-wagger"/>
+								<input class="p-1 t-dashed pl-4" type="text" id="profile-codename" placeholder="Enter codename" value="The mighty tail-wagger" required />
 								<label class="text-left font-bold" for="profile-email">Email</label>
-								<input class="p-1 t-dashed pl-4" type="text" id="profile-email" placeholder="Enter email" value="example@email.com"/>
+								<input class="p-1 t-dashed pl-4" type="text" id="profile-email" placeholder="Enter email" value="example@email.com" required />
 							</div>
 						</div>
 						<label class="text-left font-bold" for="profile-bio">Biography</label>

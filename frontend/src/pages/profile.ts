@@ -43,7 +43,12 @@ class Profile extends Page {
 		// 		window.history.back();
 		// 	}
 		// });
-		(document.getElementById('profile-dialog') as HTMLDialogElement).addEventListener('close', () => window.history.back());
+		(document.getElementById('profile-dialog') as HTMLDialogElement).addEventListener('close', () => {
+			if (window.history.length > 1)
+				window.history.back();
+			else
+				lib.navigate('/')
+		});
 		if (lib.userInfo.path == '/profile' || lib.userInfo.path == '/profile/')
 			lib.userInfo.path = '/profile/' + lib.userInfo.username;
 		loadInformation(lib.userInfo.path.split('/profile/')[1]);
@@ -53,16 +58,16 @@ class Profile extends Page {
 	getHtml(): string {
 		return /*html*/`
 			<main class="grid flex-1 card items-center justify-center">
-				<dialog open id="profile-dialog" class="flex gap-5 bg-c-bg/75 dark:bg-c-text/25 dark:text-c-bg fixed top-1/2 left-1/2 -translate-1/2 rounded-4xl p-6 w-fit shadow-lg">
+				<dialog open id="profile-dialog" class="h-130 flex gap-5 bg-c-bg/75 dark:bg-c-text/25 dark:text-c-bg fixed top-1/2 left-1/2 -translate-1/2 rounded-4xl p-6 w-fit shadow-lg">
 					<div class="card t-dashed grid overflow-auto gap-10">
 						<div class="flex gap-16">
-							<img id="profile-image" class="object-cover rounded-full size-48 shadow-xl shadow-neutral-400 border-2" src="https://picsum.photos/id/63/200">
+							<img id="profile-image" class="object-cover rounded-full size-48 shadow-xl shadow-neutral-400 border-2">
 							<div class="justify-center self-center">
 								<h1 id="profile-username" class="text-3xl">Sir Barkalot</h1>
 								<p id="profile-codename" class="text-xl">The mighty tail-wagger</p>
 							</div>
 						</div>
-						<p id="profile-bio" class="h-30 min-w-md max-w-3xl whitespace-pre-wrap text-start">Champion of belly rubs, fetch, and fierce squirrel chases. Sir Barkalot is the first to answer the doorbell with a royal bark. His hobbies include digging to China and chewing shoes.</p>
+						<p id="profile-bio" class="min-w-md max-w-3xl whitespace-pre-wrap text-start">Champion of belly rubs, fetch, and fierce squirrel chases. Sir Barkalot is the first to answer the doorbell with a royal bark. His hobbies include digging to China and chewing shoes.</p>
 					</div>
 					<div class="t-dashed flex card gap-0 px-5">
 						<div class="flex flex-col w-120 gap-5">
