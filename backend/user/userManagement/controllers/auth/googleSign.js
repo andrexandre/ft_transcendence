@@ -12,7 +12,7 @@ async function googleSign(request, response) {
     const { username, email, auth_method } = request.body;
     try {
         
-        let user = await this.getUserByEmail(email); // Procurar pelo email
+        let user = await this.getUserByEmail(email);
         if (!user) {
             // criar o user
 			const newUsername = generateUsername();

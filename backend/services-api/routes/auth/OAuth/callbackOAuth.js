@@ -27,6 +27,7 @@ async function setPayload(payload){
   });
   const data = await response.json();
   payload.userId = data.userID;
+  payload.username = data.username;
   delete payload.email;
   return payload;
 }
