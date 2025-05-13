@@ -52,7 +52,6 @@ class Profile extends Page {
 		if (lib.userInfo.path == '/profile' || lib.userInfo.path == '/profile/')
 			lib.userInfo.path = '/profile/' + lib.userInfo.username;
 		loadInformation(lib.userInfo.path.split('/profile/')[1]);
-		this.saveProfileInformation();
 	}
 	onCleanup(): void { }
 	getHtml(): string {
@@ -83,37 +82,6 @@ class Profile extends Page {
 				</dialog>
 			</main>
 		`;
-	}
-	saveProfileInformation() {
-		const form = document.getElementById('profile') as HTMLFormElement;
-		const handler = async (e: Event) => {
-			e.preventDefault();
-			const userData: { username: string; codename: string; email: string; biography: string } = {
-				username: (document.getElementById('profile-username') as HTMLInputElement).value,
-				codename: (document.getElementById('profile-codename') as HTMLInputElement).value,
-				email: (document.getElementById('profile-email') as HTMLInputElement).value,
-				biography: (document.getElementById('profile-bio') as HTMLTextAreaElement).value
-			};
-			try {
-				const response = await fetch(`http://${location.hostname}:8080/api/users/save-settings`, {
-					method: 'POST',
-					credentials: "include",
-					headers: {
-						'Content-Type': 'application/json'
-					},
-					body: JSON.stringify(userData)
-				});
-				if (!response.ok) {
-					throw new Error(`${response.status} - ${response.statusText}`);
-				}
-				lib.showToast.green("Updated!");
-			} catch (error) {
-				console.log(error);
-				lib.showToast.red(error as string);
-			}
-		};
-		form?.addEventListener('submit', handler);
-		this.addCleanupHandler(() => form?.removeEventListener('submit', handler));
 	}
 }
 
