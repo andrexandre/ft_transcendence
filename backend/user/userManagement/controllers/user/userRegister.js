@@ -8,6 +8,10 @@ async function register(request, reply) {
 		// Password hashing
 		const salt = await bcrypt.genSalt(10);
 		const hashedPassword = await bcrypt.hash(password, salt);
+		
+		let tmp = await this.sqlite.all('SELECT id, username FROM users');
+		console.log('CURRENT USERS DEBUG: ', tmp);
+
 		await this.createUser(username, email, hashedPassword, 'email');
 		reply.status(201).send({
 			statusCode: 201,

@@ -38,11 +38,11 @@ status:
 backend/services-api/.env: .env
 	curl -s https://gist.githubusercontent.com/andrexandre/8c011820a35117d005016151cfd46207/raw/83a0d67fbf775a78355dd617e6502d9c03f496ad/.env > backend/services-api/.env
 	echo -n 'IP = ' >> backend/services-api/.env
-	hostname -I | awk '{print $1}' >> backend/services-api/.env
+	hostname -I | awk '{print $$1}' >> backend/services-api/.env
 
 .env:
 	echo -n 'IP = ' >> .env
-	hostname -I | awk '{print $1}' >> .env
+	hostname -I | awk '{print $$1}' >> .env
 
 destroy: down
 #	docker compose down --rmi all

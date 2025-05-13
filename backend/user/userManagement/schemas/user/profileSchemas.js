@@ -14,7 +14,7 @@ const profileSchema = {
 				username: { type: 'string' },
 				email: { type: 'string' },
 				codename: { type: 'string' },
-				biograohy: { type: 'string' }
+				biography: { type: 'string' }
 			}
 		},
 		404: { $ref: 'errorResponse#' },
