@@ -1,3 +1,4 @@
+import { playSound, sounds, stopSound } from './audio';
 import { clearLobbyId } from './lobbyClient'; 
 import { state as tournamentState, renderTournamentBracket, handleEndTournament, showRoundTransition } from './tournamentRender';
 
@@ -134,6 +135,10 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
 			gameStarting = true;
 			GameMessageVisibility(true);
 			drawGameMessage(data.value.toString(), "green");
+			// add som
+			if ((window as any).appUser?.user_set_sound === 1) {
+				playSound("countdown");
+			}
 			if (data.value === 1) {
 				setTimeout(() => {
 					GameMessageVisibility(false);
@@ -205,6 +210,12 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
 				gameStarted = false;
 				gameStarting = false;
 				gameEnded = false;
+
+				// remove som
+				if ((window as any).appUser?.user_set_sound === 1) {
+					stopSound("gameMusic");
+					sounds.menuMusic.play().catch(() => {});
+				}
 			}, 5000);
 			return;
 		}

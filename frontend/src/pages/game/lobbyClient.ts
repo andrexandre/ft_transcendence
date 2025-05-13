@@ -1,5 +1,6 @@
 // frontend/src/pages/game/lobbyClient.ts
 import { showToast } from "../../utils";
+import { stopSound, sounds } from "./audio";
 import { connectToMatch } from "./rendering";
 
 let socket: WebSocket | null = null;
@@ -42,7 +43,6 @@ export function connectToGameServer(userInfo: { username: string; userId: number
 				const newLobbyId = data.playerId;
 				(window as any).lobbyId = newLobbyId;
 				console.log(`✅ Lobby joined, lobbyId set to: ${newLobbyId}`);
-				// console.log("🛠️🛠️ lobby data:", lobbyId);
 				
 				showToast.green(`✅ Joined lobby!`);
 				break;
@@ -55,6 +55,11 @@ export function connectToGameServer(userInfo: { username: string; userId: number
 			case "match-start":
 				if (matchSocketStarted) return;
 				matchSocketStarted = true;
+				// add som
+				if ((window as any).appUser?.user_set_sound === 1) {
+					stopSound("menuMusic");
+					sounds.gameMusic.play().catch(() => {});
+				}
 
 				console.log("🎮 Game start recebido! A abrir ligação para /match-ws");
 				showToast.green(`🎮 Game started! You are: ${data.playerRole}`);
