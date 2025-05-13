@@ -16,9 +16,10 @@ const loginSchema = {
 				username: { type: 'string' },
 			}
 		},
-		// 401: { $ref: 'errorResponse#' },
-		// 403: { $ref: 'errorResponse#' },
-		// 404: { $ref: 'errorResponse#' },
+		401: { $ref: 'errorResponse#' },
+		403: { $ref: 'errorResponse#' },
+		404: { $ref: 'errorResponse#' },
+		500: { $ref: 'errorResponse#' },
 	},
 };
 

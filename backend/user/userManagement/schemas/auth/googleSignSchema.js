@@ -18,6 +18,16 @@ const googleSignSchema = {
 				message: { type: 'string' }
 			}
 		},
+		201: {
+			type: 'object',
+			properties: {
+				userID: { type: 'string' },
+				username: { type: 'string' },
+				message: { type: 'string' }
+			}
+		},
+		409: { $ref: 'errorResponse#' },
+		500: { $ref: 'errorResponse#' },
 	},
 };
 

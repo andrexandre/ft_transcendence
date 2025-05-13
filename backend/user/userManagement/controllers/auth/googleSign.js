@@ -1,15 +1,27 @@
 import { randomUUID } from 'crypto';
+import { faker } from '@faker-js/faker';// Função que gera um username aleatório
+
+function generateUsername() {
+	const name = faker.internet.username().toLowerCase();
+	const suffix = Math.floor(1000 + Math.random() * 9000);
+	return `${name}${suffix}`;
+}
 
 async function googleSign(request, response) {
     
     const { username, email, auth_method } = request.body;
     try {
         
-        let user = await this.getUserByUsername(username); // Procurar pelo email
+        let user = await this.getUserByEmail(email); // Procurar pelo email
         if (!user) {
             // criar o user
-            await this.createUser(username, email, null, auth_method);
-            user = await this.getUserByUsername(username);
+			const newUsername = generateUsername();
+
+			console.log('New Username: ', newUsername);
+			console.log('Old Username: ', username);
+            
+			await this.createUser(newUsername, email, null, auth_method);
+            user = await this.getUserByUsername(newUsername);
             response.status(201).send({
                 userID: `${user.id}`,
                 username: `${user.username}`,
