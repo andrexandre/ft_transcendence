@@ -105,6 +105,6 @@ loadApp(location.pathname);
 // 		.hello-CSS {}
 // 	`,
 // 	() => {
-		
+// 		tournamentTree.updateTree();
 // 	}
 // );
