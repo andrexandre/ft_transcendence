@@ -108,7 +108,7 @@ export function startGame(lobbyId: string, requesterId: number): { success: bool
 	return { success: true, gameId };
 }
 
-export function listLobbies() {
+export function listLobbies() { /// verificar erro aqui
   const result: any[] = [];
   for (const [id, lobby] of lobbies.entries()) {
     if (lobby.status === "waiting") {
@@ -118,7 +118,8 @@ export function listLobbies() {
         hostUserId: lobby.hostId,
         playerCount: lobby.players.length,
         maxPlayers: lobby.maxPlayers,
-        gameMode: lobby.gameMode
+        gameMode: lobby.gameMode,
+		// players: lobby.players ///_
       });
     }
   }

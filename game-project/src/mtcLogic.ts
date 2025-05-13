@@ -2,7 +2,7 @@
 import type { MatchState } from './matchManager.js';
 
 export function initMTCPlayers(players: any[]) {
-	const positions = [20, 40, 60, 80];
+	const positions = [10, 30, 70, 90];
 	return players.map((p, index) => ({
 		id: p.userId,
 		username: p.username,
@@ -54,7 +54,7 @@ function resetBall(match: MatchState) {
 	match.ball = {
 		x: 400,
 		y: 300,
-		dx: Math.random() > 0.5 ? 4 : -4,
-		dy: Math.random() > 0.5 ? 2 : -2
+		dx: Math.random() > 0.5 ? 1 : -1,
+		dy: Math.random() > 0.5 ? 1 : -1
 	};
 }

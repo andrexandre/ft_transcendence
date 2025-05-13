@@ -39,7 +39,7 @@ export function connectToGameServer(userInfo: { username: string; userId: number
 				break;
 
 			case "lobby-joined":
-				// lobbyId = data.lobbyId;
+				lobbyId = data.lobbyId;
 				const newLobbyId = data.playerId;
 				(window as any).lobbyId = newLobbyId;
 				console.log(`✅ Lobby joined, lobbyId set to: ${newLobbyId}`);
@@ -93,6 +93,7 @@ export function createLobby(gameMode: string, maxPlayers: number, difficulty?: s
 	if (!socket || socket.readyState !== WebSocket.OPEN) return;
 	if (lobbyId) return showToast.red("🚫 Já estás num lobby");
 	console.log("🚀 A criar lobby:", gameMode, maxPlayers, difficulty);
+
 
 	socket.send(JSON.stringify({
 		type: "create-lobby",
@@ -177,6 +178,7 @@ function addLobbyEntry(
 }
 
 function renderLobbyList(lobbies: any[]) {
+	// console.log("❌❌❌", lobbies);
 	const list = document.getElementById("lobby-list");
 	if (!list) return;
 
@@ -201,7 +203,11 @@ function renderLobbyList(lobbies: any[]) {
 		const isHost = Number(lobby.hostUserId) === currentUserId;
 		const isFull = lobby.playerCount === lobby.maxPlayers;
 		
-		// const isInLobby = lobbyId === lobby.id;
+		// const isInLobby = lobby.players.some((p: any) => {
+		// 	console.log("n1", p.userId, " n2", currentUserId)
+		// 	return p.userId === currentUserId
+		// });
+	
 		const isInLobby = currentLobbyId === lobby.id;
 		// const isInLobby = lobbyObj.players.some((p: any) => p.userId === currentUserId);
 
