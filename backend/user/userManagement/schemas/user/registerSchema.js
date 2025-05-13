@@ -17,8 +17,8 @@ const registerSchema = {
 				message: { type: 'string' },
 			}
 		},
-		// 409: { $ref: 'errorResponse#' },
-		// 500: { $ref: 'errorResponse#' },
+		409: { $ref: 'errorResponse#' },
+		500: { $ref: 'errorResponse#' },
 	},
 };
 

@@ -4,7 +4,7 @@ import sidebar from "../components/sidebar"
 import { setProfileImage, updateMatchHistory } from "./dashboard";
 
 async function loadInformation(profileUsername: string) {
-	const response = await fetch(`http://${location.hostname}:8080/api/users/${profileUsername}`, {
+	const response = await fetch(`http://${location.hostname}:8080/api/users/${profileUsername}/info`, {
 		credentials: 'include'
 	})
 	if (!response.ok) {

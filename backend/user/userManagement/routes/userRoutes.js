@@ -3,8 +3,9 @@ import * as settingsControllers from '../controllers/user/userSettings.js';
 import * as registerControllers from '../controllers/user/userRegister.js';
 import * as avatarControllers from '../controllers/user/userAvatar.js';
 import * as profileControllers from '../controllers/user/userProfile.js';
+import * as settingSchemas from '../schemas/user/settingsSchemas.js';
 import registerSchema from '../schemas/user/registerSchema.js';
-import two_FA_settings_schema from '../schemas/user/twoFaSettingsSchema.js'
+import { profileSchema } from '../schemas/user/profileSchemas.js';
 
 async function extractInformationFromToken(request, reply) {
 	try {
@@ -46,28 +47,31 @@ async function userRoutes(server, opts) {
 	server.route({
 		method: 'GET',
 		url: '/api/users/settings',
-		onRequest: extractInformationFromToken ,
+		schema: settingSchemas.getSettingsSchema,
+		preHandler: extractInformationFromToken ,
 		handler:  settingsControllers.getSettings
 	});
 
 	server.route({
 		method: 'GET',
 		url: '/api/users/two-fa-secret',
-		onRequest: extractInformationFromToken ,
+		schema: settingSchemas.get2faSecretSchema,
+		preHandler: extractInformationFromToken ,
 		handler:  settingsControllers.get2faSecret 
 	});
-	// User PUT or PATCH to update
+	
 	server.route({
-		method: 'POST',
+		method: 'PUT',
 		url: '/api/users/save-settings',
-		onRequest: extractInformationFromToken ,
+		preHandler: extractInformationFromToken ,
 		handler: settingsControllers.saveSettings
 	});
+
 	server.route({
-		method: 'POST',
-		url: '/api/users/save-settings-2fa',
-		schema: two_FA_settings_schema,
-		onRequest: extractInformationFromToken ,
+		method: 'PUT',
+		url: '/api/users/save-2fa-settings',
+		schema: settingSchemas.save2faSettingSchema,
+		preHandler: extractInformationFromToken ,
 		handler: settingsControllers.save2faSettings
 	});
 
@@ -75,38 +79,29 @@ async function userRoutes(server, opts) {
 	server.route({
 		method: 'GET',
 		url: '/api/users/avatar',
-		onRequest: extractInformationFromToken ,
+		preHandler: extractInformationFromToken ,
 		handler: avatarControllers.getAvatar
 	});
 
 	server.route({
-		method: 'GET',
-		url: '/api/users/:username/avatar',
-		onRequest: extractInformationFromToken ,
-		handler: avatarControllers.getProfileAvatar
-	});
-
-	// User PUT or PATCH to update
-	server.route({
-		method: 'POST',
+		method: 'PUT',
 		url: '/api/users/update/avatar',
-		onRequest: extractInformationFromToken ,
+		preHandler: extractInformationFromToken ,
 		handler: avatarControllers.saveAvatar
 	});
 
 	server.route({
 		method: 'GET',
-		url: '/api/users/:username',
-		schema: {
-			params: {
-				type: 'object',
-				required: ['username'],
-				properties: {
-				  username: { type: 'string', minLength: 1 }
-				}
-			}
-		},
-		onRequest: extractInformationFromToken,
+		url: '/api/users/:username/avatar',
+		preHandler: extractInformationFromToken ,
+		handler: avatarControllers.getProfileAvatar
+	});
+
+	server.route({
+		method: 'GET',
+		url: '/api/users/:username/info',
+		schema: profileSchema,
+		preHandler: extractInformationFromToken,
 		handler: profileControllers.profile
 	});
 }

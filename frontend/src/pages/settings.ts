@@ -73,7 +73,7 @@ class Settings extends Page {
 						avatarFormData.append('image', file);
 
 						const response = await fetch(`http://${location.hostname}:8080/api/users/update/avatar`, {
-							method: 'POST',
+							method: 'PUT',
 							credentials: "include",
 							body: avatarFormData
 						});
@@ -240,7 +240,7 @@ class Settings extends Page {
 			};
 			try {
 				const response = await fetch(`http://${location.hostname}:8080/api/users/save-settings`, {
-					method: 'POST',
+					method: 'PUT',
 					credentials: "include",
 					headers: {
 						'Content-Type': 'application/json'

@@ -65,6 +65,8 @@ async function start() {
 	
 		await server.createTables();
 		console.log("Tables Created!");
+		console.log('Routes: ', server.printRoutes());
+		// console.log('Routes: ', server.printRoutes({ includeHooks: true, commonPrefix: false }));
 
 	} catch(err) {
 		console.error('Entrou no cath do start');
