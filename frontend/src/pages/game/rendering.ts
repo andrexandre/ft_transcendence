@@ -38,42 +38,95 @@ function GameMessageVisibility(show: boolean) {
 
 function updateScoreboard(players: any[]) {
 	const el = document.getElementById("scoreboard") as HTMLDivElement;
-	if (players.length < 2) return;
-	const [p1, p2] = players;
+	if (!el) return;
+
+	const teamA = players.slice(0, 2);
+	const teamB = players.slice(2, 4);
+	const scoreA = teamA.reduce((acc, p) => acc + p.score, 0);
+	const scoreB = teamB.reduce((acc, p) => acc + p.score, 0);
+
 	el.innerHTML = /*html*/`
-		<div class="grid grid-cols-[1fr_15rem_1fr]">
-			<div class="text-right truncate" style='color: blue;'>${p1.username}</div>
-			<div class="text-center">${p1.score} vs ${p2.score}</div>
-			<div class="text-left truncate" style='color: red;'>${p2.username}</div>
+		<div class="text-center text-white text-xl">Team 🟦 ${scoreA} vs ${scoreB} 🟥</div>
+		<div class="grid grid-cols-2 gap-2 mt-2 text-sm">
+			<div class="text-right truncate">${teamA.map(p => p.username).join(', ')}</div>
+			<div class="text-left truncate">${teamB.map(p => p.username).join(', ')}</div>
 		</div>
 	`;
 }
 
+
 function drawGame() {
 	ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-
+  
 	const gradient = ctx.createLinearGradient(0, 0, 0, gameCanvas.height);
 	gradient.addColorStop(0, "transparent");
 	gradient.addColorStop(0.5, "green");
 	gradient.addColorStop(1, "transparent");
 	ctx.fillStyle = gradient;
 	ctx.fillRect(gameCanvas.width / 2 - 1, 0, 2, gameCanvas.height);
-
+  
 	players.forEach((p) => {
 		const x = (p.posiX / 100) * (gameCanvas.width - paddleWidth);
 		const y = (p.posiY / 100) * (gameCanvas.height - paddleHeight);
-
-		ctx.fillStyle = p.posiX === 0 ? "blue" : "red";
+		ctx.fillStyle = p.posiX < 400 ? "blue" : "red";
+	
+		if (p.userId === currentPlayerId) {
+			ctx.strokeStyle = "white";
+			ctx.lineWidth = 3;
+			ctx.strokeRect(x, y, paddleWidth, paddleHeight);
+		}
+	
 		ctx.fillRect(x, y, paddleWidth, paddleHeight);
 	});
-
+	
+  
 	ctx.fillStyle = "green";
 	ctx.beginPath();
 	ctx.arc(ball.x + ballSize / 2, ball.y + ballSize / 2, ballSize / 2, 0, Math.PI * 2);
 	ctx.fill();
-
+  
 	updateScoreboard(players);
-}
+  }
+  
+  
+// function updateScoreboard(players: any[]) {
+// 	const el = document.getElementById("scoreboard") as HTMLDivElement;
+// 	if (players.length < 2) return;
+// 	const [p1, p2] = players;
+// 	el.innerHTML = /*html*/`
+// 		<div class="grid grid-cols-[1fr_15rem_1fr]">
+// 			<div class="text-right truncate" style='color: blue;'>${p1.username}</div>
+// 			<div class="text-center">${p1.score} vs ${p2.score}</div>
+// 			<div class="text-left truncate" style='color: red;'>${p2.username}</div>
+// 		</div>
+// 	`;
+// }
+
+// function drawGame() {
+// 	ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+
+// 	const gradient = ctx.createLinearGradient(0, 0, 0, gameCanvas.height);
+// 	gradient.addColorStop(0, "transparent");
+// 	gradient.addColorStop(0.5, "green");
+// 	gradient.addColorStop(1, "transparent");
+// 	ctx.fillStyle = gradient;
+// 	ctx.fillRect(gameCanvas.width / 2 - 1, 0, 2, gameCanvas.height);
+
+// 	players.forEach((p) => {
+// 		const x = (p.posiX / 100) * (gameCanvas.width - paddleWidth);
+// 		const y = (p.posiY / 100) * (gameCanvas.height - paddleHeight);
+
+// 		ctx.fillStyle = p.posiX === 0 ? "blue" : "red";
+// 		ctx.fillRect(x, y, paddleWidth, paddleHeight);
+// 	});
+
+// 	ctx.fillStyle = "green";
+// 	ctx.beginPath();
+// 	ctx.arc(ball.x + ballSize / 2, ball.y + ballSize / 2, ballSize / 2, 0, Math.PI * 2);
+// 	ctx.fill();
+
+// 	updateScoreboard(players);
+// }
 
 function setupControls() {
 	const keysPressed: Record<string, boolean> = {};

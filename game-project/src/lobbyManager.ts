@@ -85,18 +85,24 @@ export function startGame(lobbyId: string, requesterId: number): { success: bool
 
 	console.log(`🚀 Starting game ${gameId} from lobby ${lobbyId}`);
 
+	// changed
 	lobby.players.forEach((player, index) => {
+		const role = `p${index}`;
+		const opponent = (lobby.maxPlayers === 2)
+			? lobby.players.find(p => p.userId !== player.userId)?.username || "BoTony"
+			: "MTC";
+	
 		if (player.socket.readyState === WebSocket.OPEN) {
-		player.socket.send(JSON.stringify({
-			type: "match-start",
-			playerRole: index === 0 ? "left" : "right",
-			opponent: lobby.players.length > 1 ? lobby.players[1 - index].username : "BoTony",
-			gameMode: lobby.gameMode,
-			gameId,
-		}));
-		console.log("✅ game-start enviado para o frontend.");
+			player.socket.send(JSON.stringify({
+				type: "match-start",
+				playerRole: role,
+				opponent,
+				gameMode: lobby.gameMode,
+				gameId,
+			}));
+			console.log("✅ game-start enviado para o frontend.");
 		} else {
-		console.warn(`⚠️ Socket do jogador ${player.username} não está aberto!`);
+			console.warn(`⚠️ Socket do jogador ${player.username} não está aberto!`);
 		}
 	});
 	return { success: true, gameId };

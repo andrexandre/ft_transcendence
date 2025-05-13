@@ -3,6 +3,7 @@ import { getLobbyByGameId, removeLobbyByGameId } from './lobbyManager.js';
 import { updateBotPlayer } from './bot.js';
 import { saveMatchToDatabase } from './userSet.js';
 import { handleMatchEndFromTournament } from './tournamentManager.js';
+import { initMTCPlayers, updateMTCGame } from './mtcLogic.js';
 
 const winningScore = 2;
 
@@ -44,23 +45,27 @@ export function handleMatchConnection(gameId: string, connection: any) {
 	const aiDifficulty = isSingle ? players[0].difficulty || "Normal" : undefined;
 	// console.log(`🧑‍🤝‍🧑Not AI: `, aiDifficulty);
 
-	let realPlayers = players.map((p, index) => ({
-		id: p.userId,
-		username: p.username,
-		posiY: 50,
-		posiX: index === 0 ? 0 : 100, //swap
-		score: 0
-	}));
+	let realPlayers: PlayerState[] = [];
+	if (gameMode === "MTC") {
+		realPlayers = initMTCPlayers(players);
+	} else {
+		realPlayers = players.map((p, index) => ({
+			id: p.userId,
+			username: p.username,
+			posiY: 50,
+			posiX: index === 0 ? 0 : 100,
+			score: 0
+		}));
 
-
-	if (isSingle) {
-		realPlayers.push({
-		id: 9999,
-		username: "BoTony",
-		posiY: 50,
-		posiX: 100,	//swap
-		score: 0
-		});
+		if (isSingle) {
+			realPlayers.push({
+				id: 9999,
+				username: "BoTony",
+				posiY: 50,
+				posiX: 100,
+				score: 0
+			});
+		}
 	}
 
 	if (!matchSockets.has(gameId)) {
@@ -100,23 +105,23 @@ export function handleMatchConnection(gameId: string, connection: any) {
 
 	connection.on("message", (msg: string) => {
 		try {
-		const data = JSON.parse(msg.toString());
-		const match = matches.get(gameId);
-		if (!match) return;
+			const data = JSON.parse(msg.toString());
+			const match = matches.get(gameId);
+			if (!match) return;
 
-		const player = match.players[index];
-		if (!player) return;
+			const player = match.players[index];
+			if (!player) return;
 
-		if (data.type === "move") {
-			if (data.direction === "up") {
-			player.posiY = Math.max(0, player.posiY - 2);
-			} else if (data.direction === "down") {
-			player.posiY = Math.min(100, player.posiY + 2);
+			if (data.type === "move") {
+				if (data.direction === "up") {
+					player.posiY = Math.max(0, player.posiY - 2);
+				} else if (data.direction === "down") {
+					player.posiY = Math.min(100, player.posiY + 2);
+				}
 			}
-		}
 		} catch (err) {
-		console.error("❌ Invalid message:", err);
-		connection.send(JSON.stringify({ type: "error", message: "Invalid message format" }));
+			console.error("❌ Invalid message:", err);
+			connection.send(JSON.stringify({ type: "error", message: "Invalid message format" }));
 		}
 	});
 
@@ -124,15 +129,15 @@ export function handleMatchConnection(gameId: string, connection: any) {
 		console.log(`❌ Player desconectado do jogo ${gameId}`);
 		const sockets = matchSockets.get(gameId)?.filter((c) => c !== connection);
 		if (!sockets || sockets.length === 0) {
-		matchSockets.delete(gameId);
-		const match = matches.get(gameId);
-		if (match) clearInterval(match.interval);
-		matches.delete(gameId);
-		removeLobbyByGameId(gameId); /// here
-		console.log(`🧹 Match ${gameId} limpo (todos os jogadores saíram)`);
+			matchSockets.delete(gameId);
+			const match = matches.get(gameId);
+			if (match) clearInterval(match.interval);
+			matches.delete(gameId);
+			removeLobbyByGameId(gameId); /// check loobbys
+			console.log(`🧹 Match ${gameId} limpo (todos os jogadores saíram)`);
 		} else {
-		matchSockets.set(gameId, sockets);
-		console.log(`👥 Jogadores restantes: ${sockets.length}`);
+			matchSockets.set(gameId, sockets);
+			console.log(`👥 Jogadores restantes: ${sockets.length}`);
 		}
 	});
 }
@@ -142,7 +147,11 @@ function updateMatchState(gameId: string) {
 	if (!match || match.paused) return;
 
 	if (match.isSinglePlayer) {
-	updateBotPlayer(match);
+		updateBotPlayer(match);
+	}
+
+	if (match.gameMode === "MTC") {
+		updateMTCGame(match);
 	}
 
 	match.ball.x += match.ball.dx;
@@ -151,61 +160,61 @@ function updateMatchState(gameId: string) {
 	if (match.ball.y <= 0 || match.ball.y >= 600) match.ball.dy *= -1;
 
 	match.players.forEach((player) => {
-	const paddleX = (player.posiX / 100) * 790;
-	const paddleY = (player.posiY / 100) * 520;
-	if (
-		match.ball.x + 10 >= paddleX &&
-		match.ball.x <= paddleX + 10 &&
-		match.ball.y + 10 >= paddleY &&
-		match.ball.y <= paddleY + 80
-	) {
-		match.ball.dx *= -1;
-		const impact = (match.ball.y - paddleY - 40) / 40;
-		match.ball.dy += impact * 2;
-	}
+		const paddleX = (player.posiX / 100) * 790;
+		const paddleY = (player.posiY / 100) * 520;
+		if (
+			match.ball.x + 10 >= paddleX &&
+			match.ball.x <= paddleX + 10 &&
+			match.ball.y + 10 >= paddleY &&
+			match.ball.y <= paddleY + 80
+		) {
+			match.ball.dx *= -1;
+			const impact = (match.ball.y - paddleY - 40) / 40;
+			match.ball.dy += impact * 2;
+		}
 	});
 
 	const sockets = matchSockets.get(gameId);
 	if (!sockets) return;
 
 	if (match.ball.x < 0) {
-	match.players[1].score++;
-	broadcastScoreboard(sockets, match.players);
-	if (match.players[1].score >= winningScore) {
-		match.paused = true;
-		setTimeout(() => endMatch(gameId), 500);
-	} else {
-		resetBall(gameId);
-	}
-	return;
+		match.players[1].score++;
+		broadcastScoreboard(sockets, match.players);
+		if (match.players[1].score >= winningScore) {
+			match.paused = true;
+			setTimeout(() => endMatch(gameId), 500);
+		} else {
+			resetBall(gameId);
+		}
+		return;
 	}
 
 	if (match.ball.x > 800) {
-	match.players[0].score++;
-	broadcastScoreboard(sockets, match.players);
-	if (match.players[0].score >= winningScore) {
-		match.paused = true;
-		setTimeout(() => endMatch(gameId), 500);
-	} else {
-		resetBall(gameId);
-	}
-	return;
+		match.players[0].score++;
+		broadcastScoreboard(sockets, match.players);
+		if (match.players[0].score >= winningScore) {
+			match.paused = true;
+			setTimeout(() => endMatch(gameId), 500);
+		} else {
+			resetBall(gameId);
+		}
+		return;
 	}
 
 	sockets.forEach((sock, i) => {
-	const player = match.players[i];
-	if (sock.readyState === sock.OPEN) {
-		sock.send(
-		JSON.stringify({
-			type: "update",
-			you: player.username,
-			state: {
-			players: match.players,
-			ball: { x: match.ball.x, y: match.ball.y }
-			}
-		})
-		);
-	}
+		const player = match.players[i];
+		if (sock.readyState === sock.OPEN) {
+			sock.send(
+				JSON.stringify({
+					type: "update",
+					you: player.username,
+					state: {
+						players: match.players,
+						ball: { x: match.ball.x, y: match.ball.y }
+					}
+				})
+			);
+		}
 	});
 }
   

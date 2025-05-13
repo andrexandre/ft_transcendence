@@ -73,7 +73,7 @@ function initializeGameMainMenu(userData: {
 		document.body.innerHTML = "";
 		document.body.className = "h-screen m-0 bg-cover bg-center bg-no-repeat";
 		document.body.style.backgroundImage =
-		"url('https://upload.wikimedia.org/wikipedia/commons/3/3b/Windo_9X_BSOD.png')";
+		"url('https://upload.wikimedia.org/wikipedia/commons/3/3b/Windows_9X_BSOD.png')";
 	});
 
 	// Set Co-Op dropdown
