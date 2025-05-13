@@ -48,10 +48,12 @@ class Game extends Page {
 		// document.getElementById('sidebar')?.classList.toggle('hidden');
 		// document.getElementById('dropdownButton-Multi')?.click();
 		document.getElementById('game-main-menu')!.addEventListener('click', (event) => this.setGameMenuToggler(event));
+		document.getElementById('hide-sidebar-button')?.click()
 	}
 	onCleanup(): void {
 		lib.setTheme(lib.getTheme());
 		lib.setColor(localStorage.getItem('color') || lib.defaultColor);
+		document.getElementById('hide-sidebar-button')?.click()
 	}
 	getHtml(): string {
 		return /*html*/`
@@ -80,6 +82,7 @@ class Game extends Page {
 				<canvas id="gameCanvas" class="hidden"></canvas>
 				<div id="scoreboard" class="hidden"></div>
 				<div id="game-message" class="hidden z-1000 text-7xl"></div>
+				<div id="tournament-bracket" class="hidden p-4 text-white"></div>
 			</main>
 		`;
 	}
