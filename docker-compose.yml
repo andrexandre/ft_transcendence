@@ -11,6 +11,8 @@ services:
       - ./backend/:/backend/:rw #Vai guardar na home 
     networks:
       - ft_transcendence
+    env_file:
+      - .env
 
   game:
     image: pongify
@@ -24,6 +26,8 @@ services:
     build: ./game-project/
     networks:
       - ft_transcendence
+    env_file:
+      - .env
 
   services-api:
     image: services-api
@@ -60,6 +64,8 @@ services:
       - ./chat/:/chat/:rw #Vai guardar na home 
     networks:
       - ft_transcendence
+    env_file:
+      - .env
 
   vite:
     image: vite
