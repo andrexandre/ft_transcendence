@@ -4,6 +4,8 @@ import fastifyCookie from '@fastify/cookie';
 import fastifySensible from "@fastify/sensible";
 import fastifyMultipart from '@fastify/multipart'
 import fastifyCors from "@fastify/cors"; // temporario
+import Ajv from 'ajv';
+import ajvErrors from 'ajv-errors';
 
 // Routes
 import authRoutes from "./routes/authRoutes.js";
@@ -24,6 +26,27 @@ server.register(fastifyCors, {
 	credentials: true // Allow cookies if needed
 });
 
+const ajv = new Ajv({ allErrors: true, $data: true, formats: { email: true }});
+ajvErrors(ajv)
+server.setValidatorCompiler(({ schema }) => {
+	return ajv.compile(schema)
+})
+
+server.setErrorHandler(function (error, request, reply) {
+	if (error.validation) {
+	  // Pegamos todas as mensagens customizadas do AJV no erro
+	  const messages = error.validation.map((err) => err.message);
+  
+	  // Aqui você pode customizar a resposta, por exemplo, só enviar a primeira mensagem, sem prefixo
+	  reply.status(400).send({
+		error: 'Bad Request',
+		message: messages.join('; ') // só as mensagens customizadas
+	  });
+	} else {
+	  // Para outros erros, manda o padrão
+	  reply.send(error);
+	}
+});
 
 // Only for tests
 server.addHook('onRequest', (request, reply, done) => {

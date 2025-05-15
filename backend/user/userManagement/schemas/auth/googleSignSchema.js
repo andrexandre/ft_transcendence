@@ -2,12 +2,12 @@
 const googleSignSchema = {
 	body: {
 		type: 'object',
-		required: [ 'username', 'email', 'auth_method' ],
 		properties: {
-			username: { type: 'string' },
-			email: { type: 'string', format: 'email' },
-			auth_method: { type: 'string' }
-		}
+			username: { type: 'string', minLength: 3 , maxLength: 15 },
+			email: { type: 'string', format: 'email', maxLength: 255,},
+			auth_method: { type: 'string', enum: ["google"] }
+		},
+		required: [ 'username', 'email', 'auth_method' ]
 	},
 	response: {
 		200: {

@@ -56,7 +56,7 @@ class Register extends Page {
 				email: (document.getElementById('email') as HTMLInputElement).value
 			};
 			try {
-				const response = await fetch(`http://${location.hostname}:7000/register`, {
+				const response = await fetch(`http://${location.hostname}:8080/api/users`, {
 					method: 'POST',
 					credentials: "include",
 					headers: {
