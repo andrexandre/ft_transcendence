@@ -3,6 +3,7 @@ import { showToast } from "../../utils";
 import dropdown from "../../components/dropdown";
 import { connectToGameServer, createLobby, fetchLobbies } from "./lobbyClient";
 import { sounds, initSounds } from "./audio";
+import { tournamentTree, tournamentSample } from '../../components/tournamentTree'
 
 let lobbyRefreshInterval: ReturnType<typeof setInterval> | null = null;
 
@@ -35,6 +36,35 @@ function initializeGameMainMenu(userData: {
 	dropdown.addElement('Single', 'button', 'item t-border-alt','Infinity',
 		() => {
 			sounds.menuMusic.play();
+			document.getElementById('sidebar')?.classList.toggle('hidden');
+			document.getElementById('tournament-bracket')!.innerHTML = tournamentTree.getHtml();
+			document.getElementById('tournament-bracket')?.classList.remove('hidden');
+			document.getElementById('game-main-menu')?.classList.add('hidden');
+			let tournamentExample = tournamentSample;
+			tournamentTree.updateTree(tournamentExample);
+			// * TEMP
+			(async () => {
+				let tRounds = tournamentExample.rounds;
+				const time = 1000;
+				await new Promise(resolve => setTimeout(resolve, time));
+				for (let i = 0; i < 3; i++) {
+					if (i == 0)
+						tRounds[0][0].winner = tRounds[0][0].player1;
+					else if (i == 1)
+						tRounds[0][1].winner = tRounds[0][1].player1;
+					else
+						tRounds[1][0].winner = tRounds[0][1].winner;
+					tournamentTree.updateTree(tournamentExample);
+					await new Promise(resolve => setTimeout(resolve, time));
+				}
+				showToast("🏆 Reloading page...");
+				showToast.yellow("🏆 Tournament completed!");
+				document.getElementById('tournament-bracket')?.classList.add('hidden');
+				document.getElementById('game-main-menu')?.classList.remove('hidden');
+				document.getElementById('sidebar')?.classList.toggle('hidden');
+				await new Promise(resolve => setTimeout(resolve, 2000));
+				location.reload();
+			})();
 		});
 
 	// 👥 Multiplayer
