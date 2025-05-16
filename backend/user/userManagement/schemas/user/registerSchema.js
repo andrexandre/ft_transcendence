@@ -3,8 +3,8 @@ const registerSchema = {
 	body: {
 		type: 'object',
 		properties: {
-			username: { type: 'string', minLength: 3 , maxLength: 15 },
-			email: { type: 'string', format: 'email', maxLength: 255,},
+			username: { type: 'string', minLength: 3, maxLength: 15, pattern: '^[a-zA-Z0-9]+$' },
+			email: { type: 'string', format: 'email', maxLength: 255, },
 			password: {
 				type: 'string',
 				minLength: 3,
@@ -18,10 +18,11 @@ const registerSchema = {
 				password: 'Missing password field.'
 			},
 			properties: {
-				username: 'Username must be a string between 3 and 15 characters.',
+				username: 'Username must be a string between 3 to 15 characters and inlude only characters and numbers.',
 				email: 'Invalid email format or length.',
 				password: 'Password must be at least 8 characters and include uppercase, lowercase, number and special character.'
 			},
+			_: 'Invalid request body.'
 		},
 		required: [ 'username', 'email', 'password' ]
 	},
