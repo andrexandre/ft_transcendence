@@ -8,7 +8,7 @@ function loginRoute(fastify, options) {
             required: ['username', 'password'],
             properties: {
               username: { type: 'string', minLength: 3, maxLength: 20 },
-              password: { type: 'string', minLength: 5, maxLength: 25},
+              password: { type: 'string', minLength: 3, maxLength: 25},
             }
           }
         }
@@ -37,7 +37,7 @@ function loginRoute(fastify, options) {
             return reply.send(payload);
         }
         else{
-            reply.status(response.status);
+            reply.status(response.status).send(await response.json());
         }
     });
 }

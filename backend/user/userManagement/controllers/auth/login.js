@@ -18,7 +18,7 @@ async function login(request, response) {
         await this.updateUserStatus(user.username); // temporario
 
         resContent = {
-            userID: `${user.id}`,
+            userId: `${user.id}`,
             username: `${user.username}`
         };
 

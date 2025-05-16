@@ -15,7 +15,7 @@ async function register(request, reply) {
 		await this.createUser(username, email, hashedPassword, 'email');
 		reply.status(201).send({
 			statusCode: 201,
-			message: `Successfully created user ${username}`
+			message: `Successfully registred ${username}!`
 		});
 
 	} catch(err) {

@@ -15,6 +15,7 @@ const loginSchema = {
 				username: 'Username must be a string between 3 and 15 characters.',
 				password: 'Password must be at least 8 characters'
 			},
+			_: 'Invalid request body.'
 		},
 		required: [ 'username', 'password' ]
 	},
@@ -22,7 +23,7 @@ const loginSchema = {
 		200: {
 			type: 'object',
 			properties: {
-				userID: { type: 'string' },
+				userId: { type: 'string' },
 				username: { type: 'string' },
 			}
 		},

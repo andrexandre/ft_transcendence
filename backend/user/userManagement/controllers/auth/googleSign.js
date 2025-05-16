@@ -1,39 +1,35 @@
 import { randomUUID } from 'crypto';
 import { faker } from '@faker-js/faker';// Função que gera um username aleatório
 
-function generateUsername() {
-	const name = faker.internet.username().toLowerCase();
-	const suffix = Math.floor(1000 + Math.random() * 9000);
-	return `${name}${suffix}`;
+function generateUsername(maxLength = 15) {
+	const raw = faker.internet.username().toLowerCase().replace(/[^a-z0-9]/g, '');
+	const suffix = Math.floor(1000 + Math.random() * 9000).toString();
+	const namePart = raw.slice(0, maxLength - suffix.length);
+	return `${namePart}${suffix}`;
 }
 
 async function googleSign(request, response) {
     
-    const { username, email, auth_method } = request.body;
+    const { username, email, auth_method } = request.body;	
     try {
         
         let user = await this.getUserByEmail(email);
         if (!user) {
             // criar o user
 			const newUsername = generateUsername();
-
-			console.log('New Username: ', newUsername);
-			console.log('Old Username: ', username);
             
 			await this.createUser(newUsername, email, null, auth_method);
             user = await this.getUserByUsername(newUsername);
             response.status(201).send({
-                userID: `${user.id}`,
+                userId: `${user.id}`,
                 username: `${user.username}`,
-                message: "User created!"
             });
             return;
         } 
         
         response.status(200).send({
-            userID: `${user.id}`,
+            userId: `${user.id}`,
             username: `${user.username}`,
-            message: "User already exist!"
         });
         return;
         
