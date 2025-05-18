@@ -32,12 +32,12 @@ export const getUserById = function (id) {
 	return this.sqlite.get(querie, [ id ]);
 }
 
-export const updateUserInformation = function ({username, email, codename, biography, two_FA_status}, id) {
+export const updateUserInformation = function ({ username, codename, biography }, id) {
 
-	const params = [ username, email, codename, biography, two_FA_status, id ];
+	const params = [ username, codename, biography, id ];
 	const query = `
 	UPDATE users
-	SET username = ?, email = ?, codename = ?, biography = ?, two_FA_status = ?
+	SET username = ?, codename = ?, biography = ?
 	WHERE id = ?;
 	`;
 	return this.sqlite.run(query, params);

@@ -21,7 +21,7 @@ import db from './plugins/db_plugin.js';
 const server = fastify({ loger: true });
 
 server.register(fastifyCors, {
-	origin: [`http://127.0.0.1:5500`, `http://nginx-gateway:80`, `http://${process.env.IP}:5500`], // Allow frontend origin
+	origin: [`http://127.0.0.1:5500`, `http://nginx-gateway:80`, `http://${process.env.IP}:5500`],
 	methods: ['GET', 'POST', 'PUT', 'DELETE'],
 	credentials: true // Allow cookies if needed
 });
@@ -34,16 +34,13 @@ server.setValidatorCompiler(({ schema }) => {
 
 server.setErrorHandler(function (error, request, reply) {
 	if (error.validation) {
-	  // Pegamos todas as mensagens customizadas do AJV no erro
 	  const messages = error.validation.map((err) => err.message);
-  
-	  // Aqui você pode customizar a resposta, por exemplo, só enviar a primeira mensagem, sem prefixo
+
 	  reply.status(400).send({
 		error: 'Bad Request',
-		message: messages.join('; ') // só as mensagens customizadas
+		message: messages.join('; ')
 	  });
 	} else {
-	  // Para outros erros, manda o padrão
 	  reply.send(error);
 	}
 });
@@ -71,7 +68,6 @@ const listenOptions = {
 async function start() {
 	
 	try {
-		// Ver como registrar todas as routes com auto-load
 		server.addSchema(errorResponseSchema);
 		server.decorateRequest('authenticatedUser', null); // To be used in the handler
 		await server.register(db, { dbPath: './user.db'});
