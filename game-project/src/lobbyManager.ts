@@ -119,7 +119,7 @@ export function listLobbies() { /// verificar erro aqui
         playerCount: lobby.players.length,
         maxPlayers: lobby.maxPlayers,
         gameMode: lobby.gameMode,
-		// players: lobby.players ///_
+		players: lobby.players.map(p => ({ userId: p.userId, username: p.username }))
       });
     }
   }

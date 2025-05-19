@@ -16,7 +16,6 @@ function initializeGameMainMenu(userData: {
 	}) {
 	const username = userData.user_name;
 	const userId = userData.user_id;    
-	// const difficulty = userData.user_set_dificulty;
 
 	connectToGameServer({ username, userId });
 
