@@ -22,7 +22,7 @@ async function setupServer() {
 	});
 
 	await server_chat.register(fastifyCors, {
-		origin: true,
+		origin: [`http://${process.env.IP}:5500`],
 		credentials: true
 	});
 

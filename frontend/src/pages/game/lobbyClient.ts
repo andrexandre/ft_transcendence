@@ -17,7 +17,7 @@ export function connectToGameServer(userInfo: { username: string; userId: number
 	user = userInfo;
 	const { username, userId } = user;
 
-	socket = new WebSocket("ws://127.0.0.1:5000/lobby-ws");
+	socket = new WebSocket(`ws://${location.hostname}:5000/lobby-ws`);
 
 	socket.onopen = () => {
 		console.log(`✅ WebSocket connected for: ${username} → (${userId}) → ${socket!.url}`);
@@ -44,6 +44,8 @@ export function connectToGameServer(userInfo: { username: string; userId: number
 				(window as any).lobbyId = newLobbyId;
 				console.log(`✅ Lobby joined, lobbyId set to: ${newLobbyId}`);
 				
+				// console.log("🛠️🛠️ lobby data:", lobbyId);
+
 				showToast.green(`✅ Joined lobby!`);
 				break;
 
@@ -64,7 +66,7 @@ export function connectToGameServer(userInfo: { username: string; userId: number
 				console.log("🎮 Game start recebido! A abrir ligação para /match-ws");
 				showToast.green(`🎮 Game started! You are: ${data.playerRole}`);
 				document.getElementById('sidebar')?.classList.add('hidden');
-				const matchSocket = new WebSocket(`ws://127.0.0.1:5000/match-ws?gameId=${data.gameId}`);
+				const matchSocket = new WebSocket(`ws://${location.hostname}:5000/match-ws?gameId=${data.gameId}`);
 				console.log("🛰️ Connecting to match-ws:", data.gameId);
 
 				matchSocket.onopen = () => {
@@ -89,7 +91,7 @@ export function connectToGameServer(userInfo: { username: string; userId: number
 	socket.onclose = () => showToast.red("🔌 Disconnected from server");
 }
 
-export function createLobby(gameMode: string, maxPlayers: number, difficulty?: string){
+export function createLobby(gameMode: string, maxPlayers: number, difficulty?: string) {
 	if (!socket || socket.readyState !== WebSocket.OPEN) return;
 	if (lobbyId) return showToast.red("🚫 Já estás num lobby");
 	console.log("🚀 A criar lobby:", gameMode, maxPlayers, difficulty);
@@ -140,7 +142,7 @@ export function clearLobbyId() {
 
 export async function fetchLobbies() {
 	try {
-		const res = await fetch("http://127.0.0.1:5000/lobbies", {
+		const res = await fetch(`http://${location.hostname}:5000/lobbies`, {
 			credentials: "include"
 		});
 		if (!res.ok) throw new Error("Failed to fetch lobbies");
@@ -188,7 +190,7 @@ function renderLobbyList(lobbies: any[]) {
 	const currentLobbyId = (window as any).lobbyId;
 	console.log("🔍 Current user ID:", currentUserId);
 	console.log("🔍 Current lobbyId:", currentLobbyId);
-	
+
 	if (currentUserId === undefined) {
 		console.error("❌ No current user loaded. Cannot render lobbies.");
 		return;
@@ -208,6 +210,8 @@ function renderLobbyList(lobbies: any[]) {
 		// 	return p.userId === currentUserId
 		// });
 	
+
+		// const isInLobby = lobbyId === lobby.id;
 		const isInLobby = currentLobbyId === lobby.id;
 		// const isInLobby = lobbyObj.players.some((p: any) => p.userId === currentUserId);
 

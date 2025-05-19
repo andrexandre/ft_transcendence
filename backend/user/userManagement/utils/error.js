@@ -3,10 +3,11 @@ export const errorResponseSchema = {
 	$id: 'errorResponse',
 	type: 'object',
 	properties: {
-		statusCode: { type: 'integer' },
-		errorMessage: { type: 'string' }
+	  statusCode: { type: 'number' },
+	  error: { type: 'string' },
+	  message: { type: 'string' }
 	},
-	required: ['statusCode', 'errorMessage']
+	required: ['statusCode', 'error', 'message']
 };
 
 class serverError extends Error {
