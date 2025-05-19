@@ -8,11 +8,21 @@ async function register(request, reply) {
 		// Password hashing
 		const salt = await bcrypt.genSalt(10);
 		const hashedPassword = await bcrypt.hash(password, salt);
-		
-		let tmp = await this.sqlite.all('SELECT id, username FROM users');
-		console.log('CURRENT USERS DEBUG: ', tmp);
 
 		await this.createUser(username, email, hashedPassword, 'email');
+
+		// Create the user in game db
+		const user = await this.getUserByUsername(username);
+		const response = await fetch('http://nginx-gateway:80/game/init-user', {
+			method: 'POST',
+			body: [{id: user.id, username: user.username}]
+		});
+
+		if (!response.ok) {
+			console.log('EROO NO FETCH: ', (await response.json()));
+			console.log('USER NAO CRIADO NO GAME!');
+		}
+
 		reply.status(201).send({
 			statusCode: 201,
 			message: `Successfully registred ${username}!`

@@ -1,4 +1,4 @@
-import { FastifyInstance } from "fastify";
+import fastify, { FastifyInstance } from "fastify";
 import db_game from "./db_game.js";
 
 // Interfaces
@@ -100,6 +100,35 @@ const getUserFromDb = (userId: Number) =>
 
 export async function userRoutes(gameserver: FastifyInstance) {
 	// Get user data
+	const initSchema: any = {
+		schema: {
+		  body: {
+			type: 'object',
+			required: ['id', 'username'],
+			properties: {
+				id: { type: 'integer' },
+				username: { type: 'string' },
+			}
+		  }
+		}
+	};
+	gameserver.post('/game/init-user', initSchema, async function(request: any, reply: any) {
+		const { id, username } = request.body;
+		const status: boolean = await new Promise((resolve, reject) => {
+			const query: string = "INSERT INTO users (user_id, user_name, user_set_dificulty, user_set_tableSize, user_set_sound) VALUES (?, ?, 'Normal', 'Medium', 1)";
+			db_game.run(query, [id, username], function (err) {
+				if (err) return reject(false);
+					resolve(true);
+				}
+			);
+		});
+
+		if (!status)
+			return reply.status(500).send({ message: 'Inetrnal server error!'});
+
+		reply.status(200);
+	});
+
 	gameserver.get("/get-user-data", async (request, reply) => {
 		const token: string | undefined = request.cookies.token;
 
