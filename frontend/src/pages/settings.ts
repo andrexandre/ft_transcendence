@@ -100,7 +100,7 @@ class Settings extends Page {
 				two_FA_status: twoFAButton.checked
 			};
 			try {
-				const response = await fetch(`http://${location.hostname}:3500/2fa/set-google-authenticator`, {
+				const response = await fetch(`http://${location.hostname}:8080/2fa/set-google-authenticator`, {
 					method: 'GET',
 					credentials: "include",
 				});
@@ -108,10 +108,10 @@ class Settings extends Page {
 					const errorData = await response.json();
 					throw new Error(errorData.message);
 				}
-
 				if (twoFAButton.checked) {
+					const data = await response.json();
 					const imageElement = document.createElement('img');
-					imageElement.src = 'https://picsum.photos/id/63/200';
+					imageElement.src = data.content;
 					imageElement.id = 'qr-code-img';
 					document.getElementById('col-1')?.appendChild(imageElement);
 					lib.showToast.green("2FA enabled");
