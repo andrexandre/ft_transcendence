@@ -1,5 +1,6 @@
 // frontend/src/pages/game/lobbyClient.ts
 import { showToast } from "../../utils";
+import { stopSound, sounds } from "./audio";
 import { connectToMatch } from "./rendering";
 
 let socket: WebSocket | null = null;
@@ -38,12 +39,11 @@ export function connectToGameServer(userInfo: { username: string; userId: number
 				break;
 
 			case "lobby-joined":
-				// lobbyId = data.lobbyId;
+				lobbyId = data.lobbyId;
 				const newLobbyId = data.playerId;
 				(window as any).lobbyId = newLobbyId;
 				console.log(`✅ Lobby joined, lobbyId set to: ${newLobbyId}`);
 				// console.log("🛠️🛠️ lobby data:", lobbyId);
-
 				showToast.green(`✅ Joined lobby!`);
 				break;
 
@@ -55,6 +55,11 @@ export function connectToGameServer(userInfo: { username: string; userId: number
 			case "match-start":
 				if (matchSocketStarted) return;
 				matchSocketStarted = true;
+				// add som
+				if ((window as any).appUser?.user_set_sound === 1) {
+					stopSound("menuMusic");
+					sounds.gameMusic.play().catch(() => {});
+				}
 
 				console.log("🎮 Game start recebido! A abrir ligação para /match-ws");
 				showToast.green(`🎮 Game started! You are: ${data.playerRole}`);
@@ -88,6 +93,7 @@ export function createLobby(gameMode: string, maxPlayers: number, difficulty?: s
 	if (!socket || socket.readyState !== WebSocket.OPEN) return;
 	if (lobbyId) return showToast.red("🚫 Já estás num lobby");
 	console.log("🚀 A criar lobby:", gameMode, maxPlayers, difficulty);
+
 
 	socket.send(JSON.stringify({
 		type: "create-lobby",
@@ -160,7 +166,6 @@ function addLobbyEntry(
 	userName: string,
 	gameType: string,
 	maxPlayer: string,
-	// onClickHandler: () => void
 ) {
 	addLobbyBlock(id, userName);
 	addLobbyBlock(id, gameType);
@@ -168,19 +173,19 @@ function addLobbyEntry(
 	addLobbyBlock(id, /*html*/`
 		<button id="join-button-${id}" class="text-orange-700 hover:bg-orange-500 hover:text-black">???</button>
 	`);
-	// document.getElementById(`join-button-${id}`)?.addEventListener("click", onClickHandler);
 }
 
 function renderLobbyList(lobbies: any[]) {
+	console.log("❌❌❌", lobbies);
 	const list = document.getElementById("lobby-list");
 	if (!list) return;
 
 	list.innerHTML = "";
 
 	const currentUserId = (window as any).appUser?.user_id;
-	const currentLobbyId = (window as any).lobbyId;
+	// const currentLobbyId = (window as any).lobbyId;
 	console.log("🔍 Current user ID:", currentUserId);
-	console.log("🔍 Current lobbyId:", currentLobbyId);
+	// console.log("🔍 Current lobbyId:", currentLobbyId);
 
 	if (currentUserId === undefined) {
 		console.error("❌ No current user loaded. Cannot render lobbies.");
@@ -195,10 +200,15 @@ function renderLobbyList(lobbies: any[]) {
 	for (const lobby of lobbies) {
 		const isHost = Number(lobby.hostUserId) === currentUserId;
 		const isFull = lobby.playerCount === lobby.maxPlayers;
+		const isInLobby = lobby.players?.some((p: any) => Number(p.userId) === Number(currentUserId));
 
-		// const isInLobby = lobbyId === lobby.id;
-		const isInLobby = currentLobbyId === lobby.id;
-		// const isInLobby = lobbyObj.players.some((p: any) => p.userId === currentUserId);
+		// const isInLobby = lobby.players.some((p: any) => {
+		// 	console.log("n1", p.userId, " n2", currentUserId)
+		// 	return p.userId === currentUserId
+		// });
+
+		// const isInLobby = lobby.players?.some((p: any) => p.userId === currentUserId);
+
 
 		console.log(`📦 Lobby: ${lobby.id} | isHost: ${isHost} | isInLobby: ${isInLobby} | isFull: ${isFull}`);
 		console.log("🛠️ Lobby data:", lobbyId);

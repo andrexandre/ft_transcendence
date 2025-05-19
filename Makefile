@@ -7,7 +7,7 @@ MAGENTA		:= \033[1;35m
 CYAN		:= \033[1;36m
 WHITE		:= \033[1;37m
 
-up: backend/services-api/.env
+up: .env
 	docker compose up
 
 build-up:
@@ -35,14 +35,17 @@ status:
 	@docker network ls
 	@echo
 
-backend/services-api/.env: .env
+backend/services-api/.env:
 	curl -s https://gist.githubusercontent.com/andrexandre/8c011820a35117d005016151cfd46207/raw/83a0d67fbf775a78355dd617e6502d9c03f496ad/.env > backend/services-api/.env
 	echo -n 'IP = ' >> backend/services-api/.env
 	hostname -I | awk '{print $$1}' >> backend/services-api/.env
 
-.env:
+.env: backend/services-api/.env
 	echo -n 'IP = ' >> .env
 	hostname -I | awk '{print $$1}' >> .env
+
+rm-env:
+	find . -iname 2> /dev/null .env -delete
 
 destroy: down
 #	docker compose down --rmi all

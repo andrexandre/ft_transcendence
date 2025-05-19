@@ -153,8 +153,7 @@ export function handleMatchEndFromTournament(gameId: string, winnerId: number): 
 	roundIndex: number;
 	matchIndex: number;
 	winnerUsername: string;
-	isFinal: boolean;
-	} | void {
+	isFinal: boolean; } | void {
 	for (const tournament of tournaments.values()) {
 		const round = tournament.matches[tournament.currentRound];
 		const matchIndex = round.findIndex(m => m.gameId === gameId);

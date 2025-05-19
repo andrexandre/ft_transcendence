@@ -9,7 +9,7 @@ logs
 *.log
 npm-debug.log*
 
-#en
+#env
 .env
 
 # Runtime data
@@ -69,7 +69,7 @@ jspm_packages
 # andre
 .vite
 frontend/**/*.js
-profile.ts
+!profile.ts
 chat/database/messages/*.jsonl
 
 # alex

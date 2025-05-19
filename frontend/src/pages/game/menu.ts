@@ -2,7 +2,8 @@
 import { showToast } from "../../utils";
 import dropdown from "../../components/dropdown";
 import { connectToGameServer, createLobby, fetchLobbies } from "./lobbyClient";
-import { sounds, initSounds } from "./audio";
+import { sounds, initSounds, playSound } from "./audio";
+import { tournamentTree, tournamentSample } from '../../components/tournamentTree'
 
 let lobbyRefreshInterval: ReturnType<typeof setInterval> | null = null;
 
@@ -15,7 +16,6 @@ function initializeGameMainMenu(userData: {
 	}) {
 	const username = userData.user_name;
 	const userId = userData.user_id;    
-	// const difficulty = userData.user_set_dificulty;
 
 	connectToGameServer({ username, userId });
 
@@ -35,6 +35,35 @@ function initializeGameMainMenu(userData: {
 	dropdown.addElement('Single', 'button', 'item t-border-alt','Infinity',
 		() => {
 			sounds.menuMusic.play();
+			document.getElementById('sidebar')?.classList.toggle('hidden');
+			document.getElementById('tournament-bracket')!.innerHTML = tournamentTree.getHtml();
+			document.getElementById('tournament-bracket')?.classList.remove('hidden');
+			document.getElementById('game-main-menu')?.classList.add('hidden');
+			let tournamentExample = tournamentSample;
+			tournamentTree.updateTree(tournamentExample);
+			// * TEMP
+			(async () => {
+				let tRounds = tournamentExample.rounds;
+				const time = 1000;
+				await new Promise(resolve => setTimeout(resolve, time));
+				for (let i = 0; i < 3; i++) {
+					if (i == 0)
+						tRounds[0][0].winner = tRounds[0][0].player1;
+					else if (i == 1)
+						tRounds[0][1].winner = tRounds[0][1].player1;
+					else
+						tRounds[1][0].winner = tRounds[0][1].winner;
+					tournamentTree.updateTree(tournamentExample);
+					await new Promise(resolve => setTimeout(resolve, time));
+				}
+				showToast("🏆 Reloading page...");
+				showToast.yellow("🏆 Tournament completed!");
+				document.getElementById('tournament-bracket')?.classList.add('hidden');
+				document.getElementById('game-main-menu')?.classList.remove('hidden');
+				document.getElementById('sidebar')?.classList.toggle('hidden');
+				await new Promise(resolve => setTimeout(resolve, 2000));
+				location.reload();
+			})();
 		});
 
 	// 👥 Multiplayer
@@ -147,8 +176,16 @@ export async function initUserData() {
 	tableSizeSelect.value = userData.user_set_tableSize;
 	soundSelect.value = userData.user_set_sound === 1 ? "On" : "Off";
 
-	// Inicializa menu principal com dados do utilizador diretamente
+	// Inicializa menu principal, dados e som
+	if (userData.user_set_sound === 1) {
+		initSounds();
+		setTimeout(() => {
+			sounds.menuMusic.play().catch(() => {});
+		}, 100); // evitar autoplay block
+	}
+	
 	initializeGameMainMenu(userData);
+
 	} catch (error) {
 		showToast.red(error as string);
 		console.error("❌ Error loading user data:", error);
@@ -173,27 +210,33 @@ export async function saveSettingsHandler() {
 	console.log(`🎮 Saving settings for:`, { user, difficulty, tableSize, sound });
   
 	try {
-	  const response = await fetch(`http://${location.hostname}:5000/save-settings`, {
-		method: "PATCH",
-		headers: { "Content-Type": "application/json" },
-		credentials: 'include',
-		body: JSON.stringify({
-		  username: user.user_name,
-		  difficulty,
-		  tableSize,
-		  sound
+		const response = await fetch(`http://${location.hostname}:5000/save-settings`, {
+			method: "PATCH",
+			headers: { "Content-Type": "application/json" },
+			credentials: 'include',
+			body: JSON.stringify({
+			username: user.user_name,
+			difficulty,
+			tableSize,
+			sound
 		})
-	  });
+	});
   
-	  if (!response.ok) throw new Error(`Failed to save settings (${response.status})`);
-	  showToast.green('Settings saved');
-	  if (!response.ok) throw new Error(`Failed to save settings (${response.status})`);
+	if (!response.ok) throw new Error(`Failed to save settings (${response.status})`);
 	showToast.green('Settings saved');
 
-	// ✅ Atualiza a variável global após salvar
+	// Atualiza local userData
 	(window as any).appUser.user_set_dificulty = difficulty;
 	(window as any).appUser.user_set_tableSize = tableSize;
 	(window as any).appUser.user_set_sound = sound;
+	// console.log("SOUND VAL: ", sound);
+
+	if (sound === 1) {
+		playSound("menuMusic");
+		} else {
+			sounds.menuMusic.pause();
+			sounds.menuMusic.currentTime = 0;
+		}
 
 	} catch (error) {
 	  console.error("❌ Error saving settings:", error);
