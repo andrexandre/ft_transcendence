@@ -44,7 +44,7 @@ function initializeGameMainMenu(userData: {
 			// * TEMP
 			(async () => {
 				let tRounds = tournamentExample.rounds;
-				const time = 1000;
+				const time = 3000;
 				await new Promise(resolve => setTimeout(resolve, time));
 				for (let i = 0; i < 3; i++) {
 					if (i == 0)

@@ -1,6 +1,7 @@
+import { showToast } from '../../utils';
 import { playSound, sounds, stopSound } from './audio';
 import { clearLobbyId } from './lobbyClient'; 
-import { state as tournamentState, renderTournamentBracket, handleEndTournament, showRoundTransition } from './tournamentRender';
+import { state as tournamentState, renderTournamentBracket, handleEndTournament, showRoundTransition, state, tournamentTree } from './tournamentRender';
 
 export let gameCanvas: HTMLCanvasElement;
 export let ctx: CanvasRenderingContext2D;
@@ -180,7 +181,7 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
 		if (data.type === "welcome") {
 			console.log("🎉 Welcome recebido:", data);
 			currentPlayerId = data.playerId;
-			role = data.role; //???
+			data.role = role; //???
 			return;
 		}
 		
@@ -212,7 +213,7 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
 			}
 			
 			localUsername = data.you;
-			console.log("🟢🟢🟢🟢:", localUsername);
+			// console.log("🟢🟢🟢🟢:", localUsername);
 			players = data.state.players;
 			role = data.state.role;
 			currentPlayerId = players.find(p => p.username === localUsername)?.userId ?? 0;
@@ -228,9 +229,29 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
 		}
 		
 		if (data.type === "show-bracket") {
+			// const serverRounds = data.rounds;
+			// document.getElementById('sidebar')?.classList.toggle('hidden');
+			// document.getElementById('tournament-bracket')!.innerHTML = tournamentTree.getHtml();
+			// document.getElementById('tournament-bracket')?.classList.remove('hidden');
+			// document.getElementById('game-main-menu')?.classList.add('hidden');
+			// showToast.red("show-bracket")
+		
+			// state.rounds = serverRounds.map((round: any[]) =>
+			// 	round.map((m: any) => ({
+			// 		player1: m.player1.username,
+			// 		player2: m.player2.username,
+			// 		winner: m.winnerId === m.player1.userId ? m.player1.username
+			// 			: m.winnerId === m.player2.userId ? m.player2.username
+			// 			: undefined
+			// 	}))
+			// );
+		
+			// state.currentRound = data.currentRound;
+			showToast.red("show-bracket1111111111111111111111111111111111111111111111")
 			renderTournamentBracket();
 			return;
 		}
+		
 
 		if (data.type === "end-round") {
 			renderTournamentBracket();
