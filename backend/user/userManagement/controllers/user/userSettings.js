@@ -6,7 +6,7 @@ function getSettings(request, reply) {
 		username: request.authenticatedUser.username,
 		email: request.authenticatedUser.email,
 		codename: request.authenticatedUser.codename,
-		auth_method: request.authenticatedUser.auth_method,
+		biography: request.authenticatedUser.biography,
 		two_FA_status: request.authenticatedUser.two_FA_status
 	});
 }
