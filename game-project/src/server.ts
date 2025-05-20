@@ -3,24 +3,25 @@ import Fastify from "fastify";
 import fastifyWebsocket from '@fastify/websocket';
 import fastifyCookie from "@fastify/cookie";
 import cors from '@fastify/cors';
-import { createLobby, joinLobby, startGame, listLobbies, leaveLobby, getLobbyByUserId, getLobbyBySocket } from './lobbyManager.js';
+import { getLobbyByLobbyId, createLobby, joinLobby, startGame, listLobbies, leaveLobby, getLobbyByUserId, getLobbyBySocket } from './lobbyManager.js';
 import { getUserDatafGateway, userRoutes } from './userSet.js';
 import { handleMatchConnection } from './matchManager.js';
+import { createTournament } from "./tournamentManager.js";
 
 const PORT = 5000;
-const gameserver = Fastify({ logger: true });
+const gameserver = Fastify({ logger: false }); // alterar true
 
 await gameserver.register(fastifyWebsocket);
 await gameserver.register(fastifyCookie);
 await userRoutes(gameserver);
 await gameserver.register(cors, {
-	origin: ['http://127.0.0.1:5500'],
+	origin: ['http://127.0.0.1:5500', `http://${process.env.IP}:5500`],
 	methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
 	credentials: true,
 });
 
 // LOBBY WS
-gameserver.get('/game-ws', { websocket: true }, async (connection, req) => {
+gameserver.get('/lobby-ws', { websocket: true }, async (connection, req) => {
 	try {
 		const token = req.cookies?.token;
 		if (!token) {
@@ -70,39 +71,21 @@ function handleSocketMessage(connection: any, data: any) {
 	}
 
 	switch (data.type) {
-		case "create-lobby": {
-			if (getLobbyBySocket(user.socket)) {
-				connection.send(JSON.stringify({ type: "error", message: "Já estás num lobby" }));
-				return;
-			}
+		case "create-lobby": { // uncoment
+			// if (getLobbyBySocket(user.socket)) {
+			// 	connection.send(JSON.stringify({ type: "error", message: "Já estás num lobby" }));
+			// 	return;
+			// }
 			const { gameMode, maxPlayers } = data;
 			if (!gameMode || !maxPlayers) {
 				connection.send(JSON.stringify({ type: "error", message: "Missing lobby info" }));
 				return;
 			}
-			const lobbyId = createLobby(connection, connection.user, gameMode, maxPlayers);
+			const lobbyId = createLobby(connection, connection.user, gameMode, maxPlayers, data.difficulty);
 			connection.send(JSON.stringify({ type: "lobby-created", lobbyId, maxPlayers }));
 			break;
 		}
-		case "lobby-message": {
-			const lobby = getLobbyByUserId(user.userId);
-			if (!lobby) {
-				connection.send(JSON.stringify({ type: "error", message: "You're not in a lobby" }));
-				return;
-			}
-			const payload = {
-				type: "lobby-message",
-				from: user.username,
-				userId: user.userId,
-				text: data.text
-			};
-			for (const player of lobby.players) {
-				if (player.socket.readyState === 1) {
-					player.socket.send(JSON.stringify(payload));
-				}
-			}
-			break;
-		}
+
 		case "join-lobby": {
 			if (getLobbyByUserId(user.userId)) {
 				connection.send(JSON.stringify({ type: "error", message: "Já estás num lobby" }));
@@ -116,25 +99,21 @@ function handleSocketMessage(connection: any, data: any) {
 			}
 			break;
 		}
+		
 		case "start-game": {
-			const { success, gameId } = startGame(data.lobbyId, data.requesterId);
-			if (!success) {
-				connection.send(JSON.stringify({ type: "error", message: "Start not allowed" }));
-			} else {
-				const lobby = getLobbyByUserId(user.userId);
-				if (lobby) {
-					lobby.players.forEach((player, index) => {
-						player.socket.send(JSON.stringify({
-							type: "game-start",
-							playerRole: index === 0 ? "left" : "right",
-							opponent: lobby.players.length > 1 ? lobby.players[1 - index].username : "BoTony",
-							gameId
-						}));
-					});
-				}
+			const lobby = getLobbyByLobbyId(data.lobbyId);
+
+			if (lobby && lobby.gameMode !== "TNT") {
+				const { success, gameId } = startGame(data.lobbyId, data.requesterId);
+				if (!success) {
+					connection.send(JSON.stringify({ type: "error", message: "Start not allowed" }));
+				} 
+				break;
+			} else if (lobby && lobby.gameMode === "TNT"){
+				createTournament(lobby?.id, lobby?.players);
 			}
-			break;
 		}
+
 		case "leave-lobby": {
 			const left = leaveLobby(user.userId);
 			if (left) {

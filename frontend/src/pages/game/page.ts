@@ -12,6 +12,7 @@ class Game extends Page {
 		lib.setTheme('dark')
 		lib.setColor('game');
 		sidebar.setSidebarToggler('game');
+
 		// Set Settings dropdown
 		dropdown.initialize('Settings');
 		dropdown.addElement('Settings', 'div', 'flex flex-col', /*html*/`
@@ -47,10 +48,12 @@ class Game extends Page {
 		// document.getElementById('sidebar')?.classList.toggle('hidden');
 		// document.getElementById('dropdownButton-Multi')?.click();
 		document.getElementById('game-main-menu')!.addEventListener('click', (event) => this.setGameMenuToggler(event));
+		document.getElementById('hide-sidebar-button')?.click()
 	}
 	onCleanup(): void {
 		lib.setTheme(lib.getTheme());
 		lib.setColor(localStorage.getItem('color') || lib.defaultColor);
+		document.getElementById('hide-sidebar-button')?.click()
 	}
 	getHtml(): string {
 		return /*html*/`
@@ -72,14 +75,14 @@ class Game extends Page {
 								<li class="text-c-primary">#/#</li>
 								<li class="text-c-primary"></li>
 							</ul>
-							<ul id="lobby-list" class="grid grid-cols-[1fr_1fr_4.5rem_4.5rem] overflow-auto text-sm space-y-2">
-							</ul>
+							<ul id="lobby-list" class="grid grid-cols-[1fr_1fr_4.5rem_4.5rem] overflow-auto text-sm space-y-2"></ul>
 						</div>
 					</div>
 				</div>
 				<canvas id="gameCanvas" class="hidden"></canvas>
 				<div id="scoreboard" class="hidden"></div>
 				<div id="game-message" class="hidden z-1000 text-7xl"></div>
+				<div id="tournament-bracket" class="hidden p-4 text-white"></div>
 			</main>
 		`;
 	}

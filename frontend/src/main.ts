@@ -18,7 +18,7 @@ let firstPageLoad = true;
 async function loadApp(path: string) {
 	// check authentication
 	try {
-		const response = await fetch(`http://${location.hostname}:7000/fetchDashboardData`, {
+		const response = await fetch(`http://${location.hostname}:7000/frontend/fetchDashboardData`, {
 			credentials: 'include',
 		});
 		if (!response.ok)
@@ -28,15 +28,13 @@ async function loadApp(path: string) {
 		// lib.userInfo.userId = responseData.userId
 		lib.userInfo.auth_method = responseData.auth_method
 		if (path == "/register" || path == "/login") {
-			lib.showToast(`Already authenticated`);
+			lib.showToast.yellow(`Already authenticated`);
 			history.replaceState(null, "", "/");
 			path = '/';
 		}
 	} catch (error) {
 		if (path != "/register" && path != "/login") {
 			console.log(error);
-			if (error == 'TypeError: NetworkError when attempting to fetch resource.')
-				error = 'Server is not reachable';
 			lib.showToast.red(error as string);
 			history.replaceState(null, "", "/login");
 			path = '/login';

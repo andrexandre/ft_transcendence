@@ -1,4 +1,5 @@
 import { turnOnChat, turnOffChat } from "../pages/chat/friends"
+// import { turnOnGame, turnOffGame } from "../pages/game/page"
 export { default as Cookies } from 'js-cookie';
 import { renderPattern } from "./patterns";
 
@@ -98,12 +99,18 @@ export function toggleUserServices(on: boolean) {
 	}
 }
 
+
+
 // lib.fullScreenOverlay(
-// 	/*html*/`<h1>Hello HTML</h1>`,
+// 	/*html*/`
+// 		<h1>Hello HTML</h1>
+// 	`,
 // 	/*style*/`
 // 		.hello-CSS {}
 // 	`,
-// 	() => console.log('Hello JS')
+// 	() => {
+// 		console.log('Hello JS')
+// 	}
 // );
 
 export function fullScreenOverlay(html: string = '', css: string = '', js?: () => void) {

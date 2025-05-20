@@ -1,14 +1,13 @@
 // Dependencies
 import fastify from "fastify";
 import fastifyCookie from '@fastify/cookie';
+import fastifySensible from "@fastify/sensible";
 import fastifyMultipart from '@fastify/multipart'
 import fastifyCors from "@fastify/cors"; // temporario
 
 // Routes
-import LoginRoute from "./routes/auth/loginRoutes.js";
-import googleSignRoute from "./routes/auth/googleSign.js";
-import RegisterRoute from "./routes/auth/registerRoutes.js";
-import userRoutes from "./routes/userRoutes/userRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 
 // Utils
 import { errorResponseSchema } from "./utils/error.js";
@@ -20,10 +19,11 @@ import db from './plugins/db_plugin.js';
 const server = fastify({ loger: true });
 
 server.register(fastifyCors, {
-	origin: ['http://127.0.0.1:5500'], // Allow frontend origin
+	origin: [`http://127.0.0.1:5500`, `http://nginx-gateway:80`, `http://${process.env.IP}:5500`], // Allow frontend origin
 	methods: ['GET', 'POST', 'PUT', 'DELETE'],
 	credentials: true // Allow cookies if needed
 });
+
 
 // Only for tests
 server.addHook('onRequest', (request, reply, done) => {
@@ -52,32 +52,27 @@ async function start() {
 		server.addSchema(errorResponseSchema);
 		server.decorateRequest('authenticatedUser', null); // To be used in the handler
 		await server.register(db, { dbPath: './user.db'});
+		await server.register(fastifySensible);
 		await server.register(fastifyCookie);
 		await server.register(fastifyMultipart, {
 			limits: { fileSize: 2 * 1024 * 1024 },// Limite de 2 MB para o arquivo
 			});
-		await server.register(RegisterRoute);
-		await server.register(LoginRoute);
-		await server.register(googleSignRoute);
+		await server.register(authRoutes);
 		await server.register(userRoutes);
 		
-		server.listen(listenOptions, async () => {
-			
-			console.log(`Server is running on port: 3000`);
-			try {
-				await server.createTables();
-				console.log("Tables Created!")
-			} catch(err) {
-				console.error(err);
-				process.exit(1);
-			}
-		});
+		const address = await server.listen(listenOptions);
+		console.log(`Server is running on ${address}`);
+	
+		await server.createTables();
+		console.log("Tables Created!");
+		console.log('Routes: ', server.printRoutes());
+		// console.log('Routes: ', server.printRoutes({ includeHooks: true, commonPrefix: false }));
 
 	} catch(err) {
 		console.error('Entrou no cath do start');
 		console.error(err);
+		process.exit(1);
 	}
 }
 
 start();
-

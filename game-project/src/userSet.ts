@@ -4,12 +4,12 @@ import db_game from "./db_game.js";
 // Interfaces
 interface MatchData {
 	gameMode: string;
-	player1Id: string;
-	player2Id: string;
+	player1Id: number;
+	player2Id: number;
 	player1Score: number;
 	player2Score: number;
-	winnerId: string;
-	gameTournamentId: string;
+	winnerId: number;
+	// gameTournamentId: string;
 }
 
 interface UserData {
@@ -35,35 +35,25 @@ interface SaveSettingsRequest {
         sound: number;
     };
 }
-
-export async function saveMatchToDatabase(player1Id: number, player2Id: number, player1Score: number, player2Score: number, gameMode: string, winnerId: number, tournamentId?: number) {
-    try {
-        const response = await fetch("http://127.0.0.1:5000/save-match", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                player1Id,
-                player2Id,
-                player1Score,
-                player2Score,
-                gameMode,
-                winnerId,
-                gameTournamentId: tournamentId ?? null
-            }),
-        });
-
-        if (!response.ok) throw new Error("Failed to save match");
-
-        console.log("✅ Match saved successfully!");
-
-    } catch (error) {
-        console.error("❌ Error saving match:", error);
-    }
+  
+export function saveMatchToDatabase(match: MatchData) {
+	const db = db_game;
+	db.run(
+	`INSERT INTO games ( game_mode, game_player1_id, game_player2_id, game_player1_score, game_player2_score, game_winner)
+	VALUES (?, ?, ?, ?, ?, ?)`,
+	[ match.gameMode, match.player1Id, match.player2Id, match.player1Score, match.player2Score, match.winnerId ],
+	(err) => {
+		if (err) {
+		return console.error("❌ DB Insert Error:", err.message);
+		}
+		console.log(`✅ Match saved to DB: ${match.player1Id} vs ${match.player2Id} (${match.gameMode})`);
+	}
+	);
 }
-
+  
 export async function getUserDatafGateway(token: string | undefined): Promise<UserData | null> {
 	try {
-		const response = await fetch("http://gateway-api:7000/userData", {
+		const response = await fetch("http://services-api:7000/userData", {
 			method: "GET",
 			headers: {
 				"Content-Type": "application/json",
@@ -161,24 +151,7 @@ export async function userRoutes(gameserver: FastifyInstance) {
 		}
 	});
 
-	// Save match
-	gameserver.post("/save-match", (request, reply) => {
-		const { gameMode, player1Id, player2Id, player1Score, player2Score, winnerId, gameTournamentId } = request.body as MatchData;
-		db_game.run(
-			`INSERT INTO games (game_tournament_id, game_mode, game_player1_id, game_player2_id, game_player1_score, game_player2_score, game_winner)
-			VALUES (?, ?, ?, ?, ?, ?, ?)`,
-			[gameTournamentId ?? null, gameMode, player1Id, player2Id, player1Score, player2Score, winnerId],
-			(err) => {
-			  if (err) {
-				console.error("❌ DB Insert Error:", err.message);
-				return reply.status(500).send({ error: "Database error" });
-			  }
-			  console.log("✅ Match saved to DB:");
-			  reply.status(200).send({ message: "✅ Match saved & sent!" });
-			}
-		  );
-	});
-
+	// Get History
 	gameserver.get('/user-game-history', async (request, reply) => {	
 		try {
 			const token: string | undefined = request.cookies.token;
@@ -196,6 +169,7 @@ export async function userRoutes(gameserver: FastifyInstance) {
 			
 			// Array de resultados formatados
 			const result: any[] = [];
+			
 	
 			for (const element of history) {
 				let user2: any;

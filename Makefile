@@ -7,7 +7,7 @@ MAGENTA		:= \033[1;35m
 CYAN		:= \033[1;36m
 WHITE		:= \033[1;37m
 
-up: backend/Gateway/.env
+up: .env
 	docker compose up
 
 build-up:
@@ -35,20 +35,28 @@ status:
 	@docker network ls
 	@echo
 
-backend/Gateway/.env:
-	curl -s https://gist.githubusercontent.com/andrexandre/8c011820a35117d005016151cfd46207/raw/83a0d67fbf775a78355dd617e6502d9c03f496ad/.env > backend/Gateway/.env
+backend/services-api/.env:
+	curl -s https://gist.githubusercontent.com/andrexandre/8c011820a35117d005016151cfd46207/raw/83a0d67fbf775a78355dd617e6502d9c03f496ad/.env > backend/services-api/.env
+	echo -n 'IP = ' >> backend/services-api/.env
+	hostname -I | awk '{print $$1}' >> backend/services-api/.env
+
+.env: backend/services-api/.env
+	echo -n 'IP = ' >> .env
+	hostname -I | awk '{print $$1}' >> .env
+
+rm-env:
+	find . -iname 2> /dev/null .env -delete
 
 destroy: down
+#	docker compose down --rmi all
 	find . -type f -iname '*.db' -delete
 	find . -type f -iname '*.jsonl' -delete
 
 rm-node_modules: rmi
-	docker run --rm -v ./backend/user/userManagement/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
-	docker run --rm -v ./backend/Gateway/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
-	docker run --rm -v ./game-project/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
-	docker run --rm -v ./chat/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
-	docker run --rm -v ./frontend/node_modules:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
-	find . -type d -iname 'node_modules' -delete
+	find . -type d -name node_modules | while read folder; do \
+		docker run --rm -v "$$(realpath -q "$$folder"):/folder_to_rm" busybox rm -rf /folder_to_rm 2>/dev/null || true; \
+	done
+	find . -type d -iname node_modules -delete
 
 rmi:
 	-docker rmi -f $$(docker images -a -q)

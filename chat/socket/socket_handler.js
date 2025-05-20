@@ -14,8 +14,6 @@ export async function SocketHandler(socket, username)
 		sockets.set(socket, username);
 		console.log(`${username} connected`);
 		
-		// sendFriendList(username, socket);
-	
 		socket.on('message', async (message) => {
 			let data;
 			try {
@@ -84,6 +82,9 @@ export async function SocketHandler(socket, username)
 						friend: data.friend,
 						load: true
 					}));
+					break;
+				case 'get-online-friends':
+					await sendOnlineFriends(username, socket);
 					break;
 			}
 		});
@@ -169,10 +170,19 @@ async function joinRoom(username, friend, socket)
 async function sendFriendList(username, socket)
 {
 	const friends = await getFriends(username);
-	// const online_friends = await checkFriendOnline(friends); // ve os online friends
 	socket.send(JSON.stringify({
 		type: 'get-friends-list',
 		data: friends
+	}));
+}
+
+async function sendOnlineFriends(username, socket)
+{
+	const friends = await getFriends(username);
+	const online_friends = await checkFriendOnline(friends);
+	socket.send(JSON.stringify({
+		type: 'get-online-friends',
+		data: online_friends
 	}));
 }
 
