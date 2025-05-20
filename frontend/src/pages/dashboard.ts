@@ -38,14 +38,14 @@ interface MatchHistoryI {
 	time: string;
 }
 
-function displayMatchHistory(matchHistory: MatchHistoryI[]) {
+function displayMatchHistory(matchHistory: MatchHistoryI[], requestedUsername: string) {
 	const statsDiv = document.getElementById("stats-list")!;
 	matchHistory.reverse().forEach(match => {
 		const matchDiv = document.createElement("li");
 		let matchBgColor = '';
-		if (match.winner.username === lib.userInfo.username)
+		if (match.winner.username === requestedUsername)
 			matchBgColor = "border-green-500 hover:border-green-700 dark:border-green-700 dark:hover:border-green-500";
-		else if (match.loser.username === lib.userInfo.username)
+		else if (match.loser.username === requestedUsername)
 			matchBgColor = "border-red-500 hover:border-red-700 dark:border-red-700 dark:hover:border-red-500";
 		matchDiv.className = "@container relative item t-dashed " + matchBgColor;
 		matchDiv.innerHTML = /*html*/`
@@ -67,7 +67,7 @@ function displayMatchHistory(matchHistory: MatchHistoryI[]) {
 	}
 }
 
-export async function updateMatchHistory() {
+export async function updateMatchHistory(requestedUsername: string) {
 	try {
 		const response = await fetch(`http://${location.hostname}:5000/user-game-history`, {
 			credentials: "include",
@@ -76,7 +76,7 @@ export async function updateMatchHistory() {
 			throw new Error(`${response.status} - ${response.statusText}`);
 		}
 		let matchHistory = await response.json();
-		displayMatchHistory(matchHistory);
+		displayMatchHistory(matchHistory, requestedUsername);
 	} catch (error) {
 		console.log(error);
 		// lib.showToast.red(error as string); //* TEMP
@@ -139,14 +139,14 @@ async function loadInformation() {
 		(document.getElementById("profile-username") as HTMLElement).textContent = userData.username;
 		(document.getElementById("profile-codename") as HTMLElement).textContent = userData.codename;
 		(document.getElementById("profile-bio") as HTMLElement).textContent = userData.biography;
-		lib.userInfo.username = userData.username;
+		// lib.userInfo.username = userData.username;
 		// lib.userInfo.codename = userData.codename;
 		// lib.userInfo.biography = userData.biography;
 		// lib.userInfo.userId = userData.userId;
 		// lib.userInfo.auth_method = userData.auth_method;
 	
 		setProfileImage("profile-image");
-		updateMatchHistory();
+		updateMatchHistory(userData.username);
 	} catch (error: any) {
 		return lib.showToast.red(error.message);
 	}
@@ -215,7 +215,7 @@ class Dashboard extends Page {
 					<ul id="friends-list" class="flex flex-col gap-2 overflow-auto"></ul>
 				</div>
 			</main>
-		`
+		`;
 	}
 }
 
