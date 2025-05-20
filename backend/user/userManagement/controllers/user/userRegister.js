@@ -15,12 +15,13 @@ async function register(request, reply) {
 		const user = await this.getUserByUsername(username);
 		const response = await fetch('http://nginx-gateway:80/game/init-user', {
 			method: 'POST',
-			body: [{id: user.id, username: user.username}]
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({id: user.id, username: user.username})
 		});
 
 		if (!response.ok) {
-			console.log('EROO NO FETCH: ', (await response.json()));
-			console.log('USER NAO CRIADO NO GAME!');
+			console.log('User not created in game!');
+			console.log('Error creating user in game: ', (await response.json()));
 		}
 
 		reply.status(201).send({

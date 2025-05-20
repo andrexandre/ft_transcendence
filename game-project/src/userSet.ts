@@ -35,6 +35,19 @@ interface SaveSettingsRequest {
         sound: number;
     };
 }
+
+const initSchema: any = {
+	schema: {
+	  body: {
+		type: 'object',
+		required: ['id', 'username'],
+		properties: {
+			id: { type: 'integer' },
+			username: { type: 'string' },
+		}
+	  }
+	}
+};
   
 export function saveMatchToDatabase(match: MatchData) {
 	const db = db_game;
@@ -100,18 +113,6 @@ const getUserFromDb = (userId: Number) =>
 
 export async function userRoutes(gameserver: FastifyInstance) {
 	// Get user data
-	const initSchema: any = {
-		schema: {
-		  body: {
-			type: 'object',
-			required: ['id', 'username'],
-			properties: {
-				id: { type: 'integer' },
-				username: { type: 'string' },
-			}
-		  }
-		}
-	};
 	gameserver.post('/game/init-user', initSchema, async function(request: any, reply: any) {
 		const { id, username } = request.body;
 		const status: boolean = await new Promise((resolve, reject) => {
@@ -141,20 +142,20 @@ export async function userRoutes(gameserver: FastifyInstance) {
 
 		try {
 			let row = await getUserFromDb(userId);
-			if (!row) {
-				console.log(`🆕 User '${username}' not found. Creating...`);
-				await new Promise((resolve, reject) => {
-					db_game.run(
-						"INSERT INTO users (user_id, user_name, user_set_dificulty, user_set_tableSize, user_set_sound) VALUES (?, ?, 'Normal', 'Medium', 1)",
-						[userId, username],
-						function (err) {
-							if (err) return reject({ status: 500, error: "Database error" });
-							resolve(null);
-						}
-					);
-				});
-				row = { user_id: userId, user_name: username, user_set_dificulty: "Normal", user_set_tableSize: "Medium", user_set_sound: 1 };
-			}
+			// if (!row) {
+			// 	console.log(`🆕 User '${username}' not found. Creating...`);
+			// 	await new Promise((resolve, reject) => {
+			// 		db_game.run(
+			// 			"INSERT INTO users (user_id, user_name, user_set_dificulty, user_set_tableSize, user_set_sound) VALUES (?, ?, 'Normal', 'Medium', 1)",
+			// 			[userId, username],
+			// 			function (err) {
+			// 				if (err) return reject({ status: 500, error: "Database error" });
+			// 				resolve(null);
+			// 			}
+			// 		);
+			// 	});
+			// 	row = { user_id: userId, user_name: username, user_set_dificulty: "Normal", user_set_tableSize: "Medium", user_set_sound: 1 };
+			// }
 			reply.send(row);
 		} catch (err: any) {
 			reply.status(err.status || 500).send({ error: err.error || "❌ Unknown error" });
