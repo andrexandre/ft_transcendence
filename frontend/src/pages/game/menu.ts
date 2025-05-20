@@ -4,8 +4,34 @@ import dropdown from "../../components/dropdown";
 import { connectToGameServer, createLobby, fetchLobbies } from "./lobbyClient";
 import { sounds, initSounds, playSound } from "./audio";
 import { tournamentTree, tournamentSample } from '../../components/tournamentTree'
+import { userInfo } from "../../utils";
 
 let lobbyRefreshInterval: ReturnType<typeof setInterval> | null = null;
+
+export function turnOnGame(){
+	if (!userInfo.game_sock || userInfo.game_sock.readyState === WebSocket.CLOSED) {
+		userInfo.game_sock = new WebSocket(`ws://${location.hostname}:5000/lobby-ws`);
+
+		userInfo.game_sock.onopen = () => {
+			// console.debug('Chat socket created');
+		}
+
+		userInfo.game_sock.onerror = (error) => {
+			console.log('WebSocket error: ', error);
+		};
+
+		userInfo.game_sock.onclose = (event) => {
+			console.debug('WebSocket connection closed:', event.code, event.reason);
+			// Maybe add some reconnection logic here
+		};
+
+		userInfo.game_sock.onmessage = (event) => {
+			connectToGameServer(event);
+		};
+	}
+	else
+		showToast.red('The chat socket is already on');
+}
 
 function initializeGameMainMenu(userData: {
 	user_id: number;
@@ -15,9 +41,9 @@ function initializeGameMainMenu(userData: {
 	user_set_sound: number;
 	}) {
 	const username = userData.user_name;
-	const userId = userData.user_id;    
+	const userId = userData.user_id;
 
-	connectToGameServer({ username, userId });
+	// connectToGameServer({ username, userId });
 
 	// Set Single dropdown
 	dropdown.initialize('Single');

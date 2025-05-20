@@ -332,8 +332,17 @@ export function setChatEventListeners() {
 		});
 	document.getElementById('chat-box-profile')?.addEventListener('click',
 		() => navigate(`/profile/${document.getElementById('chat-box-header-username')!.textContent}`));
-	document.getElementById('chat-box-invite')?.addEventListener('click',
-		() => showToast.yellow('Inviting player...'));
+		
+	// chat --- game invite
+	document.getElementById('chat-box-invite')?.addEventListener('click', async () => {
+		showToast.yellow('Inviting player...');
+		userInfo.game_sock!.send(JSON.stringify({
+			type: 'create-lobby',
+			gameMode : "1v1",
+			maxPlayers : 2,
+		}));
+	});
+		
 	setupBlockButtonListener();
 
 	reloadInterval = setInterval(reloadLists, 5000); // set auto reload
