@@ -2,10 +2,36 @@
 import { showToast } from "../../utils";
 import dropdown from "../../components/dropdown";
 import { connectToGameServer, createLobby, fetchLobbies } from "./lobbyClient";
-import { sounds, initSounds } from "./audio";
+import { sounds, initSounds, playSound } from "./audio";
 import { tournamentTree, tournamentSample } from '../../components/tournamentTree'
+import { userInfo } from "../../utils";
 
 let lobbyRefreshInterval: ReturnType<typeof setInterval> | null = null;
+
+export function turnOnGame(){
+	if (!userInfo.game_sock || userInfo.game_sock.readyState === WebSocket.CLOSED) {
+		userInfo.game_sock = new WebSocket(`ws://${location.hostname}:5000/lobby-ws`);
+
+		userInfo.game_sock.onopen = () => {
+			// console.debug('Chat socket created');
+		}
+
+		userInfo.game_sock.onerror = (error) => {
+			console.log('WebSocket error: ', error);
+		};
+
+		userInfo.game_sock.onclose = (event) => {
+			console.debug('WebSocket connection closed:', event.code, event.reason);
+			// Maybe add some reconnection logic here
+		};
+
+		userInfo.game_sock.onmessage = (event) => {
+			connectToGameServer(event);
+		};
+	}
+	else
+		showToast.red('The chat socket is already on');
+}
 
 function initializeGameMainMenu(userData: {
 	user_id: number;
@@ -15,10 +41,9 @@ function initializeGameMainMenu(userData: {
 	user_set_sound: number;
 	}) {
 	const username = userData.user_name;
-	const userId = userData.user_id;    
-	// const difficulty = userData.user_set_dificulty;
+	const userId = userData.user_id;
 
-	connectToGameServer({ username, userId });
+	// connectToGameServer({ username, userId });
 
 	// Set Single dropdown
 	dropdown.initialize('Single');
@@ -45,7 +70,7 @@ function initializeGameMainMenu(userData: {
 			// * TEMP
 			(async () => {
 				let tRounds = tournamentExample.rounds;
-				const time = 1000;
+				const time = 3000;
 				await new Promise(resolve => setTimeout(resolve, time));
 				for (let i = 0; i < 3; i++) {
 					if (i == 0)
@@ -177,8 +202,16 @@ export async function initUserData() {
 	tableSizeSelect.value = userData.user_set_tableSize;
 	soundSelect.value = userData.user_set_sound === 1 ? "On" : "Off";
 
-	// Inicializa menu principal com dados do utilizador diretamente
+	// Inicializa menu principal, dados e som
+	if (userData.user_set_sound === 1) {
+		initSounds();
+		setTimeout(() => {
+			sounds.menuMusic.play().catch(() => {});
+		}, 100); // evitar autoplay block
+	}
+	
 	initializeGameMainMenu(userData);
+
 	} catch (error) {
 		showToast.red(error as string);
 		console.error("❌ Error loading user data:", error);
@@ -203,27 +236,33 @@ export async function saveSettingsHandler() {
 	console.log(`🎮 Saving settings for:`, { user, difficulty, tableSize, sound });
   
 	try {
-	  const response = await fetch(`http://${location.hostname}:5000/save-settings`, {
-		method: "PATCH",
-		headers: { "Content-Type": "application/json" },
-		credentials: 'include',
-		body: JSON.stringify({
-		  username: user.user_name,
-		  difficulty,
-		  tableSize,
-		  sound
+		const response = await fetch(`http://${location.hostname}:5000/save-settings`, {
+			method: "PATCH",
+			headers: { "Content-Type": "application/json" },
+			credentials: 'include',
+			body: JSON.stringify({
+			username: user.user_name,
+			difficulty,
+			tableSize,
+			sound
 		})
-	  });
+	});
   
-	  if (!response.ok) throw new Error(`Failed to save settings (${response.status})`);
-	  showToast.green('Settings saved');
-	  if (!response.ok) throw new Error(`Failed to save settings (${response.status})`);
+	if (!response.ok) throw new Error(`Failed to save settings (${response.status})`);
 	showToast.green('Settings saved');
 
-	// ✅ Atualiza a variável global após salvar
+	// Atualiza local userData
 	(window as any).appUser.user_set_dificulty = difficulty;
 	(window as any).appUser.user_set_tableSize = tableSize;
 	(window as any).appUser.user_set_sound = sound;
+	// console.log("SOUND VAL: ", sound);
+
+	if (sound === 1) {
+		playSound("menuMusic");
+		} else {
+			sounds.menuMusic.pause();
+			sounds.menuMusic.currentTime = 0;
+		}
 
 	} catch (error) {
 	  console.error("❌ Error saving settings:", error);

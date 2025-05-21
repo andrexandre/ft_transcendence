@@ -334,10 +334,18 @@ export function setChatEventListeners() {
 		});
 	document.getElementById('chat-box-profile')?.addEventListener('click',
 		() => navigate(`/profile/${document.getElementById('chat-box-header-username')!.textContent}`));
-	document.getElementById('chat-box-invite-button')?.addEventListener('click', function () {
+
+	// chat --- game invite
+	document.getElementById('chat-box-invite-button')?.addEventListener('click', async function () {
 		this.remove();
 		document.getElementById('accept-invite-to-game-button')?.classList.remove('hidden');
 		document.getElementById('reject-invite-to-game-button')?.classList.remove('hidden');
+		showToast.yellow('Inviting player...');
+		userInfo.game_sock!.send(JSON.stringify({
+			type: 'create-lobby',
+			gameMode : "1v1",
+			maxPlayers : 2,
+		}));
 	});
 	setupBlockButtonListener();
 
