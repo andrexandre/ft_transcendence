@@ -17,7 +17,7 @@ class Chat extends Page {
 	getHtml(): string {
 		return /*html*/`
 			${sidebar.getHtml()}
-			<main class="grid grid-cols-[auto_1fr_auto] lg:grid-cols-[300px_1fr_300px] flex-1">
+			<main class="grid grid-cols-[auto_1fr_auto] lg:grid-cols-[300px_1fr_300px] grid-rows-1 flex-1">
 				<div class="flex flex-col card t-dashed p-5">
 					<div class="flex flex-col gap-6 h-2/3">
 						<button id="friends-list-refresh" class="flex justify-around items-center item t-dashed p-4">

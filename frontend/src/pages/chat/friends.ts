@@ -141,39 +141,16 @@ function socketOnMessage(event: MessageEvent<any>) {
 
 
 function renderMessage(user: string, from: string, message: string, timestamp: string) {
-	// //! TEMP
-	// if (message == user) {
-	// 	(document.getElementById('chat-box-invite-button') as HTMLButtonElement)!.disabled = true;
-	// 	return
-	// }
-	// else if (message != userInfo.username) {
-	// 	document.getElementById('chat-box-invite-button')?.removeEventListener('click', TEMPhandleInviteClick);
-	// 	const inviteButton = (document.getElementById('chat-box-invite-button') as HTMLButtonElement)!;
-	// 	inviteButton.innerHTML = /*html*/`
-	// 		<button id="accept-invite-to-game-button">Accept</button>
-	// 		<button id="reject-invite-to-game-button">Reject</button>
-	// 	`;
-	// 	inviteButton.className = 'px-3 rounded-2xl flex gap-2';
-	// 	document.getElementById('accept-invite-to-game-button')!.addEventListener('click', () => {
-	// 		showToast.green('Invite Accepted');
-	// 	});
-	// 	document.getElementById('accept-invite-to-game-button')!.className = 'px-3 rounded-2xl hover:bg-c-secondary dark:hover:bg-c-primary'
-	// 	document.getElementById('reject-invite-to-game-button')!.addEventListener('click', () => {
-	// 		showToast.yellow('Invite Rejected');
-	// 	});
-	// 	document.getElementById('reject-invite-to-game-button')!.className = 'px-3 rounded-2xl hover:bg-c-secondary dark:hover:bg-c-primary'
-	// 	return;
-	// }
 	const listElement = document.getElementById(`chat-box-message-list`)!;
 	const entryElement = document.createElement('li');
 	let alignment;
 	if (user == from)
-		alignment = 'justify-end ml';
+		alignment = 'justify-end ml-20';
 	else if (user == 'system')
-		alignment = 'justify-center mx';
+		alignment = 'justify-center mx-20';
 	else
-		alignment = 'justify-start mr';
-	entryElement.className = `chat-box-message-entry flex ${alignment}-20`;
+		alignment = 'justify-start mr-20';
+	entryElement.className = `flex ${alignment}`;
 	entryElement.innerHTML = /*html*/`
 	<div class="flex flex-col item t-dashed break-all">
 		<p class="self-start pr-4 select-all">${message}</p>
@@ -383,20 +360,6 @@ export function disableAutoReload() {
 	}
 }
 
-function TEMPhandleInviteClick() {
-	showToast.blue('Inviting player...');
-	//! TEMP
-	const inviteButton = (document.getElementById('chat-box-invite-button') as HTMLButtonElement)!;
-	if (inviteButton.innerHTML == 'Invite to game') {
-		inviteButton.disabled = true;
-		userInfo.chat_sock!.send(JSON.stringify({
-			type: 'chat-message',
-			message: userInfo.username
-		}));
-		inviteButton.innerHTML = 'Invited to game';
-	}
-}
-
 export function setChatEventListeners() {
 	document.getElementById('friends-list-refresh')?.addEventListener('click',
 		() => {
@@ -435,9 +398,12 @@ export function setChatEventListeners() {
 		});
 	document.getElementById('chat-box-profile')?.addEventListener('click',
 		() => navigate(`/profile/${document.getElementById('chat-box-header-username')!.textContent}`));
-		
+
 	// chat --- game invite
-	document.getElementById('chat-box-invite-button')?.addEventListener('click', async () => {
+	document.getElementById('chat-box-invite-button')?.addEventListener('click', async function () {
+		this.remove();
+		document.getElementById('accept-invite-to-game-button')?.classList.remove('hidden');
+		document.getElementById('reject-invite-to-game-button')?.classList.remove('hidden');
 		showToast.yellow('Inviting player...');
 		userInfo.game_sock!.send(JSON.stringify({
 			type: 'create-lobby',
@@ -446,9 +412,6 @@ export function setChatEventListeners() {
 		}));
 		userInfo.pendingInviteTo = currentFriend;
 	});
-
-		
-	// document.getElementById('chat-box-invite-button')?.addEventListener('click', TEMPhandleInviteClick);
 	setupBlockButtonListener();
 
 	reloadInterval = setInterval(reloadLists, 5000); // set auto reload

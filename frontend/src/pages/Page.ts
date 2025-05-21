@@ -1,16 +1,4 @@
 
-// Code i might need later :)
-// cat file.html
-// <h1>Vite + TypeScript = {{component}}</h1>
-// import file from './file.html?raw';
-// function buildHtmlFile(content: string, args: Record<string,unknown>) {	
-// 	return content.replace(/{{(.*)}}/g, (_match, arg) => {
-// 		return `${args[arg as string] || "KEY NOT FOUND"}`
-// 	})
-// }
-// document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-// 	<div>${buildHtmlFile(file, {component: "profit?"})}</div>`
-
 import * as lib from "../utils";
 
 export default abstract class Page {
@@ -46,9 +34,7 @@ export default abstract class Page {
 		this.cleanupHandlers.push(fn);
 	}
 	cleanup() {
-		this.cleanupHandlers.forEach(handler => {
-			handler();
-		})
+		this.cleanupHandlers.forEach(handler => handler());
 		this.cleanupHandlers = [];
 		this.mounted = false;
 		this.root?.remove();
