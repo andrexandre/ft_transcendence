@@ -20,6 +20,7 @@ class Login extends Page {
 		document.getElementById("2fa-code")!.addEventListener("input", async (event) => {
 			const input = (event.target as HTMLInputElement);
 			if (input.value.length === 6) {
+				lib.showToast(`Sent 2FA code: ${input.value}`);
 				try {
 					const response = await fetch(`http://${location.hostname}:7000/verify2fa`, {
 						method: 'POST',
