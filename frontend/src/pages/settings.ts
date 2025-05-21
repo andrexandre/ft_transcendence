@@ -21,13 +21,11 @@ async function loadInformation() {
 		(document.getElementById("profile-username") as HTMLInputElement).value = userData.username;
 		(document.getElementById("profile-codename") as HTMLInputElement).value = userData.codename;
 		(document.getElementById("profile-email") as HTMLInputElement).value = userData.email;
-		
-		if (userData.auth_method === 'google') // Google sign people can not change the email
 		(document.getElementById("profile-email") as HTMLInputElement).disabled = true;
-		
 		(document.getElementById("profile-bio") as HTMLInputElement).value = userData.biography;
-		(document.getElementById('2fa-toggle') as HTMLInputElement).checked = userData.two_FA_status
+		(document.getElementById('2fa-toggle') as HTMLInputElement).checked = userData.two_FA_status;
 		
+		// Set user avatar
 		setProfileImage("profile-image");
 		
 	} catch (error: any) {
@@ -60,10 +58,10 @@ class Settings extends Page {
 					}					  
 					const reader = new FileReader();
 					reader.onload = () => {
-						lib.userInfo.profileImage = reader.result as string;
-						const profileImage = document.getElementById('profile-image') as HTMLImageElement;
-						profileImage.src = lib.userInfo.profileImage;
-						lib.showToast.green("Profile image updated successfully!");
+						// lib.userInfo.profileImage = reader.result as string;
+						// const profileImage = document.getElementById('profile-image') as HTMLImageElement;
+						// profileImage.src = lib.userInfo.profileImage;
+						// lib.showToast.green("Profile image updated successfully!");
 					};
 					reader.readAsDataURL(file);
 
@@ -82,7 +80,10 @@ class Settings extends Page {
 							throw new Error(errorData.message);
 						}
 
-						lib.showToast.green("Imagem salva no servidor!");
+						lib.userInfo.profileImage = reader.result as string;
+						const profileImage = document.getElementById('profile-image') as HTMLImageElement;
+						profileImage.src = lib.userInfo.profileImage;
+						lib.showToast.green("Profile image updated successfully!");
 					} catch (error: any) {
 						return lib.showToast.red(error.message);
 					}
@@ -99,7 +100,7 @@ class Settings extends Page {
 				two_FA_status: twoFAButton.checked
 			};
 			try {
-				const response = await fetch(`http://${location.hostname}:3500/2fa/set-google-authenticator`, {
+				const response = await fetch(`http://${location.hostname}:8080/2fa/set-google-authenticator`, {
 					method: 'GET',
 					credentials: "include",
 				});
@@ -107,10 +108,10 @@ class Settings extends Page {
 					const errorData = await response.json();
 					throw new Error(errorData.message);
 				}
-
 				if (twoFAButton.checked) {
+					const data = await response.json();
 					const imageElement = document.createElement('img');
-					imageElement.src = 'https://picsum.photos/id/63/200';
+					imageElement.src = data.content;
 					imageElement.id = 'qr-code-img';
 					document.getElementById('col-1')?.appendChild(imageElement);
 					lib.showToast.green("2FA enabled");
@@ -231,12 +232,10 @@ class Settings extends Page {
 		const form = document.querySelector('form');
 		const handler = async (e: Event) => {
 			e.preventDefault();
-			const userData: { username: string; codename: string; email: string; biography: string; two_FA_status: boolean } = {
+			const userData: { username: string; codename: string; biography: string; } = {
 				username: (document.getElementById('profile-username') as HTMLInputElement).value,
 				codename: (document.getElementById('profile-codename') as HTMLInputElement).value,
-				email: (document.getElementById('profile-email') as HTMLInputElement).value,
 				biography: (document.getElementById('profile-bio') as HTMLTextAreaElement).value,
-				two_FA_status: (document.getElementById('2fa-toggle') as HTMLInputElement).checked
 			};
 			try {
 				const response = await fetch(`http://${location.hostname}:8080/api/users/save-settings`, {

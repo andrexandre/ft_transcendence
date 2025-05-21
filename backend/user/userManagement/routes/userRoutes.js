@@ -63,6 +63,7 @@ async function userRoutes(server, opts) {
 	server.route({
 		method: 'PUT',
 		url: '/api/users/save-settings',
+		schema: settingSchemas.saveSettingsSchema	,
 		preHandler: extractInformationFromToken ,
 		handler: settingsControllers.saveSettings
 	});

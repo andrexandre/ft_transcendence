@@ -15,7 +15,7 @@ await gameserver.register(fastifyWebsocket);
 await gameserver.register(fastifyCookie);
 await userRoutes(gameserver);
 await gameserver.register(cors, {
-	origin: ['http://127.0.0.1:5500', `http://${process.env.IP}:5500`],
+	origin: ['http://127.0.0.1:5500', `http://${process.env.IP}:5500`, `http://nginx-gateway:80`],
 	methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
 	credentials: true,
 });

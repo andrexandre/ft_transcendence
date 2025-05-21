@@ -20,6 +20,8 @@ import registerRoutes from './routes/auth/register.js';
 import loginRoutes from './routes/auth/login.js';
 import logoutRoute from './routes/auth/logout.js';
 import callbackOAuthRoute from './routes/auth/OAuth/callbackOAuth.js';
+import jwtHandler from './routes/auth/jwt/jwtHandler.js'
+
 
 dotenv.config();
 const fastify = Fastify({
@@ -55,6 +57,7 @@ fastify.register(registerRoutes);
 fastify.register(loginRoutes);
 fastify.register(logoutRoute);
 fastify.register(callbackOAuthRoute);
+fastify.register(jwtHandler);
 
 fastify.register(fastifyJwt, {
   secret: process.env.JWT_SECRET_KEY,

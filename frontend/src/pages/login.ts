@@ -91,13 +91,13 @@ class Login extends Page {
 					body: JSON.stringify(userData)
 				});
 				if (!response.ok)
-					throw new Error(`${response.status} - ${response.statusText}`);
+					throw new Error((await response.json()).message);
 				lib.toggleUserServices(true);
 				lib.showToast(`Logged in successfully`);
 				lib.navigate("/");
-			} catch (error) {
+			} catch (error: any) {
 				console.log(error);
-				lib.showToast.red(error as string);
+				lib.showToast.red(error.message);
 			}
 		};
 		form?.addEventListener('submit', handler);
