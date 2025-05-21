@@ -3,27 +3,14 @@ import { showToast } from "../../utils";
 import { stopSound, sounds } from "./audio";
 import { connectToMatch } from "./rendering";	
 import { userInfo } from "../../utils";
-import { tournamentSample } from "./tournamentRender";
 
-let socket: WebSocket | null = null;
 let lobbyId: string | null = null;
 let user: { username: string; userId: string } | null = null; //? verificar com o nr no ID
 let matchSocketStarted = false;
 
 export function connectToGameServer(event : MessageEvent<any>) {
-	// if (socket && socket.readyState === WebSocket.OPEN) {
-	// 	console.warn("🚫 Já estás conectado ao servidor.");
-	// 	return;
-	// }
 	user = {username: userInfo.username, userId: userInfo.userId}
-	console.log(user)
-	// const { username, userId } = user;
-
-	// socket = new WebSocket(`ws://${location.hostname}:5000/lobby-ws`);
-
-	// socket.onopen = () => {
-	// 	console.log(`✅ WebSocket connected for: ${username} → (${userId}) → ${socket!.url}`);
-	// };
+	console.log(user);
 
 	const data = JSON.parse(event.data);
 	console.log("📨 WS Message:", data);
@@ -32,11 +19,16 @@ export function connectToGameServer(event : MessageEvent<any>) {
 		case "lobby-created":
 			lobbyId = data.lobbyId;
 			showToast.green(`✅ Lobby created: ${data.lobbyId}`);
-
 			if (data.maxPlayers === 1) {
 				console.log("🎯 Singleplayer detected! Auto-starting game.");
 				setTimeout(() => matchStartGame(), 500);
 			}
+			userInfo.chat_sock!.send(JSON.stringify({
+				type: 'invite-to-game',
+				friend: userInfo.pendingInviteTo,
+				from: userInfo.username,
+				lobbyId: data.lobbyId
+			}));
 			break;
 
 		case "lobby-joined":
@@ -82,9 +74,6 @@ export function connectToGameServer(event : MessageEvent<any>) {
 			showToast.red(`❌ ${data.message}`);
 			break;
 	};
-
-	// socket.onerror = () => showToast.red("❌ WebSocket connection error");
-	// socket.onclose = () => showToast.red("🔌 Disconnected from server");
 }
 
 export function createLobby(gameMode: string, maxPlayers: number, difficulty?: string) {

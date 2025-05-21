@@ -8,29 +8,25 @@ import { userInfo } from "../../utils";
 
 let lobbyRefreshInterval: ReturnType<typeof setInterval> | null = null;
 
-export function turnOnGame(){
-	if (!userInfo.game_sock || userInfo.game_sock.readyState === WebSocket.CLOSED) {
-		userInfo.game_sock = new WebSocket(`ws://${location.hostname}:5000/lobby-ws`);
-
-		userInfo.game_sock.onopen = () => {
-			// console.debug('Chat socket created');
-		}
-
-		userInfo.game_sock.onerror = (error) => {
-			console.log('WebSocket error: ', error);
-		};
-
-		userInfo.game_sock.onclose = (event) => {
-			console.debug('WebSocket connection closed:', event.code, event.reason);
-			// Maybe add some reconnection logic here
-		};
-
-		userInfo.game_sock.onmessage = (event) => {
-			connectToGameServer(event);
-		};
+export function turnOnGame() {
+	if (userInfo.game_sock?.readyState === WebSocket.OPEN) {
+		showToast.red("🚫 Lobby socket já está ativo");
+		return;
 	}
-	else
-		showToast.red('The chat socket is already on');
+
+	const url = `ws://${location.hostname}:5000/lobby-ws`;
+	userInfo.game_sock = new WebSocket(url);
+
+	userInfo.game_sock.onopen = () => {
+		console.log(`✅ WebSocket connected for: ${userInfo.username} (${userInfo.userId}) → ${url}`);
+	};
+
+	userInfo.game_sock.onerror = () => showToast.red("❌ Erro na ligação do WebSocket");
+	userInfo.game_sock.onclose = () => showToast.red("🔌 Ligação terminada com o servidor");
+
+	userInfo.game_sock.onmessage = (event) => {
+		connectToGameServer(event);
+	};
 }
 
 function initializeGameMainMenu(userData: {
@@ -42,8 +38,6 @@ function initializeGameMainMenu(userData: {
 	}) {
 	const username = userData.user_name;
 	const userId = userData.user_id;
-
-	// connectToGameServer({ username, userId });
 
 	// Set Single dropdown
 	dropdown.initialize('Single');
