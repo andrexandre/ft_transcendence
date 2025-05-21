@@ -5,10 +5,10 @@ export default function jwtHandler(fastify, options){
         payload.username = username;
         const token =  await fastify.generateToken(payload);
         reply.setCookie('token', token, {
-			path: '/',
+			      path: '/',
             httpOnly: true,
-            secure: true,
-            sameSite: 'Strict'
+            secure: false,
+            sameSite: 'lax'
 		}).status(200);
     })
 }

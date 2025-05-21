@@ -28,22 +28,18 @@ async function saveSettings(request, reply) {
 
 			if (!response.ok)
 				throw new Error('Bad jwt!');
-
-			// console.log('ALLCOKIES: ', response.headers.raw()['set-cookie'])
 			
 			const CookieHeaderContent = response.headers.get('set-cookie');
-			const cookieOpts = setCookie(CookieHeaderContent);
+			const cookieOpts = (setCookie(CookieHeaderContent))[0]; // We only want the first cookie
 
 			console.log('NewToken: ', `(${CookieHeaderContent})`);
-			console.log('opts: ', `(${cookieOpts})`);
+			console.log('opts 111: ', cookieOpts);
 
 			const newValue = cookieOpts.value;
-
-			delete cookieOpts.value;
 			delete cookieOpts.name;
-
+			delete cookieOpts.value;
+			console.log('opts 222: ', cookieOpts);
 			reply.setCookie('token', newValue, cookieOpts);
-
 		}
 		
 		await this.updateUserInformation(request.body, request.authenticatedUser.id);
