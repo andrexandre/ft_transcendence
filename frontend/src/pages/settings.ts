@@ -166,7 +166,7 @@ class Settings extends Page {
 					<form class="card flex flex-col overflow-auto" action="#">
 						<h1 class="item text-start text-2xl">Profile</h1>
 						<div class="flex">
-							<button id="profile-image-button" class="relative size-60 group">
+							<button id="profile-image-button" type="button" class="relative size-60 group">
 								<img id="profile-image" class="rounded-full size-full object-cover border-2 shadow-lg shadow-neutral-400"/>
 								<div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 rounded-full transition-opacity">
 									<i class="fa-solid fa-camera"></i>

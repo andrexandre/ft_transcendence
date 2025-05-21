@@ -17,10 +17,9 @@ async function loadInformation(profileUsername: string) {
 	(document.getElementById("profile-username") as HTMLElement).textContent = userData.username;
 	(document.getElementById("profile-codename") as HTMLElement).textContent = userData.codename;
 	(document.getElementById("profile-bio") as HTMLElement).textContent = userData.biography;
-	lib.userInfo.username = userData.username;
 
 	setProfileImage("profile-image", profileUsername);
-	updateMatchHistory();
+	updateMatchHistory(profileUsername);
 }
 
 class Profile extends Page {

@@ -47,13 +47,15 @@ function socketOnMessage(event: MessageEvent<any>) {
 	const data = JSON.parse(event.data);
 	// console.log(data);
 	if (data.type === 'message-emit') {
-		if (userInfo.path.startsWith('/chat'))
-			renderMessage(data.user, data.data.from, data.data.message, data.data.timestamp);
-		else
-			showToast(`${data.user}: ${data.data.message}`);
+		renderMessage(data.user, data.data.from, data.data.message, data.data.timestamp);
+		const messageList = document.getElementById('chat-box-message-list')!;
+		messageList.scrollTop = messageList.scrollHeight;
 	}
-	else if (data.type === 'load-messages')
+	else if (data.type === 'load-messages') {
 		data.data.forEach((msg: { user: string, from: string, message: string, timestamp: string }) => renderMessage(data.user, msg.from, msg.message, msg.timestamp));
+		const messageList = document.getElementById('chat-box-message-list')!;
+		messageList.scrollTop = messageList.scrollHeight;
+	}
 	else if (data.type === 'get-friends-list') {
 		data.data.forEach((friend: { username: string }) => renderFriendList(friend.username));
 		handleEmptyList('friends-list', 'No friends, sad life');
@@ -75,6 +77,29 @@ function socketOnMessage(event: MessageEvent<any>) {
 };
 
 function renderMessage(user: string, from: string, message: string, timestamp: string) {
+	// //! TEMP
+	// if (message == user) {
+	// 	(document.getElementById('chat-box-invite-button') as HTMLButtonElement)!.disabled = true;
+	// 	return
+	// }
+	// else if (message != userInfo.username) {
+	// 	document.getElementById('chat-box-invite-button')?.removeEventListener('click', TEMPhandleInviteClick);
+	// 	const inviteButton = (document.getElementById('chat-box-invite-button') as HTMLButtonElement)!;
+	// 	inviteButton.innerHTML = /*html*/`
+	// 		<button id="accept-invite-to-game-button">Accept</button>
+	// 		<button id="reject-invite-to-game-button">Reject</button>
+	// 	`;
+	// 	inviteButton.className = 'px-3 rounded-2xl flex gap-2';
+	// 	document.getElementById('accept-invite-to-game-button')!.addEventListener('click', () => {
+	// 		showToast.green('Invite Accepted');
+	// 	});
+	// 	document.getElementById('accept-invite-to-game-button')!.className = 'px-3 rounded-2xl hover:bg-c-secondary dark:hover:bg-c-primary'
+	// 	document.getElementById('reject-invite-to-game-button')!.addEventListener('click', () => {
+	// 		showToast.yellow('Invite Rejected');
+	// 	});
+	// 	document.getElementById('reject-invite-to-game-button')!.className = 'px-3 rounded-2xl hover:bg-c-secondary dark:hover:bg-c-primary'
+	// 	return;
+	// }
 	const listElement = document.getElementById(`chat-box-message-list`)!;
 	const entryElement = document.createElement('li');
 	let alignment;
@@ -99,7 +124,7 @@ let currentFriend: string | null = null;
 
 // This function will remain the same
 function listenerA(name: string) {
-	const chatHeaderBlockButton = document.getElementById('chat-box-block')!;
+	const chatHeaderBlockButton = document.getElementById('chat-box-block-button')!;
 	const isBlocking = chatHeaderBlockButton.textContent!.includes('Block');
 	if (isBlocking) {
 		chatHeaderBlockButton.textContent = 'Unblock';
@@ -125,7 +150,7 @@ function listenerA(name: string) {
 }
 
 function setupBlockButtonListener() {
-	const chatHeaderBlockButton = document.getElementById('chat-box-block')!;
+	const chatHeaderBlockButton = document.getElementById('chat-box-block-button')!;
 
 	// Remove any existing listeners by cloning the button
 	const newButton = chatHeaderBlockButton.cloneNode(true);
@@ -134,7 +159,7 @@ function setupBlockButtonListener() {
 	}
 
 	// Add a single listener that uses the currentFriend variable
-	const updatedButton = document.getElementById('chat-box-block')!;
+	const updatedButton = document.getElementById('chat-box-block-button')!;
 	updatedButton.addEventListener('click', () => {
 		if (currentFriend) {
 			listenerA(currentFriend);
@@ -247,7 +272,7 @@ function renderChatRoom(name: string, isBlocked: boolean) {
 
 	const chatHeaderUsername = document.getElementById('chat-box-header-username')!;
 	chatHeaderUsername.textContent = name;
-	const chatHeaderBlockButton = document.getElementById('chat-box-block')!;
+	const chatHeaderBlockButton = document.getElementById('chat-box-block-button')!;
 	chatHeaderBlockButton.textContent = isBlocked ? 'Unblock' : 'Block';
 
 	const chatBoxProfileImage = document.getElementById('chat-box-profile') as HTMLButtonElement;
@@ -291,6 +316,20 @@ export function disableAutoReload() {
 	if (reloadInterval !== null) {
 		clearInterval(reloadInterval);
 		reloadInterval = null;
+	}
+}
+
+function TEMPhandleInviteClick() {
+	showToast.blue('Inviting player...');
+	//! TEMP
+	const inviteButton = (document.getElementById('chat-box-invite-button') as HTMLButtonElement)!;
+	if (inviteButton.innerHTML == 'Invite to game') {
+		inviteButton.disabled = true;
+		userInfo.chat_sock!.send(JSON.stringify({
+			type: 'chat-message',
+			message: userInfo.username
+		}));
+		inviteButton.innerHTML = 'Invited to game';
 	}
 }
 
@@ -343,6 +382,7 @@ export function setChatEventListeners() {
 		}));
 	});
 		
+	// document.getElementById('chat-box-invite-button')?.addEventListener('click', TEMPhandleInviteClick);
 	setupBlockButtonListener();
 
 	reloadInterval = setInterval(reloadLists, 5000); // set auto reload
