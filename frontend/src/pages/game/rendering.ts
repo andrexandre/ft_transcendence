@@ -37,23 +37,23 @@ function GameMessageVisibility(show: boolean) {
 	el.classList.toggle("hidden", !show);
 }
 
-function updateScoreboard(players: any[]) {
-	const el = document.getElementById("scoreboard") as HTMLDivElement;
-	if (!el) return;
+// function updateScoreboard(players: any[]) {
+// 	const el = document.getElementById("scoreboard") as HTMLDivElement;
+// 	if (!el) return;
 
-	const teamA = players.slice(0, 2);
-	const teamB = players.slice(2, 4);
-	const scoreA = teamA.reduce((acc, p) => acc + p.score, 0);
-	const scoreB = teamB.reduce((acc, p) => acc + p.score, 0);
+// 	const teamA = players.slice(0, 2);
+// 	const teamB = players.slice(2, 4);
+// 	const scoreA = teamA.reduce((acc, p) => acc + p.score, 0);
+// 	const scoreB = teamB.reduce((acc, p) => acc + p.score, 0);
 
-	el.innerHTML = /*html*/`
-		<div class="text-center text-white text-xl">Team 🟦 ${scoreA} vs ${scoreB} 🟥</div>
-		<div class="grid grid-cols-2 gap-2 mt-2 text-sm">
-			<div class="text-right truncate">${teamA.map(p => p.username).join(', ')}</div>
-			<div class="text-left truncate">${teamB.map(p => p.username).join(', ')}</div>
-		</div>
-	`;
-}
+// 	el.innerHTML = /*html*/`
+// 		<div class="text-center text-white text-xl">Team 🟦 ${scoreA} vs ${scoreB} 🟥</div>
+// 		<div class="grid grid-cols-2 gap-2 mt-2 text-sm">
+// 			<div class="text-right truncate">${teamA.map(p => p.username).join(', ')}</div>
+// 			<div class="text-left truncate">${teamB.map(p => p.username).join(', ')}</div>
+// 		</div>
+// 	`;
+// }
 
 
 function drawGame() {
@@ -69,7 +69,7 @@ function drawGame() {
 	players.forEach((p) => {
 		const x = (p.posiX / 100) * (gameCanvas.width - paddleWidth);
 		const y = (p.posiY / 100) * (gameCanvas.height - paddleHeight);
-		ctx.fillStyle = p.posiX < 400 ? "blue" : "red";
+		ctx.fillStyle = p.posiX > 50 ? "blue" : "red";
 	
 		if (p.userId === currentPlayerId) {
 			ctx.strokeStyle = "white";
@@ -90,18 +90,18 @@ function drawGame() {
   }
   
   
-// function updateScoreboard(players: any[]) {
-// 	const el = document.getElementById("scoreboard") as HTMLDivElement;
-// 	if (players.length < 2) return;
-// 	const [p1, p2] = players;
-// 	el.innerHTML = /*html*/`
-// 		<div class="grid grid-cols-[1fr_15rem_1fr]">
-// 			<div class="text-right truncate" style='color: blue;'>${p1.username}</div>
-// 			<div class="text-center">${p1.score} vs ${p2.score}</div>
-// 			<div class="text-left truncate" style='color: red;'>${p2.username}</div>
-// 		</div>
-// 	`;
-// }
+function updateScoreboard(players: any[]) {
+	const el = document.getElementById("scoreboard") as HTMLDivElement;
+	if (players.length < 2) return;
+	const [p1, p2] = players;
+	el.innerHTML = /*html*/`
+		<div class="grid grid-cols-[1fr_15rem_1fr]">
+			<div class="text-right truncate" style='color: blue;'>${p1.username}</div>
+			<div class="text-center">${p1.score} vs ${p2.score}</div>
+			<div class="text-left truncate" style='color: red;'>${p2.username}</div>
+		</div>
+	`;
+}
 
 // function drawGame() {
 // 	ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
@@ -189,6 +189,8 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
 			gameStarting = true;
 			GameMessageVisibility(true);
 			drawGameMessage(data.value.toString(), "green");
+			renderTournamentBracket();
+
 			// add som
 			if ((window as any).appUser?.user_set_sound === 1) {
 				playSound("countdown");

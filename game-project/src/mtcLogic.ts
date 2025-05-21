@@ -2,7 +2,7 @@
 import type { MatchState } from './matchManager.js';
 
 export function initMTCPlayers(players: any[]) {
-	const positions = [10, 30, 70, 90];
+	const positions = [5, 25, 75, 95]; // 10, 30, 70, 90
 	return players.map((p, index) => ({
 		id: p.userId,
 		username: p.username,
@@ -35,7 +35,7 @@ export function updateMTCGame(match: MatchState) {
 		}
 	});
 
-	// Golo
+	// Score
 	if (match.ball.x < 0 || match.ball.x > 800) {
 		const loserTeam = match.ball.x < 0 ? 'left' : 'right';
 		addScoreToTeam(match, loserTeam);
