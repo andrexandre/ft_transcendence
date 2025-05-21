@@ -1,14 +1,14 @@
 export default function jwtHandler(fastify, options){
-    fastify.post('/updateToken', (request, reply) => {
-        const { username } = request.body;
-        const payload = fastify.parseToReadableData(request.cookies.token);
+    fastify.post('/updateToken', async (request, reply) => {
+		const { username } = request.body;
+        const payload = await fastify.parseToReadableData(request.cookies.token);
         payload.username = username;
-        const token = fastify.generateToken(payload);
+        const token =  await fastify.generateToken(payload);
         reply.setCookie('token', token, {
-            path: '/',
+			path: '/',
             httpOnly: true,
             secure: true,
             sameSite: 'Strict'
-          });
+		}).status(200);
     })
 }
