@@ -16,7 +16,8 @@ export var userInfo = {
 	profileImage: "",
 	path: "",
 	chat_sock: null as WebSocket | null,
-	game_sock: null as WebSocket | null
+	game_sock: null as WebSocket | null,
+	pendingInviteTo: null as string | null
 }
 
 // onBeforeClose?: Promise<void> / waitForEvent?: { element: HTMLElement; event: string }

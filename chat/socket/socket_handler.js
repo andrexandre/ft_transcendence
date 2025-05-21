@@ -24,6 +24,48 @@ export async function SocketHandler(socket, username)
 				return;
 			}
 			switch (data.type){
+				// game in
+				case 'invite-to-game': {
+					const to = users.get(data.friend);
+					if (!to) return;
+				
+					to.send(JSON.stringify({
+						type: 'receive-game-invite',
+						from: data.from,
+						lobbyId: data.lobbyId
+					}));
+					break;
+				}
+				case 'reject-invite': {
+					const targetSock = users.get(data.to);
+					if (!targetSock) return;
+				
+					targetSock.send(JSON.stringify({
+						type: 'invite-rejected',
+						from: username
+					}));
+					break;
+				}
+				case "invite-rejected":
+					showToast.red(`❌ ${data.from} rejeitou o convite`);
+					break;
+				case 'join-accepted':
+					console.log("AQUIIIIIIIIIIIIIIIIIIIIIIIII");
+					console.log("USERNAME FRIEND: ", data.friend);
+					const to = users.get(data.friend);
+					if (!to) return;
+					console.log("AQUIIIIIIIIIIIIIIIIIIIIIIIII");
+				
+					to.send(JSON.stringify({
+						type: 'join-accepted2',
+						lobbyId: data.lobbyId
+					}));
+					break;
+
+				// game out
+
+				
+				
 				case 'chat-message':
 					await handleChatMessage(username, data.message, socket);
 					break;
