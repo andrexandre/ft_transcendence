@@ -20,7 +20,7 @@ async function loadInformation(profileUsername: string) {
 	lib.userInfo.username = userData.username;
 
 	setProfileImage("profile-image", profileUsername);
-	updateMatchHistory();
+	updateMatchHistory(profileUsername);
 }
 
 class Profile extends Page {

@@ -67,9 +67,9 @@ function displayMatchHistory(matchHistory: MatchHistoryI[]) {
 	}
 }
 
-export async function updateMatchHistory() {
+export async function updateMatchHistory(targetUsername: string) {
 	try {
-		const response = await fetch(`http://${location.hostname}:5000/user-game-history`, {
+		const response = await fetch(`http://${location.hostname}:5000/${targetUsername}/user-game-history`, {
 			credentials: "include",
 		});
 		if (!response.ok) {
@@ -146,7 +146,7 @@ async function loadInformation() {
 		// lib.userInfo.auth_method = userData.auth_method;
 	
 		setProfileImage("profile-image");
-		updateMatchHistory();
+		updateMatchHistory(lib.userInfo.username);
 	} catch (error: any) {
 		return lib.showToast.red(error.message);
 	}
