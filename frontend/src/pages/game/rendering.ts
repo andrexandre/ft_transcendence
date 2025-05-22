@@ -2,7 +2,6 @@ import { showToast } from '../../utils';
 import { playSound, sounds, stopSound } from './audio';
 import { clearLobbyId } from './lobbyClient'; 
 import { state as tournamentState, renderTournamentBracket, handleEndTournament, showRoundTransition, state } from './tournamentRender';
-import { tournamentTree, tournamentSample } from '../../components/tournamentTree'
 
 export let gameCanvas: HTMLCanvasElement;
 export let ctx: CanvasRenderingContext2D;
