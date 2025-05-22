@@ -1,5 +1,6 @@
 import { turnOnChat, turnOffChat } from "../pages/chat/friends"
-// import { turnOnGame, turnOffGame } from "../pages/game/page"
+import { turnOnGame } from "../pages/game/menu"
+
 export { default as Cookies } from 'js-cookie';
 import { renderPattern } from "./patterns";
 
@@ -15,7 +16,8 @@ export var userInfo = {
 	profileImage: "",
 	path: "",
 	chat_sock: null as WebSocket | null,
-	// game_sock: null as WebSocket | null
+	game_sock: null as WebSocket | null,
+	pendingInviteTo: null as string | null
 }
 
 // onBeforeClose?: Promise<void> / waitForEvent?: { element: HTMLElement; event: string }
@@ -92,7 +94,7 @@ export function setColor(color: string, save?: boolean) {
 export function toggleUserServices(on: boolean) {
 	if (on) {
 		turnOnChat();
-		// turnOnGame();
+		turnOnGame();
 	} else {
 		turnOffChat();
 		// turnOffGame();

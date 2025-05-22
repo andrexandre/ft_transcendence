@@ -20,6 +20,7 @@ class Login extends Page {
 		document.getElementById("2fa-code")!.addEventListener("input", async (event) => {
 			const input = (event.target as HTMLInputElement);
 			if (input.value.length === 6) {
+				lib.showToast(`Sent 2FA code: ${input.value}`);
 				try {
 					const response = await fetch(`http://${location.hostname}:7000/verify2fa`, {
 						method: 'POST',
@@ -90,13 +91,13 @@ class Login extends Page {
 					body: JSON.stringify(userData)
 				});
 				if (!response.ok)
-					throw new Error(`${response.status} - ${response.statusText}`);
+					throw new Error((await response.json()).message);
 				lib.toggleUserServices(true);
 				lib.showToast(`Logged in successfully`);
 				lib.navigate("/");
-			} catch (error) {
+			} catch (error: any) {
 				console.log(error);
-				lib.showToast.red(error as string);
+				lib.showToast.red(error.message);
 			}
 		};
 		form?.addEventListener('submit', handler);

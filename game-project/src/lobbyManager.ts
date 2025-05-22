@@ -76,8 +76,8 @@ export function startGame(lobbyId: string, requesterId: number): { success: bool
 	const lobby = lobbies.get(lobbyId);
 
 	if (!lobby) return { success: false };
-	if ((Number(lobby.hostId) !== Number(requesterId))) return { success: false };
-	if (lobby.players.length !== lobby.maxPlayers) return { success: false };
+	// if ((Number(lobby.hostId) !== Number(requesterId))) return { success: false };
+	// if (lobby.players.length !== lobby.maxPlayers) return { success: false };
 
 	lobby.status = "in-game";
 	const gameId = `mat-${crypto.randomUUID().slice(0, 8)}`;
@@ -85,24 +85,30 @@ export function startGame(lobbyId: string, requesterId: number): { success: bool
 
 	console.log(`🚀 Starting game ${gameId} from lobby ${lobbyId}`);
 
+	// changed
 	lobby.players.forEach((player, index) => {
+		const role = `p${index}`;
+		const opponent = (lobby.maxPlayers === 2)
+			? lobby.players.find(p => p.userId !== player.userId)?.username || "BoTony"
+			: "MTC";
+	
 		if (player.socket.readyState === WebSocket.OPEN) {
-		player.socket.send(JSON.stringify({
-			type: "match-start",
-			playerRole: index === 0 ? "left" : "right",
-			opponent: lobby.players.length > 1 ? lobby.players[1 - index].username : "BoTony",
-			gameMode: lobby.gameMode,
-			gameId,
-		}));
-		console.log("✅ game-start enviado para o frontend.");
+			player.socket.send(JSON.stringify({
+				type: "match-start",
+				playerRole: role,
+				opponent,
+				gameMode: lobby.gameMode,
+				gameId,
+			}));
+			console.log("✅ game-start enviado para o frontend.");
 		} else {
-		console.warn(`⚠️ Socket do jogador ${player.username} não está aberto!`);
+			console.warn(`⚠️ Socket do jogador ${player.username} não está aberto!`);
 		}
 	});
 	return { success: true, gameId };
 }
 
-export function listLobbies() {
+export function listLobbies() { /// verificar erro aqui
   const result: any[] = [];
   for (const [id, lobby] of lobbies.entries()) {
     if (lobby.status === "waiting") {
@@ -112,7 +118,8 @@ export function listLobbies() {
         hostUserId: lobby.hostId,
         playerCount: lobby.players.length,
         maxPlayers: lobby.maxPlayers,
-        gameMode: lobby.gameMode
+        gameMode: lobby.gameMode,
+		players: lobby.players.map(p => ({ userId: p.userId, username: p.username }))
       });
     }
   }

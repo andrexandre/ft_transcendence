@@ -1,5 +1,8 @@
+import { showToast } from '../../utils';
+import { playSound, sounds, stopSound } from './audio';
 import { clearLobbyId } from './lobbyClient'; 
-import { state as tournamentState, renderTournamentBracket, handleEndTournament, showRoundTransition } from './tournamentRender';
+import { state as tournamentState, renderTournamentBracket, handleEndTournament, showRoundTransition, state } from './tournamentRender';
+import { tournamentTree, tournamentSample } from '../../components/tournamentTree'
 
 export let gameCanvas: HTMLCanvasElement;
 export let ctx: CanvasRenderingContext2D;
@@ -14,7 +17,6 @@ let ball = { x: 800, y: 600 };
 let gameStarted = false;
 let matchSocket: WebSocket;
 let localUsername: string = "";
-
 
 export function initGameCanvas() {
 	gameCanvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
@@ -35,37 +37,30 @@ function GameMessageVisibility(show: boolean) {
 	el.classList.toggle("hidden", !show);
 }
 
-function updateScoreboard(players: any[]) {
-	const el = document.getElementById("scoreboard") as HTMLDivElement;
-	if (players.length < 2) return;
-	const [p1, p2] = players;
-	el.innerHTML = /*html*/`
-		<div class="grid grid-cols-[1fr_15rem_1fr]">
-			<div class="text-right truncate" style='color: blue;'>${p1.username}</div>
-			<div class="text-center">${p1.score} vs ${p2.score}</div>
-			<div class="text-left truncate" style='color: red;'>${p2.username}</div>
-		</div>
-	`;
-}
-
 function drawGame() {
 	ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-
+	
 	const gradient = ctx.createLinearGradient(0, 0, 0, gameCanvas.height);
 	gradient.addColorStop(0, "transparent");
 	gradient.addColorStop(0.5, "green");
 	gradient.addColorStop(1, "transparent");
 	ctx.fillStyle = gradient;
 	ctx.fillRect(gameCanvas.width / 2 - 1, 0, 2, gameCanvas.height);
-
+	
 	players.forEach((p) => {
 		const x = (p.posiX / 100) * (gameCanvas.width - paddleWidth);
 		const y = (p.posiY / 100) * (gameCanvas.height - paddleHeight);
-
-		ctx.fillStyle = p.posiX === 0 ? "blue" : "red";
+		ctx.fillStyle = p.posiX < 50 ? "blue" : "red";
+	
+		if (p.userId === currentPlayerId) {
+			ctx.strokeStyle = "white";
+			ctx.lineWidth = 3;
+			ctx.strokeRect(x, y, paddleWidth, paddleHeight);
+		}
+	
 		ctx.fillRect(x, y, paddleWidth, paddleHeight);
 	});
-
+	
 	ctx.fillStyle = "green";
 	ctx.beginPath();
 	ctx.arc(ball.x + ballSize / 2, ball.y + ballSize / 2, ballSize / 2, 0, Math.PI * 2);
@@ -74,17 +69,52 @@ function drawGame() {
 	updateScoreboard(players);
 }
 
+export function updateScoreboard(players: any[]) {
+	const el = document.getElementById("scoreboard") as HTMLDivElement;
+	if (players.length < 2) return;
+	if (players.length == 4) {
+		const teamA = players.slice(0, 2);
+		const teamB = players.slice(2, 4);
+		const scoreA = teamA.reduce((acc, p) => acc + p.score, 0);
+		const scoreB = teamB.reduce((acc, p) => acc + p.score, 0);
+		el.innerHTML = /*html*/`
+			<div class="grid grid-cols-[1fr_15rem_1fr] space-y-1">
+				<div class="text-right truncate" style='color: blue;'>Team 1</div>
+				<div class="text-center">${scoreA} vs ${scoreB}</div>
+				<div class="text-left truncate" style='color: red;'>Team 2</div>
+				<div class="text-right text-sm">${teamA.map(p => p.username).join(', ')}</div>
+				<div class="text-center"></div>
+				<div class="text-left text-sm">${teamB.map(p => p.username).join(', ')}</div>
+			</div>
+		`;
+	} else {
+		const [p1, p2] = players;
+		el.innerHTML = /*html*/`
+			<div class="grid grid-cols-[1fr_15rem_1fr]">
+				<div class="text-right truncate" style='color: blue;'>${p1.username}</div>
+				<div class="text-center">${p1.score} vs ${p2.score}</div>
+				<div class="text-left truncate" style='color: red;'>${p2.username}</div>
+			</div>
+		`;
+	}
+}
+
+let isKeySetup = false;
+
 function setupControls() {
 	const keysPressed: Record<string, boolean> = {};
 	let lastMoveTime = 0;
 	const speedDelay = 25;
 
-	document.addEventListener("keydown", (e) => {
-		keysPressed[e.key] = true;
-	});
-	document.addEventListener("keyup", (e) => {
-		keysPressed[e.key] = false;
-	});
+	if (!isKeySetup) {
+		isKeySetup = true;
+		document.addEventListener("keydown", (e) => {
+			keysPressed[e.key] = true;
+		});
+		document.addEventListener("keyup", (e) => {
+			keysPressed[e.key] = false;
+		});
+	}
 
 	setInterval(() => {
 		if (!matchSocket || matchSocket.readyState !== WebSocket.OPEN) return;
@@ -93,12 +123,12 @@ function setupControls() {
 		if (now - lastMoveTime < speedDelay) return;
 
 		if (keysPressed["ArrowUp"]) {
-		matchSocket.send(JSON.stringify({ type: "move", direction: "up" }));
-		lastMoveTime = now;
+			matchSocket.send(JSON.stringify({ type: "move", direction: "up" }));
+			lastMoveTime = now;
 		}
 		if (keysPressed["ArrowDown"]) {
-		matchSocket.send(JSON.stringify({ type: "move", direction: "down" }));
-		lastMoveTime = now;
+			matchSocket.send(JSON.stringify({ type: "move", direction: "down" }));
+			lastMoveTime = now;
 		}
 	}, 1000 / 60);
 }
@@ -126,7 +156,7 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
 		if (data.type === "welcome") {
 			console.log("🎉 Welcome recebido:", data);
 			currentPlayerId = data.playerId;
-			role = data.role; //???
+			data.role = role; //???
 			return;
 		}
 		
@@ -134,6 +164,10 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
 			gameStarting = true;
 			GameMessageVisibility(true);
 			drawGameMessage(data.value.toString(), "green");
+			// add som
+			if ((window as any).appUser?.user_set_sound === 1) {
+				playSound("countdown");
+			}
 			if (data.value === 1) {
 				setTimeout(() => {
 					GameMessageVisibility(false);
@@ -154,7 +188,7 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
 			}
 			
 			localUsername = data.you;
-			console.log("🟢🟢🟢🟢:", localUsername);
+			// console.log("🟢🟢🟢🟢:", localUsername);
 			players = data.state.players;
 			role = data.state.role;
 			currentPlayerId = players.find(p => p.username === localUsername)?.userId ?? 0;
@@ -170,9 +204,29 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
 		}
 		
 		if (data.type === "show-bracket") {
+			// const serverRounds = data.rounds;
+			// document.getElementById('sidebar')?.classList.toggle('hidden');
+			// document.getElementById('tournament-bracket')!.innerHTML = tournamentTree.getHtml();
+			// document.getElementById('tournament-bracket')?.classList.remove('hidden');
+			// document.getElementById('game-main-menu')?.classList.add('hidden');
+			// showToast.red("show-bracket")
+		
+			// state.rounds = serverRounds.map((round: any[]) =>
+			// 	round.map((m: any) => ({
+			// 		player1: m.player1.username,
+			// 		player2: m.player2.username,
+			// 		winner: m.winnerId === m.player1.userId ? m.player1.username
+			// 			: m.winnerId === m.player2.userId ? m.player2.username
+			// 			: undefined
+			// 	}))
+			// );
+		
+			// state.currentRound = data.currentRound;
+			showToast.red("show-bracket1111111111111111111111111111111111111111111111")
 			renderTournamentBracket();
 			return;
 		}
+		
 
 		if (data.type === "end-round") {
 			renderTournamentBracket();
@@ -205,6 +259,12 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
 				gameStarted = false;
 				gameStarting = false;
 				gameEnded = false;
+
+				// remove som
+				if ((window as any).appUser?.user_set_sound === 1) {
+					stopSound("gameMusic");
+					sounds.menuMusic.play().catch(() => {});
+				}
 			}, 5000);
 			return;
 		}
