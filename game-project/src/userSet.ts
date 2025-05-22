@@ -128,6 +128,29 @@ const getUserByUsername = (username: string) =>
 });
 
 export async function userRoutes(gameserver: FastifyInstance) {
+
+	gameserver.post('/game/updateUserInfo', async function(request: any, reply: any) {
+		
+		const token: string | undefined = request.cookies.token;
+		if (!token) return reply.status(401).send({ error: "No token provided" });
+
+		// The new username will be in the given token;
+		const userData = await getUserDatafGateway(token);
+		if (!userData) return reply.status(401).send({ error: "Failed to fetch user from Gateway" });
+		
+		const status: boolean = await new Promise((resolve, reject) => {
+			const query: string = `UPDATE users SET user_name = ?  WHERE user_id = ?;`;
+			db_game.run(query, [ userData.username, userData.userId ] , function (err) {
+				if (err) return reject(false);
+				resolve(true);
+			});
+		});
+		
+		if (!status) return reply.status(500).send({ message: 'Inetrnal server error!'});
+
+		reply.status(200);
+	});
+
 	// Get user data
 	gameserver.post('/game/init-user', initSchema, async function(request: any, reply: any) {
 		const { id, username } = request.body;
