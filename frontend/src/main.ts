@@ -25,7 +25,7 @@ async function loadApp(path: string) {
 			throw new Error(`${response.status} - ${response.statusText}`);
 		let responseData = await response.json();
 		lib.userInfo.username = responseData.username
-		// lib.userInfo.userId = responseData.userId
+		lib.userInfo.userId = responseData.userId
 		lib.userInfo.auth_method = responseData.auth_method
 		if (path == "/register" || path == "/login") {
 			lib.showToast.yellow(`Already authenticated`);

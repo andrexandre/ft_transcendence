@@ -76,8 +76,8 @@ export function startGame(lobbyId: string, requesterId: number): { success: bool
 	const lobby = lobbies.get(lobbyId);
 
 	if (!lobby) return { success: false };
-	if ((Number(lobby.hostId) !== Number(requesterId))) return { success: false };
-	if (lobby.players.length !== lobby.maxPlayers) return { success: false };
+	// if ((Number(lobby.hostId) !== Number(requesterId))) return { success: false };
+	// if (lobby.players.length !== lobby.maxPlayers) return { success: false };
 
 	lobby.status = "in-game";
 	const gameId = `mat-${crypto.randomUUID().slice(0, 8)}`;
