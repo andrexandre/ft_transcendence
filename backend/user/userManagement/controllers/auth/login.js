@@ -18,13 +18,13 @@ async function login(request, response) {
         await this.updateUserStatus(user.username); // temporario
 
         resContent = {
-            userID: `${user.id}`,
+            userId: `${user.id}`,
             username: `${user.username}`
         };
 
     } catch(err) {
         (err.statusCode) ? 
-        response.status(err.statusCode).send(err) : response.status(500).send({statusCode: 500, errorMessage: 'Internal server error!'});
+        response.status(err.statusCode).send(err) : response.status(500).send({statusCode: 500, error: "Internal server error", message: 'Error in authenticate the user!'});
     }
 
     response.status(200).send(resContent);

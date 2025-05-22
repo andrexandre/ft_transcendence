@@ -21,13 +21,11 @@ async function loadInformation() {
 		(document.getElementById("profile-username") as HTMLInputElement).value = userData.username;
 		(document.getElementById("profile-codename") as HTMLInputElement).value = userData.codename;
 		(document.getElementById("profile-email") as HTMLInputElement).value = userData.email;
-		
-		if (userData.auth_method === 'google') // Google sign people can not change the email
 		(document.getElementById("profile-email") as HTMLInputElement).disabled = true;
-		
 		(document.getElementById("profile-bio") as HTMLInputElement).value = userData.biography;
-		(document.getElementById('2fa-toggle') as HTMLInputElement).checked = userData.two_FA_status
+		(document.getElementById('2fa-toggle') as HTMLInputElement).checked = userData.two_FA_status;
 		
+		// Set user avatar
 		setProfileImage("profile-image");
 		
 	} catch (error: any) {
@@ -60,10 +58,10 @@ class Settings extends Page {
 					}					  
 					const reader = new FileReader();
 					reader.onload = () => {
-						lib.userInfo.profileImage = reader.result as string;
-						const profileImage = document.getElementById('profile-image') as HTMLImageElement;
-						profileImage.src = lib.userInfo.profileImage;
-						lib.showToast.green("Profile image updated successfully!");
+						// lib.userInfo.profileImage = reader.result as string;
+						// const profileImage = document.getElementById('profile-image') as HTMLImageElement;
+						// profileImage.src = lib.userInfo.profileImage;
+						// lib.showToast.green("Profile image updated successfully!");
 					};
 					reader.readAsDataURL(file);
 
@@ -82,7 +80,10 @@ class Settings extends Page {
 							throw new Error(errorData.message);
 						}
 
-						lib.showToast.green("Imagem salva no servidor!");
+						lib.userInfo.profileImage = reader.result as string;
+						const profileImage = document.getElementById('profile-image') as HTMLImageElement;
+						profileImage.src = lib.userInfo.profileImage;
+						lib.showToast.green("Profile image updated successfully!");
 					} catch (error: any) {
 						return lib.showToast.red(error.message);
 					}
@@ -99,7 +100,7 @@ class Settings extends Page {
 				two_FA_status: twoFAButton.checked
 			};
 			try {
-				const response = await fetch(`http://${location.hostname}:3500/2fa/set-google-authenticator`, {
+				const response = await fetch(`http://${location.hostname}:8080/2fa/set-google-authenticator`, {
 					method: 'GET',
 					credentials: "include",
 				});
@@ -107,15 +108,30 @@ class Settings extends Page {
 					const errorData = await response.json();
 					throw new Error(errorData.message);
 				}
-
 				if (twoFAButton.checked) {
-					const imageElement = document.createElement('img');
-					imageElement.src = 'https://picsum.photos/id/63/200';
-					imageElement.id = 'qr-code-img';
-					document.getElementById('col-1')?.appendChild(imageElement);
+					const data = await response.json();
+					document.getElementById('2fa-info')!.outerHTML = /*html*/`
+						<div id="2fa-info" class="flex card pb-0 pt-2">
+							<img id="qr-code-img" src="${data.content}" class="shadow-lg shadow-neutral-400 rounded"/>
+							<div class="flex flex-col justify-center self-center gap-6 ml-20">
+								<p>
+									<b>To set up two factor authentication</b> <br>
+									1. Download an authenticator app. <br>
+									2. Scan the QR code. <br>
+									3. Enter the 2FA code from the app, here.
+								</p>
+								<input type="text" id="qr-code-input" class="p-1 t-dashed pl-4 h-fit" placeholder="Enter 2FA code" maxlength="6" />
+							</div>
+						</div>
+					`;
+					document.getElementById('qr-code-input')!.addEventListener('input', async (event) => {
+						const input = (event.target as HTMLInputElement);
+						if (input.value.length === 6)
+							lib.showToast(`Sent 2FA code: ${input.value}`);
+					});
 					lib.showToast.green("2FA enabled");
 				} else {
-					document.getElementById('qr-code-img')?.remove();					
+					document.getElementById('2fa-info')?.classList.add('hidden');
 					lib.showToast.red("2FA disabled");
 				}
 			} catch (error: any) {
@@ -163,7 +179,7 @@ class Settings extends Page {
 			${sidebar.getHtml()}
 			<main class="grid grid-cols-2 max-2xl:grid-cols-1 flex-1 card t-dashed text-start overflow-auto">
 				<div id="col-1">
-					<form class="card flex flex-col overflow-auto" action="#">
+					<form class="card flex flex-col overflow-auto py-0" action="#">
 						<h1 class="item text-start text-2xl">Profile</h1>
 						<div class="flex">
 							<button id="profile-image-button" type="button" class="relative size-60 group">
@@ -186,12 +202,15 @@ class Settings extends Page {
 						<textarea class="p-1 t-dashed pl-4" name="bio" id="profile-bio">Champion of belly rubs, fetch, and fierce squirrel chases. Sir Barkalot is the first to answer the doorbell with a royal bark. His hobbies include digging to China and chewing shoes.</textarea>
 						<button class="item t-dashed" type="submit">Save</button>
 					</form>
-					<div class="flex justify-between item">
-						<h1>2 Factor Authentication</h1>
-						<label class="h-7 w-12">
-							<input type="checkbox" class="sr-only peer" id="2fa-toggle">
-							<div class="h-full relative t-dashed peer peer-checked:after:translate-x-full after:absolute after:top-0.5 after:start-0.5 peer-checked:after:bg-c-text dark:peer-checked:after:bg-c-bg after:size-5 after:bg-c-secondary dark:after:bg-c-primary after:transition-all after:rounded-full"></div>
-						</label>
+					<div class="flex flex-col item">
+						<div class="flex justify-between item">
+							<h1>2 Factor Authentication</h1>
+							<label class="h-7 w-12">
+								<input type="checkbox" class="sr-only peer" id="2fa-toggle">
+								<div class="h-full relative t-dashed peer peer-checked:after:translate-x-full after:absolute after:top-0.5 after:start-0.5 peer-checked:after:bg-c-text dark:peer-checked:after:bg-c-bg after:size-5 after:bg-c-secondary dark:after:bg-c-primary after:transition-all after:rounded-full"></div>
+							</label>
+						</div>
+						<div id="2fa-info" class="hidden card pb-0 pt-2"></div>
 					</div>
 				</div>
 				<div class="flex flex-col">
@@ -231,12 +250,10 @@ class Settings extends Page {
 		const form = document.querySelector('form');
 		const handler = async (e: Event) => {
 			e.preventDefault();
-			const userData: { username: string; codename: string; email: string; biography: string; two_FA_status: boolean } = {
+			const userData: { username: string; codename: string; biography: string; } = {
 				username: (document.getElementById('profile-username') as HTMLInputElement).value,
 				codename: (document.getElementById('profile-codename') as HTMLInputElement).value,
-				email: (document.getElementById('profile-email') as HTMLInputElement).value,
 				biography: (document.getElementById('profile-bio') as HTMLTextAreaElement).value,
-				two_FA_status: (document.getElementById('2fa-toggle') as HTMLInputElement).checked
 			};
 			try {
 				const response = await fetch(`http://${location.hostname}:8080/api/users/save-settings`, {
@@ -251,7 +268,7 @@ class Settings extends Page {
 					const data = await response.json();
 					throw new Error(data.message);
 				}
-				lib.showToast.green("Updated!");
+				lib.showToast.green("Settings updated!");
 			} catch (error: any) {
 				return lib.showToast.red(error.message);
 			}

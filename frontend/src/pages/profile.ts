@@ -56,7 +56,7 @@ class Profile extends Page {
 	getHtml(): string {
 		return /*html*/`
 			<main class="grid flex-1 card items-center justify-center">
-				<dialog open id="profile-dialog" class="h-130 grid grid-cols-1 lg:grid-cols-[560px_500px] gap-5 bg-c-bg/75 dark:bg-c-text/25 dark:text-c-bg fixed top-1/2 left-1/2 -translate-1/2 rounded-4xl p-6 w-fit shadow-lg overflow-scroll">
+				<dialog open id="profile-dialog" class="h-130 grid grid-cols-1 lg:grid-cols-[560px_500px] grid-rows-2 lg:grid-rows-1 gap-5 bg-c-bg/75 dark:bg-c-text/25 dark:text-c-bg fixed top-1/2 left-1/2 -translate-1/2 rounded-4xl p-6 w-fit shadow-lg overflow-scroll">
 					<div class="card t-dashed grid overflow-auto gap-10">
 						<div class="flex gap-16">
 							<img id="profile-image" class="object-cover rounded-full size-48 shadow-xl shadow-neutral-400 border-2">

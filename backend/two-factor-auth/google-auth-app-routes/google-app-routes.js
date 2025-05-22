@@ -10,7 +10,8 @@ export default async function generateQrCode(fastify, options) {
     var url = speakeasy.otpauthURL({ secret: secret.base32, label: 'ft_transcendence', issuer: '2FAManager' ,encoding: 'base32' });
     const data_url = await qrcode.toDataURL(url);
     sendSecretToUserService(secret.base32, await request.cookies.token);
-    return reply.send(`<img src="${data_url}" alt="QR Code"> ${secret.base32}`);
+    //fetchTwoFactorAuthData( await request.cookies.token);
+    return reply.status(200).send(JSON.stringify({content: `${data_url}`}));
   });
 }
 
@@ -34,7 +35,16 @@ export async function verifyGoogleAuthenticator(fastify, options) {
   });
 }
 
-export async function fetchTwoFactorAuthData(fastify, options){
+export async function fetchTwoFactorAuthData(cookieToken){
+  const response = await fetch('http://user_management:3000/api/users/two-fa-secret', {
+    method: 'GET',
+    headers: {
+      "Cookie": `token=${cookieToken}`,
+    },
+    credentials: "include",
+  });
+
+  console.log(await response.json());
 }
 
 async function sendSecretToUserService(secret, cookieToken) {

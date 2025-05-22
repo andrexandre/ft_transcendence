@@ -67,16 +67,16 @@ function displayMatchHistory(matchHistory: MatchHistoryI[], requestedUsername: s
 	}
 }
 
-export async function updateMatchHistory(requestedUsername: string) {
+export async function updateMatchHistory(targetUsername: string) {
 	try {
-		const response = await fetch(`http://${location.hostname}:5000/user-game-history`, {
+		const response = await fetch(`http://${location.hostname}:5000/${targetUsername}/user-game-history`, {
 			credentials: "include",
 		});
 		if (!response.ok) {
 			throw new Error(`${response.status} - ${response.statusText}`);
 		}
 		let matchHistory = await response.json();
-		displayMatchHistory(matchHistory, requestedUsername);
+		displayMatchHistory(matchHistory, targetUsername);
 	} catch (error) {
 		console.log(error);
 		// lib.showToast.red(error as string); //* TEMP
