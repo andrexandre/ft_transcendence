@@ -164,8 +164,6 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
 			gameStarting = true;
 			GameMessageVisibility(true);
 			drawGameMessage(data.value.toString(), "green");
-			renderTournamentBracket();
-
 			// add som
 			if ((window as any).appUser?.user_set_sound === 1) {
 				playSound("countdown");
