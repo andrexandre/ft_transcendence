@@ -2,6 +2,7 @@ import { showToast } from '../../utils';
 import { playSound, sounds, stopSound } from './audio';
 import { clearLobbyId } from './lobbyClient'; 
 import { state as tournamentState, renderTournamentBracket, handleEndTournament, showRoundTransition, state } from './tournamentRender';
+// import { drawGameMessage, toggleGameMessage, updateScoreboard } from './renderUtils';
 
 export let gameCanvas: HTMLCanvasElement;
 export let ctx: CanvasRenderingContext2D;
@@ -241,6 +242,11 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
 		if (data.type === "start-round") {
 			showRoundTransition(data.round);
 			return;
+		}
+
+		if (data.type === "player-disconnected") {
+			showToast.red(`⚠️ ${data.username} foi desconectado`);
+			drawGameMessage(`${data.username} está off...`, "orange");
 		}
 		
 		if (data.type === "end" && !gameEnded) {
