@@ -1,4 +1,5 @@
 import fastify, { FastifyInstance } from "fastify";
+import { lobbies } from "./lobbyManager.js";
 import db_game from "./db_game.js";
 
 // Interfaces
@@ -133,22 +134,31 @@ export async function userRoutes(gameserver: FastifyInstance) {
 		
 		const token: string | undefined = request.cookies.token;
 		if (!token) return reply.status(401).send({ error: "No token provided" });
-
-		// The new username will be in the given token;
-		const userData = await getUserDatafGateway(token);
-		if (!userData) return reply.status(401).send({ error: "Failed to fetch user from Gateway" });
-		
-		const status: boolean = await new Promise((resolve, reject) => {
-			const query: string = `UPDATE users SET user_name = ?  WHERE user_id = ?;`;
-			db_game.run(query, [ userData.username, userData.userId ] , function (err) {
-				if (err) return reject(false);
-				resolve(true);
+		try {
+			const userData = await getUserDatafGateway(token);
+			if (!userData) return reply.status(401).send({ error: "Failed to fetch user from Gateway" });
+			
+			await new Promise((resolve, reject) => {
+				const query: string = `UPDATE users SET user_name = ?  WHERE user_id = ?;`;
+				db_game.run(query, [ userData.username, userData.userId ] , function (err) {
+					if (err) return reject(false);
+					resolve(true);
+				});
 			});
-		});
-		
-		if (!status) return reply.status(500).send({ message: 'Inetrnal server error!'});
+			
+			for (const [, lobby] of lobbies) {
+				for (const player of lobby.players) {
+				  if (player.userId === userData.userId)
+					player.username = userData.username;
+				}
+			}
 
-		reply.status(200);
+			reply.status(200);
+			
+		} catch (error) {
+			return reply.status(500).send({ message: 'Inetrnal server error!'});
+		}
+		// The new username will be in the given token;
 	});
 
 	// Get user data

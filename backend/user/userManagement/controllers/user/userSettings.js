@@ -30,24 +30,19 @@ async function saveSettings(request, reply) {
 			});
 
 			if (!responseJwt.ok) {
-				// Mudar para informacao antiga antiga
-				// await this.updateUserInformation(request.body, request.authenticatedUser.id);
+				// Changing user information to before;
+				await this.updateUserInformation(request.authenticatedUser, request.authenticatedUser.id);
 				throw new Error('Bad jwt!');
 			}
 			
 			const CookieHeaderContent = responseJwt.headers.get('set-cookie');
 			const cookieOpts = (setCookie(CookieHeaderContent))[0];
 
-			console.log('NewToken: ', `(${CookieHeaderContent})`);
 			console.log('opts 111: ', cookieOpts);
-
 			const newValue = cookieOpts.value;
-			
 			delete cookieOpts.name;
 			delete cookieOpts.value;
-
 			console.log('opts 222: ', cookieOpts);
-
 
 			const responseGame = await fetch('http://nginx-gateway:80/game/updateUserInfo', {
 				method: 'POST',
@@ -55,9 +50,8 @@ async function saveSettings(request, reply) {
 			});
 
 			if (!responseGame.ok) {
-				// Mudar para informacao antiga antiga
-				console.log('ERRO DO GAME: ', (await responseGame.json()));
-				// await this.updateUserInformation(request.body, request.authenticatedUser.id);
+				// Changing user information to before;
+				await this.updateUserInformation(request.authenticatedUser, request.authenticatedUser.id);
 				throw new Error('Bad Game');
 			}
 			
