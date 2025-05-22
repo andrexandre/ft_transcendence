@@ -27,29 +27,30 @@ class Profile extends Page {
 		super("profile", '/profile');
 	}
 	onMount(): void {
-		// if (lib.userInfo.profileImage)
-		// 	(document.getElementById('profile-image') as HTMLImageElement).src = lib.userInfo.profileImage;
-		// It's not working, but it's a good idea
-		// document.addEventListener('click', (event: MouseEvent) => {
-		// 	const dialogDimensions = document.getElementById('profile-dialog')?.getBoundingClientRect();
-		// 	const isBackdropClick =
-		// 		event.clientX < dialogDimensions!.left ||
-		// 		event.clientX > dialogDimensions!.right ||
-		// 		event.clientY < dialogDimensions!.top ||
-		// 		event.clientY > dialogDimensions!.bottom;
+		document.addEventListener('click', (event: MouseEvent) => {
+			const dialogDimensions = document.getElementById('profile-dialog')?.getBoundingClientRect();
+			if (!dialogDimensions)
+				return;
+			const isBackdropClick =
+				event.clientX < dialogDimensions!.left ||
+				event.clientX > dialogDimensions!.right ||
+				event.clientY < dialogDimensions!.top ||
+				event.clientY > dialogDimensions!.bottom;
 
-		// 	if (isBackdropClick) {
-		// 		window.history.back();
-		// 	}
-		// });
+			if (isBackdropClick) {
+				(document.getElementById('profile-dialog') as HTMLDialogElement).close();
+			}
+		});
 		(document.getElementById('profile-dialog') as HTMLDialogElement).addEventListener('close', () => {
 			if (window.history.length > 1)
 				window.history.back();
 			else
-				lib.navigate('/')
+				lib.navigate('/');
 		});
-		if (lib.userInfo.path == '/profile' || lib.userInfo.path == '/profile/')
+		if (lib.userInfo.path == '/profile' || lib.userInfo.path == '/profile/') {
 			lib.userInfo.path = '/profile/' + lib.userInfo.username;
+			window.history.replaceState({}, '', lib.userInfo.path);
+		}
 		loadInformation(lib.userInfo.path.split('/profile/')[1]);
 	}
 	onCleanup(): void { }

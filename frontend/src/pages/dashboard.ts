@@ -79,10 +79,7 @@ export async function updateMatchHistory(targetUsername: string) {
 		displayMatchHistory(matchHistory, targetUsername);
 	} catch (error) {
 		console.log(error);
-		// lib.showToast.red(error as string); //* TEMP
-		document.getElementById("stats-list")!.innerHTML = /*html*/`
-			<li class="item text-c-secondary">Invalid match history</li>
-		`;
+		lib.showToast.red(error as string);
 	}
 }
 
@@ -159,9 +156,7 @@ class Dashboard extends Page {
 	}
 	onMount(): void {
 		sidebar.setSidebarToggler('home');
-		document.getElementById("game-ad-button")!.addEventListener("click", () => lib.navigate('/game'));
-		// if (lib.userInfo.profileImage)
-		// 	(document.getElementById('profile-image') as HTMLImageElement).src = lib.userInfo.profileImage;
+		document.getElementById("game-animation")!.addEventListener("click", () => lib.navigate('/game'));
 		loadInformation();
 		document.getElementById("profile")!.addEventListener("click", () => lib.navigate('/profile'));
 
@@ -169,13 +164,13 @@ class Dashboard extends Page {
 		if (lib.userInfo.chat_sock!.readyState === WebSocket.OPEN) {
 			lib.userInfo.chat_sock!.send(JSON.stringify({ type: 'get-online-friends' }));
 		} else {
-			const onChatSocketOpen = () => {
+			const onChatSocketOpen = function () {
 				lib.userInfo.chat_sock!.removeEventListener('open', onChatSocketOpen);
 				lib.userInfo.chat_sock!.send(JSON.stringify({ type: 'get-online-friends' }));
 			};
 			lib.userInfo.chat_sock!.addEventListener('open', onChatSocketOpen);
 		}
-		this.reloadInterval = setInterval(() => {
+		this.reloadInterval = setInterval(function () {
 			document.getElementById('friends-list')!.innerHTML = '';
 			lib.userInfo.chat_sock!.send(JSON.stringify({
 				type: 'get-online-friends'
@@ -202,10 +197,13 @@ class Dashboard extends Page {
 					</div>
 					<p id="profile-bio" class="max-w-3xl whitespace-pre-wrap text-start">Champion of belly rubs, fetch, and fierce squirrel chases. Sir Barkalot is the first to answer the doorbell with a royal bark. His hobbies include digging to China and chewing shoes.</p>
 				</button>
-				<div class="card t-dashed relative">
-					<div class="ball size-4 rounded-xl bg-c-secondary absolute animate-[ball-animation_6s_infinite_linear]"></div>
-					<button id="game-ad-button" class="flex p-5 t-dashed absolute bottom-0 animate-[btn-animation_6s_infinite_linear]">Let's Play</button>
-				</div>
+				<button id="game-animation" class="card t-dashed relative p-0 flex justify-between group">
+					<div id="red-paddle" class="left-0 bg-red-600 rounded h-20 w-5 self-center absolute animate-[paddle-animation_6s_infinite_linear]"></div>
+					<div id="blue-paddle" class="right-0 bg-blue-700 rounded h-20 w-5 self-center absolute animate-[paddle-animation_6s_infinite_linear]"></div>
+					<div class="ball size-4 rounded-xl bg-c-game-bg absolute animate-[ball-animation_6s_infinite_linear]"></div>
+					<h1 class="self-center left-1/2 transform -translate-x-1/2 absolute text-7xl text-c-game-bg/70 transition-colors"
+						style="animation: glow 2s infinite alternate; text-shadow: 0 0 10px green, 0 0 20px lime, 0 0 30px lime, 0 0 40px lime;">Let's Play</h1>
+				</button>
 				<div class="card t-dashed flex flex-col">
 					<h1 class="text-xl">Pong match history</h1>
 					<ul id="stats-list" class="flex flex-col gap-2 overflow-auto"></ul>

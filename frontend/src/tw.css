@@ -120,9 +120,14 @@ canvas {
 }
 
 /* dashboard menu animation */
+:root {
+	--ball-start: calc(0% + 1rem);
+	--ball-end: calc(100% - 2rem);
+}
+
 @keyframes ball-animation {
 	0%, 100% {
-		bottom: var(--btn-height);
+		bottom: 0%;
 		left: 50%;
 	}
 	25% {
@@ -135,31 +140,16 @@ canvas {
 	}
 	75% {
 		bottom: 50%;
-		left: 0%;
+		left: var(--ball-start);
 	}
 }
 
-:root {
-	--btn-width: 7rem;
-	--btn-height: 4rem;
-	--btn-start: 0%;
-	--btn-end: calc(100% - var(--btn-width));
-	--btn-half: calc((var(--btn-end) - var(--btn-start)) / 2);
-	--ball-end: calc(100% - 1rem);
-}
-
-@keyframes btn-animation {
+@keyframes paddle-animation {
 	0%, 100% {
-		left: var(--btn-half);
-	}
-	25% {
-		left: var(--btn-end);
+		bottom: 0%;
 	}
 	50% {
-		left: var(--btn-half);
-	}
-	75% {
-		left: var(--btn-start);
+		bottom: 82%;
 	}
 }
 
