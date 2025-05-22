@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-      "outDir": "dist", 
+      // "outDir": "./src/dist", 
       "target": "ESNext",
       "module": "ESNext",
       "moduleResolution": "bundler",
