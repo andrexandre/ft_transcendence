@@ -1,3 +1,4 @@
+import setCookie from 'set-cookie-parser';
 
 function getSettings(request, reply) {
            
@@ -14,6 +15,33 @@ function getSettings(request, reply) {
 async function saveSettings(request, reply) {
 	try {
 
+		const { username } =  request.body;
+		if (request.authenticatedUser.username !== username) {
+			const response = await fetch('http://services-api:7000/updateToken', {
+				method: 'POST',
+				headers: {
+					"Content-Type": "application/json",
+					"Cookie": `token=${request.cookies.token}`,
+				},
+				body: JSON.stringify({ username: username })
+			});
+
+			if (!response.ok)
+				throw new Error('Bad jwt!');
+			
+			const CookieHeaderContent = response.headers.get('set-cookie');
+			const cookieOpts = (setCookie(CookieHeaderContent))[0]; // We only want the first cookie
+
+			console.log('NewToken: ', `(${CookieHeaderContent})`);
+			console.log('opts 111: ', cookieOpts);
+
+			const newValue = cookieOpts.value;
+			delete cookieOpts.name;
+			delete cookieOpts.value;
+			console.log('opts 222: ', cookieOpts);
+			reply.setCookie('token', newValue, cookieOpts);
+		}
+		
 		await this.updateUserInformation(request.body, request.authenticatedUser.id);
 		reply.status(200).send({message: "Successfully update the information!"});
 
