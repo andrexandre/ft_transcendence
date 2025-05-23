@@ -1,7 +1,7 @@
 import Page from "./Page"
 import * as lib from "../utils"
 import sidebar from "../components/sidebar"
-import { setProfileImage, updateMatchHistory } from "./dashboard";
+import { renderProfileImage, updateMatchHistory } from "./dashboard";
 
 async function loadInformation(profileUsername: string) {
 	const response = await fetch(`http://${location.hostname}:8080/api/users/${profileUsername}/info`, {
@@ -18,7 +18,7 @@ async function loadInformation(profileUsername: string) {
 	(document.getElementById("profile-codename") as HTMLElement).textContent = userData.codename;
 	(document.getElementById("profile-bio") as HTMLElement).textContent = userData.biography;
 
-	setProfileImage("profile-image", profileUsername);
+	renderProfileImage("profile-image", profileUsername);
 	updateMatchHistory(profileUsername);
 }
 

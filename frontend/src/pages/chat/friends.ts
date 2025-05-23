@@ -1,5 +1,5 @@
 import { navigate, showToast, userInfo } from "../../utils";
-import { renderDashboardFriend, setProfileImage } from "../dashboard";
+import { renderDashboardFriend, renderProfileImage } from "../dashboard";
 
 export function turnOnChat() {
 	if (!userInfo.chat_sock || userInfo.chat_sock.readyState === WebSocket.CLOSED) {
@@ -60,11 +60,11 @@ function socketOnMessage(event: MessageEvent<any>) {
 		data.data.forEach((friend: { username: string }) => renderFriendList(friend.username));
 		handleEmptyList('friends-list', 'No friends, sad life');
 	}
-	else if (data.type === 'get-online-friends') {
+	else if (data.type === 'get-online-friends') { // not just online friends
 		Object.entries(data.data as Record<string, boolean>).forEach(([username, isOnline]) => renderDashboardFriend(username, isOnline));
 		handleEmptyList('friends-list', 'No friends, sad life');
 	}
-	else if (data.type === 'get-online-users') {
+	else if (data.type === 'get-online-users') { // not just online friends
 		data.data.forEach((user: string) => renderUsersList(user));
 		handleEmptyList('users-list', 'No unfriended users');
 	}
@@ -96,8 +96,8 @@ function socketOnMessage(event: MessageEvent<any>) {
 				requesterId: userInfo.userId,
 				friend: currentFriend
 			}));
-		
-			
+
+
 
 			setTimeout(() => {
 				userInfo.game_sock!.send(JSON.stringify({
@@ -209,11 +209,13 @@ function setupBlockButtonListener() {
 }
 
 function renderFriendList(name: string) {
+	if (document.getElementById(`profile-image-${name}`))
+		return;
 	const friendList = document.getElementById('friends-list')!;
 	const roomButton = document.createElement('button');
 	roomButton.className = 'item t-dashed flex p-1 items-center gap-4';
 	roomButton.innerHTML = /*html*/`
-		<img id="profile-image-${name}" class="size-8 rounded-4xl">
+		<img id="profile-image-${name}" class="size-8 object-cover rounded-4xl">
 		<p>${name}</p>
 	`;
 
@@ -233,7 +235,7 @@ function renderFriendList(name: string) {
 	});
 	roomButton.id = `friends-list-entry-${name}`;
 	friendList.appendChild(roomButton);
-	setProfileImage(`profile-image-${name}`, name);
+	renderProfileImage(`profile-image-${name}`, name);
 }
 
 function renderUsersList(name: string) {
@@ -323,7 +325,7 @@ function renderChatRoom(name: string, isBlocked: boolean) {
 		chatBoxElements.forEach(element => (element as HTMLInputElement).disabled = false);
 	}
 	window.history.replaceState({}, '', `/chat/${name}`);
-	setProfileImage("chat-box-profile-image", name);
+	renderProfileImage("chat-box-profile-image", name);
 }
 
 function addListEntry(listName: string, name: string, html: string, classes?: string) {
@@ -341,11 +343,11 @@ function removeListEntry(list: string, name: string) {
 }
 
 function reloadLists() {
-	document.getElementById('friends-list')!.innerHTML = '';
+	// document.getElementById('friends-list')!.innerHTML = '';
 	userInfo.chat_sock!.send(JSON.stringify({
 		type: 'get-friends-list'
 	}));
-	document.getElementById('friend-requests-list')!.innerHTML = '';
+	// document.getElementById('friend-requests-list')!.innerHTML = '';
 	userInfo.chat_sock!.send(JSON.stringify({
 		type: 'get-friend-request'
 	}));
@@ -407,8 +409,8 @@ export function setChatEventListeners() {
 		showToast.yellow('Inviting player...');
 		userInfo.game_sock!.send(JSON.stringify({
 			type: 'create-lobby',
-			gameMode : "1v1",
-			maxPlayers : 2
+			gameMode: "1v1",
+			maxPlayers: 2
 		}));
 		userInfo.pendingInviteTo = currentFriend;
 	});

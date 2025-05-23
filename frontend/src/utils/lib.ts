@@ -13,7 +13,7 @@ export var userInfo = {
 	biography: "",
 	userId: "",
 	auth_method: "",
-	profileImage: "",
+	// profileImage: "",
 	path: "",
 	chat_sock: null as WebSocket | null,
 	game_sock: null as WebSocket | null,
@@ -101,6 +101,14 @@ export function toggleUserServices(on: boolean) {
 	}
 }
 
+export function convertBlobToBase64(blob: Blob): Promise<string | ArrayBuffer | null> {
+	return new Promise((resolve, reject) => {
+		const reader = new FileReader();
+		reader.onloadend = () => resolve(reader.result);
+		reader.onerror = reject;
+		reader.readAsDataURL(blob);
+	});
+}
 
 
 // lib.fullScreenOverlay(

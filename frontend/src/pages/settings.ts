@@ -1,12 +1,11 @@
 import Page from "./Page"
 import * as lib from "../utils"
 import sidebar from "../components/sidebar"
-import { setProfileImage } from "./dashboard";
+import { renderProfileImage } from "./dashboard";
 
 const safeColors: string[] = ["bg-red-500", "bg-orange-500", "bg-amber-500", "bg-yellow-500", "bg-lime-500", "bg-green-500", "bg-emerald-500", "bg-teal-500", "bg-cyan-500", "bg-sky-500", "bg-blue-500", "bg-indigo-500", "bg-violet-500", "bg-purple-500", "bg-fuchsia-500", "bg-pink-500", "bg-rose-500", "bg-slate-500", "bg-gray-500", "bg-zinc-500", "bg-neutral-500", "bg-stone-500"];
 
 async function loadInformation() {
-
 	try {
 		const response = await fetch(`http://${location.hostname}:8080/api/users/settings`, {
 			credentials: 'include'
@@ -15,7 +14,7 @@ async function loadInformation() {
 			const errorData = await response.json();
 			throw new Error(errorData.message);
 		}
-		
+
 		// Set user information
 		const userData = await response.json();
 		(document.getElementById("profile-username") as HTMLInputElement).value = userData.username;
@@ -24,10 +23,9 @@ async function loadInformation() {
 		(document.getElementById("profile-email") as HTMLInputElement).disabled = true;
 		(document.getElementById("profile-bio") as HTMLInputElement).value = userData.biography;
 		(document.getElementById('2fa-toggle') as HTMLInputElement).checked = userData.two_FA_status;
-		
+
 		// Set user avatar
-		setProfileImage("profile-image");
-		
+		renderProfileImage("profile-image", userData.username);
 	} catch (error: any) {
 		return lib.showToast.red(error.message);
 	}
@@ -65,13 +63,14 @@ class Settings extends Page {
 							credentials: "include",
 							body: avatarFormData
 						});
-						if (!response.ok){
+						if (!response.ok) {
 							const errorData = await response.json();
 							throw new Error(errorData.message);
 						}
 
-						lib.userInfo.profileImage = URL.createObjectURL(file);
-						(document.getElementById('profile-image') as HTMLImageElement).src = lib.userInfo.profileImage;
+						(document.getElementById('profile-image') as HTMLImageElement).src = URL.createObjectURL(file);
+						// cache image
+						sessionStorage.setItem(`${lib.userInfo.username}-avatar`, await lib.convertBlobToBase64(file) as string);
 						lib.showToast.green("Profile image updated successfully!");
 					} catch (error: any) {
 						return lib.showToast.red(error.message);

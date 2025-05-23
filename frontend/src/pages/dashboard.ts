@@ -2,29 +2,6 @@ import Page from "./Page"
 import * as lib from "../utils"
 import sidebar from "../components/sidebar"
 
-// async function getAndUpdateInfo() {
-// 	try {
-// 		const response = await fetch(`http://${location.hostname}:7000/fetchDashboardData`, {
-// 			credentials: 'include',
-// 		});
-// 		if (!response.ok) {
-// 			lib.navigate('/login');
-// 			throw new Error(`${response.status} - ${response.statusText}`);
-// 		}
-// 		let dashData = await response.json();
-// 		lib.userInfo.username = dashData.username;
-// 		lib.userInfo.codename = dashData.codename;
-// 		lib.userInfo.biography = dashData.biography;
-// 		lib.userInfo.userId = dashData.userId;
-// 		lib.userInfo.auth_method = dashData.auth_method;
-// 		document.getElementById("profile-username")!.textContent = dashData.username;
-// 		updateMatchHistory();
-// 	} catch (error) {
-// 		console.log(error);
-// 		lib.showToast.red(error as string);
-// 	}
-// }
-
 interface MatchHistoryI {
 	Mode: string;
 	winner: {
@@ -84,39 +61,46 @@ export async function updateMatchHistory(targetUsername: string) {
 }
 
 export function renderDashboardFriend(friend: string, isOnline: boolean) {
+	if (document.getElementById(`profile-image-${friend}`)) {
+		const icon = document.getElementById(`${friend}-online-icon`)!;
+		icon.classList.remove(isOnline ? "text-neutral-600" : "text-green-600");
+		icon.classList.add(isOnline ? "text-green-600" : "text-neutral-600");
+		return;
+	}
 	const friendsList = document.getElementById('friends-list')!;
 	const friendsListEntry = document.createElement("li");
 	friendsListEntry.className = "item t-dashed p-3 flex";
 	friendsListEntry.innerHTML = /*html*/`
-		<img id="profile-image-${friend}" class="size-10 rounded-4xl">
-		<svg height="10" width="10"><circle cx="5" cy="5" r="5" fill="currentColor" class="${isOnline ? "text-green-600" : "text-neutral-600"}"/></svg>
+		<img id="profile-image-${friend}" class="size-10 object-cover rounded-4xl">
+		<svg height="10" width="10" id="${friend}-online-icon" class="${isOnline ? "text-green-600" : "text-neutral-600"}"><circle cx="5" cy="5" r="5" fill="currentColor"/></svg>
 		<h1 class="self-center ml-5">${friend}</h1>
 	`;
 	friendsListEntry.addEventListener('click', () => lib.navigate(`/chat/${friend}`));
 	friendsList.appendChild(friendsListEntry);
-	setProfileImage(`profile-image-${friend}`, friend);
+	renderProfileImage(`profile-image-${friend}`, friend);
 }
 
-export async function setProfileImage(elementId: string, profileUsername?: string) {
-	let imageUrl = `http://${location.hostname}:8080/api/users/avatar`
-	if (profileUsername)
-		imageUrl = `http://${location.hostname}:8080/api/users/${profileUsername}/avatar`
-
+export async function renderProfileImage(elementId: string, profileUsername: string) {
+	// load image from cache
+	if (sessionStorage.getItem(`${profileUsername}-avatar`) !== null) {
+		(document.getElementById(elementId) as HTMLImageElement).src = sessionStorage.getItem(`${profileUsername}-avatar`) || 'https://picsum.photos/id/63/300';
+		return;
+	}
 	try {
-		const imageResponse = await fetch(imageUrl, {
+		const imageResponse = await fetch(`http://${location.hostname}:8080/api/users/${profileUsername}/avatar`, {
 			credentials: 'include'
 		})
 		if (!imageResponse.ok) {
 			const errorData = await imageResponse.json();
 			throw new Error(errorData.message);
 		}
-	
+
 		const blob = await imageResponse.blob();
 		const url = URL.createObjectURL(blob);
-		
+		// cache image
+		sessionStorage.setItem(`${profileUsername}-avatar`, await lib.convertBlobToBase64(blob) as string);
 		(document.getElementById(elementId) as HTMLImageElement).src = url || 'https://picsum.photos/id/63/300';
 		// URL.revokeObjectURL(url);
-		// lib.userInfo.profileImage = url;
 	} catch (error: any) {
 		// When we have an error loadind the avatar we use this avatar as error
 		(document.getElementById(elementId) as HTMLImageElement).src = 'https://picsum.photos/id/63/300';
@@ -141,8 +125,8 @@ async function loadInformation() {
 		// lib.userInfo.biography = userData.biography;
 		// lib.userInfo.userId = userData.userId;
 		// lib.userInfo.auth_method = userData.auth_method;
-	
-		setProfileImage("profile-image");
+
+		renderProfileImage("profile-image", userData.username);
 		updateMatchHistory(userData.username);
 	} catch (error: any) {
 		return lib.showToast.red(error.message);
@@ -171,7 +155,7 @@ class Dashboard extends Page {
 			lib.userInfo.chat_sock!.addEventListener('open', onChatSocketOpen);
 		}
 		this.reloadInterval = setInterval(function () {
-			document.getElementById('friends-list')!.innerHTML = '';
+			// document.getElementById('friends-list')!.innerHTML = '';
 			lib.userInfo.chat_sock!.send(JSON.stringify({
 				type: 'get-online-friends'
 			}));
