@@ -3,14 +3,6 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* All the following styles are only on tw.css
-bg- (excluding settings)
-text- (excluding game/page and auth)
-border (excluding chat/page)
-hover:border-
-focus:border- (excluding auth)
-*/
-
 /* theme */
 @theme static {
 	/* 0 = lighter, 1000 = darker */
@@ -24,9 +16,7 @@ focus:border- (excluding auth)
 	--color-c-game-secondary: theme(colors.green.600);
 }
 
-:disabled {
-	@apply opacity-50;
-}
+:disabled { @apply opacity-50; }
 
 body { @apply bg-white dark:bg-black select-none text-c-text dark:text-c-bg; }
 
@@ -38,14 +28,15 @@ img { @apply pointer-events-none; }
 
 input, textarea { @apply outline-none disabled:opacity-50; }
 
+main { @apply opacity-0; }
+
 @layer components {
 	.t-border {
 		@apply border-2 border-c-secondary hover:border-c-primary
 			dark:border-c-primary dark:hover:border-c-secondary;
 	}
-	.t-dashed { /* dashed rounded border */
-		@apply border-2 border-c-secondary hover:border-c-primary border-dashed rounded-3xl
-			dark:border-c-primary dark:hover:border-c-secondary;
+	.t-dashed {
+		@apply border-2 border-c-secondary hover:border-c-primary border-dashed rounded-3xl dark:border-c-primary dark:hover:border-c-secondary;
 	}
 	.item {
 		@apply m-1 p-2;

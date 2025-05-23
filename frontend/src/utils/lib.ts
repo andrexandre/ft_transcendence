@@ -1,8 +1,9 @@
 import { turnOnChat, turnOffChat } from "../pages/chat/friends"
-import { turnOnGame } from "../pages/game/menu"
+import { turnOnGame, turnOffGame } from "../pages/game/menu"
 
 export { default as Cookies } from 'js-cookie';
 import { renderPattern } from "./patterns";
+export { animate, scroll } from "motion"
 
 export const colors: string[] = ["red", "orange", "amber", "yellow", "lime", "green", "emerald", "teal", "cyan", "sky", "blue", "slate", "gray", "zinc", "neutral", "stone", "rose", "pink", "fuchsia", "purple", "violet", "indigo"];
 export const defaultColor = 'slate';
@@ -15,6 +16,7 @@ export var userInfo = {
 	auth_method: "",
 	// profileImage: "",
 	path: "",
+	aDelay: 0.3,
 	chat_sock: null as WebSocket | null,
 	game_sock: null as WebSocket | null,
 	pendingInviteTo: null as string | null
@@ -45,11 +47,6 @@ export function loadTheme() {
 	else if (window.matchMedia('(prefers-color-scheme: dark)').matches)
 		document.documentElement.classList.add('dark');
 	renderPattern();
-	// else { // to replace in case the previous else if is not working
-	// 	document.documentElement.classList.remove('dark');
-	// 	if (window.matchMedia('(prefers-color-scheme: dark)').matches) 
-	// 		document.documentElement.classList.add('dark');
-	// }
 	// console.debug(`Theme set to ${localStorage.getItem('theme') ? localStorage.getItem('theme') : 'auto'}`);
 	// console.debug(`System theme set to ${window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'}`);
 }
@@ -97,7 +94,7 @@ export function toggleUserServices(on: boolean) {
 		turnOnGame();
 	} else {
 		turnOffChat();
-		// turnOffGame();
+		turnOffGame();
 	}
 }
 
@@ -109,7 +106,6 @@ export function convertBlobToBase64(blob: Blob): Promise<string | ArrayBuffer | 
 		reader.readAsDataURL(blob);
 	});
 }
-
 
 // lib.fullScreenOverlay(
 // 	/*html*/`
