@@ -1,16 +1,4 @@
 
-// Code i might need later :)
-// cat file.html
-// <h1>Vite + TypeScript = {{component}}</h1>
-// import file from './file.html?raw';
-// function buildHtmlFile(content: string, args: Record<string,unknown>) {	
-// 	return content.replace(/{{(.*)}}/g, (_match, arg) => {
-// 		return `${args[arg as string] || "KEY NOT FOUND"}`
-// 	})
-// }
-// document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-// 	<div>${buildHtmlFile(file, {component: "profit?"})}</div>`
-
 import * as lib from "../utils";
 
 export default abstract class Page {
@@ -29,6 +17,9 @@ export default abstract class Page {
 	// this.root.classList.add('w-full', 'h-full');
 	// this.root.innerHTML = content;
 	mount(url: string) {
+		if (lib.userInfo.path && (url == '/login' || url == '/register'))
+			lib.animate("main", { x: [100, 0] }, { duration: lib.userInfo.aDelay, ease: "easeOut" });
+		lib.animate("main", { opacity: 1 }, { duration: lib.userInfo.aDelay });
 		document.title = `${this.name.charAt(0).toUpperCase() + this.name.slice(1)} - Transcendence`;
 		lib.userInfo.path = url;
 		this.mounted = true;
@@ -38,6 +29,7 @@ export default abstract class Page {
 				document.dispatchEvent(new KeyboardEvent('keydown', { key: ' ' }));
 				lib.Cookies.set('outline', 'true');
 			}
+			// document.getElementsByTagName("main")[0]!.style.opacity = "1";
 		}, 50);
 		return this.root;
 	}
@@ -46,14 +38,16 @@ export default abstract class Page {
 		this.cleanupHandlers.push(fn);
 	}
 	cleanup() {
-		this.cleanupHandlers.forEach(handler => {
-			handler();
-		})
+		this.cleanupHandlers.forEach(handler => handler());
 		this.cleanupHandlers = [];
 		this.mounted = false;
 		this.root?.remove();
 		this.root = undefined;
 		this.onCleanup();
+		if (lib.userInfo.path == '/login' || lib.userInfo.path == '/register')
+			lib.animate("main", { x: [0, 100] }, { duration: lib.userInfo.aDelay, ease: "easeOut" });
+		lib.animate("main", { opacity: 0 }, { duration: lib.userInfo.aDelay });
+		// document.getElementsByTagName("main")[0]!.style.opacity = "0";
 	}
 }
 

@@ -1,4 +1,5 @@
 // src/pages/game/tournamentRender.ts
+import { showToast } from '../../utils';
 type TournamentMatch = {
     player1: string;
     player2: string;
@@ -10,10 +11,10 @@ export type TournamentState = {
     currentRound: number;
 };
 
-const tournamentTree = {
-	classes: 'flex gap-2',
+// * TEMP
+export const tournamentTree = {
 	getHtml: () => /*html*/`
-			<div class="bg-gray-800/50 size-200 flex items-center justify-center">
+			<div class="flex items-center justify-center">
 			<div>
 				<div id="top-bracket" class="card t-dashed"></div>
 				<div id="bot-bracket" class="card t-dashed"></div>
@@ -25,73 +26,76 @@ const tournamentTree = {
 			<p id="winner" class="card t-dashed rounded-2xl"></p>
 		</div>
 	`,
-	updateTree: (tState?: TournamentState) => {
-		if (tState) {
-			const tRounds = tState.rounds;
-			tournamentTree.updateMatch('top-bracket', {
-				p1name: tRounds[0][0].player1,
-				p1score: 'X',
-				p2name: tRounds[0][0].player2,
-				p2score: 'X'
-			});
-			tournamentTree.updateMatch('bot-bracket', {
-				p1name: tRounds[0][1].player1,
-				p1score: 'X',
-				p2name: tRounds[0][1].player2,
-				p2score: 'X'
-			});
-			tournamentTree.updateMatch('next-bracket', {
-				p1name: tRounds[0][0].winner || "TBD",
-				p1score: 'X',
-				p2name: tRounds[0][1].winner || "TBD",
-				p2score: 'X'
-			});
-			document.getElementById("winner")!.innerHTML = tRounds[1][0].winner || "TBD";
-		} else {
-			tournamentTree.updateMatch('top-bracket', {
-				p1name: 'person 1',
-				p1score: 'X',
-				p2name: 'person 2',
-				p2score: 'X'
-			});
-			tournamentTree.updateMatch('bot-bracket', {
-				p1name: 'person 3',
-				p1score: 'X',
-				p2name: 'person 4',
-				p2score: 'X'
-			});
-			tournamentTree.updateMatch('next-bracket', {
-				p1name: 'TBD',
-				p1score: 'X',
-				p2name: 'TBD',
-				p2score: 'X'
-			});
-			document.getElementById("winner")!.innerHTML = 'person 4';
-		}
+	updateTree: (tState: TournamentState) => {
+		const tRounds = tState.rounds;
+		tournamentTree.updateMatch('top-bracket', {
+			p1name: tRounds[0][0].player1,
+			p1score: 'X',
+			p2name: tRounds[0][0].player2,
+			p2score: 'X'
+		});
+		tournamentTree.updateMatch('botournamentTreet-bracket', {
+			p1name: tRounds[0][1].player1,
+			p1score: 'X',
+			p2name: tRounds[0][1].player2,
+			p2score: 'X'
+		});
+		tournamentTree.updateMatch('next-bracket', {
+			p1name: tRounds[0][0].winner || "---",
+			p1score: 'X',
+			p2name: tRounds[0][1].winner || "---",
+			p2score: 'X'
+		});
+		document.getElementById("winner")!.innerHTML = tRounds[1][0].winner || "---";
 	},
 	updateMatch: (nodeId: string, match: { p1name: string, p1score: string, p2name: string, p2score: string }) => {
+		let nodeClasses = 'gap-2 grid grid-cols-[auto_1rem]';
 		document.getElementById(nodeId)!.innerHTML = /*html*/`
-			<div class="${tournamentTree.classes}">
+			<div class="${nodeClasses}">
 				<p>${match.p1name}</p>
 				<p>${match.p1score}</p>
 			</div>
-			<div class="${tournamentTree.classes}">
+			<div class="${nodeClasses}">
 				<p>${match.p2name}</p>
 				<p>${match.p2score}</p>
 			</div>
 		`;
 	}
+	// * TEMP
+	,generateRandomString: (maxLength: number = 6, minLength: number = 3) => {
+		const length = Math.floor(Math.random() * (maxLength - minLength + 1)) + minLength;
+		const characters = 'AEIOUabcdefghijklmnopqrstuvwxyz0123456789';
+		let result = '';
+		for (let i = 0; i < length; i++)
+			result += characters.charAt(Math.floor(Math.random() * characters.length));
+		return result;
+	}
 }
 
-export default tournamentTree;
+// * TEMP
+export let tournamentSample: TournamentState = {
+	rounds: [
+		[
+			{ player1: tournamentTree.generateRandomString(), player2: tournamentTree.generateRandomString(), winner: "---" },
+			{ player1: tournamentTree.generateRandomString(), player2: tournamentTree.generateRandomString(), winner: "---" }
+		],
+		[
+			{ player1: "---", player2: "---", winner: "---" }
+		]
+	],
+	currentRound: 1
+}
+
 
 
 export function renderTournamentBracket() {
+	showToast.red("show-bracket222222222222222222222222222222222222222222222222")
     const container = document.getElementById("tournament-bracket");
     console.log("🎨 Re-renderizando bracket...", JSON.stringify(state.rounds, null, 2));
     if (!container) return;
 
-    container.classList.remove("hidden");  
+    container.classList.remove("hidden");
+	container.style.display = "block";
     container.innerHTML = "<h2 class='text-xl mb-4'>🏆 Tournament Bracket</h2>";
 
     state.rounds.forEach((round, roundIndex) => {

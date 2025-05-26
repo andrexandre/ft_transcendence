@@ -2,29 +2,6 @@ import Page from "./Page"
 import * as lib from "../utils"
 import sidebar from "../components/sidebar"
 
-// async function getAndUpdateInfo() {
-// 	try {
-// 		const response = await fetch(`http://${location.hostname}:7000/fetchDashboardData`, {
-// 			credentials: 'include',
-// 		});
-// 		if (!response.ok) {
-// 			lib.navigate('/login');
-// 			throw new Error(`${response.status} - ${response.statusText}`);
-// 		}
-// 		let dashData = await response.json();
-// 		lib.userInfo.username = dashData.username;
-// 		lib.userInfo.codename = dashData.codename;
-// 		lib.userInfo.biography = dashData.biography;
-// 		lib.userInfo.userId = dashData.userId;
-// 		lib.userInfo.auth_method = dashData.auth_method;
-// 		document.getElementById("profile-username")!.textContent = dashData.username;
-// 		updateMatchHistory();
-// 	} catch (error) {
-// 		console.log(error);
-// 		lib.showToast.red(error as string);
-// 	}
-// }
-
 interface MatchHistoryI {
 	Mode: string;
 	winner: {
@@ -38,14 +15,14 @@ interface MatchHistoryI {
 	time: string;
 }
 
-function displayMatchHistory(matchHistory: MatchHistoryI[]) {
+function displayMatchHistory(matchHistory: MatchHistoryI[], requestedUsername: string) {
 	const statsDiv = document.getElementById("stats-list")!;
 	matchHistory.reverse().forEach(match => {
 		const matchDiv = document.createElement("li");
 		let matchBgColor = '';
-		if (match.winner.username === lib.userInfo.username)
+		if (match.winner.username === requestedUsername)
 			matchBgColor = "border-green-500 hover:border-green-700 dark:border-green-700 dark:hover:border-green-500";
-		else if (match.loser.username === lib.userInfo.username)
+		else if (match.loser.username === requestedUsername)
 			matchBgColor = "border-red-500 hover:border-red-700 dark:border-red-700 dark:hover:border-red-500";
 		matchDiv.className = "@container relative item t-dashed " + matchBgColor;
 		matchDiv.innerHTML = /*html*/`
@@ -67,59 +44,63 @@ function displayMatchHistory(matchHistory: MatchHistoryI[]) {
 	}
 }
 
-export async function updateMatchHistory() {
+export async function updateMatchHistory(targetUsername: string) {
 	try {
-		const response = await fetch(`http://${location.hostname}:5000/user-game-history`, {
+		const response = await fetch(`http://${location.hostname}:5000/${targetUsername}/user-game-history`, {
 			credentials: "include",
 		});
 		if (!response.ok) {
 			throw new Error(`${response.status} - ${response.statusText}`);
 		}
 		let matchHistory = await response.json();
-		displayMatchHistory(matchHistory);
+		displayMatchHistory(matchHistory, targetUsername);
 	} catch (error) {
 		console.log(error);
-		// lib.showToast.red(error as string); //* TEMP
-		document.getElementById("stats-list")!.innerHTML = /*html*/`
-			<li class="item text-c-secondary">Invalid match history</li>
-		`;
+		lib.showToast.red(error as string);
 	}
 }
 
 export function renderDashboardFriend(friend: string, isOnline: boolean) {
+	if (document.getElementById(`profile-image-${friend}`)) {
+		const icon = document.getElementById(`${friend}-online-icon`)!;
+		icon.classList.remove(isOnline ? "text-neutral-600" : "text-green-600");
+		icon.classList.add(isOnline ? "text-green-600" : "text-neutral-600");
+		return;
+	}
 	const friendsList = document.getElementById('friends-list')!;
 	const friendsListEntry = document.createElement("li");
 	friendsListEntry.className = "item t-dashed p-3 flex";
 	friendsListEntry.innerHTML = /*html*/`
-		<img id="profile-image-${friend}" class="size-10 rounded-4xl">
-		<svg height="10" width="10"><circle cx="5" cy="5" r="5" fill="currentColor" class="${isOnline ? "text-green-600" : "text-neutral-600"}"/></svg>
+		<img id="profile-image-${friend}" class="size-10 object-cover rounded-4xl">
+		<svg height="10" width="10" id="${friend}-online-icon" class="${isOnline ? "text-green-600" : "text-neutral-600"}"><circle cx="5" cy="5" r="5" fill="currentColor"/></svg>
 		<h1 class="self-center ml-5">${friend}</h1>
 	`;
 	friendsListEntry.addEventListener('click', () => lib.navigate(`/chat/${friend}`));
 	friendsList.appendChild(friendsListEntry);
-	setProfileImage(`profile-image-${friend}`, friend);
+	renderProfileImage(`profile-image-${friend}`, friend);
 }
 
-export async function setProfileImage(elementId: string, profileUsername?: string) {
-	let imageUrl = `http://${location.hostname}:8080/api/users/avatar`
-	if (profileUsername)
-		imageUrl = `http://${location.hostname}:8080/api/users/${profileUsername}/avatar`
-
+export async function renderProfileImage(elementId: string, profileUsername: string) {
+	// load image from cache
+	if (sessionStorage.getItem(`${profileUsername}-avatar`) !== null) {
+		(document.getElementById(elementId) as HTMLImageElement).src = sessionStorage.getItem(`${profileUsername}-avatar`) || 'https://picsum.photos/id/63/300';
+		return;
+	}
 	try {
-		const imageResponse = await fetch(imageUrl, {
+		const imageResponse = await fetch(`http://${location.hostname}:8080/api/users/${profileUsername}/avatar`, {
 			credentials: 'include'
 		})
 		if (!imageResponse.ok) {
 			const errorData = await imageResponse.json();
 			throw new Error(errorData.message);
 		}
-	
+
 		const blob = await imageResponse.blob();
 		const url = URL.createObjectURL(blob);
-		
+		// cache image
+		sessionStorage.setItem(`${profileUsername}-avatar`, await lib.convertBlobToBase64(blob) as string);
 		(document.getElementById(elementId) as HTMLImageElement).src = url || 'https://picsum.photos/id/63/300';
 		// URL.revokeObjectURL(url);
-		// lib.userInfo.profileImage = url;
 	} catch (error: any) {
 		// When we have an error loadind the avatar we use this avatar as error
 		(document.getElementById(elementId) as HTMLImageElement).src = 'https://picsum.photos/id/63/300';
@@ -139,14 +120,14 @@ async function loadInformation() {
 		(document.getElementById("profile-username") as HTMLElement).textContent = userData.username;
 		(document.getElementById("profile-codename") as HTMLElement).textContent = userData.codename;
 		(document.getElementById("profile-bio") as HTMLElement).textContent = userData.biography;
-		lib.userInfo.username = userData.username;
+		// lib.userInfo.username = userData.username;
 		// lib.userInfo.codename = userData.codename;
 		// lib.userInfo.biography = userData.biography;
 		// lib.userInfo.userId = userData.userId;
 		// lib.userInfo.auth_method = userData.auth_method;
-	
-		setProfileImage("profile-image");
-		updateMatchHistory();
+
+		renderProfileImage("profile-image", userData.username);
+		updateMatchHistory(userData.username);
 	} catch (error: any) {
 		return lib.showToast.red(error.message);
 	}
@@ -159,9 +140,7 @@ class Dashboard extends Page {
 	}
 	onMount(): void {
 		sidebar.setSidebarToggler('home');
-		document.getElementById("game-ad-button")!.addEventListener("click", () => lib.navigate('/game'));
-		// if (lib.userInfo.profileImage)
-		// 	(document.getElementById('profile-image') as HTMLImageElement).src = lib.userInfo.profileImage;
+		document.getElementById("game-animation")!.addEventListener("click", () => lib.navigate('/game'));
 		loadInformation();
 		document.getElementById("profile")!.addEventListener("click", () => lib.navigate('/profile'));
 
@@ -169,14 +148,14 @@ class Dashboard extends Page {
 		if (lib.userInfo.chat_sock!.readyState === WebSocket.OPEN) {
 			lib.userInfo.chat_sock!.send(JSON.stringify({ type: 'get-online-friends' }));
 		} else {
-			const onChatSocketOpen = () => {
+			const onChatSocketOpen = function () {
 				lib.userInfo.chat_sock!.removeEventListener('open', onChatSocketOpen);
 				lib.userInfo.chat_sock!.send(JSON.stringify({ type: 'get-online-friends' }));
 			};
 			lib.userInfo.chat_sock!.addEventListener('open', onChatSocketOpen);
 		}
-		this.reloadInterval = setInterval(() => {
-			document.getElementById('friends-list')!.innerHTML = '';
+		this.reloadInterval = setInterval(function () {
+			// document.getElementById('friends-list')!.innerHTML = '';
 			lib.userInfo.chat_sock!.send(JSON.stringify({
 				type: 'get-online-friends'
 			}));
@@ -202,10 +181,13 @@ class Dashboard extends Page {
 					</div>
 					<p id="profile-bio" class="max-w-3xl whitespace-pre-wrap text-start">Champion of belly rubs, fetch, and fierce squirrel chases. Sir Barkalot is the first to answer the doorbell with a royal bark. His hobbies include digging to China and chewing shoes.</p>
 				</button>
-				<div class="card t-dashed relative">
-					<div class="ball size-4 rounded-xl bg-c-secondary absolute animate-[ball-animation_6s_infinite_linear]"></div>
-					<button id="game-ad-button" class="flex p-5 t-dashed absolute bottom-0 animate-[btn-animation_6s_infinite_linear]">Let's Play</button>
-				</div>
+				<button id="game-animation" class="card t-dashed relative p-0 flex justify-between group">
+					<div id="red-paddle" class="left-0 bg-red-600 rounded h-20 w-5 self-center absolute animate-[paddle-animation_6s_infinite_linear]"></div>
+					<div id="blue-paddle" class="right-0 bg-blue-700 rounded h-20 w-5 self-center absolute animate-[paddle-animation_6s_infinite_linear]"></div>
+					<div class="ball size-4 rounded-xl bg-c-game-bg absolute animate-[ball-animation_6s_infinite_linear]"></div>
+					<h1 class="self-center left-1/2 transform -translate-x-1/2 absolute text-7xl text-c-game-bg/70 transition-colors"
+						style="animation: glow 2s infinite alternate; text-shadow: 0 0 10px green, 0 0 20px lime, 0 0 30px lime, 0 0 40px lime;">Let's Play</h1>
+				</button>
 				<div class="card t-dashed flex flex-col">
 					<h1 class="text-xl">Pong match history</h1>
 					<ul id="stats-list" class="flex flex-col gap-2 overflow-auto"></ul>
@@ -215,7 +197,7 @@ class Dashboard extends Page {
 					<ul id="friends-list" class="flex flex-col gap-2 overflow-auto"></ul>
 				</div>
 			</main>
-		`
+		`;
 	}
 }
 

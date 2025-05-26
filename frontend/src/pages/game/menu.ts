@@ -4,8 +4,38 @@ import dropdown from "../../components/dropdown";
 import { connectToGameServer, createLobby, fetchLobbies } from "./lobbyClient";
 import { sounds, initSounds, playSound } from "./audio";
 import { tournamentTree, tournamentSample } from '../../components/tournamentTree'
+import { userInfo } from "../../utils";
 
 let lobbyRefreshInterval: ReturnType<typeof setInterval> | null = null;
+
+export function turnOnGame() {
+	if (userInfo.game_sock?.readyState === WebSocket.OPEN) {
+		showToast.red("🚫 Lobby socket já está aberto");
+		return;
+	}
+
+	const url = `ws://${location.hostname}:5000/lobby-ws`;
+	userInfo.game_sock = new WebSocket(url);
+
+	userInfo.game_sock.onopen = () => {
+		console.log(`✅ WebSocket connected for: ${userInfo.username} (${userInfo.userId}) → ${url}`);
+	};
+
+	userInfo.game_sock.onerror = () => showToast.red("❌ Erro na ligação do WebSocket");
+	userInfo.game_sock.onclose = () => console.log("🔌 Ligação terminada com o servidor");
+
+	userInfo.game_sock.onmessage = (event) => {
+		connectToGameServer(event);
+	};
+}
+
+export function turnOffGame() {
+	if (userInfo.game_sock?.readyState === WebSocket.CLOSED) {
+		showToast.red("🚫 Lobby socket já está fechado");
+		return;
+	}
+	userInfo.game_sock?.close();
+}
 
 function initializeGameMainMenu(userData: {
 	user_id: number;
@@ -15,9 +45,7 @@ function initializeGameMainMenu(userData: {
 	user_set_sound: number;
 	}) {
 	const username = userData.user_name;
-	const userId = userData.user_id;    
-
-	connectToGameServer({ username, userId });
+	const userId = userData.user_id;
 
 	// Set Single dropdown
 	dropdown.initialize('Single');
@@ -44,7 +72,7 @@ function initializeGameMainMenu(userData: {
 			// * TEMP
 			(async () => {
 				let tRounds = tournamentExample.rounds;
-				const time = 1000;
+				const time = 3000;
 				await new Promise(resolve => setTimeout(resolve, time));
 				for (let i = 0; i < 3; i++) {
 					if (i == 0)

@@ -7,7 +7,7 @@ MAGENTA		:= \033[1;35m
 CYAN		:= \033[1;36m
 WHITE		:= \033[1;37m
 
-up: .env
+up: env
 	docker compose up
 
 build-up:
@@ -35,14 +35,17 @@ status:
 	@docker network ls
 	@echo
 
-backend/services-api/.env:
-	curl -s https://gist.githubusercontent.com/andrexandre/8c011820a35117d005016151cfd46207/raw/83a0d67fbf775a78355dd617e6502d9c03f496ad/.env > backend/services-api/.env
-	echo -n 'IP = ' >> backend/services-api/.env
-	hostname -I | awk '{print $$1}' >> backend/services-api/.env
-
-.env: backend/services-api/.env
-	echo -n 'IP = ' >> .env
-	hostname -I | awk '{print $$1}' >> .env
+env:
+	@IP=$$(hostname -I | awk '{print $$1}'); \
+	echo -n "IP = $$IP "; \
+	if ! grep -q "IP = $$IP" .env; then \
+		echo "IP = $$IP" > .env; \
+		curl -s https://gist.githubusercontent.com/andrexandre/8c011820a35117d005016151cfd46207/raw/83a0d67fbf775a78355dd617e6502d9c03f496ad/.env > backend/services-api/.env; \
+		echo "IP = $$IP" >> backend/services-api/.env; \
+		echo "was added to .env"; \
+	else \
+		echo "already exists in .env"; \
+	fi
 
 rm-env:
 	find . -iname 2> /dev/null .env -delete
@@ -102,7 +105,7 @@ system-prune:
 # this is useful when root permissions are required to delete files
 # note: this removes the contents of the specified folder
 rm-rf:
-	docker pull public.ecr.aws/docker/library/busybox:stable
+# docker pull public.ecr.aws/docker/library/busybox:stable
 	@read -p "rm -rf $$PWD/" folder;\
 	docker run --rm -v ./$$folder:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
 

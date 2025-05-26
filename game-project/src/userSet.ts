@@ -1,4 +1,5 @@
 import fastify, { FastifyInstance } from "fastify";
+import { lobbies } from "./lobbyManager.js";
 import db_game from "./db_game.js";
 
 // Interfaces
@@ -35,6 +36,27 @@ interface SaveSettingsRequest {
         sound: number;
     };
 }
+
+const initSchema: any = {
+	schema: {
+	  body: {
+		type: 'object',
+		required: ['id', 'username'],
+		properties: {
+			id: { type: 'integer' },
+			username: { type: 'string' },
+		}
+	  }
+	}
+};
+
+const getUserHistorySchema: any = {
+	params: {
+		type: 'object',
+		required: ['username'],
+		properties: { username: { type: 'string', minLength: 3 , maxLength: 15 } },
+	}
+};
   
 export function saveMatchToDatabase(match: MatchData) {
 	const db = db_game;
@@ -90,28 +112,56 @@ async function getUserHistory(id: any): Promise<GameHistory[]> {
 	});
 }
 
-const getUserFromDb = (userId: Number) =>
+const getUserById = (userId: Number) =>
 	new Promise((resolve, reject) => {
 		db_game.get("SELECT * FROM users WHERE user_id = ?", [userId], (err, row) => {
 			if (err) return reject({ status: 500, error: "Database error", details: err.message });
 			resolve(row);
 		});
-	});
+});
+
+const getUserByUsername = (username: string) =>
+	new Promise((resolve, reject) => {
+		db_game.get("SELECT * FROM users WHERE user_name = ?", [username], (err, row) => {
+			if (err) return reject({ status: 500, error: "Database error", details: err.message });
+			resolve(row);
+		});
+});
 
 export async function userRoutes(gameserver: FastifyInstance) {
-	// Get user data
-	const initSchema: any = {
-		schema: {
-		  body: {
-			type: 'object',
-			required: ['id', 'username'],
-			properties: {
-				id: { type: 'integer' },
-				username: { type: 'string' },
+
+	gameserver.post('/game/updateUserInfo', async function(request: any, reply: any) {
+		
+		const token: string | undefined = request.cookies.token;
+		if (!token) return reply.status(401).send({ error: "No token provided" });
+		try {
+			const userData = await getUserDatafGateway(token);
+			if (!userData) return reply.status(401).send({ error: "Failed to fetch user from Gateway" });
+			
+			await new Promise((resolve, reject) => {
+				const query: string = `UPDATE users SET user_name = ?  WHERE user_id = ?;`;
+				db_game.run(query, [ userData.username, userData.userId ] , function (err) {
+					if (err) return reject(false);
+					resolve(true);
+				});
+			});
+			
+			for (const [, lobby] of lobbies) {
+				for (const player of lobby.players) {
+				  if (player.userId === userData.userId)
+					player.username = userData.username;
+				}
 			}
-		  }
+
+			reply.status(200);
+			
+		} catch (error) {
+			return reply.status(500).send({ message: 'Inetrnal server error!'});
 		}
-	};
+		// The new username will be in the given token;
+	});
+
+	// Get user data
 	gameserver.post('/game/init-user', initSchema, async function(request: any, reply: any) {
 		const { id, username } = request.body;
 		const status: boolean = await new Promise((resolve, reject) => {
@@ -140,21 +190,21 @@ export async function userRoutes(gameserver: FastifyInstance) {
 		const { username, userId } = userData;
 
 		try {
-			let row = await getUserFromDb(userId);
-			if (!row) {
-				console.log(`🆕 User '${username}' not found. Creating...`);
-				await new Promise((resolve, reject) => {
-					db_game.run(
-						"INSERT INTO users (user_id, user_name, user_set_dificulty, user_set_tableSize, user_set_sound) VALUES (?, ?, 'Normal', 'Medium', 1)",
-						[userId, username],
-						function (err) {
-							if (err) return reject({ status: 500, error: "Database error" });
-							resolve(null);
-						}
-					);
-				});
-				row = { user_id: userId, user_name: username, user_set_dificulty: "Normal", user_set_tableSize: "Medium", user_set_sound: 1 };
-			}
+			let row = await getUserById(userId);
+			// if (!row) {
+			// 	console.log(`🆕 User '${username}' not found. Creating...`);
+			// 	await new Promise((resolve, reject) => {
+			// 		db_game.run(
+			// 			"INSERT INTO users (user_id, user_name, user_set_dificulty, user_set_tableSize, user_set_sound) VALUES (?, ?, 'Normal', 'Medium', 1)",
+			// 			[userId, username],
+			// 			function (err) {
+			// 				if (err) return reject({ status: 500, error: "Database error" });
+			// 				resolve(null);
+			// 			}
+			// 		);
+			// 	});
+			// 	row = { user_id: userId, user_name: username, user_set_dificulty: "Normal", user_set_tableSize: "Medium", user_set_sound: 1 };
+			// }
 			reply.send(row);
 		} catch (err: any) {
 			reply.status(err.status || 500).send({ error: err.error || "❌ Unknown error" });
@@ -181,7 +231,7 @@ export async function userRoutes(gameserver: FastifyInstance) {
 	});
 
 	// Get History
-	gameserver.get('/user-game-history', async (request, reply) => {	
+	gameserver.get('/:username/user-game-history', getUserHistorySchema, async (request: any, reply: any) => {	
 		try {
 			const token: string | undefined = request.cookies.token;
 			if (!token) return reply.status(401).send({ error: "No token provided" });
@@ -191,34 +241,37 @@ export async function userRoutes(gameserver: FastifyInstance) {
 			if (!userData)
 				return reply.status(401).send({ error: "Failed to fetch user from Gateway" });
 
-			const user1: any = await getUserFromDb(userData.userId);
-			console.log(user1);
+			const { username } = request.params;
+			const targetUser: any = await getUserByUsername(username);
+			if (!targetUser)
+				return reply.status(404).send({ error: "Username not found!" });
+			console.log(targetUser);
 			// Obtém histórico do usuário
-			const history: GameHistory[] = await getUserHistory(user1.user_id);
+			const history: GameHistory[] = await getUserHistory(targetUser.user_id);
 			
 			// Array de resultados formatados
 			const result: any[] = [];
 			
 	
 			for (const element of history) {
-				let user2: any;
+				let adversary: any;
 				if (element.game_player2_id === 9999) {
-					user2 = {user_id: 9999, user_name: 'BoTony'}
+					adversary = {user_id: 9999, user_name: 'BoTony'}
 				} else {
-					if (element.game_player2_id != user1.user_id)
-						user2 = await getUserFromDb(element.game_player2_id);
+					if (element.game_player2_id != targetUser.user_id)
+						adversary = await getUserById(element.game_player2_id);
 					else
-						user2 = await getUserFromDb(element.game_player1_id);
+						adversary = await getUserById(element.game_player1_id);
 				}
 				result.push({
 					Mode: element.game_mode,
 					winner: {
-						username: (element.game_winner === user1.user_id) ? user1.user_name : user2.user_name,
-						score: (element.game_winner === user1.user_id) ? element.game_player1_score : element.game_player2_score
+						username: (element.game_winner === targetUser.user_id) ? targetUser.user_name : adversary.user_name,
+						score: (element.game_winner === targetUser.user_id) ? element.game_player1_score : element.game_player2_score
 					},
 					loser: {
-						username: (element.game_winner === user1.user_id) ? user2.user_name : user1.user_name,
-						score: (element.game_winner === user1.user_id) ? element.game_player2_score : element.game_player1_score
+						username: (element.game_winner === targetUser.user_id) ? adversary.user_name : targetUser.user_name,
+						score: (element.game_winner === targetUser.user_id) ? element.game_player2_score : element.game_player1_score
 					},
 					time: element.game_time
 				});

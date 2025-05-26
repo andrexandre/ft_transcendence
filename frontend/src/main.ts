@@ -25,7 +25,7 @@ async function loadApp(path: string) {
 			throw new Error(`${response.status} - ${response.statusText}`);
 		let responseData = await response.json();
 		lib.userInfo.username = responseData.username
-		// lib.userInfo.userId = responseData.userId
+		lib.userInfo.userId = responseData.userId
 		lib.userInfo.auth_method = responseData.auth_method
 		if (path == "/register" || path == "/login") {
 			lib.showToast.yellow(`Already authenticated`);
@@ -80,9 +80,11 @@ function loadPage(path: string) {
 			break;
 	}
 	currentPage?.cleanup();
-	document.getElementById("app")!.innerHTML = newPage.getHtml();
-	newPage.mount(path);
-	currentPage = newPage;
+	setTimeout(() => {
+		document.getElementById("app")!.innerHTML = newPage.getHtml();
+		newPage.mount(path);
+		currentPage = newPage;
+	}, lib.userInfo.aDelay * 1000);
 }
 
 // fix circular dependency for navigate function

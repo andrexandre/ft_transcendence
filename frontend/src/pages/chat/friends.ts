@@ -1,5 +1,5 @@
 import { navigate, showToast, userInfo } from "../../utils";
-import { renderDashboardFriend, setProfileImage } from "../dashboard";
+import { renderDashboardFriend, renderProfileImage } from "../dashboard";
 
 export function turnOnChat() {
 	if (!userInfo.chat_sock || userInfo.chat_sock.readyState === WebSocket.CLOSED) {
@@ -47,22 +47,24 @@ function socketOnMessage(event: MessageEvent<any>) {
 	const data = JSON.parse(event.data);
 	// console.log(data);
 	if (data.type === 'message-emit') {
-		if (userInfo.path.startsWith('/chat'))
-			renderMessage(data.user, data.data.from, data.data.message, data.data.timestamp);
-		else
-			showToast(`${data.user}: ${data.data.message}`);
+		renderMessage(data.user, data.data.from, data.data.message, data.data.timestamp);
+		const messageList = document.getElementById('chat-box-message-list')!;
+		messageList.scrollTop = messageList.scrollHeight;
 	}
-	else if (data.type === 'load-messages')
+	else if (data.type === 'load-messages') {
 		data.data.forEach((msg: { user: string, from: string, message: string, timestamp: string }) => renderMessage(data.user, msg.from, msg.message, msg.timestamp));
+		const messageList = document.getElementById('chat-box-message-list')!;
+		messageList.scrollTop = messageList.scrollHeight;
+	}
 	else if (data.type === 'get-friends-list') {
 		data.data.forEach((friend: { username: string }) => renderFriendList(friend.username));
 		handleEmptyList('friends-list', 'No friends, sad life');
 	}
-	else if (data.type === 'get-online-friends') {
+	else if (data.type === 'get-online-friends') { // not just online friends
 		Object.entries(data.data as Record<string, boolean>).forEach(([username, isOnline]) => renderDashboardFriend(username, isOnline));
 		handleEmptyList('friends-list', 'No friends, sad life');
 	}
-	else if (data.type === 'get-online-users') {
+	else if (data.type === 'get-online-users') { // not just online friends
 		data.data.forEach((user: string) => renderUsersList(user));
 		handleEmptyList('users-list', 'No unfriended users');
 	}
@@ -72,19 +74,78 @@ function socketOnMessage(event: MessageEvent<any>) {
 	}
 	else if (data.type === 'block-status')
 		renderChatRoom(data.friend, data.isBlocked);
+	// game start
+	else if (data.type === 'receive-game-invite') {
+		showToast.green(`🎮 Convite de ${data.from}`);
+
+		const acceptBtn = document.getElementById("accept-invite-to-game-button")!;
+		const rejectBtn = document.getElementById("reject-invite-to-game-button")!;
+
+		acceptBtn.classList.remove("hidden");
+		rejectBtn.classList.remove("hidden");
+
+		acceptBtn.onclick = () => {
+			userInfo.game_sock!.send(JSON.stringify({
+				type: 'join-lobby',
+				lobbyId: data.lobbyId
+			}));
+			userInfo.chat_sock!.send(JSON.stringify({
+				type: 'join-accepted',
+				lobbyId: data.lobbyId,
+				requesterId: userInfo.userId,
+				friend: currentFriend
+			}));
+			setTimeout(() => {
+				// userInfo.game_sock!.send(JSON.stringify({
+				// 	// type: 'start-game',
+				// 	// lobbyId: data.lobbyId,
+				// 	// requesterId: userInfo.userId
+				// }));
+				navigate("/game");
+			}, 500);
+			hideInviteButtons();
+		};
+
+		rejectBtn.onclick = () => {
+			userInfo.chat_sock!.send(JSON.stringify({
+				type: 'reject-invite',
+				to: data.from
+			}));
+			hideInviteButtons();
+		};
+
+		function hideInviteButtons() {
+			acceptBtn.classList.add("hidden");
+			rejectBtn.classList.add("hidden");
+		}
+
+	} else if (data.type === 'join-accepted2') {
+		showToast.green("✅ O teu amigo aceitou o convite. A iniciar jogo...");
+		setTimeout(() => {
+			userInfo.game_sock!.send(JSON.stringify({
+				type: 'start-game',
+				lobbyId: data.lobbyId,
+				requesterId: userInfo.userId
+			}));
+			navigate("/game");
+		}, 500);
+
+	}
+	// game OUT
 };
+
 
 function renderMessage(user: string, from: string, message: string, timestamp: string) {
 	const listElement = document.getElementById(`chat-box-message-list`)!;
 	const entryElement = document.createElement('li');
 	let alignment;
 	if (user == from)
-		alignment = 'justify-end ml';
+		alignment = 'justify-end ml-20';
 	else if (user == 'system')
-		alignment = 'justify-center mx';
+		alignment = 'justify-center mx-20';
 	else
-		alignment = 'justify-start mr';
-	entryElement.className = `chat-box-message-entry flex ${alignment}-20`;
+		alignment = 'justify-start mr-20';
+	entryElement.className = `flex ${alignment}`;
 	entryElement.innerHTML = /*html*/`
 	<div class="flex flex-col item t-dashed break-all">
 		<p class="self-start pr-4 select-all">${message}</p>
@@ -99,7 +160,7 @@ let currentFriend: string | null = null;
 
 // This function will remain the same
 function listenerA(name: string) {
-	const chatHeaderBlockButton = document.getElementById('chat-box-block')!;
+	const chatHeaderBlockButton = document.getElementById('chat-box-block-button')!;
 	const isBlocking = chatHeaderBlockButton.textContent!.includes('Block');
 	if (isBlocking) {
 		chatHeaderBlockButton.textContent = 'Unblock';
@@ -125,7 +186,7 @@ function listenerA(name: string) {
 }
 
 function setupBlockButtonListener() {
-	const chatHeaderBlockButton = document.getElementById('chat-box-block')!;
+	const chatHeaderBlockButton = document.getElementById('chat-box-block-button')!;
 
 	// Remove any existing listeners by cloning the button
 	const newButton = chatHeaderBlockButton.cloneNode(true);
@@ -134,7 +195,7 @@ function setupBlockButtonListener() {
 	}
 
 	// Add a single listener that uses the currentFriend variable
-	const updatedButton = document.getElementById('chat-box-block')!;
+	const updatedButton = document.getElementById('chat-box-block-button')!;
 	updatedButton.addEventListener('click', () => {
 		if (currentFriend) {
 			listenerA(currentFriend);
@@ -143,11 +204,13 @@ function setupBlockButtonListener() {
 }
 
 function renderFriendList(name: string) {
+	if (document.getElementById(`profile-image-${name}`))
+		return;
 	const friendList = document.getElementById('friends-list')!;
 	const roomButton = document.createElement('button');
 	roomButton.className = 'item t-dashed flex p-1 items-center gap-4';
 	roomButton.innerHTML = /*html*/`
-		<img id="profile-image-${name}" class="size-8 rounded-4xl">
+		<img id="profile-image-${name}" class="size-8 object-cover rounded-4xl">
 		<p>${name}</p>
 	`;
 
@@ -167,7 +230,7 @@ function renderFriendList(name: string) {
 	});
 	roomButton.id = `friends-list-entry-${name}`;
 	friendList.appendChild(roomButton);
-	setProfileImage(`profile-image-${name}`, name);
+	renderProfileImage(`profile-image-${name}`, name);
 }
 
 function renderUsersList(name: string) {
@@ -195,9 +258,11 @@ function renderUsersList(name: string) {
 }
 
 function renderFriendRequest(name: string) {
+	if (document.getElementById(`friend-request-${name}`))
+		return;
 	const friendRequestsList = document.getElementById('friend-requests-list')!;
 	addListEntry('friend-requests-list', name, /*html*/`
-		<p class="mr-auto">${name}</p>
+		<p id="friend-request-${name}" class="mr-auto">${name}</p>
 		<button id="friend-requests-list-entry-${name}-accept">
 			<i class="fa-solid fa-check"></i>
 		</button>
@@ -247,7 +312,7 @@ function renderChatRoom(name: string, isBlocked: boolean) {
 
 	const chatHeaderUsername = document.getElementById('chat-box-header-username')!;
 	chatHeaderUsername.textContent = name;
-	const chatHeaderBlockButton = document.getElementById('chat-box-block')!;
+	const chatHeaderBlockButton = document.getElementById('chat-box-block-button')!;
 	chatHeaderBlockButton.textContent = isBlocked ? 'Unblock' : 'Block';
 
 	const chatBoxProfileImage = document.getElementById('chat-box-profile') as HTMLButtonElement;
@@ -257,7 +322,7 @@ function renderChatRoom(name: string, isBlocked: boolean) {
 		chatBoxElements.forEach(element => (element as HTMLInputElement).disabled = false);
 	}
 	window.history.replaceState({}, '', `/chat/${name}`);
-	setProfileImage("chat-box-profile-image", name);
+	renderProfileImage("chat-box-profile-image", name);
 }
 
 function addListEntry(listName: string, name: string, html: string, classes?: string) {
@@ -275,11 +340,11 @@ function removeListEntry(list: string, name: string) {
 }
 
 function reloadLists() {
-	document.getElementById('friends-list')!.innerHTML = '';
+	// document.getElementById('friends-list')!.innerHTML = '';
 	userInfo.chat_sock!.send(JSON.stringify({
 		type: 'get-friends-list'
 	}));
-	document.getElementById('friend-requests-list')!.innerHTML = '';
+	// document.getElementById('friend-requests-list')!.innerHTML = '';
 	userInfo.chat_sock!.send(JSON.stringify({
 		type: 'get-friend-request'
 	}));
@@ -332,8 +397,20 @@ export function setChatEventListeners() {
 		});
 	document.getElementById('chat-box-profile')?.addEventListener('click',
 		() => navigate(`/profile/${document.getElementById('chat-box-header-username')!.textContent}`));
-	document.getElementById('chat-box-invite')?.addEventListener('click',
-		() => showToast.yellow('Inviting player...'));
+
+	// chat --- game invite
+	document.getElementById('chat-box-invite-button')?.addEventListener('click', async function () {
+		this.remove();
+		document.getElementById('accept-invite-to-game-button')?.classList.remove('hidden');
+		document.getElementById('reject-invite-to-game-button')?.classList.remove('hidden');
+		showToast.yellow('Inviting player...');
+		userInfo.game_sock!.send(JSON.stringify({
+			type: 'create-lobby',
+			gameMode: "1v1",
+			maxPlayers: 2
+		}));
+		userInfo.pendingInviteTo = currentFriend;
+	});
 	setupBlockButtonListener();
 
 	reloadInterval = setInterval(reloadLists, 5000); // set auto reload

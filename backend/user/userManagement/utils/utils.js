@@ -4,7 +4,7 @@ import path from 'path'
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const uploadDirectory = path.join(__dirname, '../uploads');
-			
+
 export const sampleBios = [
 	"Former ping-pong prodigy turned digital paddle warrior.",
 	"Sharp reflexes. Unstoppable ball. You lose.",
@@ -17,4 +17,18 @@ export const sampleBios = [
 	"The player. The myth. The pixel.",
 	"Back when two paddles and a ball were all you needed.",
 	"No one knows where they came from. Only that they never miss.",
+]
+
+export const sampleCodenames = [
+	"Pixel Paddle Phantom",
+	"The Pongfather",
+	"Bounce Back King",
+	"Arcade Ball Legend",
+	"Digital Reflex God",
+	"Master of Pong",
+	"Pinged and Gone",
+	"The Paddle Ghost",
+	"Retro Smash Hero",
+	"Lord of Bounce",
+	"Bounce Throne Keeper",
 ]
