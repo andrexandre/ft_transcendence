@@ -9,7 +9,7 @@ async function login(request, response) {
         if (!user)
             throw this.httpErrors.notFound('User not found!');
         else if (user.auth_method === 'google')
-            throw this.httpErrors.forbidden('Can only sign with google!');
+            throw this.httpErrors.forbidden('Please sign in with google!');
         
         const login = await bcrypt.compare(password, user.password);
         if (login != true) 

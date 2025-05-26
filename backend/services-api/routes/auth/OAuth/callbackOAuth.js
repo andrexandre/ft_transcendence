@@ -10,7 +10,7 @@ async function callbackOAuth(fastify, options) {
             secure: true,
             sameSite: 'Strict'
           });
-          reply.redirect(`http://${process.env.IP}:5500`).status(200);
+          reply.redirect(`http://127.0.0.1:5500`).status(200);
         } catch (err) {
           reply.status(500).send(err);
         }
@@ -26,7 +26,7 @@ async function setPayload(payload){
     body: JSON.stringify(payload)
   });
   const data = await response.json();
-  payload.userId = data.userID;
+  payload.userId = data.userId;
   payload.username = data.username;
   delete payload.email;
   return payload;
