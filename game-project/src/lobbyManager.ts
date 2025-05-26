@@ -25,7 +25,7 @@ type Lobby = {
 };
 
 
-const lobbies = new Map<string, Lobby>();
+export const lobbies = new Map<string, Lobby>();
 
 export function createLobby(socket: WebSocket, user: UserData, gameMode: string, maxPlayers: number, difficulty?: string) {
 	const lobbyId = `lob-${crypto.randomUUID().slice(0, 8)}`;

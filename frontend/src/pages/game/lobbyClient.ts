@@ -163,7 +163,6 @@ function addLobbyEntry(
 }
 
 function renderLobbyList(lobbies: any[]) {
-	// console.log("❌❌❌", lobbies);
 	const list = document.getElementById("lobby-list");
 	if (!list) return;
 

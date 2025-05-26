@@ -5,6 +5,7 @@ import { saveMatchToDatabase } from './userSet.js';
 import { handleMatchEndFromTournament } from './tournamentManager.js';
 import { initMTCPlayers, updateMTCGame } from './mtcLogic.js';
 
+const matchDisconnectTimers = new Map<number, NodeJS.Timeout>();
 const winningScore = 2;
 
 interface PlayerState {
@@ -140,7 +141,7 @@ export function handleMatchConnection(gameId: string, connection: any) {
 			console.log(`👥 Jogadores restantes: ${sockets.length}`);
 		}
 	});
-}
+};
 
 function updateMatchState(gameId: string) {
 	const match = matches.get(gameId);

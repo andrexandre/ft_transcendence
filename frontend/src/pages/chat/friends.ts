@@ -91,23 +91,18 @@ function socketOnMessage(event: MessageEvent<any>) {
 				type: 'join-lobby',
 				lobbyId: data.lobbyId
 			}));
-
 			userInfo.chat_sock!.send(JSON.stringify({
 				type: 'join-accepted',
 				lobbyId: data.lobbyId,
 				requesterId: userInfo.userId,
 				friend: currentFriend
 			}));
-
-
-
 			setTimeout(() => {
-				userInfo.game_sock!.send(JSON.stringify({
-					type: 'start-game',
-					lobbyId: data.lobbyId,
-					requesterId: userInfo.userId
-				}));
-
+				// userInfo.game_sock!.send(JSON.stringify({
+				// 	// type: 'start-game',
+				// 	// lobbyId: data.lobbyId,
+				// 	// requesterId: userInfo.userId
+				// }));
 				navigate("/game");
 			}, 500);
 			hideInviteButtons();
@@ -129,11 +124,11 @@ function socketOnMessage(event: MessageEvent<any>) {
 	} else if (data.type === 'join-accepted2') {
 		showToast.green("✅ O teu amigo aceitou o convite. A iniciar jogo...");
 		setTimeout(() => {
-			// userInfo.game_sock!.send(JSON.stringify({
-			// 	type: 'start-game',
-			// 	lobbyId: data.lobbyId,
-			// 	requesterId: userInfo.userId
-			// }));
+			userInfo.game_sock!.send(JSON.stringify({
+				type: 'start-game',
+				lobbyId: data.lobbyId,
+				requesterId: userInfo.userId
+			}));
 			navigate("/game");
 		}, 500);
 

@@ -14,10 +14,13 @@ function getSettings(request, reply) {
 
 async function saveSettings(request, reply) {
 	try {
+		// Update information
+		await this.updateUserInformation(request.body, request.authenticatedUser.id);
 
 		const { username } =  request.body;
 		if (request.authenticatedUser.username !== username) {
-			const response = await fetch('http://services-api:7000/updateToken', {
+			console.log('OLDTOKEN: ', request.cookies.token);
+			const responseJwt = await fetch('http://services-api:7000/updateToken', {
 				method: 'POST',
 				headers: {
 					"Content-Type": "application/json",
@@ -26,23 +29,35 @@ async function saveSettings(request, reply) {
 				body: JSON.stringify({ username: username })
 			});
 
-			if (!response.ok)
+			if (!responseJwt.ok) {
+				// Changing user information to before;
+				await this.updateUserInformation(request.authenticatedUser, request.authenticatedUser.id);
 				throw new Error('Bad jwt!');
+			}
 			
-			const CookieHeaderContent = response.headers.get('set-cookie');
-			const cookieOpts = (setCookie(CookieHeaderContent))[0]; // We only want the first cookie
+			const CookieHeaderContent = responseJwt.headers.get('set-cookie');
+			const cookieOpts = (setCookie(CookieHeaderContent))[0];
 
-			console.log('NewToken: ', `(${CookieHeaderContent})`);
 			console.log('opts 111: ', cookieOpts);
-
 			const newValue = cookieOpts.value;
 			delete cookieOpts.name;
 			delete cookieOpts.value;
 			console.log('opts 222: ', cookieOpts);
+
+			const responseGame = await fetch('http://nginx-gateway:80/game/updateUserInfo', {
+				method: 'POST',
+				headers: { "Cookie": `token=${newValue}` },
+			});
+
+			if (!responseGame.ok) {
+				// Changing user information to before;
+				await this.updateUserInformation(request.authenticatedUser, request.authenticatedUser.id);
+				throw new Error('Bad Game');
+			}
+			
 			reply.setCookie('token', newValue, cookieOpts);
 		}
-		
-		await this.updateUserInformation(request.body, request.authenticatedUser.id);
+
 		reply.status(200).send({message: "Successfully update the information!"});
 
 	} catch (err) {
@@ -50,7 +65,7 @@ async function saveSettings(request, reply) {
             const msg = (err.message.includes("email")) ? 'Email' : 'Username';
             reply.status(409).send({statusCode: 409, error: "Conflict", message: `${msg} already exist!`});
         } else {
-            reply.status(500).send({statusCode: 500, error: "Internal server error", message: 'Error in updating information'});
+            reply.status(500).send({statusCode: 500, error: "Internal server error", message: err.message});
         } 
 	}
 	return; 
