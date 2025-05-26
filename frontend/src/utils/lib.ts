@@ -16,7 +16,7 @@ export var userInfo = {
 	auth_method: "",
 	// profileImage: "",
 	path: "",
-	aDelay: 0.2,
+	aDelay: 0.0,
 	chat_sock: null as WebSocket | null,
 	game_sock: null as WebSocket | null,
 	pendingInviteTo: null as string | null
