@@ -24,6 +24,25 @@ const get2faSecretSchema = {
 	},
 };
 
+const get2faSecretStatus = {
+	params: {
+		type: 'object',
+		required: ['username'],
+		properties: { username: { type: 'string', minLength: 3 , maxLength: 15 } },
+		errorMessage: {
+			required: { username: 'Missing username field.', },
+			properties: { username: 'Username must be a string between 3 and 15 characters.' },
+			_: 'Invalid request params.'
+		},
+	},
+	response: {
+		200: {
+			type: 'object',
+			properties: { status: { type: 'boolean' } }
+		},
+	},
+};
+
 const save2faSettingSchema =  {
 	body: {
 		type: 'object',
@@ -82,5 +101,6 @@ export {
 	save2faSettingSchema,
 	saveSettingsSchema,
 	get2faSecretSchema,
+	get2faSecretStatus,
 	getSettingsSchema
 };

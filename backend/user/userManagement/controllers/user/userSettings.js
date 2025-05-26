@@ -96,8 +96,30 @@ function get2faSecret(request, reply) {
 	});
 }
 
+async function get2faStatus(request, reply) {
+
+	try {
+		const { username } = request.params;
+		const user = await this.getUserByUsername(username);
+		if (!user) throw this.httpErrors.notFound('User not found!');
+		
+		console.log('AuthenticatedUser: ', user);
+	
+		return reply.status(200).send({
+			status: user.two_FA_status
+		});
+	} catch (err) {
+		if (err.statusCode)
+			reply.status(err.statusCode).send(err);
+		else
+			reply.status(500).send({statusCode: 500, error: "Internal server error", message: 'Error fetching resources!'});
+        return;
+	}
+}
+
 export {
 	getSettings,
+	get2faStatus,
 	get2faSecret,
 	saveSettings,
 	save2faSettings
