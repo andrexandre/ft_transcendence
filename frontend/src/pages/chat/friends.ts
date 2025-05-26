@@ -263,9 +263,11 @@ function renderUsersList(name: string) {
 }
 
 function renderFriendRequest(name: string) {
+	if (document.getElementById(`friend-request-${name}`))
+		return;
 	const friendRequestsList = document.getElementById('friend-requests-list')!;
 	addListEntry('friend-requests-list', name, /*html*/`
-		<p class="mr-auto">${name}</p>
+		<p id="friend-request-${name}" class="mr-auto">${name}</p>
 		<button id="friend-requests-list-entry-${name}-accept">
 			<i class="fa-solid fa-check"></i>
 		</button>
