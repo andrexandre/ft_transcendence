@@ -131,6 +131,7 @@ class Settings extends Page {
 								throw new Error(errorData.message);
 							}
 							lib.showToast(`Sent 2FA code: ${input.value}`);
+							document.getElementById('2fa-info')?.remove();
 						}
 					});
 					lib.showToast.green("2FA enabled");
