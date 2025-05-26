@@ -22,7 +22,7 @@ async function loadApp(path: string) {
 			credentials: 'include',
 		});
 		if (!response.ok)
-			throw new Error(`${response.status} - ${response.statusText}`);
+			throw new Error(`${response.statusText}`);
 		let responseData = await response.json();
 		lib.userInfo.username = responseData.username
 		lib.userInfo.userId = responseData.userId
@@ -32,10 +32,10 @@ async function loadApp(path: string) {
 			history.replaceState(null, "", "/");
 			path = '/';
 		}
-	} catch (error) {
+	} catch (error: any) {
 		if (path != "/register" && path != "/login") {
 			console.log(error);
-			lib.showToast.red(error as string);
+			lib.showToast.red(error.message);
 			history.replaceState(null, "", "/login");
 			path = '/login';
 		}

@@ -4,22 +4,26 @@ import sidebar from "../components/sidebar"
 import { renderProfileImage, updateMatchHistory } from "./dashboard";
 
 async function loadInformation(profileUsername: string) {
-	const response = await fetch(`http://${location.hostname}:8080/api/users/${profileUsername}/info`, {
-		credentials: 'include'
-	})
-	if (!response.ok) {
-		window.history.replaceState({}, '', '/profile');
-		lib.navigate('/profile');
-		return lib.showToast.red('Failed to load user Information!');
-	}
-	// Set user information
-	const userData = await response.json();
-	(document.getElementById("profile-username") as HTMLElement).textContent = userData.username;
-	(document.getElementById("profile-codename") as HTMLElement).textContent = userData.codename;
-	(document.getElementById("profile-bio") as HTMLElement).textContent = userData.biography;
+	try {
+		const response = await fetch(`http://${location.hostname}:8080/api/users/${profileUsername}/info`, {
+			credentials: 'include'
+		})
+		if (!response.ok) {
+			window.history.replaceState({}, '', '/profile');
+			lib.navigate('/profile');
+			return lib.showToast.red('Failed to load user Information!');
+		}
+		// Set user information
+		const userData = await response.json();
+		(document.getElementById("profile-username") as HTMLElement).textContent = userData.username;
+		(document.getElementById("profile-codename") as HTMLElement).textContent = userData.codename;
+		(document.getElementById("profile-bio") as HTMLElement).textContent = userData.biography;
 
-	renderProfileImage("profile-image", profileUsername);
-	updateMatchHistory(profileUsername);
+		renderProfileImage("profile-image", profileUsername);
+		updateMatchHistory(profileUsername);
+	} catch (error: any) {
+		return lib.showToast.red(error.message);
+	}
 }
 
 class Profile extends Page {

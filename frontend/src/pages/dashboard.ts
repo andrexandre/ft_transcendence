@@ -115,16 +115,12 @@ async function loadInformation() {
 		})
 		if (!response.ok)
 			throw new Error((await response.json()).message);
+
 		// Set user information
 		const userData = await response.json();
 		(document.getElementById("profile-username") as HTMLElement).textContent = userData.username;
 		(document.getElementById("profile-codename") as HTMLElement).textContent = userData.codename;
 		(document.getElementById("profile-bio") as HTMLElement).textContent = userData.biography;
-		// lib.userInfo.username = userData.username;
-		// lib.userInfo.codename = userData.codename;
-		// lib.userInfo.biography = userData.biography;
-		// lib.userInfo.userId = userData.userId;
-		// lib.userInfo.auth_method = userData.auth_method;
 
 		renderProfileImage("profile-image", userData.username);
 		updateMatchHistory(userData.username);

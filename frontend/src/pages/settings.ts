@@ -10,10 +10,8 @@ async function loadInformation() {
 		const response = await fetch(`http://${location.hostname}:8080/api/users/settings`, {
 			credentials: 'include'
 		})
-		if (!response.ok) {
-			const errorData = await response.json();
-			throw new Error(errorData.message);
-		}
+		if (!response.ok)
+			throw new Error((await response.json()).message);
 
 		// Set user information
 		const userData = await response.json();
@@ -23,6 +21,11 @@ async function loadInformation() {
 		(document.getElementById("profile-email") as HTMLInputElement).disabled = true;
 		(document.getElementById("profile-bio") as HTMLInputElement).value = userData.biography;
 		(document.getElementById('2fa-toggle') as HTMLInputElement).checked = userData.two_FA_status;
+		// lib.userInfo.username = userData.username;
+		// lib.userInfo.codename = userData.codename;
+		// lib.userInfo.biography = userData.biography;
+		// lib.userInfo.userId = userData.userId;
+		// lib.userInfo.auth_method = userData.auth_method;
 
 		// Set user avatar
 		renderProfileImage("profile-image", userData.username);
