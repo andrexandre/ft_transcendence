@@ -16,7 +16,8 @@ export default async function generateQrCode(fastify, options) {
 
 export async function verifyGoogleAuthenticator(fastify, options) {
   fastify.post('/verify-google-authenticator', async (req, res) => {
-    const { totpCode } = req.body;
+    
+	const { totpCode } = req.body;
     console.log("CODE :", totpCode);
     const bSecret = await fetchTwoFactorAuthData(req.cookies.token);
     console.log("Secret: ", bSecret);
