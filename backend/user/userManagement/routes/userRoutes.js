@@ -17,13 +17,11 @@ async function extractInformationFromToken(request, reply) {
 			},
 		});
 
-		if (!response.ok)
-			this.httpErrors.unauthorized('Missing credentials!');
+		if (!response.ok) this.httpErrors.unauthorized('Missing credentials!');
 
 		const userData = await response.json();
 		request.authenticatedUser = await this.getUserById(userData.userId);
-		if (!request.authenticatedUser)
-			throw this.httpErrors.notFound('User not found!');
+		if (!request.authenticatedUser) throw this.httpErrors.notFound('User not found!');
 		
 	} catch (err) {
 		if (err.statusCode)
@@ -58,6 +56,13 @@ async function userRoutes(server, opts) {
 		schema: settingSchemas.get2faSecretSchema,
 		preHandler: extractInformationFromToken ,
 		handler:  settingsControllers.get2faSecret 
+	});
+
+	server.route({
+		method: 'GET',
+		url: '/api/users/:username/two-fa-status',
+		schema: settingSchemas.get2faSecretStatus,
+		handler:  settingsControllers.get2faStatus 
 	});
 	
 	server.route({
