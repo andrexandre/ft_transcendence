@@ -46,8 +46,8 @@ class Settings extends Page {
 			input.accept = 'image/*';
 			input.addEventListener('change', async (event) => {
 				const file = (event.target as HTMLInputElement).files?.[0];
-				console.log(file);
-				if (file && file.type.startsWith('image/')) {
+				console.debug(file);
+				if (file && (file.type.startsWith('image/png') || file.type.startsWith('image/jpeg') || file.type.startsWith('image/jpg'))) {
 					if (file.size > 2 * 1024 * 1024) {
 						lib.showToast.red("Image is too big. Max: 2MB");
 						return;
@@ -77,7 +77,7 @@ class Settings extends Page {
 					}
 				}
 				else
-					lib.showToast.red("Invalid file.");
+					lib.showToast.red("Invalid image");
 			});
 			input.click();
 		});
