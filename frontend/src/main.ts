@@ -80,11 +80,11 @@ function loadPage(path: string) {
 			break;
 	}
 	currentPage?.cleanup();
-	setTimeout(() => {
+	// setTimeout(() => {
 		document.getElementById("app")!.innerHTML = newPage.getHtml();
 		newPage.mount(path);
 		currentPage = newPage;
-	}, lib.userInfo.aDelay * 1000);
+	// }, lib.userInfo.aDelay * 1000);
 }
 
 // fix circular dependency for navigate function

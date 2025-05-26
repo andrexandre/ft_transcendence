@@ -185,16 +185,16 @@ class Settings extends Page {
 							</button>
 							<div class="flex flex-col justify-center self-center gap-4 ml-20">
 								<label class="text-left font-bold" for="profile-username">Username</label>
-								<input class="p-1 t-dashed pl-4 invalid:border-red-500" type="text" id="profile-username" placeholder="Enter username" value="Sir Barkalot" minlength="3" maxlength="20" pattern="^[^<>]+$" required />
+								<input class="p-1 t-dashed pl-4 invalid:border-red-500" type="text" id="profile-username" placeholder="Enter username" value="User failed to load" minlength="3" maxlength="15" pattern="^[^<>]+$" required />
 								<span id="username-error" class="text-red-500 text-xs hidden">Username has invalid length or characters</span>
 								<label class="text-left font-bold" for="profile-codename">Codename</label>
-								<input class="p-1 t-dashed pl-4" type="text" id="profile-codename" placeholder="Enter codename" value="The mighty tail-wagger" required />
+								<input class="p-1 t-dashed pl-4" type="text" id="profile-codename" placeholder="Enter codename" value="Codename failed to load" required pattern="^[^<>]+$" />
 								<label class="text-left font-bold" for="profile-email">Email</label>
-								<input class="p-1 t-dashed pl-4" type="text" id="profile-email" placeholder="Enter email" value="example@email.com" required />
+								<input class="p-1 t-dashed pl-4" type="text" id="profile-email" placeholder="Enter email" value="Email failed to load" required minlength="5" pattern="^[^<>]+$"/>
 							</div>
 						</div>
 						<label class="text-left font-bold" for="profile-bio">Biography</label>
-						<textarea class="p-1 t-dashed pl-4" name="bio" id="profile-bio">Champion of belly rubs, fetch, and fierce squirrel chases. Sir Barkalot is the first to answer the doorbell with a royal bark. His hobbies include digging to China and chewing shoes.</textarea>
+						<textarea class="p-1 t-dashed pl-4" name="bio" id="profile-bio">Biography failed to load</textarea>
 						<button class="item t-dashed" type="submit">Save</button>
 					</form>
 					<div class="flex flex-col item">

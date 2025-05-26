@@ -175,11 +175,11 @@ class Dashboard extends Page {
 					<div class="flex gap-16">
 						<img id="profile-image" class="object-cover rounded-full size-48 shadow-xl shadow-neutral-400 border-2">
 						<div class="justify-center self-center">
-							<h1 id="profile-username" class="text-3xl">Sir Barkalot</h1>
-							<p id="profile-codename" class="text-xl">The mighty tail-wagger</p>
+							<h1 id="profile-username" class="text-3xl">User failed to load</h1>
+							<p id="profile-codename" class="text-xl">Codename failed to load</p>
 						</div>
 					</div>
-					<p id="profile-bio" class="max-w-3xl whitespace-pre-wrap text-start">Champion of belly rubs, fetch, and fierce squirrel chases. Sir Barkalot is the first to answer the doorbell with a royal bark. His hobbies include digging to China and chewing shoes.</p>
+					<p id="profile-bio" class="max-w-3xl whitespace-pre-wrap text-start">Biography failed to load</p>
 				</button>
 				<button id="game-animation" class="card t-dashed relative p-0 flex justify-between group">
 					<div id="red-paddle" class="left-0 bg-red-600 rounded h-20 w-5 self-center absolute animate-[paddle-animation_6s_infinite_linear]"></div>

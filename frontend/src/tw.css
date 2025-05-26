@@ -28,7 +28,7 @@ img { @apply pointer-events-none; }
 
 input, textarea { @apply outline-none disabled:opacity-50; }
 
-main { @apply opacity-0; }
+/* main { @apply opacity-0; } */
 
 @layer components {
 	.t-border {
