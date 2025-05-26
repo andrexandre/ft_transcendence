@@ -10,7 +10,7 @@ let lobbyRefreshInterval: ReturnType<typeof setInterval> | null = null;
 
 export function turnOnGame() {
 	if (userInfo.game_sock?.readyState === WebSocket.OPEN) {
-		showToast.red("🚫 Lobby socket já está ativo");
+		showToast.red("🚫 Lobby socket já está aberto");
 		return;
 	}
 
@@ -22,11 +22,19 @@ export function turnOnGame() {
 	};
 
 	userInfo.game_sock.onerror = () => showToast.red("❌ Erro na ligação do WebSocket");
-	userInfo.game_sock.onclose = () => showToast.red("🔌 Ligação terminada com o servidor");
+	userInfo.game_sock.onclose = () => console.log("🔌 Ligação terminada com o servidor");
 
 	userInfo.game_sock.onmessage = (event) => {
 		connectToGameServer(event);
 	};
+}
+
+export function turnOffGame() {
+	if (userInfo.game_sock?.readyState === WebSocket.CLOSED) {
+		showToast.red("🚫 Lobby socket já está fechado");
+		return;
+	}
+	userInfo.game_sock?.close();
 }
 
 function initializeGameMainMenu(userData: {

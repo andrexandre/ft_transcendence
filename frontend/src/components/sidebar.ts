@@ -114,6 +114,7 @@ const sidebar = {
 					throw new Error(`${response.status} - ${response.statusText}`);
 				lib.toggleUserServices(false);
 				lib.showToast(`Logged out successfully`);
+				sessionStorage.clear();
 				lib.navigate('/login');
 			} catch (error) {
 				console.log(error);

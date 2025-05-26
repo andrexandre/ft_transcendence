@@ -22,7 +22,7 @@ class Register extends Page {
 	onCleanup(): void { }
 	getHtml(): string {
 		return /*html*/`
-			<div class="flex flex-col gap-5 m-auto h-fit card t-dashed">
+			<main class="flex flex-col gap-5 m-auto h-fit card t-dashed">
 				<h1 class="text-3xl">Register</h1>
 				<form class="space-y-3 flex flex-col" action="#">
 					<label for="username">Username</label>
@@ -43,7 +43,7 @@ class Register extends Page {
 				<div class="text-sm font-medium text-c-secondary">
 					<p>Already have an account? <button id="goto-login-button" class="text-blue-700 hover:underline hover:cursor-pointer">Login</button></p>
 				</div>
-			</div>
+			</main>
 		`;
 	}
 	setSubmissionHandler() {
