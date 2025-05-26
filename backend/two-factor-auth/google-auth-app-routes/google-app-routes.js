@@ -1,4 +1,4 @@
-import speakeasy from 'speakeasy';
+import speakeasy, { totp } from 'speakeasy';
 import qrcode from 'qrcode';
 
 const secret = speakeasy.generateSecret();
@@ -9,22 +9,21 @@ export default async function generateQrCode(fastify, options) {
     console.log("Request received from frontend");
     var url = speakeasy.otpauthURL({ secret: secret.base32, label: 'ft_transcendence', issuer: '2FAManager' ,encoding: 'base32' });
     const data_url = await qrcode.toDataURL(url);
-    sendSecretToUserService(secret.base32, await request.cookies.token);
-    //fetchTwoFactorAuthData( await request.cookies.token);
+    sendSecretToUserService(secret.base32, request.cookies.token);
     return reply.status(200).send(JSON.stringify({content: `${data_url}`}));
   });
 }
 
 export async function verifyGoogleAuthenticator(fastify, options) {
   fastify.post('/verify-google-authenticator', async (req, res) => {
-    const token = req.body.token;
-    const Bsecret = req.body.secret;
-    console.log('Token:', token);
-    console.log('Secret:', secret);
+    const { totpCode } = req.body;
+    console.log("CODE :", totpCode);
+    const bSecret = await fetchTwoFactorAuthData(req.cookies.token);
+    console.log("Secret: ", bSecret);
     const verified = speakeasy.totp.verify({
-        secret: Bsecret,
+        secret: bSecret.secret,
         encoding: 'base32',
-        token: token,
+        token: totpCode,
         window: 1
     });
     if (verified) {
@@ -44,7 +43,8 @@ export async function fetchTwoFactorAuthData(cookieToken){
     credentials: "include",
   });
 
-  console.log(await response.json());
+  if(response.ok)
+    return(await response.json());
 }
 
 async function sendSecretToUserService(secret, cookieToken) {
