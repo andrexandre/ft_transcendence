@@ -306,7 +306,7 @@ function resetBall(gameId: string) {
 	const angle = minAngle + Math.random() * (maxAngle - minAngle);
   
 	const direction = Math.random() > 0.5 ? 1 : -1;
-	const speed = 5;
+	const speed = 1;
   
 	const dx = speed * Math.cos(angleRad);
 	const dy = speed * Math.sin(angleRad);

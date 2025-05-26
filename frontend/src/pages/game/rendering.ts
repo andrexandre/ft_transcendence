@@ -260,7 +260,7 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
 				GameMessageVisibility(false);
 				document.getElementById("sidebar")?.classList.remove("hidden");
 
-				clearLobbyId(); // test
+				clearLobbyId();
 				gameStarted = false;
 				gameStarting = false;
 				gameEnded = false;

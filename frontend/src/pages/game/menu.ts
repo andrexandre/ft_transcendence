@@ -30,12 +30,15 @@ export function turnOnGame() {
 }
 
 export function turnOffGame() {
-	if (userInfo.game_sock?.readyState === WebSocket.CLOSED) {
-		showToast.red("🚫 Lobby socket já está fechado");
-		return;
+	if (userInfo.game_sock) {
+		if (userInfo.game_sock.readyState === WebSocket.OPEN) {
+			console.log("🚫 Lobby socket já está fechado");
+			userInfo.game_sock.close();
+		}
+		userInfo.game_sock = null;
 	}
-	userInfo.game_sock?.close();
 }
+
 
 function initializeGameMainMenu(userData: {
 	user_id: number;
