@@ -52,8 +52,8 @@ async function sendSecretToUserService(secret, cookieToken) {
     two_FA_secret : secret,
     two_FA_status: true,
   };
-  const response = await fetch('http://user_management:3000/api/users/save-settings-2fa', {
-    method: 'POST',
+  const response = await fetch('http://user_management:3000/api/users/save-2fa-settings', {
+    method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
       "Cookie": `token=${cookieToken}`,
@@ -61,4 +61,6 @@ async function sendSecretToUserService(secret, cookieToken) {
     credentials: "include",
     body: JSON.stringify(payload),
   });
+
+  console.log(await response.json());
 }
