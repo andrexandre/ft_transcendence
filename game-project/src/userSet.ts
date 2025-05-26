@@ -1,4 +1,5 @@
 import fastify, { FastifyInstance } from "fastify";
+import { lobbies } from "./lobbyManager.js";
 import db_game from "./db_game.js";
 
 // Interfaces
@@ -128,6 +129,38 @@ const getUserByUsername = (username: string) =>
 });
 
 export async function userRoutes(gameserver: FastifyInstance) {
+
+	gameserver.post('/game/updateUserInfo', async function(request: any, reply: any) {
+		
+		const token: string | undefined = request.cookies.token;
+		if (!token) return reply.status(401).send({ error: "No token provided" });
+		try {
+			const userData = await getUserDatafGateway(token);
+			if (!userData) return reply.status(401).send({ error: "Failed to fetch user from Gateway" });
+			
+			await new Promise((resolve, reject) => {
+				const query: string = `UPDATE users SET user_name = ?  WHERE user_id = ?;`;
+				db_game.run(query, [ userData.username, userData.userId ] , function (err) {
+					if (err) return reject(false);
+					resolve(true);
+				});
+			});
+			
+			for (const [, lobby] of lobbies) {
+				for (const player of lobby.players) {
+				  if (player.userId === userData.userId)
+					player.username = userData.username;
+				}
+			}
+
+			reply.status(200);
+			
+		} catch (error) {
+			return reply.status(500).send({ message: 'Inetrnal server error!'});
+		}
+		// The new username will be in the given token;
+	});
+
 	// Get user data
 	gameserver.post('/game/init-user', initSchema, async function(request: any, reply: any) {
 		const { id, username } = request.body;
