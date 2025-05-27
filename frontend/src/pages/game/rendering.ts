@@ -1,9 +1,9 @@
 import { showToast } from '../../utils';
-import { Logger } from '../utils';
+// import { Logger } from '../utils';
 import { playSound, sounds, stopSound } from './audio';
-import { clearLobbyId } from './lobbyClient'; 
+import { clearLobbyId } from './lobbyClient';
+import { chooseView, drawGameMessage } from './renderUtils';
 import { state as tournamentState, renderTournamentBracket, handleEndTournament, showRoundTransition, state } from './tournamentRender';
-// import { drawGameMessage, toggleGameMessage, updateScoreboard } from './renderUtils';
 
 export let gameCanvas: HTMLCanvasElement;
 export let ctx: CanvasRenderingContext2D;
@@ -26,42 +26,30 @@ export function initGameCanvas() {
 	gameCanvas.height = 600;
 }
 
-function drawGameMessage(msg: string, color?: string) {
-	const el = document.getElementById("game-message") as HTMLDivElement;
-	el.textContent = msg;
-	if (color) el.style.color = color;
-	el.classList.remove("hidden");
-}
-
-function GameMessageVisibility(show: boolean) {
-	const el = document.getElementById("game-message") as HTMLDivElement;
-	el.classList.toggle("hidden", !show);
-}
-
 function drawGame() {
 	ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-	
+
 	const gradient = ctx.createLinearGradient(0, 0, 0, gameCanvas.height);
 	gradient.addColorStop(0, "transparent");
 	gradient.addColorStop(0.5, "green");
 	gradient.addColorStop(1, "transparent");
 	ctx.fillStyle = gradient;
 	ctx.fillRect(gameCanvas.width / 2 - 1, 0, 2, gameCanvas.height);
-	
+
 	players.forEach((p) => {
 		const x = (p.posiX / 100) * (gameCanvas.width - paddleWidth);
 		const y = (p.posiY / 100) * (gameCanvas.height - paddleHeight);
 		ctx.fillStyle = p.posiX < 50 ? "blue" : "red";
-	
+
 		if (p.userId === currentPlayerId) {
 			ctx.strokeStyle = "white";
 			ctx.lineWidth = 3;
 			ctx.strokeRect(x, y, paddleWidth, paddleHeight);
 		}
-	
+
 		ctx.fillRect(x, y, paddleWidth, paddleHeight);
 	});
-	
+
 	ctx.fillStyle = "green";
 	ctx.beginPath();
 	ctx.arc(ball.x + ballSize / 2, ball.y + ballSize / 2, ballSize / 2, 0, Math.PI * 2);
@@ -134,15 +122,9 @@ function setupControls() {
 	}, 1000 / 60);
 }
 
-function hideMenuShowCanvas() {
-	document.getElementById("game-main-menu")?.classList.add("hidden");
-	document.getElementById("gameCanvas")?.classList.remove("hidden");
-	document.getElementById("scoreboard")!.style.display = "block";
-}
-
 export function connectToMatch(socket: WebSocket, role: "left" | "right") {
 	matchSocket = socket;
-	hideMenuShowCanvas();
+	chooseView('game');
 	initGameCanvas();
 	setupControls();
 
@@ -160,20 +142,19 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
 			data.role = role; //???
 			return;
 		}
-		
+
 		if (data.type === "countdown") {
 			gameStarting = true;
-			GameMessageVisibility(true);
-			drawGameMessage(data.value.toString(), "green");
+			drawGameMessage(true, data.value.toString(), "green");
 			// add som
 			if ((window as any).appUser?.user_set_sound === 1) {
 				playSound("countdown");
 			}
 			if (data.value === 1) {
 				setTimeout(() => {
-					GameMessageVisibility(false);
+					drawGameMessage(false);
 					if (!gameStarted) {
-						hideMenuShowCanvas();
+						chooseView('game');
 						gameStarted = true;
 						console.log("🟢 Jogo marcado como iniciado");
 					}
@@ -181,13 +162,13 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
 			}
 			return;
 		}
-		
+
 		if (data.type === "update") {
 			if (!gameStarted && !gameStarting) {
-				hideMenuShowCanvas();
+				chooseView('game');
 				gameStarted = true;
 			}
-			
+
 			localUsername = data.you;
 			// console.log("🟢🟢🟢🟢:", localUsername);
 			players = data.state.players;
@@ -197,26 +178,26 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
 			drawGame();
 			return;
 		}
-		
+
 		if (data.type === "scoreboard") {
 			players = data.players;
 			updateScoreboard(players);
 			return;
 		}
-		
+
 		if (data.type === "show-bracket") {
 			console.log("TREEEEE no RENDERING");
 			renderTournamentBracket();
 			return;
 		}
-		
+
 
 		if (data.type === "end-round") {
 			renderTournamentBracket();
 			tournamentState.rounds[data.roundIndex][data.matchIndex].winner = data.winner;
 			return;
 		}
-		
+
 		if (data.type === "end-tournament") {
 			handleEndTournament(data.winner);
 			return;
@@ -229,19 +210,14 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
 
 		if (data.type === "player-disconnected") {
 			showToast.red(`⚠️ ${data.username} foi desconectado`);
-			drawGameMessage(`${data.username} está off...`, "orange");
 		}
-		
+
 		if (data.type === "end" && !gameEnded) {
 			gameEnded = true;
-			drawGameMessage(`${data.winner} wins!`, data.winner === (window as any).appUser?.user_name ? "blue" : "red");
-			GameMessageVisibility(true);
+			drawGameMessage(true, `${data.winner} wins!`, data.winner === (window as any).appUser?.user_name ? "blue" : "red")
 			setTimeout(() => {
-				document.getElementById("gameCanvas")?.classList.add("hidden");
-				document.getElementById("game-main-menu")?.classList.remove("hidden");
-				document.getElementById("scoreboard")!.style.display = "none";
-				GameMessageVisibility(false);
-				document.getElementById("sidebar")?.classList.remove("hidden");
+				chooseView('menu');
+				drawGameMessage(false);
 
 				clearLobbyId();
 				gameStarted = false;
@@ -251,7 +227,7 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
 				// remove som
 				if ((window as any).appUser?.user_set_sound === 1) {
 					stopSound("gameMusic");
-					sounds.menuMusic.play().catch(() => {});
+					sounds.menuMusic.play().catch(() => { });
 				}
 			}, 5000);
 			return;
@@ -260,7 +236,6 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
 
 	matchSocket.onclose = () => {
 		console.log("❌ Socket do jogo foi encerrado");
-		GameMessageVisibility(true);
-		drawGameMessage("Disconnected from match", "red");
+		showToast.red("Disconnected from match");
 	};
 }
