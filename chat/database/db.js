@@ -90,6 +90,20 @@ export async function removeInvite(username, invited)
 	`, [user_id.user_id, invited_id.user_id]);
 }
 
+export async function removeInviteLobby(lobby)
+{
+	try{
+		await db.run(`
+		DELETE FROM invites
+		WHERE lobby_id = ?
+		`, [lobby]);
+	}
+	catch (error)
+	{
+		throw new Error('Failed to remove lobby: ', error);
+	}
+}
+
 export async function isInvited(username, invited)
 {
 	console.log('user: ' + username + 'invite: ' + invited)
@@ -189,6 +203,13 @@ export async function addFriend(username, friend_username)
 	if(!user || !friend) {
 		throw new Error('User doesnt exist');
 	}
+	const frienship = await db.get(`
+		SELECT * FROM friendships
+		WHERE (user_id = ? AND friend_id = ?)
+		`, [user.user_id, friend.user_id]);
+
+	if(frienship)
+		return ;
 	try {
 		await db.run(`
 			INSERT INTO friendships (user_id, friend_id)
@@ -200,7 +221,7 @@ export async function addFriend(username, friend_username)
 		`,[friend.user_id, user.user_id]);
 	}
 	catch (error) {
-		throw new Error('Failed to add frienship: ' + error.message);
+		throw new Error('Failed to add friendship: ' + error.message);
 	}
 }
 

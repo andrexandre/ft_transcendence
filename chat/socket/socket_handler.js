@@ -1,4 +1,4 @@
-import { addFriend, addRequest, getFriends, getRequests, deleteFriendRequest, addBlock, checkBlock, deleteBlock, addInvite, isInvited, removeInvite, getLobbyId, getUserId, getUsername } from '../database/db.js';
+import { addFriend, addRequest, getFriends, getRequests, deleteFriendRequest, addBlock, checkBlock, deleteBlock, addInvite, isInvited, removeInvite, getLobbyId, getUserId, getUsername, removeInviteLobby } from '../database/db.js';
 import { checkFriendOnline, getAllUsers, getTimeString, parseRoomName, roomName } from '../utils/utils.js';
 import { createMessage, loadMessages, sendMessage, updateBlockRoom } from '../messages/messages.js';
 
@@ -125,7 +125,8 @@ export async function SocketHandler(socket, username)
 					await sendOnlineFriends(username, socket);
 					break;
 				case 'lobby-closed':
-					//removeInvite()
+					removeInviteLobby(data.lobbyId);
+					break;
 			}
 		});
 		socket.on('close', () =>{
