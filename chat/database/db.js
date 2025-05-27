@@ -133,7 +133,22 @@ export async function getAll()
 
 export async function getUserId(username)
 {
+	const user = await db.get('SELECT user_id FROM users WHERE username = ?', [username]);
 
+	if(!user)
+		throw new Error('User doesnt exist');
+
+	return user.user_id;
+}
+
+export async function getUsername(id)
+{
+	const user = await db.get('SELECT username FROM users WHERE user_id = ?', [id]);
+
+	if(!user)
+		throw new Error('User doesnt exist');
+
+	return user.username;
 }
 
 async function checkUsername(username, current_username, id)
@@ -339,7 +354,7 @@ export async function deleteBlock(user, friend)
 export async function checkBlock(username, friend)
 {
 	try {
-
+		console.log("friend: "+ friend + " user: " + username);
 		const user_id = await db.get(`SELECT user_id FROM users WHERE username = ?`, [username]);
 		const friend_id = await db.get(`SELECT user_id FROM users WHERE username = ?`, [friend]);
 		const blocked = await db.get(`
