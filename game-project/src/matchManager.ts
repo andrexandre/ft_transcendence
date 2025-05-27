@@ -4,6 +4,7 @@ import { updateBotPlayer } from './bot.js';
 import { saveMatchToDatabase } from './userSet.js';
 import { handleMatchEndFromTournament } from './tournamentManager.js';
 import { initMTCPlayers, updateMTCGame } from './mtcLogic.js';
+import { Logger } from "./utils.js";
 
 const matchDisconnectTimers = new Map<number, NodeJS.Timeout>();
 const winningScore = 2;
@@ -34,7 +35,7 @@ const matchSockets = new Map<string, WebSocket[]>();
 export function handleMatchConnection(gameId: string, connection: any) {
 	const lobby = getLobbyByGameId(gameId);
 	if (!lobby) {
-		console.log(`❌ Lobby not found for gameId: ${gameId}`);
+		Logger.log(`❌ Lobby not found for gameId: ${gameId}`);
 		connection.send(JSON.stringify({ type: "error", message: "Lobby not found" }));
 		connection.close();
 		return;
@@ -44,7 +45,7 @@ export function handleMatchConnection(gameId: string, connection: any) {
 	const isSingle = players.length === 1;
 	const gameMode = lobby.gameMode;
 	const aiDifficulty = isSingle ? players[0].difficulty || "Normal" : undefined;
-	// console.log(`🧑‍🤝‍🧑Not AI: `, aiDifficulty);
+	// Logger.log(`🧑‍🤝‍🧑Not AI: `, aiDifficulty);
 
 	let realPlayers: PlayerState[] = [];
 	if (gameMode === "MTC") {
@@ -71,13 +72,13 @@ export function handleMatchConnection(gameId: string, connection: any) {
 
 	if (!matchSockets.has(gameId)) {
 		matchSockets.set(gameId, []);
-		console.log(`🌟 Sala criada para jogo ${gameId}`);
+		Logger.log(`🌟 Sala criada para jogo ${gameId}`);
 	}
 
 	const socketArray = matchSockets.get(gameId)!;
 	const index = socketArray.length;
 	socketArray.push(connection);
-	console.log(`👥 Total de sockets no jogo ${gameId}: ${socketArray.length}`);
+	Logger.log(`👥 Total de sockets no jogo ${gameId}: ${socketArray.length}`);
 
 	if (!matches.has(gameId)) {
 		const matchState: MatchState = {
@@ -92,7 +93,7 @@ export function handleMatchConnection(gameId: string, connection: any) {
 		};
 		matches.set(gameId, matchState);
 		startCountdown(gameId);
-		console.log(`🧐 Estado inicial criado para jogo ${gameId}`);
+		Logger.log(`🧐 Estado inicial criado para jogo ${gameId}`);
 	}
 
 	const user = connection.user;
@@ -121,13 +122,13 @@ export function handleMatchConnection(gameId: string, connection: any) {
 				}
 			}
 		} catch (err) {
-			console.error("❌ Invalid message:", err);
+			Logger.error("❌ Invalid message:", err);
 			connection.send(JSON.stringify({ type: "error", message: "Invalid message format" }));
 		}
 	});
 
 	connection.on("close", () => {
-		console.log(`❌ Player desconectado do jogo ${gameId}`);
+		Logger.log(`❌ Player desconectado do jogo ${gameId}`);
 		const sockets = matchSockets.get(gameId)?.filter((c) => c !== connection);
 		if (!sockets || sockets.length === 0) {
 			matchSockets.delete(gameId);
@@ -135,10 +136,10 @@ export function handleMatchConnection(gameId: string, connection: any) {
 			if (match) clearInterval(match.interval);
 			matches.delete(gameId);
 			removeLobbyByGameId(gameId); /// check loobbys
-			console.log(`🧹 Match ${gameId} limpo (todos os jogadores saíram)`);
+			Logger.log(`🧹 Match ${gameId} limpo (todos os jogadores saíram)`);
 		} else {
 			matchSockets.set(gameId, sockets);
-			console.log(`👥 Jogadores restantes: ${sockets.length}`);
+			Logger.log(`👥 Jogadores restantes: ${sockets.length}`);
 		}
 	});
 };
@@ -177,30 +178,32 @@ function updateMatchState(gameId: string) {
 
 	const sockets = matchSockets.get(gameId);
 	if (!sockets) return;
+	
+	if (handleScore(match, sockets, gameId)) return;
 
-	if (match.ball.x < 0) {
-		match.players[1].score++;
-		broadcastScoreboard(sockets, match.players);
-		if (match.players[1].score >= winningScore) {
-			match.paused = true;
-			setTimeout(() => endMatch(gameId), 500);
-		} else {
-			resetBall(gameId);
-		}
-		return;
-	}
+	// if (match.ball.x < 0) {
+	// 	match.players[1].score++;
+	// 	broadcastScoreboard(sockets, match.players);
+	// 	if (match.players[1].score >= winningScore) {
+	// 		match.paused = true;
+	// 		setTimeout(() => endMatch(gameId), 500);
+	// 	} else {
+	// 		resetBall(gameId);
+	// 	}
+	// 	return;
+	// }
 
-	if (match.ball.x > 800) {
-		match.players[0].score++;
-		broadcastScoreboard(sockets, match.players);
-		if (match.players[0].score >= winningScore) {
-			match.paused = true;
-			setTimeout(() => endMatch(gameId), 500);
-		} else {
-			resetBall(gameId);
-		}
-		return;
-	}
+	// if (match.ball.x > 800) {
+	// 	match.players[0].score++;
+	// 	broadcastScoreboard(sockets, match.players);
+	// 	if (match.players[0].score >= winningScore) {
+	// 		match.paused = true;
+	// 		setTimeout(() => endMatch(gameId), 500);
+	// 	} else {
+	// 		resetBall(gameId);
+	// 	}
+	// 	return;
+	// }
 
 	sockets.forEach((sock, i) => {
 		const player = match.players[i];
@@ -255,7 +258,7 @@ function endMatch(gameId: string) {
 	clearInterval(match.interval);
 	matches.delete(gameId);
 	matchSockets.delete(gameId);
-	console.log(`🌟 Match ${gameId} terminado. WINNER: ${winner.username}`);
+	Logger.log(`🌟 Match ${gameId} terminado. WINNER: ${winner.username}`);
 }
 
 function broadcastScoreboard(sockets: WebSocket[], players: PlayerState[]) {
@@ -291,6 +294,33 @@ export function startCountdown(gameId: string) {
 	}, 1000);
 }
 
+function handleScore(match: MatchState, sockets: WebSocket[], gameId: string): boolean {
+	if (match.ball.x < 0 || match.ball.x > 800) {
+		const isLeftGoal = match.ball.x < 0;
+
+		if (match.gameMode === "MTC") {
+			const scoringTeam = isLeftGoal ? match.players.slice(2, 4) : match.players.slice(0, 2);
+			// ✅ Só o primeiro da equipa marca ponto (evita duplicação visual)
+			scoringTeam[0].score++;
+		} else {
+			const scorerIndex = match.ball.x > 800 ? 0 : 1;
+			match.players[scorerIndex].score++;
+		}
+
+		broadcastScoreboard(sockets, match.players);
+
+		const winningPlayers = match.players.filter(p => p.score >= winningScore);
+		if (winningPlayers.length > 0) {
+			match.paused = true;
+			setTimeout(() => endMatch(gameId), 500);
+		} else {
+			resetBall(gameId);
+		}
+		return true;
+	}
+	return false;
+}
+
 
 function resetBall(gameId: string) {
 	const match = matches.get(gameId);
@@ -306,7 +336,7 @@ function resetBall(gameId: string) {
 	const angle = minAngle + Math.random() * (maxAngle - minAngle);
   
 	const direction = Math.random() > 0.5 ? 1 : -1;
-	const speed = 5;
+	const speed = 2;
   
 	const dx = speed * Math.cos(angleRad);
 	const dy = speed * Math.sin(angleRad);

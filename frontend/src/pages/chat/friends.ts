@@ -437,7 +437,7 @@ export function setChatEventListeners() {
 		showToast.yellow('Inviting player...');
 		userInfo.game_sock!.send(JSON.stringify({
 			type: 'create-lobby',
-			gameMode: "1v1",
+			gameMode: "1V1",
 			maxPlayers: 2
 		}));
 		userInfo.pendingInviteTo = currentFriend;

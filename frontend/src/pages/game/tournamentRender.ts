@@ -173,11 +173,11 @@ export function showRoundTransition(roundNumber: number) {
 	if (!el) return;
 
 	let count = 3;
-	// el.classList.remove("hidden");
 	const interval = setInterval(() => {
 		el.textContent = `Round ${roundNumber} starts in ${count}...`;
 		el.style.color = "white";
 		count--;
+		el.classList.remove("hidden");
 		if (count < 0) {
 			clearInterval(interval);
 			el.classList.add("hidden");
