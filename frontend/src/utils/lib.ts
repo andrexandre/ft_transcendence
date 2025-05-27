@@ -138,3 +138,12 @@ export function fullScreenOverlay(html: string = '', css: string = '', js?: () =
 	overlay.appendChild(styleElement);
 	if (js) js();
 }
+
+export function element(elementId: string, className: string, addClassToElement: boolean) {
+	if (addClassToElement)
+		document.getElementById(elementId)!.classList.add(className);
+	else
+		document.getElementById(elementId)!.classList.remove(className);
+}
+// element.add = (id: string, classN: string) => element(id, classN, true);
+// element.remove = (id: string, classN: string) => element(id, classN, false);

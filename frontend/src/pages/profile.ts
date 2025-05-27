@@ -1,7 +1,27 @@
 import Page from "./Page"
 import * as lib from "../utils"
 import sidebar from "../components/sidebar"
-import { renderProfileImage, updateMatchHistory } from "./dashboard";
+import { renderProfileImage, updateMatchHistory, MatchHistoryI } from "./dashboard";
+
+export function calculateGameStatistics(history : MatchHistoryI[], profileUsername: string) {
+	const wins : MatchHistoryI[] = history.filter(match => match.winner.username === profileUsername);
+	const losses : MatchHistoryI[] = history.filter(match => match.loser.username === profileUsername);
+
+	document.getElementById('game-wins')!.innerHTML = /*html*/`<i class="fa-solid fa-trophy mr-5"></i> ${wins.length}`;
+	document.getElementById('game-losses')!.innerHTML = /*html*/`<i class="fa-solid fa-skull mr-5"></i> ${losses.length}`;
+
+	// const classicWinns : MatchHistoryI[] = winns.filter(match => match.Mode === 'Classic');
+	// const classicLoses : MatchHistoryI[] = winns.filter(match => match.Mode === 'Classic');
+
+	// console.log('CLASSIC WINNS: ', classicWinns.length);
+	// console.log('CLASSIC LOSES: ', classicLoses.length);
+
+	// const multiWinns : MatchHistoryI[] = winns.filter(match => match.Mode === '1V1');
+	// const multiLoses : MatchHistoryI[] = loses.filter(match => match.Mode === '1V1');
+
+	// console.log('1V1 WINNS: ', multiWinns.length);
+	// console.log('1V1 LOSES: ', multiLoses.length);
+}
 
 async function loadInformation(profileUsername: string) {
 	try {

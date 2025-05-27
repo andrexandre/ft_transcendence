@@ -1,8 +1,9 @@
 import Page from "./Page"
 import * as lib from "../utils"
 import sidebar from "../components/sidebar"
+import { calculateGameStatistics } from "./profile";
 
-interface MatchHistoryI {
+export interface MatchHistoryI {
 	Mode: string;
 	winner: {
 		username: string;
@@ -16,19 +17,6 @@ interface MatchHistoryI {
 }
 
 function displayMatchHistory(matchHistory: MatchHistoryI[], requestedUsername: string) {
-	let wins = 0;
-	let losses = 0;
-
-	matchHistory.forEach(match => {
-		if (match.winner.username === requestedUsername)
-			wins++;
-		else if (match.loser.username === requestedUsername)
-			losses++;
-	});
-	if (lib.userInfo.path.startsWith("/profile/")) {
-		document.getElementById('game-wins')!.innerHTML = /*html*/`<i class="fa-solid fa-trophy mr-5"></i> ${wins}`;
-		document.getElementById('game-losses')!.innerHTML = /*html*/`<i class="fa-solid fa-skull mr-5"></i> ${losses}`;
-	}
 	const statsDiv = document.getElementById("stats-list")!;
 	matchHistory.reverse().forEach(match => {
 		const matchDiv = document.createElement("li");
@@ -67,6 +55,8 @@ export async function updateMatchHistory(targetUsername: string) {
 		}
 		let matchHistory = await response.json();
 		displayMatchHistory(matchHistory, targetUsername);
+		if (lib.userInfo.path.startsWith("/profile/"))
+			calculateGameStatistics(matchHistory, targetUsername);
 	} catch (error) {
 		console.log(error);
 		lib.showToast.red(error as string);

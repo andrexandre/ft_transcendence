@@ -41,7 +41,7 @@ class Chat extends Page {
 							<img id="chat-box-profile-image" class="object-cover size-10 rounded-full">
 							<span id="chat-box-header-username" class="flex items-center">No user selected</span>
 						</button>
-						<button id="chat-box-invite-button" class="px-3 rounded-2xl hover:bg-c-secondary dark:hover:bg-c-primary" disabled>Invite to game</button>
+						<button id="chat-box-invite-button" class="truncate px-3 rounded-2xl hover:bg-c-secondary dark:hover:bg-c-primary" disabled>Invite to game</button>
 						<button id="accept-invite-to-game-button" class="hidden px-3 rounded-2xl hover:bg-c-secondary dark:hover:bg-c-primary" disabled>Accept</button>
 						<button id="reject-invite-to-game-button" class="hidden px-3 rounded-2xl hover:bg-c-secondary dark:hover:bg-c-primary" disabled>Reject</button>
 						<button id="chat-box-block-button" class="px-3 rounded-2xl hover:bg-c-secondary dark:hover:bg-c-primary" disabled>Block</button>

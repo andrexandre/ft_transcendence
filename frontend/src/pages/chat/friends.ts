@@ -79,7 +79,6 @@ function socketOnMessage(event: MessageEvent<any>) {
 	// game start
 	else if (data.type === 'receive-game-invite') {
 		showToast.green(`🎮 Convite de ${data.from}`);
-		document.getElementById("chat-box-invite-button")?.remove();
 
 		createGameButton(data.from, data.lobbyId);
 
@@ -143,6 +142,7 @@ function socketOnMessage(event: MessageEvent<any>) {
 
 function createGameButton(from: string, lobbyId: string)
 {
+	document.getElementById("chat-box-invite-button")?.classList.add("hidden");
 	const acceptBtn = document.getElementById("accept-invite-to-game-button")!;
 	const rejectBtn = document.getElementById("reject-invite-to-game-button")!;
 
@@ -291,6 +291,15 @@ function renderUsersList(name: string) {
 	usersList.appendChild(userButton);
 }
 
+function addListEntry(listName: string, name: string, html: string, classes?: string) {
+	const listElement = document.getElementById(`${listName}`)!;
+	const entryElement = document.createElement('li');
+	entryElement.className = classes || 'flex item t-dashed gap-4 justify-around px-4';
+	entryElement.innerHTML = html;
+	entryElement.id = `${listName}-entry-${name}`;
+	listElement.appendChild(entryElement);
+}
+
 function renderFriendRequest(name: string) {
 	if (document.getElementById(`friend-request-${name}`))
 		return;
@@ -347,6 +356,10 @@ function renderChatRoom(name: string, isBlocked: boolean, isInvited: boolean, lo
 
 	if(isInvited)
 		createGameButton(from, lobbyId);
+	else {
+		document.getElementById("accept-invite-to-game-button")!.classList.add('hidden');
+		document.getElementById("reject-invite-to-game-button")!.classList.add('hidden');
+	}
 
 	(document.getElementById('chat-box-input') as HTMLInputElement).disabled = isBlocked;
 	(document.getElementById('chat-box-send-button') as HTMLButtonElement).disabled = isBlocked;
@@ -356,15 +369,6 @@ function renderChatRoom(name: string, isBlocked: boolean, isInvited: boolean, lo
 	}
 	window.history.replaceState({}, '', `/chat/${name}`);
 	renderProfileImage("chat-box-profile-image", name);
-}
-
-function addListEntry(listName: string, name: string, html: string, classes?: string) {
-	const listElement = document.getElementById(`${listName}`)!;
-	const entryElement = document.createElement('li');
-	entryElement.className = classes || 'flex item t-dashed gap-4 justify-around px-4';
-	entryElement.innerHTML = html;
-	entryElement.id = `${listName}-entry-${name}`;
-	listElement.appendChild(entryElement);
 }
 
 function reloadLists() {
@@ -428,7 +432,8 @@ export function setChatEventListeners() {
 
 	// chat --- game invite
 	document.getElementById('chat-box-invite-button')?.addEventListener('click', async function () {
-		this.remove();
+		// this.remove();
+		this.classList.add('hidden');
 		showToast.yellow('Inviting player...');
 		userInfo.game_sock!.send(JSON.stringify({
 			type: 'create-lobby',
