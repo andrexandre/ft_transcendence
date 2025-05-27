@@ -116,8 +116,22 @@ class Settings extends Page {
 					`;
 					document.getElementById('qr-code-input')!.addEventListener('input', async (event) => {
 						const input = (event.target as HTMLInputElement);
-						if (input.value.length === 6)
+						if (input.value.length === 6) {
+							const payload : {totpCode : string} = {totpCode : input.value}
+							const response2fa = await fetch(`http://${location.hostname}:8080/2fa/verify-google-authenticator`, {
+								method: 'POST',
+								credentials: "include",
+								headers: { 'Content-Type': 'application/json' },
+								body: JSON.stringify(payload),
+							});
+							if (response.status === 401) throw new Error("Invalid Code.");
+
+							if (!response2fa.ok) {
+								const errorData = await response2fa.json();
+								throw new Error(errorData.message);
+							}
 							lib.showToast(`Sent 2FA code: ${input.value}`);
+						}
 					});
 					lib.showToast.green("2FA enabled");
 				} else {
