@@ -3,6 +3,7 @@ import { showToast } from "../../utils";
 import { stopSound, sounds } from "./audio";
 import { connectToMatch } from "./rendering";	
 import { userInfo } from "../../utils";
+import { renderTournamentBracket } from "./tournamentRender";
 
 let lobbyId: string | null = null;
 let user: { username: string; userId: string } | null = null; //? verificar com o nr no ID
@@ -42,6 +43,13 @@ export function connectToGameServer(event : MessageEvent<any>) {
 			lobbyId = null;
 			showToast.yellow(`👋 Saiu do lobby`);
 			break;
+			
+		case "show-bracket":
+			console.log("TREEEEE no RENDERING do LOOOOOBBBBYYYYY");
+			console.log(data.round);
+			renderTournamentBracket();
+			break;
+		
 
 		case "match-start":
 			if (matchSocketStarted) return;

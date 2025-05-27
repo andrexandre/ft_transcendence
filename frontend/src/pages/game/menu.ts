@@ -39,7 +39,6 @@ export function turnOffGame() {
 	}
 }
 
-
 function initializeGameMainMenu(userData: {
 	user_id: number;
 	user_name: string;
@@ -123,12 +122,12 @@ function initializeGameMainMenu(userData: {
 	});
 
 	dropdown.addElement("Multi", "button", "item t-border-alt", "Tournament", () => {
-		showToast.green(`TNT clicked`)
+		// showToast.green(`TNT clicked`)
 		createLobby("TNT", 4);
 	});
 
 	dropdown.addElement("Multi", "button", "item t-border-alt", "1V1", () => {
-		showToast(`1V1 clicked`)
+		// showToast(`1V1 clicked`)
 		createLobby("1V1", 2);
 	});
 
@@ -166,7 +165,7 @@ function initializeGameMainMenu(userData: {
 	// Matrecos
 	dropdown.addElement('Co-Op', 'button', 'item t-border-alt', 'Matrecos', async () => {
 		try {
-			showToast(`MTC clicked`)
+			// showToast(`MTC clicked`)
 			createLobby("MTC", 4);
 		} catch (err) {
 			showToast.red("❌ Failed to create Matrecos lobby");
@@ -175,7 +174,7 @@ function initializeGameMainMenu(userData: {
 	// Free for All futuro dele
 	dropdown.addElement('Co-Op', 'button', 'item t-border-alt', 'Free for All', async () => {
 		try {
-			showToast(`FFA clicked`)
+			// showToast(`FFA clicked`)
 			createLobby("FFA", 4);
 		} catch (err) {
 			showToast.red("❌ Failed to create FFA lobby");
