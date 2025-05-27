@@ -4,8 +4,8 @@ export const createUser = function (username, email, password, auth_method) {
 	
 	let columns = "username, email, auth_method, codename, biography";
 	let values = "?, ?, ?, ?, ?";
-	let params = [username, email, auth_method, sampleCodenames[Math.floor(Math.random() * (sampleCodenames.length + 1))], sampleBios[Math.floor(Math.random() * (sampleBios.length + 1))]];
-
+	let params = [username, email, auth_method, sampleCodenames[Math.floor(Math.random() * sampleCodenames.length)], sampleBios[Math.floor(Math.random() * sampleBios.length)]];
+	
 	if (password) {
 		columns = "username, email, password, auth_method, codename, biography";
 		values = "?, ?, ?, ?, ?, ?";
