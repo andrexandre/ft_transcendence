@@ -49,7 +49,7 @@ class Chat extends Page {
 					<ul id="chat-box-message-list" class="flex flex-col flex-1 overflow-auto"></ul>
 					<form id="chat-box-form" class="flex item t-dashed gap-4">
 						<input id="chat-box-input" class="size-full pl-2" type="text" placeholder="Type a message..." name="nope" autocomplete="new-password" pattern="^[^<>]+$" disabled/>
-						<button class="p-2 rounded-2xl hover:bg-c-secondary dark:hover:bg-c-primary" id="chat-box-send-button" disabled>Send</button>
+						<button id="chat-box-send-button" class="p-2 rounded-2xl hover:bg-c-secondary dark:hover:bg-c-primary" disabled>Send</button>
 					</form>
 				</div>
 				<div class="flex flex-col gap-6 card t-dashed p-5">

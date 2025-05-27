@@ -61,7 +61,7 @@ class Profile extends Page {
 	getHtml(): string {
 		return /*html*/`
 			<main class="grid flex-1 card items-center justify-center">
-				<dialog open id="profile-dialog" class="h-130 grid grid-cols-1 lg:grid-cols-[560px_500px] grid-rows-2 lg:grid-rows-1 gap-5 bg-c-bg/75 dark:bg-c-text/25 dark:text-c-bg fixed top-1/2 left-1/2 -translate-1/2 rounded-4xl p-6 w-fit shadow-lg overflow-scroll">
+				<dialog open id="profile-dialog" class="h-130 grid grid-cols-1 lg:grid-cols-[560px_500px] grid-rows-2 lg:grid-rows-1 gap-5 bg-black/7 dark:bg-white/7 text-c-text dark:text-c-bg fixed top-1/2 left-1/2 -translate-1/2 rounded-4xl p-6 w-fit shadow-lg overflow-scroll">
 					<div class="card t-dashed grid overflow-auto gap-10">
 						<div class="flex gap-16">
 							<img id="profile-image" class="object-cover rounded-full size-48 shadow-xl shadow-neutral-400 border-2">
@@ -70,7 +70,14 @@ class Profile extends Page {
 								<p id="profile-codename" class="text-xl">Codename failed to load</p>
 							</div>
 						</div>
-						<p id="profile-bio" class="min-w-md max-w-3xl whitespace-pre-wrap text-start">Biography failed to load</p>
+						<div class="flex justify-between min-w-md max-w-3xl">
+							<p id="profile-bio" class=" whitespace-pre-wrap text-start">Biography failed to load</p>
+							<div class="flex flex-col gap-4 min-w-20">
+								<b>Pong stats</b>
+								<span id="game-wins"><i class="fa-solid fa-trophy mr-5"></i> --</span>
+								<span id="game-losses"><i class="fa-solid fa-skull mr-5"></i> --</span>
+							</div>
+						</div>
 					</div>
 					<div class="t-dashed flex card gap-0 px-5">
 						<div class="flex flex-col w-full gap-5">

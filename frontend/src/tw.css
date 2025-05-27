@@ -16,7 +16,7 @@
 	--color-c-game-secondary: theme(colors.green.600);
 }
 
-:disabled { @apply opacity-50; }
+:disabled { @apply opacity-50 pointer-events-none; }
 
 body { @apply bg-white dark:bg-black select-none text-c-text dark:text-c-bg; }
 

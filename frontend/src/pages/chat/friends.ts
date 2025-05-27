@@ -237,7 +237,6 @@ function renderUsersList(name: string) {
 			<p class="mr-auto">${name}</p>
 			<div><i class="fa-solid fa-user-check text-c-secondary"></i></div>
 		`;
-		userButton.style.pointerEvents = 'none';
 		userButton.disabled = true;
 	});
 	usersList.appendChild(userButton);
@@ -288,10 +287,6 @@ function renderFriendRequest(name: string) {
 	friendRequestsList.appendChild(friendRequestEntry);
 }
 
-function renderFriendRequestsList(requests: { sender: string }[]) {
-	requests.forEach(request => renderFriendRequest(request.sender));
-}
-
 function renderChatRoom(name: string, isBlocked: boolean) {
 	const roomList = document.getElementById('chat-box-message-list')!;
 	roomList.innerHTML = '';
@@ -301,6 +296,8 @@ function renderChatRoom(name: string, isBlocked: boolean) {
 	const chatHeaderBlockButton = document.getElementById('chat-box-block-button')!;
 	chatHeaderBlockButton.textContent = isBlocked ? 'Unblock' : 'Block';
 
+	(document.getElementById('chat-box-input') as HTMLInputElement).disabled = isBlocked;
+	(document.getElementById('chat-box-send-button') as HTMLButtonElement).disabled = isBlocked;
 	if ((document.getElementById('chat-box-profile') as HTMLButtonElement).disabled) {
 		const chatBoxElements = document.querySelectorAll('#chat-box input, #chat-box button');
 		chatBoxElements.forEach(element => (element as HTMLInputElement).disabled = false);
