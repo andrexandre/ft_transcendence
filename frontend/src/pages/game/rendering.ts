@@ -1,7 +1,9 @@
 import { showToast } from '../../utils';
+import { Logger } from '../utils';
 import { playSound, sounds, stopSound } from './audio';
 import { clearLobbyId } from './lobbyClient'; 
 import { state as tournamentState, renderTournamentBracket, handleEndTournament, showRoundTransition, state } from './tournamentRender';
+// import { drawGameMessage, toggleGameMessage, updateScoreboard } from './renderUtils';
 
 export let gameCanvas: HTMLCanvasElement;
 export let ctx: CanvasRenderingContext2D;
@@ -203,25 +205,7 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
 		}
 		
 		if (data.type === "show-bracket") {
-			// const serverRounds = data.rounds;
-			// document.getElementById('sidebar')?.classList.toggle('hidden');
-			// document.getElementById('tournament-bracket')!.innerHTML = tournamentTree.getHtml();
-			// document.getElementById('tournament-bracket')?.classList.remove('hidden');
-			// document.getElementById('game-main-menu')?.classList.add('hidden');
-			// showToast.red("show-bracket")
-		
-			// state.rounds = serverRounds.map((round: any[]) =>
-			// 	round.map((m: any) => ({
-			// 		player1: m.player1.username,
-			// 		player2: m.player2.username,
-			// 		winner: m.winnerId === m.player1.userId ? m.player1.username
-			// 			: m.winnerId === m.player2.userId ? m.player2.username
-			// 			: undefined
-			// 	}))
-			// );
-		
-			// state.currentRound = data.currentRound;
-			showToast.red("show-bracket1111111111111111111111111111111111111111111111")
+			console.log("TREEEEE no RENDERING");
 			renderTournamentBracket();
 			return;
 		}
@@ -242,6 +226,11 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
 			showRoundTransition(data.round);
 			return;
 		}
+
+		if (data.type === "player-disconnected") {
+			showToast.red(`⚠️ ${data.username} foi desconectado`);
+			drawGameMessage(`${data.username} está off...`, "orange");
+		}
 		
 		if (data.type === "end" && !gameEnded) {
 			gameEnded = true;
@@ -254,7 +243,7 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
 				GameMessageVisibility(false);
 				document.getElementById("sidebar")?.classList.remove("hidden");
 
-				clearLobbyId(); // test
+				clearLobbyId();
 				gameStarted = false;
 				gameStarting = false;
 				gameEnded = false;

@@ -3,14 +3,6 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* All the following styles are only on tw.css
-bg- (excluding settings)
-text- (excluding game/page and auth)
-border (excluding chat/page)
-hover:border-
-focus:border- (excluding auth)
-*/
-
 /* theme */
 @theme static {
 	/* 0 = lighter, 1000 = darker */
@@ -24,9 +16,7 @@ focus:border- (excluding auth)
 	--color-c-game-secondary: theme(colors.green.600);
 }
 
-:disabled {
-	@apply opacity-50;
-}
+:disabled { @apply opacity-50 pointer-events-none; }
 
 body { @apply bg-white dark:bg-black select-none text-c-text dark:text-c-bg; }
 
@@ -38,14 +28,15 @@ img { @apply pointer-events-none; }
 
 input, textarea { @apply outline-none disabled:opacity-50; }
 
+/* main { @apply opacity-0; } */
+
 @layer components {
 	.t-border {
 		@apply border-2 border-c-secondary hover:border-c-primary
 			dark:border-c-primary dark:hover:border-c-secondary;
 	}
-	.t-dashed { /* dashed rounded border */
-		@apply border-2 border-c-secondary hover:border-c-primary border-dashed rounded-3xl
-			dark:border-c-primary dark:hover:border-c-secondary;
+	.t-dashed {
+		@apply border-2 border-c-secondary hover:border-c-primary border-dashed rounded-3xl dark:border-c-primary dark:hover:border-c-secondary;
 	}
 	.item {
 		@apply m-1 p-2;
@@ -120,9 +111,14 @@ canvas {
 }
 
 /* dashboard menu animation */
+:root {
+	--ball-start: calc(0% + 1rem);
+	--ball-end: calc(100% - 2rem);
+}
+
 @keyframes ball-animation {
 	0%, 100% {
-		bottom: var(--btn-height);
+		bottom: 0%;
 		left: 50%;
 	}
 	25% {
@@ -135,31 +131,16 @@ canvas {
 	}
 	75% {
 		bottom: 50%;
-		left: 0%;
+		left: var(--ball-start);
 	}
 }
 
-:root {
-	--btn-width: 7rem;
-	--btn-height: 4rem;
-	--btn-start: 0%;
-	--btn-end: calc(100% - var(--btn-width));
-	--btn-half: calc((var(--btn-end) - var(--btn-start)) / 2);
-	--ball-end: calc(100% - 1rem);
-}
-
-@keyframes btn-animation {
+@keyframes paddle-animation {
 	0%, 100% {
-		left: var(--btn-half);
-	}
-	25% {
-		left: var(--btn-end);
+		bottom: 0%;
 	}
 	50% {
-		left: var(--btn-half);
-	}
-	75% {
-		left: var(--btn-start);
+		bottom: 82%;
 	}
 }
 

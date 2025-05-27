@@ -7,8 +7,10 @@ import { getLobbyByLobbyId, createLobby, joinLobby, startGame, listLobbies, leav
 import { getUserDatafGateway, userRoutes } from './userSet.js';
 import { handleMatchConnection } from './matchManager.js';
 import { createTournament } from "./tournamentManager.js";
+import { Logger } from "./utils.js";
 
 const PORT = 5000;
+const disconnectTimers = new Map<number, NodeJS.Timeout>();
 const gameserver = Fastify({ logger: false }); // alterar true
 
 await gameserver.register(fastifyWebsocket);
@@ -36,7 +38,7 @@ gameserver.get('/lobby-ws', { websocket: true }, async (connection, req) => {
 			return;
 		}
 
-		console.log(`🔌 Connected: ${user.username} (${user.userId})`);
+		Logger.log(`🔌 Connected: ${user.username} (${user.userId})`);
 		(connection as any).user = user;
 
 		connection.on('message', (msg) => {
@@ -49,10 +51,18 @@ gameserver.get('/lobby-ws', { websocket: true }, async (connection, req) => {
 		});
 
 		connection.on('close', () => {
-			console.log(`❌ Disconnected: ${user.username}`);
+			if (!user) return;
+			Logger.log(`⏳ ${user.username} desconectou. Timeout de 5s iniciado`);
+			// implementar reconect
+			const timeout = setTimeout(() => {
+				Logger.log(`❌ ${user.username} não voltou. A sair do lobby.`);
+				leaveLobby(user.userId);
+				disconnectTimers.delete(user.userId);
+			}, 5000);
+			disconnectTimers.set(user.userId, timeout);
 		});
 	} catch (err) {
-		console.error("Erro ao processar conexão WebSocket:", err);
+		Logger.error("Erro ao processar conexão WebSocket:", err);
 		connection.send(JSON.stringify({ type: "error", message: "Server error" }));
 		connection.close();
 	}
@@ -71,11 +81,7 @@ function handleSocketMessage(connection: any, data: any) {
 	}
 
 	switch (data.type) {
-		case "create-lobby": { // uncoment
-			// if (getLobbyBySocket(user.socket)) {
-			// 	connection.send(JSON.stringify({ type: "error", message: "Já estás num lobby" }));
-			// 	return;
-			// }
+		case "create-lobby": {
 			const { gameMode, maxPlayers } = data;
 			if (!gameMode || !maxPlayers) {
 				connection.send(JSON.stringify({ type: "error", message: "Missing lobby info" }));
@@ -141,5 +147,5 @@ gameserver.get('/match-ws', { websocket: true }, (connection, req) => {
 
 // SERVER LISTENING
 gameserver.listen({ port: PORT, host: "0.0.0.0" }, () => {
-	console.log(`🚀 Game server running on ws://127.0.0.1:${PORT}`);
+	Logger.log(`🚀 Game server running on ws://127.0.0.1:${PORT}`);
 });

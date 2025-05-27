@@ -10,7 +10,7 @@ let lobbyRefreshInterval: ReturnType<typeof setInterval> | null = null;
 
 export function turnOnGame() {
 	if (userInfo.game_sock?.readyState === WebSocket.OPEN) {
-		showToast.red("🚫 Lobby socket já está ativo");
+		showToast.red("🚫 Lobby socket já está aberto");
 		return;
 	}
 
@@ -22,11 +22,21 @@ export function turnOnGame() {
 	};
 
 	userInfo.game_sock.onerror = () => showToast.red("❌ Erro na ligação do WebSocket");
-	userInfo.game_sock.onclose = () => showToast.red("🔌 Ligação terminada com o servidor");
+	userInfo.game_sock.onclose = () => console.log("🔌 Ligação terminada com o servidor");
 
 	userInfo.game_sock.onmessage = (event) => {
 		connectToGameServer(event);
 	};
+}
+
+export function turnOffGame() {
+	if (userInfo.game_sock) {
+		if (userInfo.game_sock.readyState === WebSocket.OPEN) {
+			console.log("🚫 Lobby socket já está fechado");
+			userInfo.game_sock.close();
+		}
+		userInfo.game_sock = null;
+	}
 }
 
 function initializeGameMainMenu(userData: {
@@ -112,12 +122,12 @@ function initializeGameMainMenu(userData: {
 	});
 
 	dropdown.addElement("Multi", "button", "item t-border-alt", "Tournament", () => {
-		showToast.green(`TNT clicked`)
+		// showToast.green(`TNT clicked`)
 		createLobby("TNT", 4);
 	});
 
 	dropdown.addElement("Multi", "button", "item t-border-alt", "1V1", () => {
-		showToast(`1V1 clicked`)
+		// showToast(`1V1 clicked`)
 		createLobby("1V1", 2);
 	});
 
@@ -155,7 +165,7 @@ function initializeGameMainMenu(userData: {
 	// Matrecos
 	dropdown.addElement('Co-Op', 'button', 'item t-border-alt', 'Matrecos', async () => {
 		try {
-			showToast(`MTC clicked`)
+			// showToast(`MTC clicked`)
 			createLobby("MTC", 4);
 		} catch (err) {
 			showToast.red("❌ Failed to create Matrecos lobby");
@@ -164,7 +174,7 @@ function initializeGameMainMenu(userData: {
 	// Free for All futuro dele
 	dropdown.addElement('Co-Op', 'button', 'item t-border-alt', 'Free for All', async () => {
 		try {
-			showToast(`FFA clicked`)
+			// showToast(`FFA clicked`)
 			createLobby("FFA", 4);
 		} catch (err) {
 			showToast.red("❌ Failed to create FFA lobby");

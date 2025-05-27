@@ -1,5 +1,7 @@
 import fastify, { FastifyInstance } from "fastify";
+import { lobbies } from "./lobbyManager.js";
 import db_game from "./db_game.js";
+import { Logger } from "./utils.js";
 
 // Interfaces
 interface MatchData {
@@ -65,9 +67,9 @@ export function saveMatchToDatabase(match: MatchData) {
 	[ match.gameMode, match.player1Id, match.player2Id, match.player1Score, match.player2Score, match.winnerId ],
 	(err) => {
 		if (err) {
-		return console.error("❌ DB Insert Error:", err.message);
+		return Logger.error("❌ DB Insert Error:", err.message);
 		}
-		console.log(`✅ Match saved to DB: ${match.player1Id} vs ${match.player2Id} (${match.gameMode})`);
+		Logger.log(`✅ Match saved to DB: ${match.player1Id} vs ${match.player2Id} (${match.gameMode})`);
 	}
 	);
 }
@@ -86,7 +88,7 @@ export async function getUserDatafGateway(token: string | undefined): Promise<Us
 		return await response.json();
 		
 	} catch (error) {
-		console.error("❌ Error fetching user from Gateway:", error);
+		Logger.error("❌ Error fetching user from Gateway:", error);
 		return null;
 	}
 }
@@ -128,6 +130,38 @@ const getUserByUsername = (username: string) =>
 });
 
 export async function userRoutes(gameserver: FastifyInstance) {
+
+	gameserver.post('/game/updateUserInfo', async function(request: any, reply: any) {
+		
+		const token: string | undefined = request.cookies.token;
+		if (!token) return reply.status(401).send({ error: "No token provided" });
+		try {
+			const userData = await getUserDatafGateway(token);
+			if (!userData) return reply.status(401).send({ error: "Failed to fetch user from Gateway" });
+			
+			await new Promise((resolve, reject) => {
+				const query: string = `UPDATE users SET user_name = ?  WHERE user_id = ?;`;
+				db_game.run(query, [ userData.username, userData.userId ] , function (err) {
+					if (err) return reject(false);
+					resolve(true);
+				});
+			});
+			
+			for (const [, lobby] of lobbies) {
+				for (const player of lobby.players) {
+				  if (player.userId === userData.userId)
+					player.username = userData.username;
+				}
+			}
+
+			reply.status(200);
+			
+		} catch (error) {
+			return reply.status(500).send({ message: 'Inetrnal server error!'});
+		}
+		// The new username will be in the given token;
+	});
+
 	// Get user data
 	gameserver.post('/game/init-user', initSchema, async function(request: any, reply: any) {
 		const { id, username } = request.body;
@@ -158,20 +192,6 @@ export async function userRoutes(gameserver: FastifyInstance) {
 
 		try {
 			let row = await getUserById(userId);
-			// if (!row) {
-			// 	console.log(`🆕 User '${username}' not found. Creating...`);
-			// 	await new Promise((resolve, reject) => {
-			// 		db_game.run(
-			// 			"INSERT INTO users (user_id, user_name, user_set_dificulty, user_set_tableSize, user_set_sound) VALUES (?, ?, 'Normal', 'Medium', 1)",
-			// 			[userId, username],
-			// 			function (err) {
-			// 				if (err) return reject({ status: 500, error: "Database error" });
-			// 				resolve(null);
-			// 			}
-			// 		);
-			// 	});
-			// 	row = { user_id: userId, user_name: username, user_set_dificulty: "Normal", user_set_tableSize: "Medium", user_set_sound: 1 };
-			// }
 			reply.send(row);
 		} catch (err: any) {
 			reply.status(err.status || 500).send({ error: err.error || "❌ Unknown error" });
@@ -212,7 +232,7 @@ export async function userRoutes(gameserver: FastifyInstance) {
 			const targetUser: any = await getUserByUsername(username);
 			if (!targetUser)
 				return reply.status(404).send({ error: "Username not found!" });
-			console.log(targetUser);
+			Logger.log(targetUser);
 			// Obtém histórico do usuário
 			const history: GameHistory[] = await getUserHistory(targetUser.user_id);
 			
@@ -246,7 +266,7 @@ export async function userRoutes(gameserver: FastifyInstance) {
 	
 			reply.send(JSON.stringify(result, null, 2)); 
 		} catch (error) {
-			console.error("Erro ao processar histórico:", error);
+			Logger.error("Erro ao processar histórico:", error);
 			reply.status(500).send({ error: `Erro interno no servidor:\n ${error}` });
 		}
 	});

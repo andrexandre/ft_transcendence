@@ -1,4 +1,4 @@
-// src/matchModes/mtcMode.ts
+// src/matchModes/mtcLogic.ts
 import type { MatchState } from './matchManager.js';
 
 export function initMTCPlayers(players: any[]) {
@@ -19,7 +19,6 @@ export function updateMTCGame(match: MatchState) {
 	if (match.ball.y <= 0 || match.ball.y >= 600)
 		match.ball.dy *= -1;
 
-	// Paddle collisions
 	match.players.forEach((player) => {
 		const paddleX = (player.posiX / 100) * 790;
 		const paddleY = (player.posiY / 100) * 520;
@@ -34,13 +33,6 @@ export function updateMTCGame(match: MatchState) {
 			match.ball.dy += impact * 2;
 		}
 	});
-
-	// Score
-	if (match.ball.x < 0 || match.ball.x > 800) {
-		const loserTeam = match.ball.x < 0 ? 'left' : 'right';
-		addScoreToTeam(match, loserTeam);
-		resetBall(match);
-	}
 }
 
 function addScoreToTeam(match: MatchState, loserSide: 'left' | 'right') {
