@@ -11,12 +11,8 @@ export async function initializeDatabase()
 {
 	await db.exec(`
 		CREATE TABLE IF NOT EXISTS users (
-			user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+			user_id INTEGER UNIQUE,
 			username TEXT NOT NULL UNIQUE
-		);
-		CREATE TABLE IF NOT EXISTS tournaments (
-			tournament_id INTEGER PRIMARY KEY AUTOINCREMENT,
-			tournament_name TEXT NOT NULL
 		);
 		CREATE TABLE IF NOT EXISTS friendships (
 			user_id INTEGER,
@@ -25,13 +21,6 @@ export async function initializeDatabase()
 			FOREIGN KEY (friend_id) REFERENCES users(user_id),
 			PRIMARY KEY (user_id, friend_id),
 			CHECK (user_id != friend_id)
-		);
-		CREATE TABLE IF NOT EXISTS tournament_participants (
-			tournament_id INTEGER,
-			user_id INTEGER,
-			FOREIGN KEY (tournament_id) REFERENCES tournaments(tournament_id),
-			FOREIGN KEY (user_id) REFERENCES users(user_id),
-			PRIMARY KEY (tournament_id, user_id)
 		);
 		CREATE TABLE IF NOT EXISTS users_blocked (
 			user_id INTEGER,
@@ -50,10 +39,90 @@ export async function initializeDatabase()
 			FOREIGN KEY (receiver_id) REFERENCES users(user_id),
 			CHECK (sender_id != receiver_id)
 		);
+		CREATE TABLE IF NOT EXISTS invites (
+			user_id INTEGER,
+			invited_user INTEGER,
+			lobby_id TEXT NOT NULL UNIQUE,
+			PRIMARY KEY (user_id, invited_user)
+			FOREIGN KEY (user_id) REFERENCES users(user_id),
+			FOREIGN KEY (invited_user) REFERENCES users(user_id),
+			CHECK (user_id != invited_user)
+		);
 	`);
 	console.log("Database created!");
 
 	return db;
+}
+
+export async function addInvite(username, invited, lobbyId)
+{
+	const user_id = await db.get('SELECT user_id FROM users WHERE username = ?', [username]);
+	const invited_id = await db.get('SELECT user_id FROM users WHERE username = ?', [invited]);
+
+	if(!user_id || !invited_id)
+		throw new Error('User doesnt exist');
+
+	const invite = await db.get(`
+		SELECT * from invites
+		WHERE (user_id = ? AND invited_user = ?)
+		`, [user_id.user_id, invited_id.user_id])
+
+	if(!invite)
+	{
+		await db.run(`
+			INSERT INTO invites (user_id, invited_user, lobby_id)
+			VALUES (?, ?, ?)
+			`, [user_id.user_id,  invited_id.user_id, lobbyId])
+	}
+}
+
+export async function removeInvite(username, invited)
+{
+	const user_id = await db.get('SELECT user_id FROM users WHERE username = ?', [username]);
+	const invited_id = await db.get('SELECT user_id FROM users WHERE username = ?', [invited]);
+
+	if (!user_id || !invited_id)
+		throw new Error('User not found');
+
+	await db.run(`
+		DELETE FROM invites
+		WHERE user_id = ? AND invited_user = ?
+	`, [user_id.user_id, invited_id.user_id]);
+}
+
+export async function isInvited(username, invited)
+{
+	console.log('user: ' + username + 'invite: ' + invited)
+	const user_id = await db.get('SELECT user_id FROM users WHERE username = ?', [username]);
+	const invited_id = await db.get('SELECT user_id FROM users WHERE username = ?', [invited]);
+
+	if(!user_id || !invited_id)
+		throw new Error('User doesnt exist');
+
+	const invite = await db.get(`
+		SELECT * from invites
+		WHERE (user_id = ? AND invited_user = ?)
+		`, [user_id.user_id, invited_id.user_id])
+	
+	return invite ? true : false;
+}
+
+export async function getLobbyId(username, invited)
+{
+	const user_id = await db.get('SELECT user_id FROM users WHERE username = ?', [username]);
+	const invited_id = await db.get('SELECT user_id FROM users WHERE username = ?', [invited]);
+
+	if(!user_id || !invited_id)
+		throw new Error('User doesnt exist');
+
+	const invite = await db.get(`
+		SELECT * from invites
+		WHERE (user_id = ? AND invited_user = ?)
+		`, [user_id.user_id, invited_id.user_id])
+	
+	if (!invite)
+		throw new Error('No invite found between users');	
+	return invite.lobby_id;
 }
 
 export async function getAll()
@@ -62,21 +131,38 @@ export async function getAll()
 	return users;
 }
 
-export async function createUser(username)
+export async function getUserId(username)
 {
-	const user = await db.get('SELECT username FROM users WHERE username = ?', [username]);
+
+}
+
+async function checkUsername(username, current_username, id)
+{
+	if(username !== current_username)
+	{
+		await db.run(`
+			UPDATE users
+			SET username = ?
+			WHERE user_id = ?
+		`, [current_username, id]);
+		console.log('Updated username on database');
+	}
+}
+
+export async function createUser(username, id)
+{
+	const user = await db.get('SELECT username FROM users WHERE user_id = ?', [id]);
 
 	if(user)
 	{	
+		await checkUsername(user.username, username, id);
 		console.log(`Logged in ${username}`);
 		return ;
 	}
 	await db.run(`
-		INSERT INTO users (username)
-		VALUES ($username);
-	`, {
-		$username: username
-	});
+		INSERT INTO users (user_id, username)
+		VALUES (?, ?);
+	`,[id, username]);
 	console.log(`User created succesfully ${username}`);
 }
 

@@ -74,52 +74,55 @@ function socketOnMessage(event: MessageEvent<any>) {
 		handleEmptyList('friend-requests-list', 'No friend requests');
 	}
 	else if (data.type === 'block-status')
-		renderChatRoom(data.friend, data.isBlocked);
+		renderChatRoom(data.friend, data.isBlocked, data.isInvited, data.lobbyId, data.friend);
+		// renderChatRoom(data.friend, data.isBlocked, data.isInvited, data.lobbyId, data.friend);
 	// game start
 	else if (data.type === 'receive-game-invite') {
 		showToast.green(`🎮 Convite de ${data.from}`);
 		document.getElementById("chat-box-invite-button")?.remove();
 
-		const acceptBtn = document.getElementById("accept-invite-to-game-button")!;
-		const rejectBtn = document.getElementById("reject-invite-to-game-button")!;
+		createGameButton(data.from, data.lobbyId);
 
-		acceptBtn.classList.remove("hidden");
-		rejectBtn.classList.remove("hidden");
+		// const acceptBtn = document.getElementById("accept-invite-to-game-button")!;
+		// const rejectBtn = document.getElementById("reject-invite-to-game-button")!;
 
-		acceptBtn.onclick = () => {
-			userInfo.game_sock!.send(JSON.stringify({
-				type: 'join-lobby',
-				lobbyId: data.lobbyId
-			}));
-			userInfo.chat_sock!.send(JSON.stringify({
-				type: 'join-accepted',
-				lobbyId: data.lobbyId,
-				requesterId: userInfo.userId,
-				friend: currentFriend
-			}));
-			setTimeout(() => {
-				// userInfo.game_sock!.send(JSON.stringify({
-				// 	// type: 'start-game',
-				// 	// lobbyId: data.lobbyId,
-				// 	// requesterId: userInfo.userId
-				// }));
-				navigate("/game");
-			}, 500);
-			hideInviteButtons();
-		};
+		// acceptBtn.classList.remove("hidden");
+		// rejectBtn.classList.remove("hidden");
 
-		rejectBtn.onclick = () => {
-			userInfo.chat_sock!.send(JSON.stringify({
-				type: 'reject-invite',
-				to: data.from
-			}));
-			hideInviteButtons();
-		};
+		// acceptBtn.onclick = () => {
+		// 	userInfo.game_sock!.send(JSON.stringify({
+		// 		type: 'join-lobby',
+		// 		lobbyId: data.lobbyId
+		// 	}));
+		// 	userInfo.chat_sock!.send(JSON.stringify({
+		// 		type: 'join-accepted',
+		// 		lobbyId: data.lobbyId,
+		// 		requesterId: userInfo.userId,
+		// 		friend: currentFriend
+		// 	}));
+		// 	setTimeout(() => {
+		// 		// userInfo.game_sock!.send(JSON.stringify({
+		// 		// 	type: 'start-game',
+		// 		// 	lobbyId: data.lobbyId,
+		// 		// 	requesterId: userInfo.userId
+		// 		// }));
+		// 		navigate("/game");
+		// 	}, 500);
+		// 	hideInviteButtons();
+		// };
 
-		function hideInviteButtons() {
-			acceptBtn.classList.add("hidden");
-			rejectBtn.classList.add("hidden");
-		}
+		// rejectBtn.onclick = () => {
+		// 	userInfo.chat_sock!.send(JSON.stringify({
+		// 		type: 'reject-invite',
+		// 		to: data.from
+		// 	}));
+		// 	hideInviteButtons();
+		// };
+
+		// function hideInviteButtons() {
+		// 	acceptBtn.classList.add("hidden");
+		// 	rejectBtn.classList.add("hidden");
+		// }
 
 	} else if (data.type === 'join-accepted2') {
 		showToast.green("✅ O teu amigo aceitou o convite. A iniciar jogo...");
@@ -133,8 +136,54 @@ function socketOnMessage(event: MessageEvent<any>) {
 		}, 500);
 
 	}
+	else if (data.type === 'invite-rejected')
+		showToast.red(`❌ ${data.from} rejeitou o convite`);
 	// game OUT
 };
+
+function createGameButton(from: string, lobbyId: string)
+{
+	const acceptBtn = document.getElementById("accept-invite-to-game-button")!;
+	const rejectBtn = document.getElementById("reject-invite-to-game-button")!;
+
+	acceptBtn.classList.remove("hidden");
+	rejectBtn.classList.remove("hidden");
+
+	acceptBtn.onclick = () => {
+		userInfo.game_sock!.send(JSON.stringify({
+			type: 'join-lobby',
+			lobbyId: lobbyId
+		}));
+		userInfo.chat_sock!.send(JSON.stringify({
+			type: 'join-accepted',
+			lobbyId: lobbyId,
+			requesterId: userInfo.userId,
+			friend: currentFriend
+		}));
+		setTimeout(() => {
+			// userInfo.game_sock!.send(JSON.stringify({
+			// 	type: 'start-game',
+			// 	lobbyId: lobbyId,
+			// 	requesterId: userInfo.userId
+			// }));
+			navigate("/game");
+		}, 500);
+		hideInviteButtons();
+	};
+
+	rejectBtn.onclick = () => {
+		userInfo.chat_sock!.send(JSON.stringify({
+			type: 'reject-invite',
+			to: from
+		}));
+		hideInviteButtons();
+	};
+
+	function hideInviteButtons() {
+		acceptBtn.classList.add("hidden");
+		rejectBtn.classList.add("hidden");
+	}
+}
 
 
 function renderMessage(user: string, from: string, message: string, timestamp: string) {
@@ -287,7 +336,7 @@ function renderFriendRequest(name: string) {
 	friendRequestsList.appendChild(friendRequestEntry);
 }
 
-function renderChatRoom(name: string, isBlocked: boolean) {
+function renderChatRoom(name: string, isBlocked: boolean, isInvited: boolean, lobbyId: string, from: string) {
 	const roomList = document.getElementById('chat-box-message-list')!;
 	roomList.innerHTML = '';
 
@@ -295,6 +344,9 @@ function renderChatRoom(name: string, isBlocked: boolean) {
 	chatHeaderUsername.textContent = name;
 	const chatHeaderBlockButton = document.getElementById('chat-box-block-button')!;
 	chatHeaderBlockButton.textContent = isBlocked ? 'Unblock' : 'Block';
+
+	if(isInvited)
+		createGameButton(from, lobbyId);
 
 	(document.getElementById('chat-box-input') as HTMLInputElement).disabled = isBlocked;
 	(document.getElementById('chat-box-send-button') as HTMLButtonElement).disabled = isBlocked;

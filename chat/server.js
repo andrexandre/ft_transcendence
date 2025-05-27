@@ -54,7 +54,7 @@ async function setupServer() {
 			const userData = await fetchUserDataFromGateway(token);
 			if (!userData)
 				throw "Error fetching data";
-			await createUser(userData.username);
+			await createUser(userData.username, userData.userId);
 			SocketHandler(connection, userData.username);
 		} catch (error) {
 			console.error('Error in WebSocket handler:', error);

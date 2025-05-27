@@ -1,4 +1,4 @@
-import { addFriend, addRequest, getFriends, getRequests, deleteFriendRequest, addBlock, checkBlock, deleteBlock } from '../database/db.js';
+import { addFriend, addRequest, getFriends, getRequests, deleteFriendRequest, addBlock, checkBlock, deleteBlock, addInvite, isInvited, removeInvite, getLobbyId } from '../database/db.js';
 import { checkFriendOnline, getAllUsers, getTimeString, parseRoomName, roomName } from '../utils/utils.js';
 import { createMessage, loadMessages, sendMessage, updateBlockRoom } from '../messages/messages.js';
 
@@ -27,6 +27,7 @@ export async function SocketHandler(socket, username)
 				// game invite in
 				case 'invite-to-game': {
 					const to = users.get(data.friend);
+					await addInvite(username, data.friend, data.lobbyId);
 					if (!to) return;
 					to.send(JSON.stringify({
 						type: 'receive-game-invite',
@@ -35,23 +36,20 @@ export async function SocketHandler(socket, username)
 					}));
 					break;
 				}
-				case 'reject-invite': {
+				case 'reject-invite':
 					const targetSock = users.get(data.to);
 					if (!targetSock) return;
-						targetSock.send(JSON.stringify({
-							type: 'invite-rejected',
-							from: username
+					await removeInvite(data.to, username);
+					targetSock.send(JSON.stringify({
+						type: 'invite-rejected',
+						from: username
 					}));
-					break;
-				}
-				case "invite-rejected":
-					showToast.red(`❌ ${data.from} rejeitou o convite`);
-					// falta o clean
 					break;
 				case 'join-accepted':
 					console.log("USERNAME FRIEND: ", data.friend);
 					const to = users.get(data.friend);
 					if (!to) return;
+					await removeInvite(data.friend, username);
 					to.send(JSON.stringify({
 						type: 'join-accepted2',
 						lobbyId: data.lobbyId
@@ -111,10 +109,18 @@ export async function SocketHandler(socket, username)
 					break;
 				case 'check-block':
 					const block = await checkBlock(username, data.friend);
+					const invite = await isInvited(data.friend, username);
+					let lobby;
+					console.log('invite: ' + invite);
+					if (invite)
+						lobby = await getLobbyId(data.friend, username);
+					console.log('invite: ' + invite);
 					socket.send(JSON.stringify({
 						type: 'block-status',
 						isBlocked: block,
 						friend: data.friend,
+						isInvited: invite,
+						lobbyId: lobby,
 						load: true
 					}));
 					break;
