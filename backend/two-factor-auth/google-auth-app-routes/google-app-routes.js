@@ -16,11 +16,8 @@ export default async function generateQrCode(fastify, options) {
 
 export async function verifyGoogleAuthenticator(fastify, options) {
   fastify.post('/verify-google-authenticator', async (req, res) => {
-    
-	const { totpCode } = req.body;
-    console.log("CODE :", totpCode);
+	  const { totpCode } = req.body;
     const bSecret = await fetchTwoFactorAuthData(req.cookies.token);
-    console.log("Secret: ", bSecret);
     const verified = speakeasy.totp.verify({
         secret: bSecret.secret,
         encoding: 'base32',
@@ -62,6 +59,4 @@ async function sendSecretToUserService(secret, cookieToken) {
     credentials: "include",
     body: JSON.stringify(payload),
   });
-
-  console.log(await response.json());
 }
