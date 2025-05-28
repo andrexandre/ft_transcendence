@@ -47,7 +47,7 @@ function displayMatchHistory(matchHistory: MatchHistoryI[], requestedUsername: s
 
 export async function updateMatchHistory(targetUsername: string) {
 	try {
-		const response = await fetch(`http://${location.hostname}:5000/${targetUsername}/user-game-history`, {
+		const response = await fetch(`http://${location.hostname}:8080/game/${targetUsername}/user-game-history`, {
 			credentials: "include",
 		});
 		if (!response.ok) {

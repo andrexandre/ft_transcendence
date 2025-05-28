@@ -20,11 +20,11 @@ import db from './plugins/db_plugin.js';
 // Creation of the app  instance
 const server = fastify({ loger: true });
 
-server.register(fastifyCors, {
-	origin: [`http://127.0.0.1:5500`, `http://nginx-gateway:80`, `http://two-factor-auth:3500` ,`http://${process.env.IP}:5500`],
-	methods: ['GET', 'POST', 'PUT', 'DELETE'],
-	credentials: true // Allow cookies if needed
-});
+// server.register(fastifyCors, {
+// 	origin: [`http://127.0.0.1:5500`, `http://nginx-gateway:80`, `http://two-factor-auth:3500` ,`http://${process.env.IP}:5500`],
+// 	methods: ['GET', 'POST', 'PUT', 'DELETE'],
+// 	credentials: true // Allow cookies if needed
+// });
 
 const ajv = new Ajv({ allErrors: true, $data: true, formats: { email: true }});
 ajvErrors(ajv)
