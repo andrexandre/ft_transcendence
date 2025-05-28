@@ -11,28 +11,20 @@ class Login extends Page {
 		document.getElementById("google-auth-button")!.addEventListener("click", () => {
 			window.location.href = `http://${location.hostname}:7000/loginOAuth`;
 		});
-		document.getElementById("2fa-auth-button")!.addEventListener("click", () => {
-			document.getElementsByTagName("main")[0]?.classList.remove("flex");
-			document.getElementsByTagName("main")[0]?.classList.add("hidden");
-			document.getElementById("2fa")?.classList.remove("hidden");
-			document.getElementById("2fa")?.classList.add("flex");
-		});
 		document.getElementById("2fa-code")!.addEventListener("input", async (event) => {
 			const input = (event.target as HTMLInputElement);
 			if (input.value.length === 6) {
-				lib.showToast(`Sent 2FA code: ${input.value}`);
 				try {
-					const response = await fetch(`http://${location.hostname}:7000/verify2fa`, {
+					const response = await fetch(`http://${location.hostname}:8080/2fa/verify-google-authenticator`, {
 						method: 'POST',
 						credentials: "include",
-						headers: {
-							'Content-Type': 'application/json'
-						},
-						body: JSON.stringify({ code: input.value })
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ totpCode: input.value })
 					});
 					if (!response.ok)
 						throw new Error(`${response.status} - ${response.statusText}`);
-					lib.showToast(`2FA verification successful`);
+					lib.toggleUserServices(true);
+					lib.showToast(`Logged in successfully`);
 					lib.navigate("/");
 				} catch (error) {
 					console.log(error);
@@ -48,9 +40,9 @@ class Login extends Page {
 				<h1 class="text-3xl">Login</h1>
 				<form class="space-y-3 flex flex-col" action="#">
 					<label for="username">Username</label>
-					<input class="item t-dashed pl-4 focus:border-blue-500" type="text" id="username" placeholder="Enter username" required autofocus />
+					<input class="item t-dashed pl-4 focus:border-blue-500" type="text" id="username" placeholder="Enter username" required autofocus minlength="3" maxlength="15" pattern="^[^<>]+$" />
 					<label for="password">Password</label>
-					<input class="item t-dashed pl-4 focus:border-blue-500" type="password" id="password" placeholder="Enter password" required />
+					<input class="item t-dashed pl-4 focus:border-blue-500" type="password" id="password" placeholder="Enter password" required minlength="3" pattern="^[^<>]+$" />
 					<button class="item t-dashed focus:outline-none focus:border-blue-500" type="submit">Submit</button>
 				</form>
 				<hr class="text-c-primary">
@@ -60,7 +52,6 @@ class Login extends Page {
 				</button>
 				<div class="text-sm font-medium text-c-secondary">
 					<p>Not registered? <button id="goto-register-button" class="text-blue-700 hover:underline hover:cursor-pointer">Create account</button></p>
-					<p>Want to debug? <button id="2fa-auth-button" class="text-blue-700 hover:underline hover:cursor-pointer">Go to 2 factor auth</button></p>
 				</div>
 			</main>
 			<div id="2fa" class="hidden flex-col w-100 m-auto card t-dashed">
@@ -68,8 +59,7 @@ class Login extends Page {
 				<p>To help keep your account safe, <s>mommy</s> wants to make sure it's really you trying to sign in</p>
 				<img src="https://ssl.gstatic.com/accounts/embedded/device_prompt_tap_yes_darkmode.gif">
 				<label for="2fa-code"></label>
-				<input class="item t-dashed pl-4 focus:border-blue-500" type="text" id="2fa-code" placeholder="Enter code" maxlength="6" required autofocus />
-				<button class="item t-dashed" onclick="window.location.reload()">Back to Login</button>
+				<input class="item t-dashed pl-4 focus:border-blue-500" type="text" id="2fa-code" placeholder="Enter code" maxlength="6" required pattern="^[0-9]+$" />
 			</div>
 		`;
 	}
@@ -92,6 +82,17 @@ class Login extends Page {
 				});
 				if (!response.ok)
 					throw new Error((await response.json()).message);
+				const response2fa = await fetch(`http://${location.hostname}:8080/api/users/${userData.username}/two-fa-status`);
+
+				if (!response2fa.ok)
+					throw new Error((await response2fa.json()).message);
+				if ((await response2fa.json()).status) {
+					document.getElementsByTagName("main")[0]?.classList.remove("flex");
+					document.getElementsByTagName("main")[0]?.classList.add("hidden");
+					document.getElementById("2fa")?.classList.remove("hidden");
+					document.getElementById("2fa")?.classList.add("flex");
+					return;
+				}
 				lib.toggleUserServices(true);
 				lib.showToast(`Logged in successfully`);
 				lib.navigate("/");

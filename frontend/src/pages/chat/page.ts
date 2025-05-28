@@ -41,7 +41,7 @@ class Chat extends Page {
 							<img id="chat-box-profile-image" class="object-cover size-10 rounded-full">
 							<span id="chat-box-header-username" class="flex items-center">No user selected</span>
 						</button>
-						<button id="chat-box-invite-button" class="px-3 rounded-2xl hover:bg-c-secondary dark:hover:bg-c-primary" disabled>Invite to game</button>
+						<button id="chat-box-invite-button" class="truncate px-3 rounded-2xl hover:bg-c-secondary dark:hover:bg-c-primary" disabled>Invite to game</button>
 						<button id="accept-invite-to-game-button" class="hidden px-3 rounded-2xl hover:bg-c-secondary dark:hover:bg-c-primary" disabled>Accept</button>
 						<button id="reject-invite-to-game-button" class="hidden px-3 rounded-2xl hover:bg-c-secondary dark:hover:bg-c-primary" disabled>Reject</button>
 						<button id="chat-box-block-button" class="px-3 rounded-2xl hover:bg-c-secondary dark:hover:bg-c-primary" disabled>Block</button>
@@ -49,7 +49,7 @@ class Chat extends Page {
 					<ul id="chat-box-message-list" class="flex flex-col flex-1 overflow-auto"></ul>
 					<form id="chat-box-form" class="flex item t-dashed gap-4">
 						<input id="chat-box-input" class="size-full pl-2" type="text" placeholder="Type a message..." name="nope" autocomplete="new-password" pattern="^[^<>]+$" disabled/>
-						<button class="p-2 rounded-2xl hover:bg-c-secondary dark:hover:bg-c-primary" id="chat-box-send-button" disabled>Send</button>
+						<button id="chat-box-send-button" class="p-2 rounded-2xl hover:bg-c-secondary dark:hover:bg-c-primary" disabled>Send</button>
 					</form>
 				</div>
 				<div class="flex flex-col gap-6 card t-dashed p-5">

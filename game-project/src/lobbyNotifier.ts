@@ -1,4 +1,5 @@
 import type { WebSocket } from "ws";
+import { Logger } from "./utils";
 
 const userLobbySockets = new Map<number, WebSocket>();
 
@@ -7,7 +8,7 @@ export function registerLobbySocket(userId: number, socket: WebSocket) {
 
     socket.on("close", () => {
         userLobbySockets.delete(userId);
-        console.log(`❌ Lobby socket fechado: userId=${userId}`);
+        Logger.log(`❌ Lobby socket fechado: userId=${userId}`);
     });
 }
 
@@ -16,9 +17,9 @@ export function notifyLobbyPlayersStart(playerIds: number[], gameId: string) {
         const socket = userLobbySockets.get(userId);
         if (socket && socket.readyState === socket.OPEN) {
             socket.send(JSON.stringify({ type: "start", gameId }));
-            console.log(`📨 Notificação enviada ao jogador ${userId} (gameId=${gameId})`);
+            Logger.log(`📨 Notificação enviada ao jogador ${userId} (gameId=${gameId})`);
         } else {
-            console.warn(`⚠️ Socket não encontrado ou fechado para userId=${userId}`);
+            Logger.warn(`⚠️ Socket não encontrado ou fechado para userId=${userId}`);
         }
     }
 }

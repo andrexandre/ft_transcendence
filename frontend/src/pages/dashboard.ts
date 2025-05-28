@@ -1,8 +1,9 @@
 import Page from "./Page"
 import * as lib from "../utils"
 import sidebar from "../components/sidebar"
+import { calculateGameStatistics } from "./profile";
 
-interface MatchHistoryI {
+export interface MatchHistoryI {
 	Mode: string;
 	winner: {
 		username: string;
@@ -54,6 +55,8 @@ export async function updateMatchHistory(targetUsername: string) {
 		}
 		let matchHistory = await response.json();
 		displayMatchHistory(matchHistory, targetUsername);
+		if (lib.userInfo.path.startsWith("/profile/"))
+			calculateGameStatistics(matchHistory, targetUsername);
 	} catch (error) {
 		console.log(error);
 		lib.showToast.red(error as string);
@@ -63,8 +66,8 @@ export async function updateMatchHistory(targetUsername: string) {
 export function renderDashboardFriend(friend: string, isOnline: boolean) {
 	if (document.getElementById(`profile-image-${friend}`)) {
 		const icon = document.getElementById(`${friend}-online-icon`)!;
-		icon.classList.remove(isOnline ? "text-neutral-600" : "text-green-600");
-		icon.classList.add(isOnline ? "text-green-600" : "text-neutral-600");
+		icon.classList.remove(isOnline ? "text-neutral-500" : "text-green-600");
+		icon.classList.add(isOnline ? "text-green-600" : "text-neutral-500");
 		return;
 	}
 	const friendsList = document.getElementById('friends-list')!;
@@ -72,7 +75,7 @@ export function renderDashboardFriend(friend: string, isOnline: boolean) {
 	friendsListEntry.className = "item t-dashed p-3 flex";
 	friendsListEntry.innerHTML = /*html*/`
 		<img id="profile-image-${friend}" class="size-10 object-cover rounded-4xl">
-		<svg height="10" width="10" id="${friend}-online-icon" class="${isOnline ? "text-green-600" : "text-neutral-600"}"><circle cx="5" cy="5" r="5" fill="currentColor"/></svg>
+		<svg height="10" width="10" id="${friend}-online-icon" class="${isOnline ? "text-green-600" : "text-neutral-500"}"><circle cx="5" cy="5" r="5" fill="currentColor"/></svg>
 		<h1 class="self-center ml-5">${friend}</h1>
 	`;
 	friendsListEntry.addEventListener('click', () => lib.navigate(`/chat/${friend}`));
@@ -115,16 +118,12 @@ async function loadInformation() {
 		})
 		if (!response.ok)
 			throw new Error((await response.json()).message);
+
 		// Set user information
 		const userData = await response.json();
 		(document.getElementById("profile-username") as HTMLElement).textContent = userData.username;
 		(document.getElementById("profile-codename") as HTMLElement).textContent = userData.codename;
 		(document.getElementById("profile-bio") as HTMLElement).textContent = userData.biography;
-		// lib.userInfo.username = userData.username;
-		// lib.userInfo.codename = userData.codename;
-		// lib.userInfo.biography = userData.biography;
-		// lib.userInfo.userId = userData.userId;
-		// lib.userInfo.auth_method = userData.auth_method;
 
 		renderProfileImage("profile-image", userData.username);
 		updateMatchHistory(userData.username);
@@ -171,15 +170,15 @@ class Dashboard extends Page {
 		return /*html*/`
 			${sidebar.getHtml()}
 			<main class="grid grid-cols-2 grid-rows-2 flex-1">
-				<button id="profile" class="card t-dashed grid overflow-auto">
-					<div class="flex gap-16">
+				<button id="profile" class="card t-dashed grid overflow-auto pl-15">
+					<div class="flex items-center">
 						<img id="profile-image" class="object-cover rounded-full size-48 shadow-xl shadow-neutral-400 border-2">
-						<div class="justify-center self-center">
-							<h1 id="profile-username" class="text-3xl">Sir Barkalot</h1>
-							<p id="profile-codename" class="text-xl">The mighty tail-wagger</p>
+						<div class="ml-30 justify-center self-center">
+							<h1 id="profile-username" class="text-3xl">User failed to load</h1>
+							<p id="profile-codename" class="text-xl">Codename failed to load</p>
 						</div>
 					</div>
-					<p id="profile-bio" class="max-w-3xl whitespace-pre-wrap text-start">Champion of belly rubs, fetch, and fierce squirrel chases. Sir Barkalot is the first to answer the doorbell with a royal bark. His hobbies include digging to China and chewing shoes.</p>
+					<p id="profile-bio" class="max-w-3xl whitespace-pre-wrap text-start">Biography failed to load</p>
 				</button>
 				<button id="game-animation" class="card t-dashed relative p-0 flex justify-between group">
 					<div id="red-paddle" class="left-0 bg-red-600 rounded h-20 w-5 self-center absolute animate-[paddle-animation_6s_infinite_linear]"></div>

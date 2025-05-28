@@ -1,3 +1,5 @@
+import { element, showToast } from "../../utils";
+
 // src/game/renderUtils.ts
 export function drawGameMessage(msg: string, color?: string) {
 	const el = document.getElementById("game-message") as HTMLDivElement;
@@ -40,4 +42,34 @@ export function updateScoreboard(players: any[]) {
 			</div>
 		`;
 	}
+}
+
+export function chooseView(type: string) {
+	if (type == 'menu') {
+		element('sidebar', 'hidden', true);
+		element('sidebar', 'hidden', false);
+		element('game-main-menu', 'hidden', false);
+		element('gameCanvas', 'hidden', true);
+		element('scoreboard', 'hidden', true);
+	} else if (type == 'game') {
+		element('sidebar', 'hidden', true);
+		element('game-main-menu', 'hidden', true);
+		element('gameCanvas', 'hidden', false);
+		element('scoreboard', 'hidden', false);
+		element('tournament-bracket', 'hidden', true);
+	} else if (type == 'tree') {
+		element('game-main-menu', 'hidden', true);
+		element('gameCanvas', 'hidden', true);
+		element('scoreboard', 'hidden', true);
+		element('tournament-bracket', 'hidden', false);
+	} else
+		showToast.red('What?');
+}
+
+export function drawGameMessageNew(show: boolean, msg?: string, color?: string) {
+	const gameMessage = document.getElementById('game-message')!;
+	gameMessage.classList.toggle('hidden', !show);
+
+	if (msg) gameMessage.textContent = msg;
+	if (color) gameMessage.style.color = color;
 }

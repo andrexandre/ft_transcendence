@@ -1,11 +1,12 @@
 import sqlite3 from "sqlite3";
+import { Logger } from "./utils.js";
 
 // Open database connection
 const db_game = new sqlite3.Database("/pong_vol/game-project/db_game.db", (err) => {
     if (err) {
-        console.error("❌ Error opening game database:", err.message);
+        Logger.error("❌ Error opening game database:", err.message);
     } else {
-        console.log("✅ Connected to game database.");
+        Logger.log("✅ Connected to game database.");
     }
 });
 

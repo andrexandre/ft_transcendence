@@ -16,7 +16,7 @@ export var userInfo = {
 	auth_method: "",
 	// profileImage: "",
 	path: "",
-	aDelay: 0.0,
+	// aDelay: 0.2,
 	chat_sock: null as WebSocket | null,
 	game_sock: null as WebSocket | null,
 	pendingInviteTo: null as string | null
@@ -138,3 +138,12 @@ export function fullScreenOverlay(html: string = '', css: string = '', js?: () =
 	overlay.appendChild(styleElement);
 	if (js) js();
 }
+
+export function element(elementId: string, className: string, addClassToElement: boolean) {
+	if (addClassToElement)
+		document.getElementById(elementId)!.classList.add(className);
+	else
+		document.getElementById(elementId)!.classList.remove(className);
+}
+// element.add = (id: string, classN: string) => element(id, classN, true);
+// element.remove = (id: string, classN: string) => element(id, classN, false);

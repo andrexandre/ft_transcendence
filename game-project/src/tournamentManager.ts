@@ -1,5 +1,6 @@
 // src/tournamentManager.ts
 import { createLobby, startGame, joinLobby } from './lobbyManager.js';
+import { Logger } from './utils.js';
 
 interface TournamentPlayer {
 	userId: number;
@@ -67,13 +68,17 @@ export function createTournament(id: string, players: TournamentPlayer[]) {
 	for (const round of tournament.matches) {
 		for (const match of round) {
 			for (const player of [match.player1, match.player2]) {
-				if (player?.socket?.readyState === WebSocket.OPEN) {
-					player.socket.send(JSON.stringify({ type: "show-bracket" }));
+				Logger.log("TREEEEE dentro SERVER");
+				if (player.socket.readyState === WebSocket.OPEN) {
+					player.socket.send(JSON.stringify({ type: "show-bracket", round: [player.username] }));
 				}
+				console.log(round);
+				// console.log(player);
 			}
 		}
 	}
-	console.log(`📊 Bracket inicial gerada para Torneio ${id}`);
+	console.log(`📊 Bracket iniplayer1.usernamecial gerada para Torneio ${id}`);
+
 	setTimeout(() => startNextRound(id), 7000);
 }
 
@@ -90,8 +95,9 @@ function startNextRound(tournamentId: string) {
 		for (const match of round) {
 			for (const player of [match.player1, match.player2]) {
 			if (player?.socket?.readyState === WebSocket.OPEN) {
-				player.socket.send(JSON.stringify({ type: "show-bracket" }));
+				player.socket.send(JSON.stringify({ type: "show-bracket", round: [player.username]}));
 			}
+			Logger.log("TREEEEE dentro SERVER 222222");
 			}
 		}
 	}

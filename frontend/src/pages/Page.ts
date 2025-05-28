@@ -17,9 +17,9 @@ export default abstract class Page {
 	// this.root.classList.add('w-full', 'h-full');
 	// this.root.innerHTML = content;
 	mount(url: string) {
-		if (lib.userInfo.path && (url == '/login' || url == '/register'))
-			lib.animate("main", { x: [100, 0] }, { duration: lib.userInfo.aDelay, ease: "easeOut" });
-		lib.animate("main", { opacity: 1 }, { duration: lib.userInfo.aDelay });
+		// if (lib.userInfo.path && (url == '/login' || url == '/register'))
+		// 	lib.animate("main", { x: [100, 0] }, { duration: lib.userInfo.aDelay, ease: "easeOut" });
+		// lib.animate("main", { opacity: 1 }, { duration: lib.userInfo.aDelay });
 		document.title = `${this.name.charAt(0).toUpperCase() + this.name.slice(1)} - Transcendence`;
 		lib.userInfo.path = url;
 		this.mounted = true;
@@ -44,9 +44,9 @@ export default abstract class Page {
 		this.root?.remove();
 		this.root = undefined;
 		this.onCleanup();
-		if (lib.userInfo.path == '/login' || lib.userInfo.path == '/register')
-			lib.animate("main", { x: [0, 100] }, { duration: lib.userInfo.aDelay, ease: "easeOut" });
-		lib.animate("main", { opacity: 0 }, { duration: lib.userInfo.aDelay });
+		// if (lib.userInfo.path == '/login' || lib.userInfo.path == '/register')
+		// 	lib.animate("main", { x: [0, 100] }, { duration: lib.userInfo.aDelay, ease: "easeOut" });
+		// lib.animate("main", { opacity: 0 }, { duration: lib.userInfo.aDelay });
 		// document.getElementsByTagName("main")[0]!.style.opacity = "0";
 	}
 }
