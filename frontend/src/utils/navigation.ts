@@ -5,5 +5,5 @@ export function navigate(path: string) {
 }
 
 export function assignButtonNavigation(buttonName: string, path: string) {
-	document.getElementById(buttonName)?.addEventListener("click", () => navigate(path));
+	document.getElementById(buttonName)?.addEventListener("click", () => navigate(path), { once: true });
 }

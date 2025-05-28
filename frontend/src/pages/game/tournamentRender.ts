@@ -97,7 +97,9 @@ export function renderTournamentBracket() {
 	container.style.display = "block";
 	container.innerHTML = "<h2 class='text-xl mb-4'>🏆 Tournament Bracket</h2>";
 
+	// chooseView('tree');
 	state.rounds.forEach((round, roundIndex) => {
+		// tournamentTree.updateTree(state);
 		const roundDiv = document.createElement("div");
 		roundDiv.className = "mb-4";
 

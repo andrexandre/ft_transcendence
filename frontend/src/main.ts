@@ -80,7 +80,7 @@ function loadPage(path: string) {
 			break;
 	}
 	currentPage?.cleanup();
-	// setTimeout(() => {
+	// setTimeout(() => { // the delay is for the exit animation
 		document.getElementById("app")!.innerHTML = newPage.getHtml();
 		newPage.mount(path);
 		currentPage = newPage;

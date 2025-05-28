@@ -3,7 +3,7 @@ import { turnOnGame, turnOffGame } from "../pages/game/menu"
 
 export { default as Cookies } from 'js-cookie';
 import { renderPattern } from "./patterns";
-// export { animate, scroll } from "motion"
+export { animate, scroll } from "motion"
 
 export const colors: string[] = ["red", "orange", "amber", "yellow", "lime", "green", "emerald", "teal", "cyan", "sky", "blue", "slate", "gray", "zinc", "neutral", "stone", "rose", "pink", "fuchsia", "purple", "violet", "indigo"];
 export const defaultColor = 'slate';
@@ -16,7 +16,7 @@ export var userInfo = {
 	auth_method: "",
 	// profileImage: "",
 	path: "",
-	// aDelay: 0.2,
+	aDelay: 0.2,
 	chat_sock: null as WebSocket | null,
 	game_sock: null as WebSocket | null,
 	pendingInviteTo: null as string | null

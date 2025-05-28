@@ -4,6 +4,7 @@ import { stopSound, sounds } from "./audio";
 import { connectToMatch } from "./rendering";	
 import { userInfo } from "../../utils";
 import { renderTournamentBracket } from "./tournamentRender";
+import { chooseView } from "./renderUtils";
 
 let lobbyId: string | null = null;
 let user: { username: string; userId: string } | null = null; //? verificar com o nr no ID
@@ -63,6 +64,7 @@ export function connectToGameServer(event : MessageEvent<any>) {
 			console.log("🎮 Game start recebido! A abrir ligação para /match-ws");
 			showToast.green(`🎮 Game started! You are: ${data.playerRole}`);
 			document.getElementById('sidebar')?.classList.add('hidden');
+			// chooseView('game');
 			const matchSocket = new WebSocket(`ws://${location.hostname}:5000/match-ws?gameId=${data.gameId}`);
 			console.log("🛰️ Connecting to match-ws:", data.gameId);
 

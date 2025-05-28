@@ -66,7 +66,6 @@ function initializeGameMainMenu(userData: {
 		() => {
 			sounds.menuMusic.play();
 			chooseView('tree');
-			document.getElementById('tournament-bracket')!.innerHTML = tournamentTree.getHtml();
 			let tournamentExample = tournamentSample;
 			tournamentTree.updateTree(tournamentExample);
 			// * TEMP

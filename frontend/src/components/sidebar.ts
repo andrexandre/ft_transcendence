@@ -28,7 +28,7 @@ const sidebar = {
 						<p>Game</p>
 					</button>
 				</li>
-				<!--* Comment for testing notifications -->
+				<!--* Uncomment to test notifications of different colors -->
 				<!-- <li class="flex">
 					<button id="test-default-notifications-button" class="sidebar-component">
 						<i class="fa-solid fa-bell"></i>
@@ -99,7 +99,7 @@ const sidebar = {
 		lib.assignButtonNavigation('goto-chat-button', '/chat');
 		lib.assignButtonNavigation('goto-game-button', '/game');
 		lib.assignButtonNavigation('goto-settings-button', '/settings');
-		//* Comment for testing notifications
+		//* Uncomment to test notifications of different colors
 		// document.getElementById("test-default-notifications-button")!.addEventListener("click", () => lib.showToast());
 		// document.getElementById("test-green-notifications-button")!.addEventListener("click", () => lib.showToast.green());
 		// document.getElementById("test-red-notifications-button")!.addEventListener("click", () => lib.showToast.red());
@@ -120,7 +120,7 @@ const sidebar = {
 				console.log(error);
 				lib.showToast.red(error as string);
 			}
-		});
+		}, { once: true });
 	}
 }
 

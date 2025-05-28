@@ -78,7 +78,7 @@ export function renderDashboardFriend(friend: string, isOnline: boolean) {
 		<svg height="10" width="10" id="${friend}-online-icon" class="${isOnline ? "text-green-600" : "text-neutral-500"}"><circle cx="5" cy="5" r="5" fill="currentColor"/></svg>
 		<h1 class="self-center ml-5">${friend}</h1>
 	`;
-	friendsListEntry.addEventListener('click', () => lib.navigate(`/chat/${friend}`));
+	friendsListEntry.addEventListener('click', () => lib.navigate(`/chat/${friend}`), { once: true });
 	friendsList.appendChild(friendsListEntry);
 	renderProfileImage(`profile-image-${friend}`, friend);
 }
@@ -139,22 +139,18 @@ class Dashboard extends Page {
 	}
 	onMount(): void {
 		sidebar.setSidebarToggler('home');
-		document.getElementById("game-animation")!.addEventListener("click", () => lib.navigate('/game'));
+		document.getElementById("game-animation")!.addEventListener("click", () => lib.navigate('/game'), { once: true });
 		loadInformation();
-		document.getElementById("profile")!.addEventListener("click", () => lib.navigate('/profile'));
+		document.getElementById("profile")!.addEventListener("click", () => lib.navigate('/profile'), { once: true });
 
 		// Set dashboard friends
 		if (lib.userInfo.chat_sock!.readyState === WebSocket.OPEN) {
 			lib.userInfo.chat_sock!.send(JSON.stringify({ type: 'get-online-friends' }));
 		} else {
-			const onChatSocketOpen = function () {
-				lib.userInfo.chat_sock!.removeEventListener('open', onChatSocketOpen);
-				lib.userInfo.chat_sock!.send(JSON.stringify({ type: 'get-online-friends' }));
-			};
-			lib.userInfo.chat_sock!.addEventListener('open', onChatSocketOpen);
+			lib.userInfo.chat_sock!.addEventListener('open', () =>
+				lib.userInfo.chat_sock!.send(JSON.stringify({ type: 'get-online-friends' })), { once: true });
 		}
 		this.reloadInterval = setInterval(function () {
-			// document.getElementById('friends-list')!.innerHTML = '';
 			lib.userInfo.chat_sock!.send(JSON.stringify({
 				type: 'get-online-friends'
 			}));
