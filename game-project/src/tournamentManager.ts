@@ -78,7 +78,6 @@ export function createTournament(id: string, players: TournamentPlayer[]) {
 		}
 	}
 	console.log(`📊 Bracket iniplayer1.usernamecial gerada para Torneio ${id}`);
-
 	setTimeout(() => startNextRound(id), 7000);
 }
 
@@ -90,7 +89,6 @@ function startNextRound(tournamentId: string) {
 	console.log(`📣 ▶️ Iniciando Ronda ${tournament.currentRound + 1} do Torneio ${tournament.id}`);
 	console.log(`📦 Ronda contém ${round.length} jogo(s)`);
 
-  	// Notifica todos os jogadores ativos para a tree
 	for (const round of tournament.matches) {
 		for (const match of round) {
 			for (const player of [match.player1, match.player2]) {

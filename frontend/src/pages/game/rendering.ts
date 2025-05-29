@@ -3,7 +3,7 @@ import { showToast } from '../../utils';
 import { playSound, sounds, stopSound } from './audio';
 import { clearLobbyId } from './lobbyClient';
 import { chooseView, drawGameMessage } from './renderUtils';
-import { state as tournamentState, renderTournamentBracket, handleEndTournament, showRoundTransition, state } from './tournamentRender';
+import { state as tournamentState, renderTournamentBracket, handleEndTournament, state } from './tournamentRender';
 
 export let gameCanvas: HTMLCanvasElement;
 export let ctx: CanvasRenderingContext2D;
@@ -182,29 +182,6 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
 		if (data.type === "scoreboard") {
 			players = data.players;
 			updateScoreboard(players);
-			return;
-		}
-
-		if (data.type === "show-bracket") {
-			console.log("TREEEEE no RENDERING");
-			renderTournamentBracket();
-			return;
-		}
-
-
-		if (data.type === "end-round") {
-			renderTournamentBracket();
-			tournamentState.rounds[data.roundIndex][data.matchIndex].winner = data.winner;
-			return;
-		}
-
-		if (data.type === "end-tournament") {
-			handleEndTournament(data.winner);
-			return;
-		}
-
-		if (data.type === "start-round") {
-			showRoundTransition(data.round);
 			return;
 		}
 

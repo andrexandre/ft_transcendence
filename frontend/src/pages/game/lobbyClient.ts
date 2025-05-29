@@ -3,7 +3,7 @@ import { showToast } from "../../utils";
 import { stopSound, sounds } from "./audio";
 import { connectToMatch } from "./rendering";	
 import { userInfo } from "../../utils";
-import { renderTournamentBracket } from "./tournamentRender";
+import { renderTournamentBracket, state as tournamentState} from "./tournamentRender";
 import { chooseView } from "./renderUtils";
 
 let lobbyId: string | null = null;
@@ -44,13 +44,23 @@ export function connectToGameServer(event : MessageEvent<any>) {
 			lobbyId = null;
 			showToast.yellow(`👋 Saiu do lobby`);
 			break;
-			
+
+		// Tournament CASES
 		case "show-bracket":
-			console.log("TREEEEE no RENDERING do LOOOOOBBBBYYYYY");
-			console.log(data.round);
+			// console.log("TREEEEE no RENDERING do LOOOOOBBBBYYYYY");
+			// console.log(data.round);
 			renderTournamentBracket();
 			break;
 		
+		case "start-round":
+			renderTournamentBracket();
+			break;
+
+		case "end-round":
+			renderTournamentBracket();
+			tournamentState.rounds[data.roundIndex][data.matchIndex].winner = data.winner;
+			break;
+
 
 		case "match-start":
 			if (matchSocketStarted) return;
