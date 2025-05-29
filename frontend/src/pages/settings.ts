@@ -19,14 +19,10 @@ async function loadInformation() {
 		(document.getElementById("profile-username") as HTMLInputElement).value = userData.username;
 		(document.getElementById("profile-codename") as HTMLInputElement).value = userData.codename;
 		(document.getElementById("profile-email") as HTMLInputElement).value = userData.email;
-		(document.getElementById("profile-email") as HTMLInputElement).disabled = true;
 		(document.getElementById("profile-bio") as HTMLInputElement).value = userData.biography;
 		(document.getElementById('2fa-toggle') as HTMLInputElement).checked = userData.two_FA_status;
-		// lib.userInfo.username = userData.username;
-		// lib.userInfo.codename = userData.codename;
-		// lib.userInfo.biography = userData.biography;
-		// lib.userInfo.userId = userData.userId;
-		// lib.userInfo.auth_method = userData.auth_method;
+		if (userData.auth_method === 'google')
+			(document.getElementById('2fa-toggle') as HTMLInputElement).disabled = true
 
 		// Set user avatar
 		renderProfileImage("profile-image", userData.username);
@@ -209,7 +205,7 @@ class Settings extends Page {
 								<label class="text-left font-bold" for="profile-codename">Codename</label>
 								<input class="p-1 t-dashed pl-4" type="text" id="profile-codename" placeholder="Enter codename" value="Codename failed to load" required pattern="^[^<>]+$" />
 								<label class="text-left font-bold" for="profile-email">Email</label>
-								<input class="p-1 t-dashed pl-4" type="text" id="profile-email" placeholder="Enter email" value="Email failed to load" required minlength="5" pattern="^[^<>]+$"/>
+								<input class="p-1 t-dashed pl-4" type="text" id="profile-email" placeholder="Enter email" value="Email failed to load" disabled minlength="5" pattern="^[^<>]+$"/>
 							</div>
 						</div>
 						<label class="text-left font-bold" for="profile-bio">Biography</label>

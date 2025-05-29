@@ -2,7 +2,6 @@ import setCookie from 'set-cookie-parser';
 
 function getSettings(request, reply) {
            
-	console.log('AuthenticatedUser: ', request.authenticatedUser);
 	reply.status(200).send({
 		username: request.authenticatedUser.username,
 		email: request.authenticatedUser.email,
@@ -19,7 +18,6 @@ async function saveSettings(request, reply) {
 
 		const { username } =  request.body;
 		if (request.authenticatedUser.username !== username) {
-			console.log('OLDTOKEN: ', request.cookies.token);
 			const responseJwt = await fetch('http://services-api:7000/updateToken', {
 				method: 'POST',
 				headers: {
@@ -38,11 +36,9 @@ async function saveSettings(request, reply) {
 			const CookieHeaderContent = responseJwt.headers.get('set-cookie');
 			const cookieOpts = (setCookie(CookieHeaderContent))[0];
 
-			console.log('opts 111: ', cookieOpts);
 			const newValue = cookieOpts.value;
 			delete cookieOpts.name;
 			delete cookieOpts.value;
-			console.log('opts 222: ', cookieOpts);
 
 			const responseGame = await fetch('http://nginx-gateway:80/game/updateUserInfo', {
 				method: 'POST',
@@ -75,8 +71,6 @@ async function save2faSettings(request, reply) {
 
 	try {
 		
-		console.log('AuthenticatedUser: ', request.authenticatedUser);
-		console.log('BODY: ', request.body);
 		await this.updateUser2FAStatus(request.body, request.authenticatedUser.id);
 		reply.status(200).send({message: "Successfully updated 2FA!"});
 
@@ -90,7 +84,6 @@ async function save2faSettings(request, reply) {
 
 function get2faSecret(request, reply) {
 
-	console.log('AuthenticatedUser: ', request.authenticatedUser);
 	reply.status(200).send({
 		secret: request.authenticatedUser.two_FA_secret
 	});
@@ -102,9 +95,7 @@ async function get2faStatus(request, reply) {
 		const { username } = request.params;
 		const user = await this.getUserByUsername(username);
 		if (!user) throw this.httpErrors.notFound('User not found!');
-		
-		console.log('AuthenticatedUser: ', user);
-	
+			
 		return reply.status(200).send({
 			status: user.two_FA_status
 		});

@@ -20,12 +20,6 @@ import db from './plugins/db_plugin.js';
 // Creation of the app  instance
 const server = fastify({ loger: true });
 
-// server.register(fastifyCors, {
-// 	origin: [`http://127.0.0.1:5500`, `http://nginx-gateway:80`, `http://two-factor-auth:3500` ,`http://${process.env.IP}:5500`],
-// 	methods: ['GET', 'POST', 'PUT', 'DELETE'],
-// 	credentials: true // Allow cookies if needed
-// });
-
 const ajv = new Ajv({ allErrors: true, $data: true, formats: { email: true }});
 ajvErrors(ajv)
 server.setValidatorCompiler(({ schema }) => {
@@ -36,10 +30,10 @@ server.setErrorHandler(function (error, request, reply) {
 	if (error.validation) {
 	  const messages = error.validation.map((err) => err.message);
 
-	  reply.status(400).send({
+	reply.status(400).send({
 		error: 'Bad Request',
 		message: messages.join('; ')
-	  });
+	});
 	} else {
 	  reply.send(error);
 	}
@@ -85,11 +79,9 @@ async function start() {
 		await server.createTables();
 		console.log("Tables Created!");
 		console.log('Routes: ', server.printRoutes());
-		// console.log('Routes: ', server.printRoutes({ includeHooks: true, commonPrefix: false }));
 
 	} catch(err) {
-		console.error('Entrou no cath do start');
-		console.error(err);
+		console.error('Error in starting server:', err);
 		process.exit(1);
 	}
 }
