@@ -25,20 +25,9 @@ function loginRoute(fastify, options) {
             },
             body: JSON.stringify(payload)
         });
-        if(response.status == 200){
-            const payload = await fastify.prepareTokenData(response, "email");
-            const token = await fastify.generateToken(payload);
-            reply.status(200).setCookie("token", token, {
-                path: '/',
-                httpOnly: true,
-                secure: false,
-                sameSite: 'lax',
-            });
-            return reply.send(payload);
-        }
-        else{
-            reply.status(response.status).send(await response.json());
-        }
+        const data = await response.json();
+        if(response.ok)
+            reply.status(200).send(data);
     });
 }
 

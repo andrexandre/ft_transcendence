@@ -40,7 +40,6 @@ export async function fetchTwoFactorAuthData(cookieToken){
     },
     credentials: "include",
   });
-
   if(response.ok)
     return(await response.json());
 }
