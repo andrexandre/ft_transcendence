@@ -21,7 +21,7 @@ import loginRoutes from './routes/auth/login.js';
 import logoutRoute from './routes/auth/logout.js';
 import callbackOAuthRoute from './routes/auth/OAuth/callbackOAuth.js';
 import jwtHandler from './routes/auth/jwt/jwtHandler.js'
-
+import twoFactorAuth from './routes/auth/two-factor-auth.js'
 
 dotenv.config();
 const fastify = Fastify({
@@ -53,6 +53,7 @@ fastify.decorate('parseToReadableData', parseToReadableData);
 fastify.decorate('parseToReadableOAuth', parseToReadableOAuth);
 
 fastify.register(setProtectedRoutes);
+fastify.register(twoFactorAuth);
 fastify.register(registerRoutes);
 fastify.register(loginRoutes);
 fastify.register(logoutRoute);
