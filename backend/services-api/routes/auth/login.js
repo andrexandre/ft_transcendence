@@ -20,14 +20,13 @@ function loginRoute(fastify, options) {
         };
         const response = await fetch('http://user_management:3000/api/login', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
-        const data = await response.json();
-        if(response.ok)
-            reply.status(200).send(data);
+		
+        if(!response.ok)
+			reply.status(response.status).send((await response.json()))
+		reply.status(200).send((await response.json()));
     });
 }
 

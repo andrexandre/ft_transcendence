@@ -16,8 +16,8 @@ export default async function generateQrCode(fastify, options) {
 
 export async function verifyGoogleAuthenticator(fastify, options) {
   fastify.post('/verify-google-authenticator', async (req, res) => {
-	  const { totpCode } = req.body;
-    const bSecret = await fetchTwoFactorAuthData(req.cookies.token);
+	  const { totpCode, username } = req.body;
+    const bSecret = await fetchTwoFactorAuthData(username);
     const verified = speakeasy.totp.verify({
         secret: bSecret.secret,
         encoding: 'base32',
@@ -32,14 +32,8 @@ export async function verifyGoogleAuthenticator(fastify, options) {
   });
 }
 
-export async function fetchTwoFactorAuthData(cookieToken){
-  const response = await fetch('http://user_management:3000/api/users/two-fa-secret', {
-    method: 'GET',
-    headers: {
-      "Cookie": `token=${cookieToken}`,
-    },
-    credentials: "include",
-  });
+export async function fetchTwoFactorAuthData(username){
+  const response = await fetch(`http://user_management:3000/api/users/${username}/two-fa-secret`);
   if(response.ok)
     return(await response.json());
 }
@@ -47,7 +41,7 @@ export async function fetchTwoFactorAuthData(cookieToken){
 async function sendSecretToUserService(secret, cookieToken) {
   const payload = {
     two_FA_secret : secret,
-    two_FA_status: true,
+    two_FA_status: false,
   };
   const response = await fetch('http://user_management:3000/api/users/save-2fa-settings', {
     method: 'PUT',

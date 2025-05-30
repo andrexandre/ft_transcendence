@@ -117,7 +117,10 @@ class Settings extends Page {
 					document.getElementById('qr-code-input')!.addEventListener('input', async (event) => {
 						const input = (event.target as HTMLInputElement);
 						if (input.value.length === 6) {
-							const payload : {totpCode : string} = {totpCode : input.value}
+							const payload : {totpCode :string; username: string} = {
+								totpCode : input.value,
+								username: lib.userInfo.username
+							};
 							const response2fa = await fetch(`http://${location.hostname}:8080/2fa/verify-google-authenticator`, {
 								method: 'POST',
 								credentials: "include",
@@ -287,6 +290,9 @@ class Settings extends Page {
 					turnOffChat();
 					turnOnChat();
 				}
+				lib.userInfo.username = userData.username; 
+				lib.userInfo.codename = userData.codename; 
+				lib.userInfo.biography = userData.biography; 
 				lib.showToast.green("Settings updated!");
 			} catch (error: any) {
 				return lib.showToast.red(error.message);
