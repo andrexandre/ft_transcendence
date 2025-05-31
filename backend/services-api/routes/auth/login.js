@@ -25,7 +25,7 @@ function loginRoute(fastify, options) {
         });
 		
         if(!response.ok)
-			reply.status(response.status).send((await response.json()))
+			    reply.status(response.status).send((await response.json()));
 		reply.status(200).send((await response.json()));
     });
 }

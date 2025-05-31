@@ -58,7 +58,8 @@ const save2faSettingSchema =  {
 		type: 'object',
 		properties: {
             two_FA_status: { type: 'boolean' },
-			two_FA_secret: { type: 'string' }
+			two_FA_secret: { type: 'string' },
+			isSetup: { type: 'boolean' }
 		},
 		errorMessage: {
 			required: {

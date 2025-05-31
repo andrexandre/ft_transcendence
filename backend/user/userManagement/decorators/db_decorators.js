@@ -43,12 +43,17 @@ export const updateUserInformation = function ({ username, codename, biography }
 	return this.sqlite.run(query, params);
 }
 
-export const updateUser2FAStatus = function ({ two_FA_status, two_FA_secret }, id) {
-	
+export const updateUser2FAStatus = function ({ two_FA_status, two_FA_secret, isSetup }, id) {
 	if (!two_FA_secret)
 		two_FA_secret = null;
-	const query = `UPDATE users SET two_FA_status = ?, two_FA_secret = ? WHERE id = ?;`;
-	return this.sqlite.run(query, [ two_FA_status, two_FA_secret, id ]);
+	if(isSetup == true){
+		const query = `UPDATE users SET two_FA_status = ?, two_FA_secret = ? WHERE id = ?;`;
+		return this.sqlite.run(query, [ two_FA_status, two_FA_secret, id ]);
+	}
+	else{
+		const query = `UPDATE users SET two_FA_status = ? WHERE id = ?;`;
+		return this.sqlite.run(query, [ two_FA_status, id ]);
+	}
 }
 
 export const updateUserStatus = function (username) {

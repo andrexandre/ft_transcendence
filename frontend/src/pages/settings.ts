@@ -90,7 +90,7 @@ class Settings extends Page {
 				two_FA_status: twoFAButton.checked
 			};
 			try {
-				const response = await fetch(`http://${location.hostname}:8080/2fa/set-google-authenticator`, {
+				const response = await fetch(`http://${location.hostname}:8080/2fa/set-google-authenticator?isSetup=true`, {
 					method: 'GET',
 					credentials: "include",
 				});
@@ -117,8 +117,8 @@ class Settings extends Page {
 					document.getElementById('qr-code-input')!.addEventListener('input', async (event) => {
 						const input = (event.target as HTMLInputElement);
 						if (input.value.length === 6) {
-							const payload : {totpCode :string; username: string} = {
-								totpCode : input.value,
+							const payload: { totpCode: string; username: string } = {
+								totpCode: input.value,
 								username: lib.userInfo.username
 							};
 							const response2fa = await fetch(`http://${location.hostname}:8080/2fa/verify-google-authenticator`, {
@@ -127,7 +127,7 @@ class Settings extends Page {
 								headers: { 'Content-Type': 'application/json' },
 								body: JSON.stringify(payload),
 							});
-							if (response.status === 401) throw new Error("Invalid Code.");
+							if (response2fa.status === 401) throw new Error("Invalid Code.");
 
 							if (!response2fa.ok) {
 								const errorData = await response2fa.json();
@@ -285,14 +285,13 @@ class Settings extends Page {
 					const data = await response.json();
 					throw new Error(data.message);
 				}
-				if (lib.userInfo.username !== userData.username)
-				{
+				if (lib.userInfo.username !== userData.username) {
 					turnOffChat();
 					turnOnChat();
 				}
-				lib.userInfo.username = userData.username; 
-				lib.userInfo.codename = userData.codename; 
-				lib.userInfo.biography = userData.biography; 
+				lib.userInfo.username = userData.username;
+				lib.userInfo.codename = userData.codename;
+				lib.userInfo.biography = userData.biography;
 				lib.showToast.green("Settings updated!");
 			} catch (error: any) {
 				return lib.showToast.red(error.message);
