@@ -1,7 +1,7 @@
 import Page from "./Page"
 import * as lib from "../utils"
 import sidebar from "../components/sidebar"
-import { calculateGameStatistics } from "./profile";
+import { renderGameStatistics } from "./profile";
 
 export interface MatchHistoryI {
 	Mode: string;
@@ -56,7 +56,7 @@ export async function updateMatchHistory(targetUsername: string) {
 		let matchHistory = await response.json();
 		displayMatchHistory(matchHistory, targetUsername);
 		if (lib.userInfo.path.startsWith("/profile/"))
-			calculateGameStatistics(matchHistory, targetUsername);
+			renderGameStatistics(matchHistory, targetUsername);
 	} catch (error) {
 		console.log(error);
 		lib.showToast.red(error as string);
