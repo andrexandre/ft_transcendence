@@ -47,8 +47,6 @@ export function connectToGameServer(event : MessageEvent<any>) {
 
 		// Tournament CASES
 		case "show-bracket":
-			// console.log("TREEEEE no RENDERING do LOOOOOBBBBYYYYY");
-			// console.log(data.round);
 			renderTournamentBracket();
 			break;
 		
@@ -58,7 +56,6 @@ export function connectToGameServer(event : MessageEvent<any>) {
 
 		case "end-round":
 			renderTournamentBracket();
-			tournamentState.rounds[data.roundIndex][data.matchIndex].winner = data.winner;
 			break;
 
 

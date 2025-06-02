@@ -68,10 +68,23 @@ export function createTournament(id: string, players: TournamentPlayer[]) {
 	for (const round of tournament.matches) {
 		for (const match of round) {
 			for (const player of [match.player1, match.player2]) {
-				Logger.log("TREEEEE dentro SERVER");
 				if (player.socket.readyState === WebSocket.OPEN) {
-					player.socket.send(JSON.stringify({ type: "show-bracket", round: [player.username] }));
-				}
+					player.socket.send(JSON.stringify({
+	type: "show-bracket",
+	state: {
+		currentRound: tournament.currentRound,
+		rounds: tournament.matches.map(round => 
+			round.map(match => ({
+				player1: match.player1.username,
+				player2: match.player2.username,
+				winner: match.winnerId 
+					? (match.winnerId === match.player1.userId ? match.player1.username : match.player2.username) 
+					: undefined
+			}))
+		)
+	}
+}));
+
 				console.log(round);
 				// console.log(player);
 			}
@@ -93,7 +106,22 @@ function startNextRound(tournamentId: string) {
 		for (const match of round) {
 			for (const player of [match.player1, match.player2]) {
 			if (player?.socket?.readyState === WebSocket.OPEN) {
-				player.socket.send(JSON.stringify({ type: "show-bracket", round: [player.username]}));
+				player.socket.send(JSON.stringify({
+					type: "show-bracket",
+					state: {
+						currentRound: tournament.currentRound,
+						rounds: tournament.matches.map(round => 
+							round.map(match => ({
+								player1: match.player1.username,
+								player2: match.player2.username,
+								winner: match.winnerId 
+									? (match.winnerId === match.player1.userId ? match.player1.username : match.player2.username) 
+									: undefined
+							}))
+						)
+					}
+				}));
+				
 			}
 			Logger.log("TREEEEE dentro SERVER 222222");
 			}
