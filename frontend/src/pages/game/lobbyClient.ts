@@ -130,7 +130,7 @@ export function matchStartGame() {
 		console.error("❌ Não é possível iniciar jogo. socket, lobbyId ou user faltando.");
 		return;
 	}
-
+	
 	console.log("🚀 A pedir ao servidor para startar o jogo:", lobbyId);
 	userInfo.game_sock.send(JSON.stringify({
 		type: "start-game",
