@@ -7,7 +7,7 @@ import { renderTournamentBracket, state as tournamentState} from "./tournamentRe
 import { chooseView } from "./renderUtils";
 
 let lobbyId: string | null = null;
-let user: { username: string; userId: string } | null = null; //? verificar com o nr no ID
+let user = { get username() { return userInfo.username; }, get userId() { return userInfo.userId; } };
 let matchSocketStarted = false;
 
 export function connectToGameServer(event : MessageEvent<any>) {

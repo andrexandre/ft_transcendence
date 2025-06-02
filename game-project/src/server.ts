@@ -87,7 +87,10 @@ function handleSocketMessage(connection: any, data: any) {
 				connection.send(JSON.stringify({ type: "error", message: "Missing lobby info" }));
 				return;
 			}
+
+			// problem is here
 			const lobbyId = createLobby(connection, connection.user, gameMode, maxPlayers, data.difficulty);
+			Logger.log("📨📨📨📨",connection.user)
 			connection.send(JSON.stringify({ type: "lobby-created", lobbyId, maxPlayers }));
 			break;
 		}

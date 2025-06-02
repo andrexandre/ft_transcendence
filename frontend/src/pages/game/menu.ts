@@ -47,8 +47,8 @@ function initializeGameMainMenu(userData: {
 	user_set_tableSize: string;
 	user_set_sound: number;
 	}) {
-	const username = userData.user_name;
-	const userId = userData.user_id;
+	const username = userInfo.username;
+	const userId = userInfo.userId;
 
 	// Set Single dropdown
 	dropdown.initialize('Single');
