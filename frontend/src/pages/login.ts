@@ -67,7 +67,7 @@ class Login extends Page {
 						const input = (event.target as HTMLInputElement);
 						if (input.value.length === 6) {
 							try {
-								const response = await fetch(`http://${location.hostname}:8080/2fa/verify-google-authenticator`, {
+								const response = await fetch(`http://${location.hostname}:8080/2fa/verify-google-authenticator?isSetup=false`, {
 									method: 'POST',
 									credentials: "include",
 									headers: { 'Content-Type': 'application/json' },
