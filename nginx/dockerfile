@@ -1,5 +1,0 @@
-FROM nginx:latest
-
-CMD ["/bin/sh", "-c", \
-  "/etc/nginx/templates/nginx.conf.template > /etc/nginx/nginx.conf && \
-   'daemon off;'"]

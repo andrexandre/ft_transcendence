@@ -89,17 +89,16 @@ services:
       - ft_transcendence
       
   nginx:
+    image: nginx:latest
     container_name: nginx-gateway
     ports:
       - "8080:80"
     depends_on:
       - services-api
-    build:
-      context: ./nginx
     volumes:
-      - ./nginx/nginx.conf.template:/etc/nginx/templates/nginx.conf.template
-    environment:
-      CORS_ORIGIN: ${IP}
+      - ./nginx.conf.template:/etc/nginx/templates/nginx.conf.template
+    env_file:
+      - ./.env
     networks:
       - ft_transcendence
 
