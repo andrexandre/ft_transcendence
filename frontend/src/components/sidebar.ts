@@ -107,7 +107,7 @@ const sidebar = {
 		// document.getElementById("test-yellow-notifications-button")!.addEventListener("click", () => lib.showToast.yellow());
 		document.getElementById("logout-button")!.addEventListener("click", async () => {
 			try {
-				const response = await fetch(`http://${location.hostname}:7000/logout`, {
+				const response = await fetch(`http://${location.hostname}:8080/service/logout`, {
 					credentials: 'include',
 				});
 				if (!response.ok)
