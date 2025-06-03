@@ -64,12 +64,13 @@ export async function updateMatchHistory(targetUsername: string) {
 }
 
 export function renderDashboardFriend(friend: string, isOnline: boolean) {
-	if (document.getElementById(`profile-image-${friend}`)) {
-		const icon = document.getElementById(`${friend}-online-icon`)!;
-		icon.classList.remove(isOnline ? "text-neutral-500" : "text-green-600");
-		icon.classList.add(isOnline ? "text-green-600" : "text-neutral-500");
-		return;
-	}
+	//* caching
+	// if (document.getElementById(`profile-image-${friend}`)) {
+	// 	const icon = document.getElementById(`${friend}-online-icon`)!;
+	// 	icon.classList.remove(isOnline ? "text-neutral-500" : "text-green-600");
+	// 	icon.classList.add(isOnline ? "text-green-600" : "text-neutral-500");
+	// 	return;
+	// }
 	const friendsList = document.getElementById('friends-list')!;
 	const friendsListEntry = document.createElement("li");
 	friendsListEntry.className = "item t-dashed p-3 flex";
@@ -151,6 +152,7 @@ class Dashboard extends Page {
 				lib.userInfo.chat_sock!.send(JSON.stringify({ type: 'get-online-friends' })), { once: true });
 		}
 		this.reloadInterval = setInterval(function () {
+			document.getElementById('friends-list')!.innerHTML = "";
 			lib.userInfo.chat_sock!.send(JSON.stringify({
 				type: 'get-online-friends'
 			}));
