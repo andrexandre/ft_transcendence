@@ -1,3 +1,4 @@
+import { authChannel } from "../entrypoint";
 import * as lib from "../utils"
 
 const sidebar = {
@@ -105,21 +106,9 @@ const sidebar = {
 		// document.getElementById("test-red-notifications-button")!.addEventListener("click", () => lib.showToast.red());
 		// document.getElementById("test-blue-notifications-button")!.addEventListener("click", () => lib.showToast.blue());
 		// document.getElementById("test-yellow-notifications-button")!.addEventListener("click", () => lib.showToast.yellow());
-		document.getElementById("logout-button")!.addEventListener("click", async () => {
-			try {
-				const response = await fetch(`http://${location.hostname}:7000/logout`, {
-					credentials: 'include',
-				});
-				if (!response.ok)
-					throw new Error(`${response.status} - ${response.statusText}`);
-				lib.toggleUserServices(false);
-				lib.showToast(`Logged out successfully`);
-				sessionStorage.clear();
-				lib.navigate('/login');
-			} catch (error) {
-				console.log(error);
-				lib.showToast.red(error as string);
-			}
+		document.getElementById("logout-button")!.addEventListener("click", () => {
+  			authChannel.postMessage({ type: 'logout' });
+			lib.executeLogout();
 		}, { once: true });
 	}
 }

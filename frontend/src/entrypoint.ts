@@ -28,3 +28,10 @@ lib.setColor(localStorage.getItem('color') || lib.defaultColor, true);
 lib.loadTheme();
 
 sessionStorage.clear();
+
+export const authChannel = new BroadcastChannel('auth');
+
+authChannel.onmessage = (event) => {
+	if (event.data.type === 'logout')
+		lib.executeLogout();
+};
