@@ -106,19 +106,25 @@ export async function removeInviteLobby(lobby)
 
 export async function isInvited(username, invited)
 {
-	console.log('user: ' + username + 'invite: ' + invited)
-	const user_id = await db.get('SELECT user_id FROM users WHERE username = ?', [username]);
-	const invited_id = await db.get('SELECT user_id FROM users WHERE username = ?', [invited]);
+	try{
 
-	if(!user_id || !invited_id)
-		throw new Error('User doesnt exist');
-
-	const invite = await db.get(`
-		SELECT * from invites
-		WHERE (user_id = ? AND invited_user = ?)
-		`, [user_id.user_id, invited_id.user_id])
+		const user_id = await db.get('SELECT user_id FROM users WHERE username = ?', [username]);
+		const invited_id = await db.get('SELECT user_id FROM users WHERE username = ?', [invited]);
 	
-	return invite ? true : false;
+		if(!user_id || !invited_id)
+			throw new Error('User doesnt exist');
+	
+		const invite = await db.get(`
+			SELECT * from invites
+			WHERE (user_id = ? AND invited_user = ?)
+			`, [user_id.user_id, invited_id.user_id])
+		
+		return invite ? true : false;		
+	}
+	catch(error)
+	{
+		console.log("Error: " + error);
+	}
 }
 
 export async function getLobbyId(username, invited)
@@ -147,12 +153,18 @@ export async function getAll()
 
 export async function getUserId(username)
 {
-	const user = await db.get('SELECT user_id FROM users WHERE username = ?', [username]);
-
-	if(!user)
-		throw new Error('User doesnt exist');
-
-	return user.user_id;
+	try
+	{
+		const user = await db.get('SELECT user_id FROM users WHERE username = ?', [username]);
+	
+		if(!user)
+			throw new Error('User doesnt exist');
+		return user.user_id;
+	}
+	catch (error)
+	{
+		console.log('Error: ' + error);
+	}
 }
 
 export async function getUsername(id)
@@ -375,7 +387,6 @@ export async function deleteBlock(user, friend)
 export async function checkBlock(username, friend)
 {
 	try {
-		console.log("friend: "+ friend + " user: " + username);
 		const user_id = await db.get(`SELECT user_id FROM users WHERE username = ?`, [username]);
 		const friend_id = await db.get(`SELECT user_id FROM users WHERE username = ?`, [friend]);
 		const blocked = await db.get(`

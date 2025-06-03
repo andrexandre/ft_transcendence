@@ -58,21 +58,23 @@ const save2faSettingSchema =  {
 		type: 'object',
 		properties: {
             two_FA_status: { type: 'boolean' },
-			two_FA_secret: { type: 'string' },
+			two_FA_secret: { type: ['string', 'null'] },
 			isSetup: { type: 'boolean' }
 		},
 		errorMessage: {
 			required: {
 				two_FA_status: 'Missing two_FA_status field.',
-				two_FA_secret: 'Missing two_FA_secret field.'
+				two_FA_secret: 'Missing two_FA_secret field.',
+				isSetup: 'Missing isSetup field.'
 			},
 			properties: {
 				two_FA_status: 'two_FA_status must be a boolean value.',
-				two_FA_secret: 'two_FA_secret must be a string..'
+				two_FA_secret: 'two_FA_secret must be a string.',
+				isSetup: 'isSetup must be a boolean .'
 			},
 			_: 'Invalid request body.'
 		},
-        required: [ 'two_FA_status', 'two_FA_secret' ]
+        required: [ 'two_FA_status', 'two_FA_secret', 'isSetup' ]
 	},
 	response: {
 		200: {

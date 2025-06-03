@@ -86,13 +86,10 @@ class Settings extends Page {
 		document.getElementById('2fa-toggle')!.addEventListener('click', async () => {
 			const twoFAButton = document.getElementById('2fa-toggle') as HTMLInputElement;
 
-			const userData: { two_FA_status: boolean } = {
-				two_FA_status: twoFAButton.checked
-			};
 			try {
-				const response = await fetch(`http://${location.hostname}:8080/2fa/set-google-authenticator?isSetup=true`, {
+				const response = await fetch(`http://${location.hostname}:8080/2fa/set-google-authenticator?status=${twoFAButton.checked}`, {
 					method: 'GET',
-					credentials: "include",
+					credentials: "include"
 				});
 				if (!response.ok) {
 					const errorData = await response.json();
@@ -121,7 +118,7 @@ class Settings extends Page {
 								totpCode: input.value,
 								username: lib.userInfo.username
 							};
-							const response2fa = await fetch(`http://${location.hostname}:8080/2fa/verify-google-authenticator`, {
+							const response2fa = await fetch(`http://${location.hostname}:8080/2fa/verify-google-authenticator?isSetup=true`, {
 								method: 'POST',
 								credentials: "include",
 								headers: { 'Content-Type': 'application/json' },
@@ -133,11 +130,11 @@ class Settings extends Page {
 								const errorData = await response2fa.json();
 								throw new Error(errorData.message);
 							}
+							lib.showToast.green("2FA enabled");	
 							lib.showToast(`Sent 2FA code: ${input.value}`);
 							document.getElementById('2fa-info')?.remove();
 						}
 					});
-					lib.showToast.green("2FA enabled");
 				} else {
 					document.getElementById('2fa-info')?.classList.add('hidden');
 					lib.showToast.red("2FA disabled");
