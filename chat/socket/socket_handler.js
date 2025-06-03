@@ -5,7 +5,6 @@ import { createMessage, loadMessages, sendMessage, updateBlockRoom } from '../me
 export const users = new Map();
 export const sockets = new Map();
 export const rooms = new Map();
-const load = new Map();
 
 export async function SocketHandler(socket, username)
 {
@@ -161,17 +160,19 @@ async function handleChatMessage(username, msg, socket)
 		return ;
 	const [room, clients] = userRooms;
 	const users_room = parseRoomName(room);
-	const friend_id = (users_room[0] == await getUserId(username) ? users_room[1] : users_room[0]);
+	const user_id = await getUserId(username);
+	const friend_id = (users_room[0] == user_id ? users_room[1] : users_room[0]);
 
 	const friend = await getUsername(friend_id);
 
-	const message = await createMessage(username, msg, getTimeString());
+	const message = await createMessage(user_id, msg, getTimeString());
 	const call = await sendMessage(message, room, friend, await checkBlock(username, friend));
 
 	socket.send(JSON.stringify({
 		user: username,
 		type: 'message-emit',
-		data: message
+		data: message,
+		userId: user_id
 	}));
 	if (call === "emit" && !(await checkBlock(friend, username)))
 	{
@@ -181,7 +182,8 @@ async function handleChatMessage(username, msg, socket)
 				client.send(JSON.stringify({
 					user: friend,
 					type: 'message-emit',
-					data: message
+					data: message,
+					userId: friend_id
 				}));
 			}
 		});
@@ -199,12 +201,14 @@ async function joinRoom(username, friend, socket)
 		rooms.set(room, new Set());
 	rooms.get(room).add(socket);
 	const msgHistory = await loadMessages(room, await checkBlock(username, friend));
+	const user_id = await getUserId(username);
 	if(msgHistory && msgHistory.length > 0)
 	{
 		socket.send(JSON.stringify({
 			user: username,
 			type: 'load-messages',
 			data: msgHistory,
+			userId: user_id
 		}));
 	}
 }
