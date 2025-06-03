@@ -1,2 +1,12 @@
-- fazer match do id das duas bases de dados
-- mudar os ficheiros de js para ts
+- há um problema quando mudo de username, o frontend fica igual com a mesma forma apenas adiciona o novo username numa nova aba no chat. 
+ex:
+faria
+ola
+
+ola muda o nome para seila
+
+faria
+ola
+seila
+
+mas quando dou refresh fica tudo bem

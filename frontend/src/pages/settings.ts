@@ -286,8 +286,11 @@ class Settings extends Page {
 					const data = await response.json();
 					throw new Error(data.message);
 				}
-				turnOffChat();
-				turnOnChat();
+				if (lib.userInfo.username !== userData.username)
+				{
+					turnOffChat();
+					turnOnChat();
+				}
 				lib.showToast.green("Settings updated!");
 			} catch (error: any) {
 				return lib.showToast.red(error.message);

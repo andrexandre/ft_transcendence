@@ -90,6 +90,20 @@ export async function removeInvite(username, invited)
 	`, [user_id.user_id, invited_id.user_id]);
 }
 
+export async function removeInviteLobby(lobby)
+{
+	try{
+		await db.run(`
+		DELETE FROM invites
+		WHERE lobby_id = ?
+		`, [lobby]);
+	}
+	catch (error)
+	{
+		throw new Error('Failed to remove lobby: ', error);
+	}
+}
+
 export async function isInvited(username, invited)
 {
 	console.log('user: ' + username + 'invite: ' + invited)
@@ -133,7 +147,22 @@ export async function getAll()
 
 export async function getUserId(username)
 {
+	const user = await db.get('SELECT user_id FROM users WHERE username = ?', [username]);
 
+	if(!user)
+		throw new Error('User doesnt exist');
+
+	return user.user_id;
+}
+
+export async function getUsername(id)
+{
+	const user = await db.get('SELECT username FROM users WHERE user_id = ?', [id]);
+
+	if(!user)
+		throw new Error('User doesnt exist');
+
+	return user.username;
 }
 
 async function checkUsername(username, current_username, id)
@@ -174,6 +203,13 @@ export async function addFriend(username, friend_username)
 	if(!user || !friend) {
 		throw new Error('User doesnt exist');
 	}
+	const frienship = await db.get(`
+		SELECT * FROM friendships
+		WHERE (user_id = ? AND friend_id = ?)
+		`, [user.user_id, friend.user_id]);
+
+	if(frienship)
+		return ;
 	try {
 		await db.run(`
 			INSERT INTO friendships (user_id, friend_id)
@@ -185,7 +221,7 @@ export async function addFriend(username, friend_username)
 		`,[friend.user_id, user.user_id]);
 	}
 	catch (error) {
-		throw new Error('Failed to add frienship: ' + error.message);
+		throw new Error('Failed to add friendship: ' + error.message);
 	}
 }
 
@@ -339,7 +375,6 @@ export async function deleteBlock(user, friend)
 export async function checkBlock(username, friend)
 {
 	try {
-
 		const user_id = await db.get(`SELECT user_id FROM users WHERE username = ?`, [username]);
 		const friend_id = await db.get(`SELECT user_id FROM users WHERE username = ?`, [friend]);
 		const blocked = await db.get(`

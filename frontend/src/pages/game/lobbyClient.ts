@@ -25,12 +25,15 @@ export function connectToGameServer(event : MessageEvent<any>) {
 				console.log("🎯 Singleplayer detected! Auto-starting game.");
 				setTimeout(() => matchStartGame(), 500);
 			}
-			userInfo.chat_sock!.send(JSON.stringify({
-				type: 'invite-to-game',
-				friend: userInfo.pendingInviteTo,
-				from: userInfo.username,
-				lobbyId: data.lobbyId
-			}));
+			if (userInfo.pendingInviteTo)
+			{
+				userInfo.chat_sock!.send(JSON.stringify({
+					type: 'invite-to-game',
+					friend: userInfo.pendingInviteTo,
+					from: userInfo.username,
+					lobbyId: data.lobbyId
+				}));
+			}
 			break;
 
 		case "lobby-joined":
