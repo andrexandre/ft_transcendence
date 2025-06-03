@@ -48,12 +48,12 @@ function socketOnMessage(event: MessageEvent<any>) {
 	const data = JSON.parse(event.data);
 	// console.log(data);
 	if (data.type === 'message-emit') {
-		renderMessage(data.user, data.data.from, data.data.message, data.data.timestamp);
+		renderMessage(data.userId, data.data.from, data.data.message, data.data.timestamp);
 		const messageList = document.getElementById('chat-box-message-list')!;
 		messageList.scrollTop = messageList.scrollHeight;
 	}
 	else if (data.type === 'load-messages') {
-		data.data.forEach((msg: { user: string, from: string, message: string, timestamp: string }) => renderMessage(data.user, msg.from, msg.message, msg.timestamp));
+		data.data.forEach((msg: { user: string, from: string, message: string, timestamp: string }) => renderMessage(data.userId, msg.from, msg.message, msg.timestamp));
 		const messageList = document.getElementById('chat-box-message-list')!;
 		messageList.scrollTop = messageList.scrollHeight;
 	}

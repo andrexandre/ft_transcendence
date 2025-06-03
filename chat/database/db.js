@@ -375,7 +375,6 @@ export async function deleteBlock(user, friend)
 export async function checkBlock(username, friend)
 {
 	try {
-		console.log("friend: "+ friend + " user: " + username);
 		const user_id = await db.get(`SELECT user_id FROM users WHERE username = ?`, [username]);
 		const friend_id = await db.get(`SELECT user_id FROM users WHERE username = ?`, [friend]);
 		const blocked = await db.get(`
