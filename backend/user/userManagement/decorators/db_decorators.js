@@ -74,7 +74,6 @@ export const createTables = function() {
 		email TEXT NOT NULL UNIQUE,
 		password TEXT DEFAULT NULL,
 		auth_method TEXT NOT NULL,
-		is_online BOOLEAN DEFAULT FALSE,
 		codename TEXT NOT NULL,
 		biography TEXT NOT NULL,
 		avatar TEXT DEFAULT 'default.jpeg',

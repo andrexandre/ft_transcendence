@@ -34,8 +34,6 @@ async function login(request, response) {
         if (login != true) 
             throw this.httpErrors.unauthorized('Wrong password!');
 
-        await this.updateUserStatus(user.username); // temporario
-
         resContent = {
             two_FA_status: user.two_FA_status,
         };
