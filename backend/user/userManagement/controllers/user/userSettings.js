@@ -18,7 +18,7 @@ async function saveSettings(request, reply) {
 
 		const { username } =  request.body;
 		if (request.authenticatedUser.username !== username) {
-			const responseJwt = await fetch('http://services-api:7000/updateToken', {
+			const responseJwt = await fetch('http://nginx-gateway:80/token/updateToken', {
 				method: 'POST',
 				headers: {
 					"Content-Type": "application/json",
