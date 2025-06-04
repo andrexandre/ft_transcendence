@@ -34,7 +34,7 @@ export const tournamentTree = {
 			p2name: tRounds[0][0].player2,
 			p2score: 'X'
 		});
-		tournamentTree.updateMatch('botournamentTreet-bracket', {
+		tournamentTree.updateMatch('bot-bracket', {
 			p1name: tRounds[0][1].player1,
 			p1score: 'X',
 			p2name: tRounds[0][1].player2,
@@ -65,14 +65,9 @@ export const tournamentTree = {
 
 export function renderTournamentBracket() {
 	chooseView('tree');
-	state.rounds.forEach((round, roundIndex) => {
-		tournamentTree.updateTree(state);
-
-		round.forEach((match) => {
-			//wtf?
-		});
-	});
+	tournamentTree.updateTree(state);
 }
+
 
 const rawState: TournamentState = {
 	rounds: [],
@@ -115,13 +110,3 @@ export function handleEndTournament(winner: string) {
 	}, 5000);
 }
 
-// export function showRoundTransition(roundNumber: number) {
-// 	let count = 3;
-// 	const interval = setInterval(() => {
-// 		drawGameMessage(true, `Round ${roundNumber} starts in ${count}...`, "white");
-// 		if (count < 0) {
-// 			clearInterval(interval);
-// 			drawGameMessage(false, '');
-// 		}
-// 	}, 1000);
-// }

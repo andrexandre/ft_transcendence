@@ -1,9 +1,8 @@
-import { showToast } from '../../utils';
+import { showToast, userInfo } from '../../utils';
 // import { Logger } from '../utils';
 import { playSound, sounds, stopSound } from './audio';
 import { clearLobbyId } from './lobbyClient';
 import { chooseView, drawGameMessage } from './renderUtils';
-import { state as tournamentState, renderTournamentBracket, handleEndTournament, state } from './tournamentRender';
 
 export let gameCanvas: HTMLCanvasElement;
 export let ctx: CanvasRenderingContext2D;
@@ -16,7 +15,7 @@ let currentPlayerId: number = 0;
 let players: { username: string; userId: number; posiY: number; posiX: number; score: number }[] = [];
 let ball = { x: 800, y: 600 };
 let gameStarted = false;
-let matchSocket: WebSocket;
+// let userInfo.match_sock: WebSocket;
 let localUsername: string = "";
 
 export function initGameCanvas() {
@@ -106,24 +105,24 @@ function setupControls() {
 	}
 
 	setInterval(() => {
-		if (!matchSocket || matchSocket.readyState !== WebSocket.OPEN) return;
+		if (!userInfo.match_sock || userInfo.match_sock.readyState !== WebSocket.OPEN) return;
 
 		const now = Date.now();
 		if (now - lastMoveTime < speedDelay) return;
 
 		if (keysPressed["ArrowUp"]) {
-			matchSocket.send(JSON.stringify({ type: "move", direction: "up" }));
+			userInfo.match_sock.send(JSON.stringify({ type: "move", direction: "up" }));
 			lastMoveTime = now;
 		}
 		if (keysPressed["ArrowDown"]) {
-			matchSocket.send(JSON.stringify({ type: "move", direction: "down" }));
+			userInfo.match_sock.send(JSON.stringify({ type: "move", direction: "down" }));
 			lastMoveTime = now;
 		}
 	}, 1000 / 60);
 }
 
-export function connectToMatch(socket: WebSocket, role: "left" | "right") {
-	matchSocket = socket;
+export function connectToMatch(role: "left" | "right") {
+	
 	chooseView('game');
 	initGameCanvas();
 	setupControls();
@@ -133,7 +132,7 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
 
 	console.log("🎮 Socket conectado → preparando canvas");
 
-	matchSocket.onmessage = (event) => {
+	userInfo.match_sock!.onmessage = (event) => {
 		const data = JSON.parse(event.data);
 
 		if (data.type === "welcome") {
@@ -211,7 +210,7 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
 		}
 	};
 
-	matchSocket.onclose = () => {
+	userInfo.match_sock!.onclose = () => {
 		console.log("❌ Socket do jogo foi encerrado");
 		showToast.red("Disconnected from match");
 	};

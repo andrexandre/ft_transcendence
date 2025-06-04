@@ -3,8 +3,8 @@ import { showToast } from "../../utils";
 import { stopSound, sounds } from "./audio";
 import { connectToMatch } from "./rendering";	
 import { userInfo } from "../../utils";
-import { renderTournamentBracket, state as tournamentState} from "./tournamentRender";
-import { chooseView } from "./renderUtils";
+import { renderTournamentBracket, state as TournamentState} from "./tournamentRender";
+// import type {TournamentState} from "./tournamentRender";
 
 let lobbyId: string | null = null;
 let user = { get username() { return userInfo.username; }, get userId() { return userInfo.userId; } };
@@ -47,9 +47,13 @@ export function connectToGameServer(event : MessageEvent<any>) {
 
 		// Tournament CASES
 		case "show-bracket":
+			if (data.state) {
+				TournamentState.rounds = data.state.rounds;
+			}
+			console.log("✅✅✅", TournamentState);
 			renderTournamentBracket();
 			break;
-		
+			
 		case "start-round":
 			renderTournamentBracket();
 			break;
@@ -72,15 +76,15 @@ export function connectToGameServer(event : MessageEvent<any>) {
 			showToast.green(`🎮 Game started! You are: ${data.playerRole}`);
 			document.getElementById('sidebar')?.classList.add('hidden');
 			// chooseView('game');
-			const matchSocket = new WebSocket(`ws://${location.hostname}:5000/match-ws?gameId=${data.gameId}`);
+			userInfo.match_sock = new WebSocket(`ws://${location.hostname}:5000/match-ws?gameId=${data.gameId}`);
 			console.log("🛰️ Connecting to match-ws:", data.gameId);
 
-			matchSocket.onopen = () => {
+			userInfo.match_sock.onopen = () => {
 				console.log("✅ Connected to match WebSocket for game:", data.gameId);
-				connectToMatch(matchSocket, data.playerRole);
+				connectToMatch(data.playerRole);
 			};
 
-			matchSocket.onerror = () => {
+			userInfo.match_sock.onerror = () => {
 				console.error("❌ Failed to connect to match WebSocket");
 				showToast.red("❌ Falha ao conectar ao jogo");
 				matchSocketStarted = false;
@@ -225,20 +229,20 @@ function renderLobbyList(lobbies: any[]) {
 			btn.onclick = () => {
 				showToast.red("❌ Leaving lobby...");
 				leaveLobby();
-				setTimeout(fetchLobbies, 300);
+				setTimeout(fetchLobbies, 10);
 			};
 		} else if (isInLobby) {
 			btn.textContent = "QUIT";
 			btn.onclick = () => {
 				showToast.red("❌ Leaving lobby...");
 				leaveLobby();
-				setTimeout(fetchLobbies, 300);
+				setTimeout(fetchLobbies, 10);
 			};
 		} else {
 			btn.textContent = "JOIN";
 			btn.onclick = () => {
 				joinLobby(lobby.id);
-				setTimeout(fetchLobbies, 300);
+				setTimeout(fetchLobbies, 10);
 			};
 		}
 	}
