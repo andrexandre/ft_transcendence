@@ -15,7 +15,6 @@ export function turnOnChat() {
 
 		userInfo.chat_sock.onclose = (event) => {
 			console.debug('WebSocket connection closed:', event.code, event.reason);
-			// Maybe add some reconnection logic here
 		};
 
 		userInfo.chat_sock.onmessage = (event) => {
@@ -23,16 +22,18 @@ export function turnOnChat() {
 		};
 	}
 	else
-		showToast.red('The chat socket is already on');
+		showToast.red('The chat socket is already opened');
 }
 
 export function turnOffChat() {
 	if (userInfo.chat_sock) {
-		userInfo.chat_sock.close(1000, 'User logged out');
-		userInfo.chat_sock = null;
+		if (userInfo.chat_sock.readyState === WebSocket.OPEN)
+			userInfo.chat_sock.close();
+		else
+			showToast.red('The chat socket exists but is closed');
+	} else {
+		console.log('The chat socket was null when closed');
 	}
-	else
-		showToast.red('The chat socket is already off');
 	currentFriend = null;
 }
 

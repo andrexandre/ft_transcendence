@@ -32,6 +32,7 @@ sessionStorage.clear();
 export const authChannel = new BroadcastChannel('auth');
 
 authChannel.onmessage = (event) => {
-	if (event.data.type === 'logout')
+	if (event.data.type === 'logout' &&
+		(lib.userInfo.path != "/register" && lib.userInfo.path != "/login"))
 		lib.executeLogout();
 };
