@@ -373,6 +373,19 @@ export function setChatEventListeners() {
 				type: 'get-online-users'
 			}));
 		});
+	//! TEMP until game requests implemented
+	handleEmptyList('game-requests-list', 'No game requests');
+	document.getElementById('game-requests-list-refresh')?.addEventListener('click',
+		() => {
+			renderMessage("me", "me", "Hey it's me", "now");
+			renderMessage("me", "you", "Hey it's you", "now");
+			renderMessage("system", "", "🤖 Hey it's [SYSTEM] 🤖", "now");
+			document.getElementById('game-requests-list')!.innerHTML = '';
+			handleEmptyList('game-requests-list', 'No game requests');
+			// userInfo.chat_sock!.send(JSON.stringify({
+			// 	type: 'get-game-requests-list'
+			// }));
+		});
 	document.getElementById('chat-box-form')?.addEventListener('submit',
 		(e: Event) => {
 			e.preventDefault();

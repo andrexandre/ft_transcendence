@@ -32,13 +32,13 @@ status:
 	@docker volume ls
 	@echo
 	@echo "\n$(GREEN)Network status$(END)\n"
-	@docker network ls
+	@docker network ls --filter "name=ft_transcendence"
 	@echo
 
 env:
 	@IP=$$(hostname -I | awk '{print $$1}'); \
 	echo -n "IP = $$IP "; \
-	if ! grep -q "IP = $$IP" .env; then \
+	if ! grep -sq "IP = $$IP" .env; then \
 		echo "IP = $$IP \n CORS_ORIGIN = http://$$IP:5500" > .env; \
 		curl -s https://gist.githubusercontent.com/andrexandre/8c011820a35117d005016151cfd46207/raw/83a0d67fbf775a78355dd617e6502d9c03f496ad/.env > backend/services-api/.env; \
 		echo "IP = $$IP" >> backend/services-api/.env; \
@@ -48,7 +48,7 @@ env:
 	fi
 
 rm-env:
-	find . -iname 2> /dev/null .env -delete
+	find . -iname .env -delete
 
 destroy: down
 #	docker compose down --rmi all
@@ -71,43 +71,24 @@ DB-PATH = backend/user/userManagement/user.db
 
 DB-NAME = users
 
-frontend/node_modules:
-	cd frontend ; npm install
-
-server-up: frontend/node_modules
-	cd frontend ; npx vite --host 127.0.0.1 --port 5500
-
-server-upd: frontend/node_modules
-	cd frontend ; npx vite --host 127.0.0.1 --port 5500 &
-
-server-down:
-	pkill -2 -f '/.bin/vite'
-
 db-clean:
 	sqlite3 $(DB-PATH) "delete from $(DB-NAME);"
 
 list-users:
 	sqlite3 $(DB-PATH) "select * from $(DB-NAME);"
 
-USER = as
+o:
+	@open http://$$(hostname -I | awk '{print $$1}'):5500
 
-rm-user:
-	sqlite3 $(DB-PATH) 'delete from $(DB-NAME) where username = "$(USER)";'
-
-
-
-
-# this is used to clean up the whole docker ecosystem
+# docker system prune --help
 system-prune:
 	-docker stop $$(docker ps -qa)
 	-docker system prune -f -a --volumes
 
 # this is useful when root permissions are required to delete files
-# note: this removes the contents of the specified folder
 rm-rf:
-# docker pull public.ecr.aws/docker/library/busybox:stable
 	@read -p "rm -rf $$PWD/" folder;\
-	docker run --rm -v ./$$folder:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; true
+	docker run --rm -v ./$$folder:/folder_to_rm busybox rm -rf '/folder_to_rm' 2>/dev/null ; rmdir $$folder
 
 
 # mc speed commands
