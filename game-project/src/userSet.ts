@@ -129,9 +129,9 @@ const getUserByUsername = (username: string) =>
 		});
 });
 
-export async function userRoutes(gameserver: FastifyInstance) {
+export async function userRoutes(gameserver: FastifyInstance, options: any) {
 
-	gameserver.post('/game/updateUserInfo', async function(request: any, reply: any) {
+	gameserver.post('/updateUserInfo', async function(request: any, reply: any) {
 		
 		const token: string | undefined = request.cookies.token;
 		if (!token) return reply.status(401).send({ error: "No token provided" });
@@ -163,7 +163,7 @@ export async function userRoutes(gameserver: FastifyInstance) {
 	});
 
 	// Get user data
-	gameserver.post('/game/init-user', initSchema, async function(request: any, reply: any) {
+	gameserver.post('/init-user', initSchema, async function(request: any, reply: any) {
 		const { id, username } = request.body;
 		const status: boolean = await new Promise((resolve, reject) => {
 			const query: string = "INSERT INTO users (user_id, user_name, user_set_dificulty, user_set_tableSize, user_set_sound) VALUES (?, ?, 'Normal', 'Medium', 1)";

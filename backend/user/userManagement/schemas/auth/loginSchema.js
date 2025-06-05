@@ -22,10 +22,7 @@ const loginSchema = {
 	response: {
 		200: {
 			type: 'object',
-			properties: {
-				userId: { type: 'string' },
-				username: { type: 'string' },
-			}
+			properties: { two_FA_status: { type: 'boolean' } }
 		},
 		401: { $ref: 'errorResponse#' },
 		403: { $ref: 'errorResponse#' },

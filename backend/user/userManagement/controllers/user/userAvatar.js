@@ -77,9 +77,6 @@ async function saveAvatar(request, reply) {
 
 		return;
 	} catch(err) {
-		// if (err.code !== 'ENOENT') {
-		// 	console.log('Falha ao apagar imagem antiga');
-		// }
 		reply.status(500).send({statusCode: 500, error: "Internal server error", message: 'Error saving new avatar!'});
 		return;
 	}

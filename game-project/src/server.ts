@@ -15,12 +15,12 @@ const gameserver = Fastify({ logger: false }); // alterar true
 
 await gameserver.register(fastifyWebsocket);
 await gameserver.register(fastifyCookie);
-await userRoutes(gameserver);
-await gameserver.register(cors, {
-	origin: ['http://127.0.0.1:5500', `http://${process.env.IP}:5500`, `http://nginx-gateway:80`],
-	methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-	credentials: true,
-});
+await gameserver.register(userRoutes, { prefix: '/game' });
+// await gameserver.register(cors, {
+// 	origin: ['http://127.0.0.1:5500', `http://${process.env.IP}:5500`, `http://nginx-gateway:80`],
+// 	methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+// 	credentials: true,
+// });
 
 // LOBBY WS
 gameserver.get('/lobby-ws', { websocket: true }, async (connection, req) => {
@@ -68,7 +68,7 @@ gameserver.get('/lobby-ws', { websocket: true }, async (connection, req) => {
 	}
 });
 
-gameserver.get('/lobbies', async (request, reply) => {
+gameserver.get('/game/lobbies', async (request, reply) => {
 	const lobbies = listLobbies();
 	reply.send(lobbies);
 });

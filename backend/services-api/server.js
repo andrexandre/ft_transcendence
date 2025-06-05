@@ -21,7 +21,7 @@ import loginRoutes from './routes/auth/login.js';
 import logoutRoute from './routes/auth/logout.js';
 import callbackOAuthRoute from './routes/auth/OAuth/callbackOAuth.js';
 import jwtHandler from './routes/auth/jwt/jwtHandler.js'
-
+import twoFactorAuth from './routes/auth/two-factor-auth.js'
 
 dotenv.config();
 const fastify = Fastify({
@@ -53,6 +53,7 @@ fastify.decorate('parseToReadableData', parseToReadableData);
 fastify.decorate('parseToReadableOAuth', parseToReadableOAuth);
 
 fastify.register(setProtectedRoutes);
+fastify.register(twoFactorAuth);
 fastify.register(registerRoutes);
 fastify.register(loginRoutes);
 fastify.register(logoutRoute);
@@ -65,14 +66,6 @@ fastify.register(fastifyJwt, {
     cookieName: 'token',
     signed: false
   }
-});
-
-fastify.register(fastifyCsrfProtection, { cookieOpts: { signed: true } })
-
-fastify.register(cors, {
-  origin: ['http://127.0.0.1:5500', 'http://127.0.0.1:5000', 'http://chat:2000', 'http://127.0.0.1:80', `http://${process.env.IP}:5500`], // Allow frontend origin
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true // Allow cookies if needed
 });
 
 fastify.ready().then(() => {
