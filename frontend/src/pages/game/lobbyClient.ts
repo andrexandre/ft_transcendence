@@ -1,10 +1,8 @@
 // frontend/src/pages/game/lobbyClient.ts
-import { showToast } from "../../utils";
+import { showToast, userInfo } from "../../utils";
 import { stopSound, sounds } from "./audio";
 import { connectToMatch } from "./rendering";	
-import { userInfo } from "../../utils";
-import { renderTournamentBracket, state as TournamentState} from "./tournamentRender";
-// import type {TournamentState} from "./tournamentRender";
+import { renderTournamentBracket, tournamentState} from "./tournamentRender";
 
 let lobbyId: string | null = null;
 let user = { get username() { return userInfo.username; }, get userId() { return userInfo.userId; } };
@@ -12,8 +10,6 @@ let matchSocketStarted = false;
 
 export function connectToGameServer(event : MessageEvent<any>) {
 	user = {username: userInfo.username, userId: userInfo.userId}
-	console.log(user);
-
 	const data = JSON.parse(event.data);
 	console.log("📨 WS Message:", data);
 
@@ -48,9 +44,9 @@ export function connectToGameServer(event : MessageEvent<any>) {
 		// Tournament CASES
 		case "show-bracket":
 			if (data.state) {
-				TournamentState.rounds = data.state.rounds;
+				tournamentState.rounds = data.state.rounds;
 			}
-			console.log("✅✅✅", TournamentState);
+			console.log("✅✅✅", tournamentState);
 			renderTournamentBracket();
 			break;
 			
@@ -61,12 +57,12 @@ export function connectToGameServer(event : MessageEvent<any>) {
 		case "end-round":
 			renderTournamentBracket();
 			break;
-
+		// TNT close
 
 		case "match-start":
 			if (matchSocketStarted) return;
 			matchSocketStarted = true;
-			// add som
+			// sound added
 			if ((window as any).appUser?.user_set_sound === 1) {
 				stopSound("menuMusic");
 				sounds.gameMusic.play().catch(() => {});
@@ -74,8 +70,6 @@ export function connectToGameServer(event : MessageEvent<any>) {
 
 			console.log("🎮 Game start recebido! A abrir ligação para /match-ws");
 			showToast.green(`🎮 Game started! You are: ${data.playerRole}`);
-			document.getElementById('sidebar')?.classList.add('hidden');
-			// chooseView('game');
 			userInfo.match_sock = new WebSocket(`ws://${location.hostname}:5000/match-ws?gameId=${data.gameId}`);
 			console.log("🛰️ Connecting to match-ws:", data.gameId);
 
@@ -138,7 +132,6 @@ export function matchStartGame() {
 		lobbyId,
 		requesterId: user.userId
 	}));
-	console.log("❌", user.userId)
 }
 
 export function clearLobbyId() {

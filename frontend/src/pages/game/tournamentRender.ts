@@ -12,6 +12,12 @@ export type TournamentState = {
 	currentRound: number;
 };
 
+export const tournamentState: TournamentState = {
+	rounds: [],
+	currentRound: 0,
+};
+
+
 export const tournamentTree = {
 	getHtml: () => /*html*/`
 			<div class="flex items-center justify-center">
@@ -65,39 +71,25 @@ export const tournamentTree = {
 
 export function renderTournamentBracket() {
 	chooseView('tree');
-	tournamentTree.updateTree(state);
+	tournamentTree.updateTree(tournamentState);
 }
 
 
-const rawState: TournamentState = {
-	rounds: [],
-	currentRound: 0,
-};
-
-export const state: TournamentState = new Proxy(rawState, {
-	set(target, prop, value) {
-		// @ts-ignore
-		target[prop] = value;
-		renderTournamentBracket();
-		return true;
-	},
-});
-
 export function addRound(matches: TournamentMatch[]) {
-	state.rounds.push(matches);
+	tournamentState.rounds.push(matches);
 	renderTournamentBracket();
 }
 
 export function updateWinner(roundIndex: number, matchIndex: number, winner: string) {
-	const match = state.rounds[roundIndex]?.[matchIndex];
+	const match = tournamentState.rounds[roundIndex]?.[matchIndex];
 	if (!match) return;
 	match.winner = winner;
 	renderTournamentBracket();
 }
 
 export function resetTournament() {
-	state.rounds = [];
-	state.currentRound = 0;
+	tournamentState.rounds = [];
+	tournamentState.currentRound = 0;
 }
 
 export function handleEndTournament(winner: string) {
