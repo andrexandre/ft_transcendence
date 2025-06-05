@@ -1,5 +1,5 @@
 export default function jwtHandler(fastify, options) {
-  fastify.post('/updateToken', async (request, reply) => {
+  fastify.post('/token/updateToken', async (request, reply) => {
     const { username } = request.body;
     const payload = await fastify.parseToReadableData(request.cookies.token);
     payload.username = username;
@@ -12,7 +12,7 @@ export default function jwtHandler(fastify, options) {
     }).status(200);
   })
 
-  fastify.post('/generateToken', async (request, reply) => {
+  fastify.post('/token/generateToken', async (request, reply) => {
 
 	const { username } = request.body;
 	const response = await fetch('http://user_management:3000/api/tokenInfo', {

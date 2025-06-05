@@ -1,0 +1,161 @@
+server {
+        listen 80;
+
+        server_name localhost;
+		client_max_body_size 2M;
+        
+        # Define access and error logs
+        access_log /var/log/nginx/api_gateway_access.log;
+        error_log /var/log/nginx/api_gateway_error.log;
+
+        location /service {
+            if ($request_method = OPTIONS) {
+                add_header 'Access-Control-Allow-Origin' "${CORS_ORIGIN}" always;
+                add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, PUT' always;
+                add_header 'Access-Control-Allow-Headers' 'Origin, Content-Type, Accept, Authorization' always;
+                add_header 'Access-Control-Allow-Credentials' 'true' always;
+                add_header 'Content-Length' 0;
+                add_header 'Content-Type' 'text/plain charset=UTF-8';
+                return 204;
+            }
+
+            # Apply CORS headers to all other responses
+            add_header 'Access-Control-Allow-Origin' "${CORS_ORIGIN}" always;
+            add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, PUT' always;
+            add_header 'Access-Control-Allow-Headers' 'Origin, Content-Type, Accept, Authorization' always;
+            add_header 'Access-Control-Allow-Credentials' 'true' always;
+            proxy_pass http://services-api:7000;
+        }
+
+        location /login {
+            if ($request_method = OPTIONS) {
+                add_header 'Access-Control-Allow-Origin' "${CORS_ORIGIN}" always;
+                add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, PUT' always;
+                add_header 'Access-Control-Allow-Headers' 'Origin, Content-Type, Accept, Authorization' always;
+                add_header 'Access-Control-Allow-Credentials' 'true' always;
+                add_header 'Content-Length' 0;
+                add_header 'Content-Type' 'text/plain charset=UTF-8';
+                return 204;
+            }
+
+            # Apply CORS headers to all other responses
+            add_header 'Access-Control-Allow-Origin' "${CORS_ORIGIN}" always;
+            add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, PUT' always;
+            add_header 'Access-Control-Allow-Headers' 'Origin, Content-Type, Accept, Authorization' always;
+            add_header 'Access-Control-Allow-Credentials' 'true' always;
+            proxy_pass http://services-api:7000;
+        }
+
+        location /register {
+            if ($request_method = OPTIONS) {
+                add_header 'Access-Control-Allow-Origin' "${CORS_ORIGIN}" always;
+                add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, PUT' always;
+                add_header 'Access-Control-Allow-Headers' 'Origin, Content-Type, Accept, Authorization' always;
+                add_header 'Access-Control-Allow-Credentials' 'true' always;
+                add_header 'Content-Length' 0;
+                add_header 'Content-Type' 'text/plain charset=UTF-8';
+                return 204;
+            }
+
+            # Apply CORS headers to all other responses
+            add_header 'Access-Control-Allow-Origin' "${CORS_ORIGIN}" always;
+            add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, PUT' always;
+            add_header 'Access-Control-Allow-Headers' 'Origin, Content-Type, Accept, Authorization' always;
+            add_header 'Access-Control-Allow-Credentials' 'true' always;
+            proxy_pass http://services-api:7000;
+        }
+
+        location /token {
+            if ($request_method = OPTIONS) {
+                add_header 'Access-Control-Allow-Origin' "${CORS_ORIGIN}" always;
+                add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, PUT' always;
+                add_header 'Access-Control-Allow-Headers' 'Origin, Content-Type, Accept, Authorization' always;
+                add_header 'Access-Control-Allow-Credentials' 'true' always;
+                add_header 'Content-Length' 0;
+                add_header 'Content-Type' 'text/plain charset=UTF-8';
+                return 204;
+            }
+
+            # Apply CORS headers to all other responses
+            add_header 'Access-Control-Allow-Origin' "${CORS_ORIGIN}" always;
+            add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, PUT' always;
+            add_header 'Access-Control-Allow-Headers' 'Origin, Content-Type, Accept, Authorization' always;
+            add_header 'Access-Control-Allow-Credentials' 'true' always;
+            proxy_pass http://services-api:7000;
+        }
+
+        location /2fa {
+            if ($request_method = OPTIONS) {
+                add_header 'Access-Control-Allow-Origin' "${CORS_ORIGIN}" always;
+                add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, PUT' always;
+                add_header 'Access-Control-Allow-Headers' 'Origin, Content-Type, Accept, Authorization' always;
+                add_header 'Access-Control-Allow-Credentials' 'true' always;
+                add_header 'Content-Length' 0;
+                add_header 'Content-Type' 'text/plain charset=UTF-8';
+                return 204;
+            }
+
+            # Apply CORS headers to all other responses
+            add_header 'Access-Control-Allow-Origin' "${CORS_ORIGIN}" always;
+            add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, PUT' always;
+            add_header 'Access-Control-Allow-Headers' 'Origin, Content-Type, Accept, Authorization' always;
+            add_header 'Access-Control-Allow-Credentials' 'true' always;
+            proxy_pass http://two-factor-auth:3500;
+        }
+
+        location /api {
+            if ($request_method = OPTIONS) {
+                add_header 'Access-Control-Allow-Origin' "${CORS_ORIGIN}" always;
+                add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, PUT' always;
+                add_header 'Access-Control-Allow-Headers' 'Origin, Content-Type, Accept, Authorization' always;
+                add_header 'Access-Control-Allow-Credentials' 'true' always;
+                add_header 'Content-Length' 0;
+                add_header 'Content-Type' 'text/plain charset=UTF-8';
+                return 204;
+            }
+
+            # Apply CORS headers to all other responses
+            add_header 'Access-Control-Allow-Origin' "${CORS_ORIGIN}" always;
+            add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, PUT' always;
+            add_header 'Access-Control-Allow-Headers' 'Origin, Content-Type, Accept, Authorization' always;
+            add_header 'Access-Control-Allow-Credentials' 'true' always;
+            proxy_pass http://user_management:3000;
+        }
+
+        location /game/ {  
+            if ($request_method = OPTIONS) {
+                add_header 'Access-Control-Allow-Origin' "${CORS_ORIGIN}" always;
+                add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, PATCH' always;
+                add_header 'Access-Control-Allow-Headers' 'Origin, Content-Type, Accept, Authorization' always;
+                add_header 'Access-Control-Allow-Credentials' 'true' always;
+                add_header 'Content-Length' 0;
+                add_header 'Content-Type' 'text/plain charset=UTF-8';
+                return 204;
+            }
+            # Apply CORS headers to all other responses
+            add_header 'Access-Control-Allow-Origin' "${CORS_ORIGIN}" always;
+            add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, PATCH' always;
+            add_header 'Access-Control-Allow-Headers' 'Origin, Content-Type, Accept, Authorization' always;
+            add_header 'Access-Control-Allow-Credentials' 'true' always;
+            proxy_pass http://pongify:5000;  # Reference the Fastify container by its service name
+        }
+		
+		location /frontend/ {
+            if ($request_method = OPTIONS) {
+                add_header 'Access-Control-Allow-Origin' "${CORS_ORIGIN}" always;
+                add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, PUT' always;
+                add_header 'Access-Control-Allow-Headers' 'Origin, Content-Type, Accept, Authorization' always;
+                add_header 'Access-Control-Allow-Credentials' 'true' always;
+                add_header 'Content-Length' 0;
+                add_header 'Content-Type' 'text/plain charset=UTF-8';
+                return 204;
+            }
+
+            # Apply CORS headers to all other responses
+            add_header 'Access-Control-Allow-Origin' "${CORS_ORIGIN}" always;
+            add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, PUT' always;
+            add_header 'Access-Control-Allow-Headers' 'Origin, Content-Type, Accept, Authorization' always;
+            add_header 'Access-Control-Allow-Credentials' 'true' always;
+            proxy_pass http://services-api:7000;  # Reference the Fastify container by its service name
+        }
+    }

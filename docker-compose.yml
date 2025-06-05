@@ -87,26 +87,19 @@ services:
       - ./frontend:/frontend:rw
     networks:
       - ft_transcendence
-
-  # vite-nginx:
-  #   image: vite-nginx
-  #   container_name: vite-nginx
-  #   build:
-  #     context: ./frontend
-  #   ports:
-  #     - "5500:80"
-  #   networks:
-  #     - ft_transcendence
-
+      
   nginx:
     image: nginx:latest
     container_name: nginx-gateway
     ports:
       - "8080:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - services-api
+    volumes:
+      - ./nginx.conf.template:/etc/nginx/templates/nginx.conf.template
+      - /dev/null:/etc/nginx/conf.d/default.conf
+    env_file:
+      - ./.env
     networks:
       - ft_transcendence
 
