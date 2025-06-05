@@ -15,7 +15,6 @@ export function turnOnChat() {
 
 		userInfo.chat_sock.onclose = (event) => {
 			console.debug('WebSocket connection closed:', event.code, event.reason);
-			// Maybe add some reconnection logic here
 		};
 
 		userInfo.chat_sock.onmessage = (event) => {
@@ -23,16 +22,18 @@ export function turnOnChat() {
 		};
 	}
 	else
-		showToast.red('The chat socket is already on');
+		showToast.red('The chat socket is already opened');
 }
 
 export function turnOffChat() {
 	if (userInfo.chat_sock) {
-		userInfo.chat_sock.close(1000, 'User logged out');
-		userInfo.chat_sock = null;
+		if (userInfo.chat_sock.readyState === WebSocket.OPEN)
+			userInfo.chat_sock.close();
+		else
+			showToast.red('The chat socket exists but is closed');
+	} else {
+		console.log('The chat socket was null when closed');
 	}
-	else
-		showToast.red('The chat socket is already off');
 	currentFriend = null;
 }
 
@@ -48,12 +49,12 @@ function socketOnMessage(event: MessageEvent<any>) {
 	const data = JSON.parse(event.data);
 	// console.log(data);
 	if (data.type === 'message-emit') {
-		renderMessage(data.user, data.data.from, data.data.message, data.data.timestamp);
+		renderMessage(data.userId, data.data.from, data.data.message, data.data.timestamp);
 		const messageList = document.getElementById('chat-box-message-list')!;
 		messageList.scrollTop = messageList.scrollHeight;
 	}
 	else if (data.type === 'load-messages') {
-		data.data.forEach((msg: { user: string, from: string, message: string, timestamp: string }) => renderMessage(data.user, msg.from, msg.message, msg.timestamp));
+		data.data.forEach((msg: { user: string, from: string, message: string, timestamp: string }) => renderMessage(data.userId, msg.from, msg.message, msg.timestamp));
 		const messageList = document.getElementById('chat-box-message-list')!;
 		messageList.scrollTop = messageList.scrollHeight;
 	}
@@ -78,51 +79,7 @@ function socketOnMessage(event: MessageEvent<any>) {
 	// game start
 	else if (data.type === 'receive-game-invite') {
 		showToast.green(`🎮 Convite de ${data.from}`);
-
 		renderGameInviteButtons(data.from, data.lobbyId);
-
-		//TODO: remove this comments???
-		// const acceptBtn = document.getElementById("accept-invite-to-game-button")!;
-		// const rejectBtn = document.getElementById("reject-invite-to-game-button")!;
-
-		// acceptBtn.classList.remove("hidden");
-		// rejectBtn.classList.remove("hidden");
-
-		// acceptBtn.onclick = () => {
-		// 	userInfo.game_sock!.send(JSON.stringify({
-		// 		type: 'join-lobby',
-		// 		lobbyId: data.lobbyId
-		// 	}));
-		// 	userInfo.chat_sock!.send(JSON.stringify({
-		// 		type: 'join-accepted',
-		// 		lobbyId: data.lobbyId,
-		// 		requesterId: userInfo.userId,
-		// 		friend: currentFriend
-		// 	}));
-		// 	setTimeout(() => {
-		// 		// userInfo.game_sock!.send(JSON.stringify({
-		// 		// 	type: 'start-game',
-		// 		// 	lobbyId: data.lobbyId,
-		// 		// 	requesterId: userInfo.userId
-		// 		// }));
-		// 		navigate("/game");
-		// 	}, 500);
-		// 	hideInviteButtons();
-		// };
-
-		// rejectBtn.onclick = () => {
-		// 	userInfo.chat_sock!.send(JSON.stringify({
-		// 		type: 'reject-invite',
-		// 		to: data.from
-		// 	}));
-		// 	hideInviteButtons();
-		// };
-
-		// function hideInviteButtons() {
-		// 	acceptBtn.classList.add("hidden");
-		// 	rejectBtn.classList.add("hidden");
-		// }
-
 	} else if (data.type === 'join-accepted2') {
 		showToast.green("✅ O teu amigo aceitou o convite. A iniciar jogo...");
 		setTimeout(() => {
@@ -133,7 +90,6 @@ function socketOnMessage(event: MessageEvent<any>) {
 			}));
 			navigate("/game");
 		}, 500);
-
 	}
 	else if (data.type === 'invite-rejected') {
 		document.getElementById("chat-box-invite-button")?.classList.remove("hidden");
@@ -239,10 +195,11 @@ function listenerA(name: string) {
 }
 
 function renderFriendList(name: string) {
-	if (document.getElementById(`profile-image-${name}`))
-		return;
-	if (document.getElementById(`empty-list-friends-list`))
-		document.getElementById(`friends-list`)!.innerHTML = '';
+	//* caching
+	// if (document.getElementById(`profile-image-${name}`))
+	// 	return;
+	// if (document.getElementById(`empty-list-friends-list`))
+	// 	document.getElementById(`friends-list`)!.innerHTML = '';
 	const friendList = document.getElementById('friends-list')!;
 	const roomButton = document.createElement('button');
 	roomButton.className = 'item t-dashed flex p-1 items-center gap-4';
@@ -303,10 +260,11 @@ function addListEntry(listName: string, name: string, html: string, classes?: st
 }
 
 function renderFriendRequest(name: string) {
-	if (document.getElementById(`friend-request-${name}`))
-		return;
-	if (document.getElementById(`empty-list-friend-requests-list`))
-		document.getElementById(`friend-requests-list`)!.innerHTML = '';
+	//* caching
+	// if (document.getElementById(`friend-request-${name}`))
+	// 	return;
+	// if (document.getElementById(`empty-list-friend-requests-list`))
+	// 	document.getElementById(`friend-requests-list`)!.innerHTML = '';
 	const friendRequestsList = document.getElementById('friend-requests-list')!;
 	addListEntry('friend-requests-list', name, /*html*/`
 		<p id="friend-request-${name}" class="mr-auto">${name}</p>
@@ -374,9 +332,11 @@ function renderChatRoom(name: string, isBlocked: boolean, isInvited: boolean, lo
 }
 
 function reloadLists() {
+	document.getElementById('friends-list')!.innerHTML = "";
 	userInfo.chat_sock!.send(JSON.stringify({
 		type: 'get-friends-list'
 	}));
+	document.getElementById('friend-requests-list')!.innerHTML = "";
 	userInfo.chat_sock!.send(JSON.stringify({
 		type: 'get-friend-request'
 	}));

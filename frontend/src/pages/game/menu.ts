@@ -8,33 +8,38 @@ import { sounds, initSounds, playSound } from "./audio";
 let lobbyRefreshInterval: ReturnType<typeof setInterval> | null = null;
 
 export function turnOnGame() {
-	if (userInfo.game_sock?.readyState === WebSocket.OPEN) {
-		showToast.red("🚫 Lobby socket já está aberto");
-		return;
+	if (!userInfo.game_sock || userInfo.game_sock.readyState === WebSocket.CLOSED) {
+		// if (userInfo.game_sock!.readyState === WebSocket.OPEN) {
+		// 	showToast.red("🚫 Lobby socket já está aberto");
+		// 	return;
+		// }
+
+		const url = `ws://${location.hostname}:5000/lobby-ws`;
+		userInfo.game_sock = new WebSocket(url);
+
+		userInfo.game_sock.onopen = () => {
+			console.log(`✅ WebSocket connected for: ${userInfo.username} (${userInfo.userId}) → ${url}`);
+		};
+
+		userInfo.game_sock.onerror = () => showToast.red("❌ Erro na ligação do WebSocket");
+		userInfo.game_sock.onclose = () => console.log("🔌 Ligação terminada com o servidor");
+
+		userInfo.game_sock.onmessage = (event) => {
+			connectToGameServer(event);
+		};
 	}
-
-	const url = `ws://${location.hostname}:5000/lobby-ws`;
-	userInfo.game_sock = new WebSocket(url);
-
-	userInfo.game_sock.onopen = () => {
-		console.log(`✅ WebSocket connected for: ${userInfo.username} (${userInfo.userId}) → ${url}`);
-	};
-
-	userInfo.game_sock.onerror = () => showToast.red("❌ Erro na ligação do WebSocket");
-	userInfo.game_sock.onclose = () => console.log("🔌 Ligação terminada com o servidor");
-
-	userInfo.game_sock.onmessage = (event) => {
-		connectToGameServer(event);
-	};
+	else
+		showToast.red('The game socket is already opened');
 }
 
 export function turnOffGame() {
 	if (userInfo.game_sock) {
-		if (userInfo.game_sock.readyState === WebSocket.OPEN) {
-			console.log("🚫 Lobby socket já está fechado");
+		if (userInfo.game_sock.readyState === WebSocket.OPEN)
 			userInfo.game_sock.close();
-		}
-		userInfo.game_sock = null;
+		else
+			showToast.red('The game socket exists but is closed');
+	} else {
+		console.log('The game socket was null when closed');
 	}
 }
 
@@ -116,7 +121,7 @@ export async function initUserData() {
 	const soundSelect = document.getElementById('sound') as HTMLSelectElement;
 
 	try {
-	const response = await fetch(`http://${location.hostname}:5000/get-user-data`, {
+	const response = await fetch(`http://${location.hostname}:8080/game/get-user-data`, {
 		credentials: "include"
 	});
 
@@ -165,7 +170,7 @@ export async function saveSettingsHandler() {
 	console.log(`🎮 Saving settings for:`, { user, difficulty, tableSize, sound });
   
 	try {
-		const response = await fetch(`http://${location.hostname}:5000/save-settings`, {
+		const response = await fetch(`http://${location.hostname}:8080/game/save-settings`, {
 			method: "PATCH",
 			headers: { "Content-Type": "application/json" },
 			credentials: 'include',

@@ -1,11 +1,10 @@
-import { addFriend, addRequest, getFriends, getRequests, deleteFriendRequest, addBlock, checkBlock, deleteBlock, addInvite, isInvited, removeInvite, getLobbyId } from '../database/db.js';
+import { addFriend, addRequest, getFriends, getRequests, deleteFriendRequest, addBlock, checkBlock, deleteBlock, addInvite, isInvited, removeInvite, getLobbyId, getUserId, getUsername, removeInviteLobby } from '../database/db.js';
 import { checkFriendOnline, getAllUsers, getTimeString, parseRoomName, roomName } from '../utils/utils.js';
 import { createMessage, loadMessages, sendMessage, updateBlockRoom } from '../messages/messages.js';
 
 export const users = new Map();
 export const sockets = new Map();
 export const rooms = new Map();
-const load = new Map();
 
 export async function SocketHandler(socket, username)
 {
@@ -46,7 +45,6 @@ export async function SocketHandler(socket, username)
 					}));
 					break;
 				case 'join-accepted':
-					console.log("USERNAME FRIEND: ", data.friend);
 					const to = users.get(data.friend);
 					if (!to) return;
 					await removeInvite(data.friend, username);
@@ -111,10 +109,8 @@ export async function SocketHandler(socket, username)
 					const block = await checkBlock(username, data.friend);
 					const invite = await isInvited(data.friend, username);
 					let lobby;
-					console.log('invite: ' + invite);
 					if (invite)
 						lobby = await getLobbyId(data.friend, username);
-					console.log('invite: ' + invite);
 					socket.send(JSON.stringify({
 						type: 'block-status',
 						isBlocked: block,
@@ -126,6 +122,9 @@ export async function SocketHandler(socket, username)
 					break;
 				case 'get-online-friends':
 					await sendOnlineFriends(username, socket);
+					break;
+				case 'lobby-closed':
+					removeInviteLobby(data.lobbyId);
 					break;
 			}
 		});
@@ -161,16 +160,19 @@ async function handleChatMessage(username, msg, socket)
 		return ;
 	const [room, clients] = userRooms;
 	const users_room = parseRoomName(room);
-	const friend = users_room[0] === username ? users_room[1] : users_room[0];
+	const user_id = await getUserId(username);
+	const friend_id = (users_room[0] == user_id ? users_room[1] : users_room[0]);
 
-	
-	const message = await createMessage(username, msg, getTimeString());
+	const friend = await getUsername(friend_id);
+
+	const message = await createMessage(user_id, msg, getTimeString());
 	const call = await sendMessage(message, room, friend, await checkBlock(username, friend));
 
 	socket.send(JSON.stringify({
 		user: username,
 		type: 'message-emit',
-		data: message
+		data: message,
+		userId: user_id
 	}));
 	if (call === "emit" && !(await checkBlock(friend, username)))
 	{
@@ -180,7 +182,8 @@ async function handleChatMessage(username, msg, socket)
 				client.send(JSON.stringify({
 					user: friend,
 					type: 'message-emit',
-					data: message
+					data: message,
+					userId: friend_id
 				}));
 			}
 		});
@@ -189,7 +192,7 @@ async function handleChatMessage(username, msg, socket)
 
 async function joinRoom(username, friend, socket)
 {
-	const room = roomName(friend, username);
+	const room = await roomName(friend, username);
 
 	for (const clients of rooms.values())
 		clients.delete(socket);
@@ -198,12 +201,14 @@ async function joinRoom(username, friend, socket)
 		rooms.set(room, new Set());
 	rooms.get(room).add(socket);
 	const msgHistory = await loadMessages(room, await checkBlock(username, friend));
+	const user_id = await getUserId(username);
 	if(msgHistory && msgHistory.length > 0)
 	{
 		socket.send(JSON.stringify({
 			user: username,
 			type: 'load-messages',
 			data: msgHistory,
+			userId: user_id
 		}));
 	}
 }

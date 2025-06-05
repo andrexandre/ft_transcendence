@@ -11,6 +11,7 @@ export async function storeChat(room, message, blocked)
 	if(!fs.existsSync(dirPath))
 		fs.mkdirSync(dirPath, {recursive: true});
 	
+
 	let room_name;
 	if(blocked)
 		room_name = 'blocked-' + room;
@@ -135,6 +136,6 @@ export async function updateBlockRoom(username, friend)
 
 	if(block)
 		return ;
-	const room = roomName(username, friend);
+	const room = await roomName(username, friend);
 	copyContents(room);
 }

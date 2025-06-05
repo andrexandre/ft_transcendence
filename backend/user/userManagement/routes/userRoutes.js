@@ -40,6 +40,13 @@ async function userRoutes(server, opts) {
 		schema: registerSchema,
 		handler: registerControllers.register
 	});
+	
+	server.route({
+		method: 'GET',
+		url: '/api/users/:username/two-fa-secret',
+		schema: settingSchemas.get2faSecretSchema,
+		handler:  settingsControllers.get2faSecret 
+	});
 
 	// Settings Routes
 	server.route({
@@ -48,14 +55,6 @@ async function userRoutes(server, opts) {
 		schema: settingSchemas.getSettingsSchema,
 		preHandler: extractInformationFromToken ,
 		handler:  settingsControllers.getSettings
-	});
-
-	server.route({
-		method: 'GET',
-		url: '/api/users/two-fa-secret',
-		schema: settingSchemas.get2faSecretSchema,
-		preHandler: extractInformationFromToken ,
-		handler:  settingsControllers.get2faSecret 
 	});
 
 	server.route({

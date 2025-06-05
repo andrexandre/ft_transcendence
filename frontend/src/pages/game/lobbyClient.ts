@@ -21,12 +21,15 @@ export function connectToGameServer(event : MessageEvent<any>) {
 				console.log("🎯 Singleplayer detected! Auto-starting game.");
 				setTimeout(() => matchStartGame(), 500);
 			}
-			userInfo.chat_sock!.send(JSON.stringify({
-				type: 'invite-to-game',
-				friend: userInfo.pendingInviteTo,
-				from: userInfo.username,
-				lobbyId: data.lobbyId
-			}));
+			if (userInfo.pendingInviteTo)
+			{
+				userInfo.chat_sock!.send(JSON.stringify({
+					type: 'invite-to-game',
+					friend: userInfo.pendingInviteTo,
+					from: userInfo.username,
+					lobbyId: data.lobbyId
+				}));
+			}
 			break;
 
 		case "lobby-joined":
@@ -141,7 +144,7 @@ export function clearLobbyId() {
 
 export async function fetchLobbies() {
 	try {
-		const res = await fetch(`http://${location.hostname}:5000/lobbies`, {
+		const res = await fetch(`http://${location.hostname}:8080/game/lobbies`, {
 			credentials: "include"
 		});
 		if (!res.ok) throw new Error("Failed to fetch lobbies");

@@ -77,7 +77,7 @@ class Profile extends Page {
 			if (isBackdropClick) {
 				(document.getElementById('profile-dialog') as HTMLDialogElement).close();
 			}
-		});
+		}, { once: true });
 		(document.getElementById('profile-dialog') as HTMLDialogElement).addEventListener('close', () => {
 			if (window.history.length > 1)
 				window.history.back();

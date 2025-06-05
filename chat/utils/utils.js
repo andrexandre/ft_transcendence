@@ -1,16 +1,20 @@
-import { checkFriend, getFriends, getAll } from '../database/db.js';
+import { checkFriend, getFriends, getAll, getUserId } from '../database/db.js';
 import { users, sockets } from '../socket/socket_handler.js';
 
-export function roomName(user1, user2)
+export async function roomName(user1, user2)
 {
-	const sortedUsers = [user1, user2].sort();
+	const user1_id = await getUserId(user1);
+	const user2_id = await getUserId(user2);
+	const sortedUsers = [user1_id, user2_id].sort();
 
 	return `${sortedUsers[0]}-${sortedUsers[1]}`;
 }
 
-export function blockRoomName(user1, user2)
+export async function blockRoomName(user1, user2)
 {
-	return `${user1}-${user2}`;
+	const user1_id = await getUserId(user1);
+	const user2_id = await getUserId(user2);
+	return `${user1_id}-${user2_id}`;
 }
 
 export function parseRoomName(roomName)
