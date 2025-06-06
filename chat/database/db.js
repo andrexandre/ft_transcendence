@@ -9,97 +9,111 @@ const db = await open({
 
 export async function initializeDatabase()
 {
-	await db.exec(`
-		CREATE TABLE IF NOT EXISTS users (
-			user_id INTEGER UNIQUE,
-			username TEXT NOT NULL UNIQUE
-		);
-		CREATE TABLE IF NOT EXISTS friendships (
-			user_id INTEGER,
-			friend_id INTEGER,
-			FOREIGN KEY (user_id) REFERENCES users(user_id),
-			FOREIGN KEY (friend_id) REFERENCES users(user_id),
-			PRIMARY KEY (user_id, friend_id),
-			CHECK (user_id != friend_id)
-		);
-		CREATE TABLE IF NOT EXISTS users_blocked (
-			user_id INTEGER,
-			blocked_user INTEGER,
-			PRIMARY KEY (user_id, blocked_user),
-			FOREIGN KEY (user_id) REFERENCES users(user_id),
-			FOREIGN KEY (blocked_user) REFERENCES users(user_id)
-			CHECK (user_id != blocked_user)
-		);
-		CREATE TABLE IF NOT EXISTS friend_requests (
-			request_id INTEGER PRIMARY KEY AUTOINCREMENT,
-			sender_id INTEGER,
-			receiver_id INTEGER,
-			sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-			FOREIGN KEY (sender_id) REFERENCES users(user_id),
-			FOREIGN KEY (receiver_id) REFERENCES users(user_id),
-			CHECK (sender_id != receiver_id)
-		);
-		CREATE TABLE IF NOT EXISTS invites (
-			user_id INTEGER,
-			invited_user INTEGER,
-			lobby_id TEXT NOT NULL UNIQUE,
-			PRIMARY KEY (user_id, invited_user)
-			FOREIGN KEY (user_id) REFERENCES users(user_id),
-			FOREIGN KEY (invited_user) REFERENCES users(user_id),
-			CHECK (user_id != invited_user)
-		);
-	`);
-	console.log("Database created!");
-
-	return db;
+	try {
+		await db.exec(`
+			CREATE TABLE IF NOT EXISTS users (
+				user_id INTEGER UNIQUE,
+				username TEXT NOT NULL UNIQUE
+			);
+			CREATE TABLE IF NOT EXISTS friendships (
+				user_id INTEGER,
+				friend_id INTEGER,
+				FOREIGN KEY (user_id) REFERENCES users(user_id),
+				FOREIGN KEY (friend_id) REFERENCES users(user_id),
+				PRIMARY KEY (user_id, friend_id),
+				CHECK (user_id != friend_id)
+			);
+			CREATE TABLE IF NOT EXISTS users_blocked (
+				user_id INTEGER,
+				blocked_user INTEGER,
+				PRIMARY KEY (user_id, blocked_user),
+				FOREIGN KEY (user_id) REFERENCES users(user_id),
+				FOREIGN KEY (blocked_user) REFERENCES users(user_id)
+				CHECK (user_id != blocked_user)
+			);
+			CREATE TABLE IF NOT EXISTS friend_requests (
+				request_id INTEGER PRIMARY KEY AUTOINCREMENT,
+				sender_id INTEGER,
+				receiver_id INTEGER,
+				sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+				FOREIGN KEY (sender_id) REFERENCES users(user_id),
+				FOREIGN KEY (receiver_id) REFERENCES users(user_id),
+				CHECK (sender_id != receiver_id)
+			);
+			CREATE TABLE IF NOT EXISTS invites (
+				user_id INTEGER,
+				invited_user INTEGER,
+				lobby_id TEXT NOT NULL UNIQUE,
+				PRIMARY KEY (user_id, invited_user)
+				FOREIGN KEY (user_id) REFERENCES users(user_id),
+				FOREIGN KEY (invited_user) REFERENCES users(user_id),
+				CHECK (user_id != invited_user)
+			);
+		`);
+		console.log("Database created!");
+	
+		return db;
+	}
+	catch (error) {
+		console.log("Error: " + error);
+	}
 }
 
 export async function addInvite(username, invited, lobbyId)
 {
-	const user_id = await db.get('SELECT user_id FROM users WHERE username = ?', [username]);
-	const invited_id = await db.get('SELECT user_id FROM users WHERE username = ?', [invited]);
-
-	if(!user_id || !invited_id)
-		throw new Error('User doesnt exist');
-
-	const invite = await db.get(`
-		SELECT * from invites
-		WHERE (user_id = ? AND invited_user = ?)
-		`, [user_id.user_id, invited_id.user_id])
-
-	if(!invite)
-	{
-		await db.run(`
-			INSERT INTO invites (user_id, invited_user, lobby_id)
-			VALUES (?, ?, ?)
-			`, [user_id.user_id,  invited_id.user_id, lobbyId])
+	try{
+		const user_id = await db.get('SELECT user_id FROM users WHERE username = ?', [username]);
+		const invited_id = await db.get('SELECT user_id FROM users WHERE username = ?', [invited]);
+	
+		if(!user_id || !invited_id)
+			throw new Error('User doesnt exist');
+	
+		const invite = await db.get(`
+			SELECT * from invites
+			WHERE (user_id = ? AND invited_user = ?)
+			`, [user_id.user_id, invited_id.user_id])
+	
+		if(!invite)
+		{
+			await db.run(`
+				INSERT INTO invites (user_id, invited_user, lobby_id)
+				VALUES (?, ?, ?)
+				`, [user_id.user_id,  invited_id.user_id, lobbyId])
+		}
+	}
+	catch(error) {
+		console.log("Error: " + error);
 	}
 }
 
 export async function removeInvite(username, invited)
 {
-	const user_id = await db.get('SELECT user_id FROM users WHERE username = ?', [username]);
-	const invited_id = await db.get('SELECT user_id FROM users WHERE username = ?', [invited]);
-
-	if (!user_id || !invited_id)
-		throw new Error('User not found');
-
-	await db.run(`
-		DELETE FROM invites
-		WHERE user_id = ? AND invited_user = ?
-	`, [user_id.user_id, invited_id.user_id]);
+	try {
+		const user_id = await db.get('SELECT user_id FROM users WHERE username = ?', [username]);
+		const invited_id = await db.get('SELECT user_id FROM users WHERE username = ?', [invited]);
+	
+		if (!user_id || !invited_id)
+			throw new Error('User not found');
+	
+		await db.run(`
+			DELETE FROM invites
+			WHERE user_id = ? AND invited_user = ?
+		`, [user_id.user_id, invited_id.user_id]);
+	}
+	catch(error) {
+		console.log("Error: " + error);
+	}
 }
 
 export async function removeInviteLobby(lobby)
 {
-	try{
+	try {
 		await db.run(`
 		DELETE FROM invites
 		WHERE lobby_id = ?
 		`, [lobby]);
 	}
-	catch (error)
-	{
+	catch (error) {
 		throw new Error('Failed to remove lobby: ', error);
 	}
 }
@@ -129,26 +143,36 @@ export async function isInvited(username, invited)
 
 export async function getLobbyId(username, invited)
 {
-	const user_id = await db.get('SELECT user_id FROM users WHERE username = ?', [username]);
-	const invited_id = await db.get('SELECT user_id FROM users WHERE username = ?', [invited]);
-
-	if(!user_id || !invited_id)
-		throw new Error('User doesnt exist');
-
-	const invite = await db.get(`
-		SELECT * from invites
-		WHERE (user_id = ? AND invited_user = ?)
-		`, [user_id.user_id, invited_id.user_id])
+	try {
+		const user_id = await db.get('SELECT user_id FROM users WHERE username = ?', [username]);
+		const invited_id = await db.get('SELECT user_id FROM users WHERE username = ?', [invited]);
 	
-	if (!invite)
-		throw new Error('No invite found between users');	
-	return invite.lobby_id;
+		if(!user_id || !invited_id)
+			throw new Error('User doesnt exist');
+	
+		const invite = await db.get(`
+			SELECT * from invites
+			WHERE (user_id = ? AND invited_user = ?)
+			`, [user_id.user_id, invited_id.user_id])
+		
+		if (!invite)
+			throw new Error('No invite found between users');	
+		return invite.lobby_id;
+	}
+	catch (error) {
+		console.log("Error: " + error);
+	}
 }
 
 export async function getAll()
 {
-	const users = await db.all('SELECT * from users');
-	return users;
+	try {
+		const users = await db.all('SELECT * from users');
+		return users;
+	}
+	catch (error) {
+		console.log("Error: " + error);
+	}
 }
 
 export async function getUserId(username)
@@ -169,60 +193,75 @@ export async function getUserId(username)
 
 export async function getUsername(id)
 {
-	const user = await db.get('SELECT username FROM users WHERE user_id = ?', [id]);
-
-	if(!user)
-		throw new Error('User doesnt exist');
-
-	return user.username;
+	try {
+		const user = await db.get('SELECT username FROM users WHERE user_id = ?', [id]);
+	
+		if(!user)
+			throw new Error('User doesnt exist');
+	
+		return user.username;
+	}
+	catch (error) {
+		console.log("Error: " + error);
+	}
 }
 
 async function checkUsername(username, current_username, id)
 {
-	if(username !== current_username)
-	{
-		await db.run(`
-			UPDATE users
-			SET username = ?
-			WHERE user_id = ?
-		`, [current_username, id]);
-		console.log('Updated username on database');
+	try {
+		if(username !== current_username)
+		{
+			await db.run(`
+				UPDATE users
+				SET username = ?
+				WHERE user_id = ?
+			`, [current_username, id]);
+			console.log('Updated username on database');
+		}
+	}
+	catch (error) {
+		console.log("Error: " + error);
 	}
 }
 
 export async function createUser(username, id)
 {
-	const user = await db.get('SELECT username FROM users WHERE user_id = ?', [id]);
-
-	if(user)
-	{	
-		await checkUsername(user.username, username, id);
-		console.log(`Logged in ${username}`);
-		return ;
+	try {
+		const user = await db.get('SELECT username FROM users WHERE user_id = ?', [id]);
+	
+		if(user)
+		{	
+			await checkUsername(user.username, username, id);
+			console.log(`${username} logged in`);
+			return ;
+		}
+		await db.run(`
+			INSERT INTO users (user_id, username)
+			VALUES (?, ?);
+		`,[id, username]);
+		console.log(`User created succesfully ${username}`);
 	}
-	await db.run(`
-		INSERT INTO users (user_id, username)
-		VALUES (?, ?);
-	`,[id, username]);
-	console.log(`User created succesfully ${username}`);
+	catch (error) {
+		console.log("Error: " + error);
+	}
 }
 
 export async function addFriend(username, friend_username)
 {
-	const user = await db.get('SELECT user_id FROM users WHERE username = ?', [username]);
-	const friend = await db.get('SELECT user_id FROM users WHERE username = ?', [friend_username]);
-
-	if(!user || !friend) {
-		throw new Error('User doesnt exist');
-	}
-	const frienship = await db.get(`
-		SELECT * FROM friendships
-		WHERE (user_id = ? AND friend_id = ?)
-		`, [user.user_id, friend.user_id]);
-
-	if(frienship)
-		return ;
 	try {
+		const user = await db.get('SELECT user_id FROM users WHERE username = ?', [username]);
+		const friend = await db.get('SELECT user_id FROM users WHERE username = ?', [friend_username]);
+	
+		if(!user || !friend)
+			throw new Error('User doesnt exist');
+
+		const frienship = await db.get(`
+			SELECT * FROM friendships
+			WHERE (user_id = ? AND friend_id = ?)
+			`, [user.user_id, friend.user_id]);
+	
+		if(frienship)
+			return ;
 		await db.run(`
 			INSERT INTO friendships (user_id, friend_id)
 			VALUES (?, ?);
@@ -233,7 +272,7 @@ export async function addFriend(username, friend_username)
 		`,[friend.user_id, user.user_id]);
 	}
 	catch (error) {
-		throw new Error('Failed to add friendship: ' + error.message);
+		console.log("Error: " + error);
 	}
 }
 
@@ -260,37 +299,46 @@ export async function getFriends(username)
 
 export async function checkFriend (username, friend_username)
 {
-	const user = await db.get(`SELECT user_id FROM users WHERE username = ?`, [username]);
-
-	const friend = await db.get(`SELECT user_id FROM users WHERE username = ?`, [friend_username]);
-
-	if(!user || !friend)
-		return false;
-
-	const friendship = await db.get(`
-		SELECT * from friendships
-		WHERE (user_id = ? AND friend_id = ?)
-		`, [user.user_id, friend.user_id]);
-
-	return friendship;
+	try {
+		const user = await db.get(`SELECT user_id FROM users WHERE username = ?`, [username]);
+		const friend = await db.get(`SELECT user_id FROM users WHERE username = ?`, [friend_username]);
+	
+		if(!user || !friend)
+			return false;
+	
+		const friendship = await db.get(`
+			SELECT * from friendships
+			WHERE (user_id = ? AND friend_id = ?)
+			`, [user.user_id, friend.user_id]);
+	
+		return friendship;
+	}
+	catch (error) {
+		console.log("Error: " + error);
+	}
 }
 
 export async function addRequest(sender, receiver)
 {
-	const sender_id = await db.get(`SELECT user_id FROM users WHERE username = ?`, [sender])
-	const receiver_id = await db.get(`SELECT user_id FROM users WHERE username = ?`, [receiver])
-
-	const request = await db.get(`
-		SELECT * from friend_requests
-		WHERE (sender_id = ? AND receiver_id = ?)
-		`, [sender_id.user_id, receiver_id.user_id])
-
-	if(!request)
-	{
-		await db.run(`
-		INSERT INTO friend_requests (sender_id, receiver_id)
-		VALUES (?, ?)
-		`, [sender_id.user_id, receiver_id.user_id])
+	try {
+		const sender_id = await db.get(`SELECT user_id FROM users WHERE username = ?`, [sender])
+		const receiver_id = await db.get(`SELECT user_id FROM users WHERE username = ?`, [receiver])
+	
+		const request = await db.get(`
+			SELECT * from friend_requests
+			WHERE (sender_id = ? AND receiver_id = ?)
+			`, [sender_id.user_id, receiver_id.user_id])
+	
+		if(!request)
+		{
+			await db.run(`
+			INSERT INTO friend_requests (sender_id, receiver_id)
+			VALUES (?, ?)
+			`, [sender_id.user_id, receiver_id.user_id])
+		}
+	}
+	catch (error) {
+		console.log("Error: " + error);
 	}
 }
 
