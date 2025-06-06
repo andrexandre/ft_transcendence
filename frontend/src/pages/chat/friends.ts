@@ -150,7 +150,7 @@ function renderMessage(user: string, from: string, message: string, timestamp: s
 	let alignment;
 	if (user == from)
 		alignment = 'justify-end ml-20';
-	else if (user == 'system')
+	else if (user == 'system-notifications')
 		alignment = 'justify-center mx-20';
 	else
 		alignment = 'justify-start mr-20';
@@ -377,9 +377,9 @@ export function setChatEventListeners() {
 	handleEmptyList('game-requests-list', 'No game requests');
 	document.getElementById('game-requests-list-refresh')?.addEventListener('click',
 		() => {
-			renderMessage("me", "me", "Hey it's me", "now");
-			renderMessage("me", "you", "Hey it's you", "now");
-			renderMessage("system", "", "🤖 Hey it's [SYSTEM] 🤖", "now");
+			// renderMessage("me", "me", "Hey it's me", "now");
+			// renderMessage("me", "you", "Hey it's you", "now");
+			// renderMessage("system-notifications", "", "🤖 Hey it's [SYSTEM] 🤖", "now");
 			document.getElementById('game-requests-list')!.innerHTML = '';
 			handleEmptyList('game-requests-list', 'No game requests');
 			// userInfo.chat_sock!.send(JSON.stringify({
