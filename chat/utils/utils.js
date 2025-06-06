@@ -70,3 +70,10 @@ export function getTimeString()
 	return (d.getHours() < 10 ? '0' : '') + d.getHours() + ':' + 
 		   (d.getMinutes() < 10 ? '0' : '') + d.getMinutes();
 }
+
+export async function roomNotifications(username)
+{
+	const user_id = await getUserId(username);
+
+	return `notif-${user_id}`;
+}

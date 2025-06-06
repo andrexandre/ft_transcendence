@@ -1,6 +1,6 @@
 import { addFriend, addRequest, getFriends, getRequests, deleteFriendRequest, addBlock, checkBlock, deleteBlock, addInvite, isInvited, removeInvite, getLobbyId, getUserId, getUsername, removeInviteLobby } from '../database/db.js';
-import { checkFriendOnline, getAllUsers, getTimeString, parseRoomName, roomName } from '../utils/utils.js';
-import { createMessage, loadMessages, sendMessage, updateBlockRoom } from '../messages/messages.js';
+import { checkFriendOnline, getAllUsers, getTimeString, parseRoomName, roomName, roomNotifications } from '../utils/utils.js';
+import { createMessage, createNotification, loadMessages, loadNotifications, sendMessage, storeNotifications, updateBlockRoom } from '../messages/messages.js';
 
 export const users = new Map();
 export const sockets = new Map();
@@ -125,6 +125,18 @@ export async function SocketHandler(socket, username)
 					break;
 				case 'lobby-closed':
 					removeInviteLobby(data.lobbyId);
+					break;
+				case 'load-notifications':
+					const room_not = roomNotifications(username);
+					const notifications = loadNotifications(room_not);
+					socket.send(JSON.stringify({
+						type: 'load-notifications',
+						notifications: notifications
+					}));
+					break;
+				case 'add-notification':
+					const notif = createNotification(data.msg, getTimeString());
+					storeNotifications(roomNotifications(username), notif);
 					break;
 			}
 		});
