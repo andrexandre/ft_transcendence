@@ -1,18 +1,15 @@
 // frontend/src/pages/game/lobbyClient.ts
-import { showToast } from "../../utils";
+import { showToast, userInfo } from "../../utils";
 import { stopSound, sounds } from "./audio";
 import { connectToMatch } from "./rendering";	
-import { userInfo } from "../../utils";
-import { renderTournamentBracket } from "./tournamentRender";
+import { renderTournamentBracket, tournamentState} from "./tournamentRender";
 
 let lobbyId: string | null = null;
-let user: { username: string; userId: string } | null = null; //? verificar com o nr no ID
+let user = { get username() { return userInfo.username; }, get userId() { return userInfo.userId; } };
 let matchSocketStarted = false;
 
 export function connectToGameServer(event : MessageEvent<any>) {
 	user = {username: userInfo.username, userId: userInfo.userId}
-	console.log(user);
-
 	const data = JSON.parse(event.data);
 	console.log("📨 WS Message:", data);
 
@@ -46,18 +43,29 @@ export function connectToGameServer(event : MessageEvent<any>) {
 			lobbyId = null;
 			showToast.yellow(`👋 Saiu do lobby`);
 			break;
-			
+
+		// Tournament CASES
 		case "show-bracket":
-			console.log("TREEEEE no RENDERING do LOOOOOBBBBYYYYY");
-			console.log(data.round);
+			if (data.state) {
+				tournamentState.rounds = data.state.rounds;
+			}
+			console.log("✅✅✅", tournamentState);
 			renderTournamentBracket();
 			break;
-		
+			
+		case "start-round":
+			renderTournamentBracket();
+			break;
+
+		case "end-round":
+			renderTournamentBracket();
+			break;
+		// TNT close
 
 		case "match-start":
 			if (matchSocketStarted) return;
 			matchSocketStarted = true;
-			// add som
+			// sound added
 			if ((window as any).appUser?.user_set_sound === 1) {
 				stopSound("menuMusic");
 				sounds.gameMusic.play().catch(() => {});
@@ -65,16 +73,15 @@ export function connectToGameServer(event : MessageEvent<any>) {
 
 			console.log("🎮 Game start recebido! A abrir ligação para /match-ws");
 			showToast.green(`🎮 Game started! You are: ${data.playerRole}`);
-			document.getElementById('sidebar')?.classList.add('hidden');
-			const matchSocket = new WebSocket(`ws://${location.hostname}:5000/match-ws?gameId=${data.gameId}`);
+			userInfo.match_sock = new WebSocket(`ws://${location.hostname}:5000/match-ws?gameId=${data.gameId}`);
 			console.log("🛰️ Connecting to match-ws:", data.gameId);
 
-			matchSocket.onopen = () => {
+			userInfo.match_sock.onopen = () => {
 				console.log("✅ Connected to match WebSocket for game:", data.gameId);
-				connectToMatch(matchSocket, data.playerRole);
+				connectToMatch(data.playerRole);
 			};
 
-			matchSocket.onerror = () => {
+			userInfo.match_sock.onerror = () => {
 				console.error("❌ Failed to connect to match WebSocket");
 				showToast.red("❌ Falha ao conectar ao jogo");
 				matchSocketStarted = false;
@@ -121,14 +128,13 @@ export function matchStartGame() {
 		console.error("❌ Não é possível iniciar jogo. socket, lobbyId ou user faltando.");
 		return;
 	}
-
+	
 	console.log("🚀 A pedir ao servidor para startar o jogo:", lobbyId);
 	userInfo.game_sock.send(JSON.stringify({
 		type: "start-game",
 		lobbyId,
 		requesterId: user.userId
 	}));
-	console.log("❌", user.userId)
 }
 
 export function clearLobbyId() {
@@ -219,20 +225,20 @@ function renderLobbyList(lobbies: any[]) {
 			btn.onclick = () => {
 				showToast.red("❌ Leaving lobby...");
 				leaveLobby();
-				setTimeout(fetchLobbies, 300);
+				setTimeout(fetchLobbies, 10);
 			};
 		} else if (isInLobby) {
 			btn.textContent = "QUIT";
 			btn.onclick = () => {
 				showToast.red("❌ Leaving lobby...");
 				leaveLobby();
-				setTimeout(fetchLobbies, 300);
+				setTimeout(fetchLobbies, 10);
 			};
 		} else {
 			btn.textContent = "JOIN";
 			btn.onclick = () => {
 				joinLobby(lobby.id);
-				setTimeout(fetchLobbies, 300);
+				setTimeout(fetchLobbies, 10);
 			};
 		}
 	}

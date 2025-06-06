@@ -3,6 +3,7 @@ import * as lib from "../../utils"
 import sidebar from "../../components/sidebar"
 import dropdown from "../../components/dropdown"
 import * as menu from "./menu"
+import { tournamentTree } from "./tournamentRender"
 
 class Game extends Page {
 	constructor() {
@@ -49,6 +50,7 @@ class Game extends Page {
 		// document.getElementById('dropdownButton-Multi')?.click();
 		document.getElementById('game-main-menu')!.addEventListener('click', (event) => this.setGameMenuToggler(event));
 		document.getElementById('hide-sidebar-button')?.click();
+		document.getElementById('tournament-bracket')!.innerHTML = tournamentTree.getHtml();
 	}
 	onCleanup(): void {
 		lib.setTheme(lib.getTheme());
@@ -65,7 +67,6 @@ class Game extends Page {
 						<div class="flex flex-col w-80">
 							${dropdown.getHtml('Single')}
 							${dropdown.getHtml('Multi')}
-							${dropdown.getHtml('Co-Op')}
 							${dropdown.getHtml('Settings')}
 						</div>
 						<div id="lobby" class="hidden flex-col w-100 space-y-3 item t-border text-sm">

@@ -1,17 +1,23 @@
 // src/pages/game/tournamentRender.ts
-import { showToast } from '../../utils';
+import { chooseView, drawGameMessage } from './renderUtils';
+
 type TournamentMatch = {
-    player1: string;
-    player2: string;
-    winner?: string;
+	player1: string;
+	player2: string;
+	winner?: string;
 };
 
 export type TournamentState = {
-    rounds: TournamentMatch[][];
-    currentRound: number;
+	rounds: TournamentMatch[][];
+	currentRound: number;
 };
 
-// * TEMP
+export const tournamentState: TournamentState = {
+	rounds: [],
+	currentRound: 0,
+};
+
+
 export const tournamentTree = {
 	getHtml: () => /*html*/`
 			<div class="flex items-center justify-center">
@@ -34,7 +40,7 @@ export const tournamentTree = {
 			p2name: tRounds[0][0].player2,
 			p2score: 'X'
 		});
-		tournamentTree.updateMatch('botournamentTreet-bracket', {
+		tournamentTree.updateMatch('bot-bracket', {
 			p1name: tRounds[0][1].player1,
 			p1score: 'X',
 			p2name: tRounds[0][1].player2,
@@ -61,128 +67,38 @@ export const tournamentTree = {
 			</div>
 		`;
 	}
-	// * TEMP
-	,generateRandomString: (maxLength: number = 6, minLength: number = 3) => {
-		const length = Math.floor(Math.random() * (maxLength - minLength + 1)) + minLength;
-		const characters = 'AEIOUabcdefghijklmnopqrstuvwxyz0123456789';
-		let result = '';
-		for (let i = 0; i < length; i++)
-			result += characters.charAt(Math.floor(Math.random() * characters.length));
-		return result;
-	}
 }
-
-// * TEMP
-export let tournamentSample: TournamentState = {
-	rounds: [
-		[
-			{ player1: tournamentTree.generateRandomString(), player2: tournamentTree.generateRandomString(), winner: "---" },
-			{ player1: tournamentTree.generateRandomString(), player2: tournamentTree.generateRandomString(), winner: "---" }
-		],
-		[
-			{ player1: "---", player2: "---", winner: "---" }
-		]
-	],
-	currentRound: 1
-}
-
-
 
 export function renderTournamentBracket() {
-	showToast.red("show-bracket222222222222222222222222222222222222222222222222")
-    const container = document.getElementById("tournament-bracket");
-    console.log("🎨 Re-renderizando bracket...", JSON.stringify(state.rounds, null, 2));
-    if (!container) return;
-
-    container.classList.remove("hidden");
-	container.style.display = "block";
-    container.innerHTML = "<h2 class='text-xl mb-4'>🏆 Tournament Bracket</h2>";
-
-    state.rounds.forEach((round, roundIndex) => {
-        const roundDiv = document.createElement("div");
-        roundDiv.className = "mb-4";
-
-        const roundTitle = document.createElement("h3");
-        roundTitle.className = "font-bold underline mb-2";
-        roundTitle.textContent = `Round ${roundIndex + 1}`;
-        roundDiv.appendChild(roundTitle);
-
-        round.forEach((match) => {
-        const matchDiv = document.createElement("div");
-        matchDiv.className = "ml-4";
-        matchDiv.innerHTML = `🎮 ${match.player1} vs ${match.player2} ${match.winner ? `→ 🏅 ${match.winner}` : ""}`;
-        roundDiv.appendChild(matchDiv);
-        });
-
-        container.appendChild(roundDiv);
-    });
+	chooseView('tree');
+	tournamentTree.updateTree(tournamentState);
 }
 
-const rawState: TournamentState = {
-    rounds: [],
-    currentRound: 0,
-};
-
-export const state: TournamentState = new Proxy(rawState, {
-    set(target, prop, value) {
-        // @ts-ignore
-        target[prop] = value;
-        renderTournamentBracket();
-        return true;
-    },
-});
 
 export function addRound(matches: TournamentMatch[]) {
-    state.rounds.push(matches);
-    renderTournamentBracket();
+	tournamentState.rounds.push(matches);
+	renderTournamentBracket();
 }
 
 export function updateWinner(roundIndex: number, matchIndex: number, winner: string) {
-    const match = state.rounds[roundIndex]?.[matchIndex];
-    if (!match) return;
-    match.winner = winner;
-    renderTournamentBracket();
+	const match = tournamentState.rounds[roundIndex]?.[matchIndex];
+	if (!match) return;
+	match.winner = winner;
+	renderTournamentBracket();
 }
 
 export function resetTournament() {
-    state.rounds = [];
-    state.currentRound = 0;
+	tournamentState.rounds = [];
+	tournamentState.currentRound = 0;
 }
 
 export function handleEndTournament(winner: string) {
-	const bracket = document.getElementById("tournament-bracket");
-	const msg = document.getElementById("game-message");
-
-	if (bracket) bracket.classList.add("hidden");
-
-	if (msg) {
-		msg.classList.remove("hidden");
-		msg.textContent = `🏆 Torneio vencido por ${winner}!`;
-		msg.style.color = "gold";
-	}
+	chooseView('tree');
+	drawGameMessage(true, `🏆 Torneio vencido por ${winner}!`, "gold");
 
 	setTimeout(() => {
-		msg?.classList.add("hidden");
-		msg!.textContent = "";
-		document.getElementById("game-main-menu")?.classList.remove("hidden");
+		chooseView('menu');
+		drawGameMessage(false, '');
 	}, 5000);
 }
 
-export function showRoundTransition(roundNumber: number) {
-	const el = document.getElementById("game-message");
-	if (!el) return;
-
-	let count = 3;
-	const interval = setInterval(() => {
-		el.textContent = `Round ${roundNumber} starts in ${count}...`;
-		el.style.color = "white";
-		count--;
-		el.classList.remove("hidden");
-		if (count < 0) {
-			clearInterval(interval);
-			el.classList.add("hidden");
-			el.textContent = "";
-		}
-		el.classList.remove("hidden");
-	}, 1000);
-}

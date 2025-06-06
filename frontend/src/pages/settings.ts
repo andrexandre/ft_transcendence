@@ -78,7 +78,7 @@ class Settings extends Page {
 				}
 				else
 					lib.showToast.red("Invalid image");
-			});
+			}, { once: true });
 			input.click();
 		});
 

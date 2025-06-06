@@ -16,9 +16,10 @@ export var userInfo = {
 	auth_method: "",
 	// profileImage: "",
 	path: "",
-	// aDelay: 0.2,
+	aDelay: 0.2,
 	chat_sock: null as WebSocket | null,
 	game_sock: null as WebSocket | null,
+	match_sock: null as WebSocket | null,
 	pendingInviteTo: null as string | null
 }
 
@@ -52,17 +53,16 @@ export function loadTheme() {
 }
 
 export function setTheme(option: string, save?: boolean) {
-	const htmlElement = document.documentElement;
 	if (option == "auto") {
-		htmlElement.classList.remove('dark');
+		document.documentElement.classList.remove('dark');
 		if (save) localStorage.removeItem('theme');
 		if (window.matchMedia('(prefers-color-scheme: dark)').matches)
-			htmlElement.classList.add('dark');
+			document.documentElement.classList.add('dark');
 	} else if (option == "dark") {
-		htmlElement.classList.add('dark');
+		document.documentElement.classList.add('dark');
 		if (save) localStorage.setItem('theme', 'dark');
 	} else if (option == "light") {
-		htmlElement.classList.remove('dark');
+		document.documentElement.classList.remove('dark');
 		if (save) localStorage.setItem('theme', 'light');
 	}
 	renderPattern();
@@ -138,12 +138,3 @@ export function fullScreenOverlay(html: string = '', css: string = '', js?: () =
 	overlay.appendChild(styleElement);
 	if (js) js();
 }
-
-export function element(elementId: string, className: string, addClassToElement: boolean) {
-	if (addClassToElement)
-		document.getElementById(elementId)!.classList.add(className);
-	else
-		document.getElementById(elementId)!.classList.remove(className);
-}
-// element.add = (id: string, classN: string) => element(id, classN, true);
-// element.remove = (id: string, classN: string) => element(id, classN, false);

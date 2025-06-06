@@ -80,7 +80,7 @@ function loadPage(path: string) {
 			break;
 	}
 	currentPage?.cleanup();
-	// setTimeout(() => {
+	// setTimeout(() => { // the delay is for the exit animation
 		document.getElementById("app")!.innerHTML = newPage.getHtml();
 		newPage.mount(path);
 		currentPage = newPage;
@@ -92,7 +92,13 @@ window.addEventListener('navigateTo', (e) => {
 	loadApp((e as CustomEvent).detail);
 });
 
+// ERRO AQUI
 window.addEventListener("popstate", () => {
+	if (lib.userInfo.match_sock && lib.userInfo.match_sock.readyState === WebSocket.OPEN) {
+		lib.userInfo.match_sock.close(1000, "Quitted the game you loser")
+		lib.userInfo.match_sock = null;
+
+	}
 	loadApp(location.pathname);
 });
 

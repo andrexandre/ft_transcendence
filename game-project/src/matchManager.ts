@@ -6,7 +6,7 @@ import { handleMatchEndFromTournament } from './tournamentManager.js';
 import { initMTCPlayers, updateMTCGame } from './mtcLogic.js';
 import { Logger } from "./utils.js";
 
-const matchDisconnectTimers = new Map<number, NodeJS.Timeout>();
+// const matchDisconnectTimers = new Map<number, NodeJS.Timeout>();
 const winningScore = 2;
 
 interface PlayerState {
@@ -44,7 +44,7 @@ export function handleMatchConnection(gameId: string, connection: any) {
 	const players = lobby.players;
 	const isSingle = players.length === 1;
 	const gameMode = lobby.gameMode;
-	const aiDifficulty = isSingle ? players[0].difficulty || "Normal" : undefined;
+	const aiDifficulty = (gameMode === "Classic") ? players[0].difficulty || "Normal" : undefined;
 	// Logger.log(`🧑‍🤝‍🧑Not AI: `, aiDifficulty);
 
 	let realPlayers: PlayerState[] = [];
@@ -59,7 +59,7 @@ export function handleMatchConnection(gameId: string, connection: any) {
 			score: 0
 		}));
 
-		if (isSingle) {
+		if (gameMode === "Classic") {
 			realPlayers.push({
 				id: 9999,
 				username: "BoTony",
@@ -180,30 +180,6 @@ function updateMatchState(gameId: string) {
 	if (!sockets) return;
 	
 	if (handleScore(match, sockets, gameId)) return;
-
-	// if (match.ball.x < 0) {
-	// 	match.players[1].score++;
-	// 	broadcastScoreboard(sockets, match.players);
-	// 	if (match.players[1].score >= winningScore) {
-	// 		match.paused = true;
-	// 		setTimeout(() => endMatch(gameId), 500);
-	// 	} else {
-	// 		resetBall(gameId);
-	// 	}
-	// 	return;
-	// }
-
-	// if (match.ball.x > 800) {
-	// 	match.players[0].score++;
-	// 	broadcastScoreboard(sockets, match.players);
-	// 	if (match.players[0].score >= winningScore) {
-	// 		match.paused = true;
-	// 		setTimeout(() => endMatch(gameId), 500);
-	// 	} else {
-	// 		resetBall(gameId);
-	// 	}
-	// 	return;
-	// }
 
 	sockets.forEach((sock, i) => {
 		const player = match.players[i];
@@ -336,7 +312,7 @@ function resetBall(gameId: string) {
 	const angle = minAngle + Math.random() * (maxAngle - minAngle);
   
 	const direction = Math.random() > 0.5 ? 1 : -1;
-	const speed = 2;
+	const speed = 4;
   
 	const dx = speed * Math.cos(angleRad);
 	const dy = speed * Math.sin(angleRad);

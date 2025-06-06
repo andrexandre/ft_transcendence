@@ -47,8 +47,8 @@ export function createTournament(id: string, players: TournamentPlayer[]) {
 
 	for (let i = 0; i < shuffled.length; i += 2) {
 		firstRound.push({
-		player1: shuffled[i],
-		player2: shuffled[i + 1]
+			player1: shuffled[i],
+			player2: shuffled[i + 1]
 		});
 	}
 
@@ -68,18 +68,28 @@ export function createTournament(id: string, players: TournamentPlayer[]) {
 	for (const round of tournament.matches) {
 		for (const match of round) {
 			for (const player of [match.player1, match.player2]) {
-				Logger.log("TREEEEE dentro SERVER");
 				if (player.socket.readyState === WebSocket.OPEN) {
-					player.socket.send(JSON.stringify({ type: "show-bracket", round: [player.username] }));
+					player.socket.send(JSON.stringify({
+					type: "show-bracket",
+					state: {
+						currentRound: tournament.currentRound,
+						rounds: tournament.matches.map(round => 
+							round.map(match => ({
+								player1: match.player1.username,
+								player2: match.player2.username,
+								winner: match.winnerId 
+									? (match.winnerId === match.player1.userId ? match.player1.username : match.player2.username) 
+									: undefined
+								}))
+							)
+						}
+					}));
 				}
-				console.log(round);
-				// console.log(player);
 			}
 		}
+		console.log(`📊 Bracket iniplayer1.usernamecial gerada para Torneio ${id}`);
+		setTimeout(() => startNextRound(id), 7000);
 	}
-	console.log(`📊 Bracket iniplayer1.usernamecial gerada para Torneio ${id}`);
-
-	setTimeout(() => startNextRound(id), 7000);
 }
 
 function startNextRound(tournamentId: string) {
@@ -90,14 +100,26 @@ function startNextRound(tournamentId: string) {
 	console.log(`📣 ▶️ Iniciando Ronda ${tournament.currentRound + 1} do Torneio ${tournament.id}`);
 	console.log(`📦 Ronda contém ${round.length} jogo(s)`);
 
-  	// Notifica todos os jogadores ativos para a tree
 	for (const round of tournament.matches) {
 		for (const match of round) {
 			for (const player of [match.player1, match.player2]) {
-			if (player?.socket?.readyState === WebSocket.OPEN) {
-				player.socket.send(JSON.stringify({ type: "show-bracket", round: [player.username]}));
-			}
-			Logger.log("TREEEEE dentro SERVER 222222");
+				if (player?.socket?.readyState === WebSocket.OPEN) {
+					player.socket.send(JSON.stringify({
+						type: "show-bracket",
+						state: {
+							currentRound: tournament.currentRound,
+							rounds: tournament.matches.map(round => 
+								round.map(match => ({
+									player1: match.player1.username,
+									player2: match.player2.username,
+									winner: match.winnerId 
+										? (match.winnerId === match.player1.userId ? match.player1.username : match.player2.username) 
+										: undefined
+								}))
+							)
+						}
+					}));
+				}
 			}
 		}
 	}

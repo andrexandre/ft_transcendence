@@ -3,24 +3,37 @@ import * as lib from "../utils"
 import sidebar from "../components/sidebar"
 import { renderProfileImage, updateMatchHistory, MatchHistoryI } from "./dashboard";
 
-export function calculateGameStatistics(history : MatchHistoryI[], profileUsername: string) {
-	const wins : MatchHistoryI[] = history.filter(match => match.winner.username === profileUsername);
-	const losses : MatchHistoryI[] = history.filter(match => match.loser.username === profileUsername);
+export function renderGameStatistics(history: MatchHistoryI[], profileUsername: string) {
 
-	document.getElementById('game-wins')!.innerHTML = /*html*/`<i class="fa-solid fa-trophy mr-5"></i> ${wins.length}`;
-	document.getElementById('game-losses')!.innerHTML = /*html*/`<i class="fa-solid fa-skull mr-5"></i> ${losses.length}`;
+	const wins = history.filter(match => match.winner.username === profileUsername);
+	const losses = history.filter(match => match.loser.username === profileUsername);
 
-	// const classicWinns : MatchHistoryI[] = winns.filter(match => match.Mode === 'Classic');
-	// const classicLoses : MatchHistoryI[] = winns.filter(match => match.Mode === 'Classic');
-
-	// console.log('CLASSIC WINNS: ', classicWinns.length);
-	// console.log('CLASSIC LOSES: ', classicLoses.length);
-
-	// const multiWinns : MatchHistoryI[] = winns.filter(match => match.Mode === '1V1');
-	// const multiLoses : MatchHistoryI[] = loses.filter(match => match.Mode === '1V1');
-
-	// console.log('1V1 WINNS: ', multiWinns.length);
-	// console.log('1V1 LOSES: ', multiLoses.length);
+	function calculate(type: string, obj: MatchHistoryI[]) {
+		return obj.filter(match => match.Mode === type).length
+	}
+	document.getElementById('pong-stats')!.innerHTML = /*html*/`
+		<div>
+			<p class="invisible">Pong stats</p>
+			<p>1v1</p>
+			<p>classic</p>
+			<p>tournament</p>
+			<p>matrecos</p>
+		</div>
+		<div>
+			<p><i class="fa-solid fa-trophy"></i></p>
+			<p>${calculate('1V1', wins)}</p>
+			<p>${calculate('Classic', wins)}</p>
+			<p>${calculate('TNT', wins)}</p>
+			<p>${calculate('MTC', wins)}</p>
+		</div>
+		<div>
+			<p><i class="fa-solid fa-skull"></i></p>
+			<p>${calculate('1V1', losses)}</p>
+			<p>${calculate('Classic', losses)}</p>
+			<p>${calculate('TNT', losses)}</p>
+			<p>${calculate('MTC', losses)}</p>
+		</div>
+	`
 }
 
 async function loadInformation(profileUsername: string) {
@@ -64,7 +77,7 @@ class Profile extends Page {
 			if (isBackdropClick) {
 				(document.getElementById('profile-dialog') as HTMLDialogElement).close();
 			}
-		});
+		}, { once: true });
 		(document.getElementById('profile-dialog') as HTMLDialogElement).addEventListener('close', () => {
 			if (window.history.length > 1)
 				window.history.back();
@@ -81,25 +94,18 @@ class Profile extends Page {
 	getHtml(): string {
 		return /*html*/`
 			<main class="grid flex-1 card items-center justify-center">
-				<dialog open id="profile-dialog" class="h-130 grid grid-cols-1 lg:grid-cols-[560px_500px] grid-rows-2 lg:grid-rows-1 gap-5 bg-black/7 dark:bg-white/7 text-c-text dark:text-c-bg fixed top-1/2 left-1/2 -translate-1/2 rounded-4xl p-6 w-fit shadow-lg overflow-scroll">
-					<div class="card t-dashed grid overflow-auto gap-10">
+				<dialog open id="profile-dialog" class="h-150 grid grid-cols-1 lg:grid-cols-[560px_500px] grid-rows-2 lg:grid-rows-[2fr_1fr] gap-5 bg-black/7 dark:bg-white/7 text-c-text dark:text-c-bg fixed top-1/2 left-1/2 -translate-1/2 rounded-4xl p-6 w-fit shadow-lg">
+					<div class="card t-dashed grid overflow-auto">
 						<div class="flex gap-16">
-							<img id="profile-image" class="object-cover rounded-full size-48 shadow-xl shadow-neutral-400 border-2">
+							<img id="profile-image" class="object-cover rounded-full size-40 shadow-xl shadow-neutral-400 border-2">
 							<div class="justify-center self-center">
 								<h1 id="profile-username" class="text-3xl">User failed to load</h1>
 								<p id="profile-codename" class="text-xl">Codename failed to load</p>
 							</div>
 						</div>
-						<div class="flex justify-between min-w-md max-w-3xl">
-							<p id="profile-bio" class=" whitespace-pre-wrap text-start">Biography failed to load</p>
-							<div class="flex flex-col gap-4 min-w-20">
-								<b>Pong stats</b>
-								<span id="game-wins"><i class="fa-solid fa-trophy mr-5"></i> --</span>
-								<span id="game-losses"><i class="fa-solid fa-skull mr-5"></i> --</span>
-							</div>
-						</div>
+						<p id="profile-bio" class="whitespace-pre-wrap text-start">Biography failed to load</p>
 					</div>
-					<div class="t-dashed flex card gap-0 px-5">
+					<div class="card t-dashed flex gap-0 px-5 row-span-2">
 						<div class="flex flex-col w-full gap-5">
 							<h1 class="text-xl">Pong match history</h1>
 							<ul id="stats-list" class="flex flex-col gap-2 overflow-auto"></ul>
@@ -110,6 +116,7 @@ class Profile extends Page {
 							</button>
 						</form>
 					</div>
+					<div id="pong-stats" class="card t-dashed flex justify-around py-5 text-xl"></div>
 				</dialog>
 			</main>
 		`;
