@@ -186,7 +186,7 @@ export async function loadNotifications(room)
 
 export function createNotification(msg, timestamp)
 {
-	not = {
+	const not = {
 		'msg': msg,
 		'timeStamp': timestamp
 	};

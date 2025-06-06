@@ -53,7 +53,7 @@ class Chat extends Page {
 					</form>
 				</div>
 				<div class="flex flex-col card t-dashed p-5">
-					<div class="flex flex-col gap-6 h-2/3">
+					<div class="flex flex-col gap-6 h-full">
 						<button id="users-list-refresh" class="flex gap-4 items-center item t-dashed p-4 justify-center">
 							<i class="fa-solid fa-users"></i>
 							<span>Users</span>
@@ -61,11 +61,11 @@ class Chat extends Page {
 						<ul id="users-list" class="flex flex-col flex-1 overflow-auto"></ul>
 					</div>
 					<hr class="text-c-primary">
-					<div class="flex flex-col gap-6 h-1/3">
-						<ul id="game-requests-list" class="flex flex-col flex-1 overflow-auto"></ul>
-						<button id="game-requests-list-refresh" class="flex gap-4 items-center item t-dashed p-4 justify-center">
-							<i class="fa-solid fa-bomb"></i>
-							<span>Game Requests</span>
+					<div id="game-notifications-container" class="flex flex-col gap-6 h-fit">
+						<ul id="game-notifications-list" class="hidden flex-col flex-1 overflow-auto"></ul>
+						<button id="game-notifications-list-refresh" class="flex gap-4 items-center item t-dashed p-4 justify-center">
+							<i class="fa-solid fa-comments"></i>
+							<span>Notifications</span>
 						</button>
 					</div>
 				</div>

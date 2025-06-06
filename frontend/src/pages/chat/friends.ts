@@ -76,6 +76,10 @@ function socketOnMessage(event: MessageEvent<any>) {
 	}
 	else if (data.type === 'block-status')
 		renderChatRoom(data.friend, data.isBlocked, data.isInvited, data.lobbyId, data.friend);
+	else if (data.type === 'load-notifications') {
+		data.notifications.forEach((notification: { msg: string, timestamp: string }) => renderGameNotification(notification.msg, notification.timestamp));
+		handleEmptyList('game-notifications-list', 'No game notifications');
+	}
 	// game start
 	else if (data.type === 'receive-game-invite') {
 		showToast.green(`🎮 Convite de ${data.from}`);
@@ -98,8 +102,20 @@ function socketOnMessage(event: MessageEvent<any>) {
 	// game OUT
 };
 
-function renderGameInviteButtons(from: string, lobbyId: string)
-{
+function renderGameNotification(message: string, timestamp: string) {
+	const listElement = document.getElementById(`game-notifications-list`)!;
+	const entryElement = document.createElement('li');
+	entryElement.className = `flex`;
+	entryElement.innerHTML = /*html*/`
+	<div class="flex flex-col flex-1 item t-dashed break-all">
+		<p class="self-start pr-4 select-all">${message}</p>
+		<p class="self-end text-c-primary pl-4">${timestamp}</p>		
+	</div>
+	`;
+	listElement.appendChild(entryElement);
+}
+
+function renderGameInviteButtons(from: string, lobbyId: string) {
 	document.getElementById("chat-box-invite-button")?.classList.add("hidden");
 	const acceptBtn = document.getElementById("accept-invite-to-game-button")!;
 	const rejectBtn = document.getElementById("reject-invite-to-game-button")!;
@@ -314,7 +330,7 @@ function renderChatRoom(name: string, isBlocked: boolean, isInvited: boolean, lo
 	const chatHeaderBlockButton = document.getElementById('chat-box-block-button')!;
 	chatHeaderBlockButton.textContent = isBlocked ? 'Unblock' : 'Block';
 
-	if(isInvited)
+	if (isInvited)
 		renderGameInviteButtons(from, lobbyId);
 	else {
 		document.getElementById("accept-invite-to-game-button")!.classList.add('hidden');
@@ -373,18 +389,25 @@ export function setChatEventListeners() {
 				type: 'get-online-users'
 			}));
 		});
-	//! TEMP until game requests implemented
-	handleEmptyList('game-requests-list', 'No game requests');
-	document.getElementById('game-requests-list-refresh')?.addEventListener('click',
+	handleEmptyList('game-notifications-list', 'No game requests');
+	userInfo.chat_sock!.send(JSON.stringify({
+		type: 'add-notification',
+		message: "You are goin to play a tournament with the bros"
+	}));
+	document.getElementById('game-notifications-list-refresh')?.addEventListener('click',
 		() => {
-			// renderMessage("me", "me", "Hey it's me", "now");
-			// renderMessage("me", "you", "Hey it's you", "now");
-			// renderMessage("system-notifications", "", "🤖 Hey it's [SYSTEM] 🤖", "now");
-			document.getElementById('game-requests-list')!.innerHTML = '';
-			handleEmptyList('game-requests-list', 'No game requests');
-			// userInfo.chat_sock!.send(JSON.stringify({
-			// 	type: 'get-game-requests-list'
-			// }));
+			if (document.getElementById('game-notifications-list')?.classList.contains('hidden')) {
+				document.getElementById('game-notifications-list')!.innerHTML = '';
+				userInfo.chat_sock!.send(JSON.stringify({
+					type: 'load-notifications'
+				}));
+				//! TEMP
+				["now", "yesterday", "now", "yesterday"].forEach(str => renderGameNotification("You are goin to play a tournament with the bros", str));
+			}
+			document.getElementById('game-notifications-list')?.classList.toggle('hidden');
+			document.getElementById('game-notifications-list')?.classList.toggle('flex');
+			document.getElementById('game-notifications-container')?.classList.toggle('h-1/3');
+			document.getElementById('game-notifications-container')?.classList.toggle('h-fit');
 		});
 	document.getElementById('chat-box-form')?.addEventListener('submit',
 		(e: Event) => {
@@ -392,7 +415,7 @@ export function setChatEventListeners() {
 			const messageText = (document.getElementById('chat-box-input') as HTMLInputElement).value.trim();
 			if (messageText) {
 				userInfo.chat_sock!.send(JSON.stringify({
-					type: 'chat-message',
+					type: 'add-notification',
 					message: messageText
 				}));
 				(document.getElementById('chat-box-input') as HTMLInputElement).value = "";
