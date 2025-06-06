@@ -18,7 +18,7 @@ let firstPageLoad = true;
 async function loadApp(path: string) {
 	// check authentication
 	try {
-		const response = await fetch(`http://${location.hostname}:7000/frontend/fetchDashboardData`, {
+		const response = await fetch(`http://${location.hostname}:8080/frontend/fetchDashboardData`, {
 			credentials: 'include',
 		});
 		if (!response.ok)
@@ -80,7 +80,7 @@ function loadPage(path: string) {
 			break;
 	}
 	currentPage?.cleanup();
-	// setTimeout(() => {
+	// setTimeout(() => { // the delay is for the exit animation
 		document.getElementById("app")!.innerHTML = newPage.getHtml();
 		newPage.mount(path);
 		currentPage = newPage;

@@ -11,27 +11,6 @@ class Login extends Page {
 		document.getElementById("google-auth-button")!.addEventListener("click", () => {
 			window.location.href = `http://${location.hostname}:7000/loginOAuth`;
 		});
-		document.getElementById("2fa-code")!.addEventListener("input", async (event) => {
-			const input = (event.target as HTMLInputElement);
-			if (input.value.length === 6) {
-				try {
-					const response = await fetch(`http://${location.hostname}:8080/2fa/verify-google-authenticator`, {
-						method: 'POST',
-						credentials: "include",
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({ totpCode: input.value })
-					});
-					if (!response.ok)
-						throw new Error(`${response.status} - ${response.statusText}`);
-					lib.toggleUserServices(true);
-					lib.showToast(`Logged in successfully`);
-					lib.navigate("/");
-				} catch (error) {
-					console.log(error);
-					lib.showToast.red(`2FA verification failed`);
-				}
-			}
-		});
 	}
 	onCleanup(): void { }
 	getHtml(): string {
@@ -72,27 +51,64 @@ class Login extends Page {
 				password: (document.getElementById('password') as HTMLInputElement).value
 			};
 			try {
-				const response = await fetch(`http://${location.hostname}:7000/login`, {
+				const response = await fetch(`http://${location.hostname}:8080/login`, {
 					method: 'POST',
 					credentials: "include",
-					headers: {
-						'Content-Type': 'application/json'
-					},
+					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify(userData)
 				});
 				if (!response.ok)
 					throw new Error((await response.json()).message);
-				const response2fa = await fetch(`http://${location.hostname}:8080/api/users/${userData.username}/two-fa-status`);
+				
+				const { two_FA_status } = await response.json();
 
-				if (!response2fa.ok)
-					throw new Error((await response2fa.json()).message);
-				if ((await response2fa.json()).status) {
+				if (two_FA_status) {
+					document.getElementById("2fa-code")!.addEventListener("input", async (event) => {
+						const input = (event.target as HTMLInputElement);
+						if (input.value.length === 6) {
+							try {
+								const response = await fetch(`http://${location.hostname}:8080/2fa/verify-google-authenticator?isSetup=false`, {
+									method: 'POST',
+									credentials: "include",
+									headers: { 'Content-Type': 'application/json' },
+									body: JSON.stringify({ totpCode: input.value, username: userData.username })
+								});
+								if (!response.ok)
+									throw new Error(`${response.status} - ${response.statusText}`);
+								
+								const responseGenerateToken = await fetch(`http://${location.hostname}:8080/token/generateToken`, {
+									method: 'POST',
+									headers: { 'Content-Type': 'application/json' },
+									body: JSON.stringify({ username: userData.username }),
+									credentials: "include",
+								});
+								if (!responseGenerateToken.ok)
+									throw new Error((await responseGenerateToken.json()).message);
+								
+								lib.toggleUserServices(true);
+								lib.showToast(`Logged in successfully`);
+								lib.navigate("/");
+							} catch (error) {
+								console.log(error);
+								lib.showToast.red(`2FA verification failed`);
+							}
+						}
+					});
 					document.getElementsByTagName("main")[0]?.classList.remove("flex");
 					document.getElementsByTagName("main")[0]?.classList.add("hidden");
 					document.getElementById("2fa")?.classList.remove("hidden");
 					document.getElementById("2fa")?.classList.add("flex");
 					return;
 				}
+				const responseGenerateToken = await fetch(`http://${location.hostname}:8080/token/generateToken`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ username: userData.username }),
+					credentials: "include",
+				});
+				if (!responseGenerateToken.ok)
+					throw new Error((await responseGenerateToken.json()).message);
+
 				lib.toggleUserServices(true);
 				lib.showToast(`Logged in successfully`);
 				lib.navigate("/");

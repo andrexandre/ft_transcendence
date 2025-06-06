@@ -17,12 +17,13 @@ export default abstract class Page {
 	// this.root.classList.add('w-full', 'h-full');
 	// this.root.innerHTML = content;
 	mount(url: string) {
-		// if (lib.userInfo.path && (url == '/login' || url == '/register'))
-		// 	lib.animate("main", { x: [100, 0] }, { duration: lib.userInfo.aDelay, ease: "easeOut" });
-		// lib.animate("main", { opacity: 1 }, { duration: lib.userInfo.aDelay });
+		//* start animation
+		if (lib.userInfo.path && (url == '/login' || url == '/register'))
+			lib.animate("main", { x: [100, 0] }, { duration: lib.userInfo.aDelay, ease: "easeOut" });
+		lib.animate("main", { opacity: 1 }, { duration: lib.userInfo.aDelay });
 		document.title = `${this.name.charAt(0).toUpperCase() + this.name.slice(1)} - Transcendence`;
 		lib.userInfo.path = url;
-		this.mounted = true;
+		// this.mounted = true;
 		this.onMount();
 		setTimeout(() => {
 			if (lib.Cookies.get('outline')) {
@@ -31,7 +32,7 @@ export default abstract class Page {
 			}
 			// document.getElementsByTagName("main")[0]!.style.opacity = "1";
 		}, 50);
-		return this.root;
+		// return this.root;
 	}
 	abstract getHtml(): string;
 	addCleanupHandler(fn: () => void) {
@@ -40,10 +41,12 @@ export default abstract class Page {
 	cleanup() {
 		this.cleanupHandlers.forEach(handler => handler());
 		this.cleanupHandlers = [];
-		this.mounted = false;
-		this.root?.remove();
-		this.root = undefined;
+		// this.mounted = false;
+		// this.root?.remove();
+		// this.root = undefined;
 		this.onCleanup();
+		document.getElementsByTagName("main")[0]!.remove();
+		//* exit animation
 		// if (lib.userInfo.path == '/login' || lib.userInfo.path == '/register')
 		// 	lib.animate("main", { x: [0, 100] }, { duration: lib.userInfo.aDelay, ease: "easeOut" });
 		// lib.animate("main", { opacity: 0 }, { duration: lib.userInfo.aDelay });

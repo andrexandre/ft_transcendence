@@ -1,14 +1,14 @@
 // src/pages/game/tournamentRender.ts
-import { showToast } from '../../utils';
+import { chooseView, drawGameMessage } from './renderUtils';
 type TournamentMatch = {
-    player1: string;
-    player2: string;
-    winner?: string;
+	player1: string;
+	player2: string;
+	winner?: string;
 };
 
 export type TournamentState = {
-    rounds: TournamentMatch[][];
-    currentRound: number;
+	rounds: TournamentMatch[][];
+	currentRound: number;
 };
 
 // * TEMP
@@ -62,7 +62,7 @@ export const tournamentTree = {
 		`;
 	}
 	// * TEMP
-	,generateRandomString: (maxLength: number = 6, minLength: number = 3) => {
+	, generateRandomString: (maxLength: number = 6, minLength: number = 3) => {
 		const length = Math.floor(Math.random() * (maxLength - minLength + 1)) + minLength;
 		const characters = 'AEIOUabcdefghijklmnopqrstuvwxyz0123456789';
 		let result = '';
@@ -89,100 +89,84 @@ export let tournamentSample: TournamentState = {
 
 
 export function renderTournamentBracket() {
-	showToast.red("show-bracket222222222222222222222222222222222222222222222222")
-    const container = document.getElementById("tournament-bracket");
-    console.log("🎨 Re-renderizando bracket...", JSON.stringify(state.rounds, null, 2));
-    if (!container) return;
+	const container = document.getElementById("tournament-bracket");
+	console.log("🎨 Re-renderizando bracket...", JSON.stringify(state.rounds, null, 2));
+	if (!container) return;
 
-    container.classList.remove("hidden");
+	container.classList.remove("hidden");
 	container.style.display = "block";
-    container.innerHTML = "<h2 class='text-xl mb-4'>🏆 Tournament Bracket</h2>";
+	container.innerHTML = "<h2 class='text-xl mb-4'>🏆 Tournament Bracket</h2>";
 
-    state.rounds.forEach((round, roundIndex) => {
-        const roundDiv = document.createElement("div");
-        roundDiv.className = "mb-4";
+	// chooseView('tree');
+	state.rounds.forEach((round, roundIndex) => {
+		// tournamentTree.updateTree(state);
+		const roundDiv = document.createElement("div");
+		roundDiv.className = "mb-4";
 
-        const roundTitle = document.createElement("h3");
-        roundTitle.className = "font-bold underline mb-2";
-        roundTitle.textContent = `Round ${roundIndex + 1}`;
-        roundDiv.appendChild(roundTitle);
+		const roundTitle = document.createElement("h3");
+		roundTitle.className = "font-bold underline mb-2";
+		roundTitle.textContent = `Round ${roundIndex + 1}`;
+		roundDiv.appendChild(roundTitle);
 
-        round.forEach((match) => {
-        const matchDiv = document.createElement("div");
-        matchDiv.className = "ml-4";
-        matchDiv.innerHTML = `🎮 ${match.player1} vs ${match.player2} ${match.winner ? `→ 🏅 ${match.winner}` : ""}`;
-        roundDiv.appendChild(matchDiv);
-        });
+		round.forEach((match) => {
+			const matchDiv = document.createElement("div");
+			matchDiv.className = "ml-4";
+			matchDiv.innerHTML = `🎮 ${match.player1} vs ${match.player2} ${match.winner ? `→ 🏅 ${match.winner}` : ""}`;
+			roundDiv.appendChild(matchDiv);
+		});
 
-        container.appendChild(roundDiv);
-    });
+		container.appendChild(roundDiv);
+	});
 }
 
 const rawState: TournamentState = {
-    rounds: [],
-    currentRound: 0,
+	rounds: [],
+	currentRound: 0,
 };
 
 export const state: TournamentState = new Proxy(rawState, {
-    set(target, prop, value) {
-        // @ts-ignore
-        target[prop] = value;
-        renderTournamentBracket();
-        return true;
-    },
+	set(target, prop, value) {
+		// @ts-ignore
+		target[prop] = value;
+		renderTournamentBracket();
+		return true;
+	},
 });
 
 export function addRound(matches: TournamentMatch[]) {
-    state.rounds.push(matches);
-    renderTournamentBracket();
+	state.rounds.push(matches);
+	renderTournamentBracket();
 }
 
 export function updateWinner(roundIndex: number, matchIndex: number, winner: string) {
-    const match = state.rounds[roundIndex]?.[matchIndex];
-    if (!match) return;
-    match.winner = winner;
-    renderTournamentBracket();
+	const match = state.rounds[roundIndex]?.[matchIndex];
+	if (!match) return;
+	match.winner = winner;
+	renderTournamentBracket();
 }
 
 export function resetTournament() {
-    state.rounds = [];
-    state.currentRound = 0;
+	state.rounds = [];
+	state.currentRound = 0;
 }
 
 export function handleEndTournament(winner: string) {
-	const bracket = document.getElementById("tournament-bracket");
-	const msg = document.getElementById("game-message");
-
-	if (bracket) bracket.classList.add("hidden");
-
-	if (msg) {
-		msg.classList.remove("hidden");
-		msg.textContent = `🏆 Torneio vencido por ${winner}!`;
-		msg.style.color = "gold";
-	}
+	chooseView('tree');
+	drawGameMessage(true, `🏆 Torneio vencido por ${winner}!`, "gold");
 
 	setTimeout(() => {
-		msg?.classList.add("hidden");
-		msg!.textContent = "";
-		document.getElementById("game-main-menu")?.classList.remove("hidden");
+		chooseView('menu');
+		drawGameMessage(false, '');
 	}, 5000);
 }
 
 export function showRoundTransition(roundNumber: number) {
-	const el = document.getElementById("game-message");
-	if (!el) return;
-
 	let count = 3;
 	const interval = setInterval(() => {
-		el.textContent = `Round ${roundNumber} starts in ${count}...`;
-		el.style.color = "white";
-		count--;
-		el.classList.remove("hidden");
+		drawGameMessage(true, `Round ${roundNumber} starts in ${count}...`, "white");
 		if (count < 0) {
 			clearInterval(interval);
-			el.classList.add("hidden");
-			el.textContent = "";
+			drawGameMessage(false, '');
 		}
-		el.classList.remove("hidden");
 	}, 1000);
 }

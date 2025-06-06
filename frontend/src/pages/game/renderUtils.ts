@@ -1,18 +1,6 @@
-import { element, showToast } from "../../utils";
+import { showToast } from "../../utils";
 
 // src/game/renderUtils.ts
-export function drawGameMessage(msg: string, color?: string) {
-	const el = document.getElementById("game-message") as HTMLDivElement;
-	el.textContent = msg;
-	if (color) el.style.color = color;
-	el.classList.remove("hidden");
-}
-
-export function toggleGameMessage(show: boolean) {
-	const el = document.getElementById("game-message") as HTMLDivElement;
-	el.classList.toggle("hidden", !show);
-}
-
 export function updateScoreboard(players: any[]) {
 	const el = document.getElementById("scoreboard") as HTMLDivElement;
 	if (players.length < 2) return;
@@ -22,7 +10,7 @@ export function updateScoreboard(players: any[]) {
 		const teamB = players.slice(2, 4);
 		const scoreA = teamA.reduce((acc, p) => acc + p.score, 0);
 		const scoreB = teamB.reduce((acc, p) => acc + p.score, 0);
-		el.innerHTML = `
+		el.innerHTML = /*html*/`
 			<div class="grid grid-cols-[1fr_15rem_1fr] space-y-1">
 				<div class="text-right truncate" style='color: blue;'>Team 1</div>
 				<div class="text-center">${scoreA} vs ${scoreB}</div>
@@ -34,7 +22,7 @@ export function updateScoreboard(players: any[]) {
 		`;
 	} else {
 		const [p1, p2] = players;
-		el.innerHTML = `
+		el.innerHTML = /*html*/`
 			<div class="grid grid-cols-[1fr_15rem_1fr]">
 				<div class="text-right truncate" style='color: blue;'>${p1.username}</div>
 				<div class="text-center">${p1.score} vs ${p2.score}</div>
@@ -44,29 +32,36 @@ export function updateScoreboard(players: any[]) {
 	}
 }
 
+function elem(elementId: string, className: string, addClassToElement: boolean) {
+	if (addClassToElement)
+		document.getElementById(elementId)!.classList.add(className);
+	else
+		document.getElementById(elementId)!.classList.remove(className);
+}
+
 export function chooseView(type: string) {
 	if (type == 'menu') {
-		element('sidebar', 'hidden', true);
-		element('sidebar', 'hidden', false);
-		element('game-main-menu', 'hidden', false);
-		element('gameCanvas', 'hidden', true);
-		element('scoreboard', 'hidden', true);
+		elem('sidebar', 'hidden', false);
+		elem('game-main-menu', 'hidden', false);
+		elem('gameCanvas', 'hidden', true);
+		elem('scoreboard', 'hidden', true);
+		elem('tournament-bracket', 'hidden', true);
 	} else if (type == 'game') {
-		element('sidebar', 'hidden', true);
-		element('game-main-menu', 'hidden', true);
-		element('gameCanvas', 'hidden', false);
-		element('scoreboard', 'hidden', false);
-		element('tournament-bracket', 'hidden', true);
+		elem('sidebar', 'hidden', true);
+		elem('game-main-menu', 'hidden', true);
+		elem('gameCanvas', 'hidden', false);
+		elem('scoreboard', 'hidden', false);
+		elem('tournament-bracket', 'hidden', true);
 	} else if (type == 'tree') {
-		element('game-main-menu', 'hidden', true);
-		element('gameCanvas', 'hidden', true);
-		element('scoreboard', 'hidden', true);
-		element('tournament-bracket', 'hidden', false);
+		elem('game-main-menu', 'hidden', true);
+		elem('gameCanvas', 'hidden', true);
+		elem('scoreboard', 'hidden', true);
+		elem('tournament-bracket', 'hidden', false);
 	} else
 		showToast.red('What?');
 }
 
-export function drawGameMessageNew(show: boolean, msg?: string, color?: string) {
+export function drawGameMessage(show: boolean, msg?: string, color?: string) {
 	const gameMessage = document.getElementById('game-message')!;
 	gameMessage.classList.toggle('hidden', !show);
 

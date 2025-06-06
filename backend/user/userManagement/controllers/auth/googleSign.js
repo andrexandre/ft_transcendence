@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import { faker } from '@faker-js/faker';// Função que gera um username aleatório
+import { faker } from '@faker-js/faker';
 
 function generateUsername(maxLength = 15) {
 	const raw = faker.internet.username().toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -15,11 +15,24 @@ async function googleSign(request, response) {
         
         let user = await this.getUserByEmail(email);
         if (!user) {
-            // criar o user
+			
 			const newUsername = generateUsername();
-            
+
 			await this.createUser(newUsername, email, null, auth_method);
             user = await this.getUserByUsername(newUsername);
+
+			// Create the user in game db
+			const responseGame = await fetch('http://nginx-gateway:80/game/init-user', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({id: user.id, username: user.username})
+			});
+
+			if (!responseGame.ok) {
+				console.log('User not created in game!');
+				console.log('Error creating user in game: ', (await responseGame.json()));
+			}
+
             response.status(201).send({
                 userId: `${user.id}`,
                 username: `${user.username}`,
@@ -35,7 +48,7 @@ async function googleSign(request, response) {
         
     } catch(err) {
         if (err.code === 'SQLITE_CONSTRAINT') {
-            const msg = (err.message.includes("email")) ? 'Email' : 'Username'; // true
+            const msg = (err.message.includes("email")) ? 'Email' : 'Username';
             response.status(409).send({statusCode: 409, error: "Conflict", message: `${msg} already exist!`});
         } else {
             response.status(500).send({statusCode: 500, error: "Internal server error", message: 'Error in creating user!'});
