@@ -32,4 +32,14 @@ export default function jwtHandler(fastify, options) {
       sameSite: 'lax',
     });
   });
+
+  fastify.get('/token/verifyToken', async(request, reply) => {
+      try{
+        await request.jwtVerify();
+      }catch(err){
+        reply.status(403);
+        return err;
+      }
+      reply.status(204);
+  });
 }
