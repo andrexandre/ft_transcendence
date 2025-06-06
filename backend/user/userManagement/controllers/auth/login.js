@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 
 async function tokenInfo(request, response) {
-	const { username } = request.body;
+	const username = request.query.username;
 	try {
         const user = await this.getUserByUsername(username);
         if (!user)
@@ -13,7 +13,6 @@ async function tokenInfo(request, response) {
 		return response.status(200).send(resContent);
 
     } catch(err) {
-		console.log('ERROR: ', err);
         (err.statusCode) ? 
         response.status(err.statusCode).send(err) : response.status(500).send({statusCode: 500, error: "Internal server error", message: 'Error in authenticate the user!'});
     }

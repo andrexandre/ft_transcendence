@@ -1,3 +1,11 @@
+const tokenInfoSchema = {
+	querystring: {
+	  properties: {
+		username: { type: 'string' }
+	  },
+	  required: [ 'username' ]	
+	}
+}
 
 const loginSchema = {
 	body: {
@@ -31,4 +39,4 @@ const loginSchema = {
 	},
 };
 
-export default loginSchema;
+export { loginSchema, tokenInfoSchema };
