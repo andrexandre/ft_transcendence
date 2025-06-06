@@ -36,10 +36,11 @@ export default function jwtHandler(fastify, options) {
   fastify.get('/token/verifyToken', async(request, reply) => {
       try{
         await request.jwtVerify();
+		const payload = await fastify.parseToReadableData(request.cookies.token);
+		reply.status(200).send(payload);
       }catch(err){
         reply.status(403);
         return err;
       }
-      reply.status(204);
   });
 }
