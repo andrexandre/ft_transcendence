@@ -18,7 +18,7 @@ let firstPageLoad = true;
 async function loadApp(path: string) {
 	// check authentication
 	try {
-		const response = await fetch(`http://${location.hostname}:8080/token/verifyToken`, {
+		const response = await fetch(`https://${location.hostname}:8080/token/verifyToken`, {
 			credentials: 'include',
 		});
 		if (!response.ok)

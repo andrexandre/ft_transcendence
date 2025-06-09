@@ -9,6 +9,7 @@ RUN apt update && \
 	rm -rf /var/lib/apt/lists/*
 
 
+
 COPY ./setup.sh /bin/
 RUN chmod 777 /bin/setup.sh
 

@@ -1,5 +1,6 @@
 server {
-        listen 80;
+        listen 443 ssl;
+		listen [::]:443 ssl;
 
         server_name localhost;
 		client_max_body_size 2M;
@@ -7,6 +8,10 @@ server {
         # Define access and error logs
         access_log /var/log/nginx/api_gateway_access.log;
         error_log /var/log/nginx/api_gateway_error.log;
+
+		ssl_certificate /etc/nginx/ssl/server.crt;
+		ssl_certificate_key /etc/nginx/ssl/server.key;
+		ssl_protocols TLSv1.2 TLSv1.3;
 
         location /service {
             if ($request_method = OPTIONS) {
