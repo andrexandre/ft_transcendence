@@ -233,10 +233,10 @@ function renderFriendList(name: string) {
 			friend: name
 		}));
 
-		userInfo.chat_sock!.send(JSON.stringify({
-			type: 'join-room',
-			friend: name
-		}));
+		// userInfo.chat_sock!.send(JSON.stringify({
+		// 	type: 'join-room',
+		// 	friend: name
+		// }));
 	});
 	roomButton.id = `friends-list-entry-${name}`;
 	friendList.appendChild(roomButton);
@@ -345,6 +345,10 @@ function renderChatRoom(name: string, isBlocked: boolean, isInvited: boolean, lo
 	}
 	window.history.replaceState({}, '', `/chat/${name}`);
 	renderProfileImage("chat-box-profile-image", name);
+	userInfo.chat_sock?.send(JSON.stringify({
+		type: 'join-room',
+		friend: name
+	}));
 }
 
 function reloadLists() {
