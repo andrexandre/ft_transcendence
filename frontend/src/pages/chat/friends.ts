@@ -337,12 +337,12 @@ function renderChatRoom(name: string, isBlocked: boolean, isInvited: boolean, lo
 		document.getElementById("reject-invite-to-game-button")!.classList.add('hidden');
 	}
 
-	(document.getElementById('chat-box-input') as HTMLInputElement).disabled = isBlocked;
-	(document.getElementById('chat-box-send-button') as HTMLButtonElement).disabled = isBlocked;
 	if ((document.getElementById('chat-box-profile') as HTMLButtonElement).disabled) {
 		const chatBoxElements = document.querySelectorAll('#chat-box input, #chat-box button');
 		chatBoxElements.forEach(element => (element as HTMLInputElement).disabled = false);
 	}
+	(document.getElementById('chat-box-input') as HTMLInputElement).disabled = isBlocked;
+	(document.getElementById('chat-box-send-button') as HTMLButtonElement).disabled = isBlocked;
 	window.history.replaceState({}, '', `/chat/${name}`);
 	renderProfileImage("chat-box-profile-image", name);
 	userInfo.chat_sock?.send(JSON.stringify({
@@ -393,11 +393,6 @@ export function setChatEventListeners() {
 				type: 'get-online-users'
 			}));
 		});
-	handleEmptyList('game-notifications-list', 'No game requests');
-	userInfo.chat_sock!.send(JSON.stringify({
-		type: 'add-notification',
-		message: "You are goin to play a tournament with the bros"
-	}));
 	document.getElementById('game-notifications-list-refresh')?.addEventListener('click',
 		() => {
 			if (document.getElementById('game-notifications-list')?.classList.contains('hidden')) {
@@ -419,7 +414,7 @@ export function setChatEventListeners() {
 			const messageText = (document.getElementById('chat-box-input') as HTMLInputElement).value.trim();
 			if (messageText) {
 				userInfo.chat_sock!.send(JSON.stringify({
-					type: 'add-notification',
+					type: 'chat-message',
 					message: messageText
 				}));
 				(document.getElementById('chat-box-input') as HTMLInputElement).value = "";
