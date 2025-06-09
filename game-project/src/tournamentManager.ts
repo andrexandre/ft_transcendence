@@ -14,6 +14,8 @@ interface TournamentMatch {
 	lobbyId?: string;
 	gameId?: string;
 	winnerId?: number;
+	score1?: number;
+	score2?: number;
 }
 
 interface Tournament {
@@ -37,10 +39,9 @@ function shuffle<T>(array: T[]): T[] {
 
 export function createTournament(id: string, players: TournamentPlayer[]) {
 	if (players.length % 2 !== 0) {
-		console.warn("⚠️ Número ímpar de jogadores detectado. Remover o último jogador.");
+		Logger.warn("❌ Número ímpar de jogadores detectado. Remover o último jogador.");
 		players = players.slice(0, players.length - 1);
 	}
-
 	const shuffled = shuffle(players);
 	const matches: TournamentMatch[][] = [];
 	const firstRound: TournamentMatch[] = [];
@@ -51,7 +52,6 @@ export function createTournament(id: string, players: TournamentPlayer[]) {
 			player2: shuffled[i + 1]
 		});
 	}
-
 	matches.push(firstRound);
 
 	const tournament: Tournament = {
@@ -61,25 +61,25 @@ export function createTournament(id: string, players: TournamentPlayer[]) {
 		currentRound: 0,
 		inProgress: true
 	};
-
 	tournaments.set(id, tournament);
 
-	// render bracket + timout
 	for (const round of tournament.matches) {
 		for (const match of round) {
 			for (const player of [match.player1, match.player2]) {
 				if (player.socket.readyState === WebSocket.OPEN) {
 					player.socket.send(JSON.stringify({
-					type: "show-bracket",
-					state: {
-						currentRound: tournament.currentRound,
-						rounds: tournament.matches.map(round => 
-							round.map(match => ({
-								player1: match.player1.username,
-								player2: match.player2.username,
-								winner: match.winnerId 
-									? (match.winnerId === match.player1.userId ? match.player1.username : match.player2.username) 
-									: undefined
+						type: "show-bracket",
+						state: {
+							currentRound: tournament.currentRound,
+							rounds: tournament.matches.map(round => 
+								round.map(match => ({
+									player1: match.player1.username,
+									player2: match.player2.username,
+									winner: match.winnerId 
+										? (match.winnerId === match.player1.userId ? match.player1.username : match.player2.username) 
+										: undefined,
+									score1: match.score1,
+									score2: match.score2
 								}))
 							)
 						}
@@ -87,7 +87,7 @@ export function createTournament(id: string, players: TournamentPlayer[]) {
 				}
 			}
 		}
-		console.log(`📊 Bracket iniplayer1.usernamecial gerada para Torneio ${id}`);
+		Logger.log(`📊 Bracket iniplayer1.usernamecial gerada para Torneio ${id}`);
 		setTimeout(() => startNextRound(id), 7000);
 	}
 }
@@ -97,8 +97,8 @@ function startNextRound(tournamentId: string) {
 	if (!tournament) return;
 
 	const round = tournament.matches[tournament.currentRound];
-	console.log(`📣 ▶️ Iniciando Ronda ${tournament.currentRound + 1} do Torneio ${tournament.id}`);
-	console.log(`📦 Ronda contém ${round.length} jogo(s)`);
+	Logger.log(`📣 ▶️ Iniciando Ronda ${tournament.currentRound + 1} do Torneio ${tournament.id}`);
+	Logger.log(`📦 Ronda contém ${round.length} jogo(s)`);
 
 	for (const round of tournament.matches) {
 		for (const match of round) {
@@ -114,7 +114,9 @@ function startNextRound(tournamentId: string) {
 									player2: match.player2.username,
 									winner: match.winnerId 
 										? (match.winnerId === match.player1.userId ? match.player1.username : match.player2.username) 
-										: undefined
+										: undefined,
+									score1: match.score1,
+									score2: match.score2
 								}))
 							)
 						}
@@ -129,32 +131,30 @@ function startNextRound(tournamentId: string) {
 		const { player1, player2 } = match;
 
 		if (player1.socket.readyState !== WebSocket.OPEN || player2.socket.readyState !== WebSocket.OPEN) {
-		console.warn("⚠️ Um dos sockets está fechado. Match inored.");
+		Logger.warn("❌ Um dos sockets está fechado. Match inored.");
 		continue;
 		}
 
 		const lobbyId = createLobby(player1.socket, {
 			userId: player1.userId,
 			username: player1.username,
-		}, "TNT", 2);
+		}, "TNT", 2, undefined, true);
 
 		if (!lobbyId) {
-			console.error(`❌ Falha ao criar lobby para ${player1.username}`);
+			Logger.error(`❌ Falha ao criar lobby para ${player1.username}`);
 			continue;
 		}
-
-		console.log(`🆕 Lobby ${lobbyId} criado com sucesso.`);
+		Logger.log(`🆕 Lobby ${lobbyId} criado com sucesso.`);
 
 		const joined = joinLobby(lobbyId, player2.socket, {
 			userId: player2.userId,
 			username: player2.username,
-		});
+		}, true);
 
 		if (!joined) {
-			console.error(`❌ ${player2.username} não conseguiu entrar no lobby ${lobbyId}`);
+			Logger.error(`❌ ${player2.username} não conseguiu entrar no lobby ${lobbyId}`);
 			continue;
 		}
-
 		match.lobbyId = lobbyId;
 
 		for (const sock of [player1.socket, player2.socket]) {
@@ -168,20 +168,17 @@ function startNextRound(tournamentId: string) {
 
 		const result = startGame(lobbyId, player1.userId);
 		if (!result.success || !result.gameId) {
-		console.error(`❌ Falha ao iniciar o jogo no lobby ${lobbyId}`);
-		continue;
+			Logger.error(`❌ Falha ao iniciar o jogo no lobby ${lobbyId}`);
+			continue;
 		}
-
 		match.gameId = result.gameId;
-		console.log(`🚀 Jogo iniciado com sucesso: ${result.gameId}`);
+		Logger.log(`🚀 Jogo iniciado com sucesso: ${result.gameId}`);
 	}
 }
 
-export function handleMatchEndFromTournament(gameId: string, winnerId: number): {
-	roundIndex: number;
-	matchIndex: number;
-	winnerUsername: string;
-	isFinal: boolean; } | void {
+export function handleMatchEndFromTournament( gameId: string, winnerId: number,
+	score1: number, score2: number): { roundIndex: number; matchIndex: number; winnerUsername: string; isFinal: boolean;
+	} | void {
 	for (const tournament of tournaments.values()) {
 		const round = tournament.matches[tournament.currentRound];
 		const matchIndex = round.findIndex(m => m.gameId === gameId);
@@ -189,15 +186,16 @@ export function handleMatchEndFromTournament(gameId: string, winnerId: number): 
 
 		const match = round[matchIndex];
 		match.winnerId = winnerId;
+		match.score1 = score1;
+		match.score2 = score2;
 
 		const winner = winnerId === match.player1.userId ? match.player1 : match.player2;
 		const roundFinished = round.every(m => m.winnerId !== undefined);
 
     if (roundFinished) {
 		const nextPlayers = round.map(m => m.winnerId === m.player1.userId ? m.player1 : m.player2);
-
 		if (nextPlayers.length === 1) {
-			console.log(`🏆 Torneio ${tournament.id} vencido por ${nextPlayers[0].username}`);
+			Logger.log(`🏆 Torneio ${tournament.id} vencido por ${nextPlayers[0].username}`);
 			tournament.inProgress = false;
 
 			nextPlayers[0].socket.send(JSON.stringify({
@@ -215,11 +213,10 @@ export function handleMatchEndFromTournament(gameId: string, winnerId: number): 
 			player2: nextPlayers[i + 1]
 			});
 		}
-
 		tournament.matches.push(nextRound);
 		tournament.currentRound++;
 
-		console.log("⏳ W8 7 secs...");
+		Logger.log("⏳ W8 7 secs...");
 		setTimeout(() => startNextRound(tournament.id), 7000);
     }
 

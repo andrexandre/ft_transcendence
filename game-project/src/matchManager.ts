@@ -6,8 +6,7 @@ import { handleMatchEndFromTournament } from './tournamentManager.js';
 import { initMTCPlayers, updateMTCGame } from './mtcLogic.js';
 import { Logger } from "./utils.js";
 
-// const matchDisconnectTimers = new Map<number, NodeJS.Timeout>();
-const winningScore = 2;
+const winningScore = 3;
 
 interface PlayerState {
 	id: number;
@@ -23,12 +22,10 @@ export type MatchState = {
 	ball: { x: number; y: number; dx: number; dy: number };
 	interval: NodeJS.Timeout;
 	paused: boolean;
-	isSinglePlayer: boolean;
 	gameMode: string;
 	aiDifficulty?: string;
 };
   
-
 const matches = new Map<string, MatchState>();
 const matchSockets = new Map<string, WebSocket[]>();
 
@@ -42,10 +39,8 @@ export function handleMatchConnection(gameId: string, connection: any) {
 	}
 
 	const players = lobby.players;
-	const isSingle = players.length === 1;
 	const gameMode = lobby.gameMode;
 	const aiDifficulty = (gameMode === "Classic") ? players[0].difficulty || "Normal" : undefined;
-	// Logger.log(`🧑‍🤝‍🧑Not AI: `, aiDifficulty);
 
 	let realPlayers: PlayerState[] = [];
 	if (gameMode === "MTC") {
@@ -86,7 +81,6 @@ export function handleMatchConnection(gameId: string, connection: any) {
 			players: realPlayers,
 			ball: { x: 400, y: 300, dx: 3, dy: 3 },
 			paused: true,
-			isSinglePlayer: isSingle,
 			gameMode,
 			aiDifficulty,
 			interval: setInterval(() => updateMatchState(gameId), 1000 / 60)
@@ -135,7 +129,7 @@ export function handleMatchConnection(gameId: string, connection: any) {
 			const match = matches.get(gameId);
 			if (match) clearInterval(match.interval);
 			matches.delete(gameId);
-			removeLobbyByGameId(gameId); /// check loobbys
+			removeLobbyByGameId(gameId);
 			Logger.log(`🧹 Match ${gameId} limpo (todos os jogadores saíram)`);
 		} else {
 			matchSockets.set(gameId, sockets);
@@ -148,13 +142,10 @@ function updateMatchState(gameId: string) {
 	const match = matches.get(gameId);
 	if (!match || match.paused) return;
 
-	if (match.isSinglePlayer) {
-		updateBotPlayer(match);
-	}
-
+	if (match.gameMode === "Classic") {
+		updateBotPlayer(match);}
 	if (match.gameMode === "MTC") {
-		updateMTCGame(match);
-	}
+		updateMTCGame(match);}
 
 	match.ball.x += match.ball.dx;
 	match.ball.y += match.ball.dy;
@@ -226,7 +217,7 @@ function endMatch(gameId: string) {
 	});
 
 	if (match.gameMode === "TNT") {
-		handleMatchEndFromTournament(match.gameId, winner.id);
+		handleMatchEndFromTournament(match.gameId, winner.id, p1.score, p2.score);
 	} else {
 		removeLobbyByGameId(gameId);
 	}
@@ -276,7 +267,6 @@ function handleScore(match: MatchState, sockets: WebSocket[], gameId: string): b
 
 		if (match.gameMode === "MTC") {
 			const scoringTeam = isLeftGoal ? match.players.slice(2, 4) : match.players.slice(0, 2);
-			// ✅ Só o primeiro da equipa marca ponto (evita duplicação visual)
 			scoringTeam[0].score++;
 		} else {
 			const scorerIndex = match.ball.x > 800 ? 0 : 1;
@@ -296,7 +286,6 @@ function handleScore(match: MatchState, sockets: WebSocket[], gameId: string): b
 	}
 	return false;
 }
-
 
 function resetBall(gameId: string) {
 	const match = matches.get(gameId);
@@ -319,4 +308,4 @@ function resetBall(gameId: string) {
   
 	match.ball = { x: 400, y: 300, dx, dy };
 	startCountdown(gameId);
-  }
+}

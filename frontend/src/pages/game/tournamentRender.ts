@@ -1,22 +1,19 @@
 // src/pages/game/tournamentRender.ts
-import { chooseView, drawGameMessage } from './renderUtils';
+import { chooseView } from './renderUtils';
 
-type TournamentMatch = {
+export type TournamentMatch = {
 	player1: string;
 	player2: string;
 	winner?: string;
+	score1?: number;
+	score2?: number;
 };
 
-export type TournamentState = {
-	rounds: TournamentMatch[][];
-	currentRound: number;
-};
 
-export const tournamentState: TournamentState = {
-	rounds: [],
-	currentRound: 0,
+export const tournamentState = {
+	rounds: [] as TournamentMatch[][],
+	currentRound: 0
 };
-
 
 export const tournamentTree = {
 	getHtmlNew: () => /*html*/`
@@ -46,54 +43,41 @@ export const tournamentTree = {
 			<p id="winner" class="card t-dashed rounded-2xl"></p>
 		</div>
 	`,
-	updateTreeNew: (tState: TournamentState) => {
-		const tRounds = tState.rounds;
-		tournamentTree.updateMatch('left-bracket', {
-			p1name: tRounds[0][0].player1,
-			p1score: 'X',
-			p2name: tRounds[0][0].player2,
-			p2score: 'X'
-		});
-		tournamentTree.updateMatch('right-bracket', {
-			p1name: tRounds[0][1].player1,
-			p1score: 'X',
-			p2name: tRounds[0][1].player2,
-			p2score: 'X'
-		});
-		tournamentTree.updateMatch('center-bracket', {
-			p1name: tRounds[0][0].winner || "---",
-			p1score: 'X',
-			p2name: tRounds[0][1].winner || "---",
-			p2score: 'X'
-		});
-		document.getElementById("winner")!.innerHTML = tRounds[1][0].winner || "---";
-	},
-	updateTree: (tState: TournamentState) => {
-		const tRounds = tState.rounds;
+	updateTree: () => {
+		const [round1, round2] = tournamentState.rounds;
+
 		tournamentTree.updateMatch('top-bracket', {
-			p1name: tRounds[0][0].player1,
-			p1score: 'X',
-			p2name: tRounds[0][0].player2,
-			p2score: 'X'
+			p1name: round1?.[0]?.player1 || "---",
+			p1score: String(round1?.[0]?.score1 ?? "-"),
+			p2name: round1?.[0]?.player2 || "---",
+			p2score: String(round1?.[0]?.score2 ?? "-"),
 		});
+
 		tournamentTree.updateMatch('bot-bracket', {
-			p1name: tRounds[0][1].player1,
-			p1score: 'X',
-			p2name: tRounds[0][1].player2,
-			p2score: 'X'
+			p1name: round1?.[1]?.player1 || "---",
+			p1score: String(round1?.[1]?.score1 ?? "-"),
+			p2name: round1?.[1]?.player2 || "---",
+			p2score: String(round1?.[1]?.score2 ?? "-"),
 		});
+
 		tournamentTree.updateMatch('next-bracket', {
-			p1name: tRounds[0][0].winner || "---",
-			p1score: 'X',
-			p2name: tRounds[0][1].winner || "---",
-			p2score: 'X'
+			p1name: round1?.[0]?.winner || "---",
+			p1score: "-",
+			p2name: round1?.[1]?.winner || "---",
+			p2score: "-",
 		});
-		document.getElementById("winner")!.innerHTML = tRounds[1][0].winner || "---";
+
+		document.getElementById("winner")!.innerHTML = round2?.[0]?.winner || "---";
 	},
-	// updatePerson: (nodeId: string, match: { p1name: string, p1score: string, p2name: string, p2score: string }) => {},
-	updateMatch: (nodeId: string, match: { p1name: string, p1score: string, p2name: string, p2score: string }) => {
-		let nodeClasses = 'gap-2 grid grid-cols-[auto_1rem]';
-		document.getElementById(nodeId)!.innerHTML = /*html*/`
+
+	updateMatch: (nodeId: string, match: {
+		p1name: string, p1score: string, p2name: string, p2score: string
+	}) => {
+		const node = document.getElementById(nodeId);
+		if (!node) return;
+
+		const nodeClasses = 'gap-2 grid grid-cols-[auto_1rem]';
+		node.innerHTML = /*html*/`
 			<div class="${nodeClasses}">
 				<p>${match.p1name}</p>
 				<p>${match.p1score}</p>
@@ -104,38 +88,10 @@ export const tournamentTree = {
 			</div>
 		`;
 	}
-}
+};
 
 export function renderTournamentBracket() {
 	chooseView('tree');
-	tournamentTree.updateTree(tournamentState);
-}
-
-
-export function addRound(matches: TournamentMatch[]) {
-	tournamentState.rounds.push(matches);
-	renderTournamentBracket();
-}
-
-export function updateWinner(roundIndex: number, matchIndex: number, winner: string) {
-	const match = tournamentState.rounds[roundIndex]?.[matchIndex];
-	if (!match) return;
-	match.winner = winner;
-	renderTournamentBracket();
-}
-
-export function resetTournament() {
-	tournamentState.rounds = [];
-	tournamentState.currentRound = 0;
-}
-
-export function handleEndTournament(winner: string) {
-	chooseView('tree');
-	drawGameMessage(true, `🏆 Torneio vencido por ${winner}!`, "gold");
-
-	setTimeout(() => {
-		chooseView('menu');
-		drawGameMessage(false, '');
-	}, 5000);
+	tournamentTree.updateTree();
 }
 

@@ -4,16 +4,10 @@ import dropdown from "../../components/dropdown";
 import { connectToGameServer, createLobby, fetchLobbies } from "./lobbyClient";
 import { sounds, initSounds, playSound } from "./audio";
 
-
 let lobbyRefreshInterval: ReturnType<typeof setInterval> | null = null;
 
 export function turnOnGame() {
 	if (!userInfo.game_sock || userInfo.game_sock.readyState === WebSocket.CLOSED) {
-		// if (userInfo.game_sock!.readyState === WebSocket.OPEN) {
-		// 	showToast.red("🚫 Lobby socket já está aberto");
-		// 	return;
-		// }
-
 		const url = `ws://${location.hostname}:5000/lobby-ws`;
 		userInfo.game_sock = new WebSocket(url);
 
@@ -85,7 +79,7 @@ function initializeGameMainMenu(userData: {
 		if (!lobby?.classList.contains('hidden')) {
 		await fetchLobbies();
 		if (!lobbyRefreshInterval) {
-			lobbyRefreshInterval = setInterval(fetchLobbies, 5000);
+			lobbyRefreshInterval = setInterval(fetchLobbies, 500);
 			console.log("🔄 Auto-refresh started");
 		}
 		} else {
@@ -135,12 +129,12 @@ export async function initUserData() {
 	tableSizeSelect.value = userData.user_set_tableSize;
 	soundSelect.value = userData.user_set_sound === 1 ? "On" : "Off";
 
-	// Inii sound
+	// Initi sound
 	if (userData.user_set_sound === 1) {
 		initSounds();
 		setTimeout(() => {
 			sounds.menuMusic.play().catch(() => {});
-		}, 100); // evitar autoplay block
+		}, 100);
 	}
 	
 	// Init Game Menu

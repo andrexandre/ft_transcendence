@@ -2,7 +2,7 @@
 import type { MatchState } from './matchManager.js';
 
 export function initMTCPlayers(players: any[]) {
-	const positions = [5, 25, 75, 95]; // 10, 30, 70, 90
+	const positions = [2, 25, 75, 98]; // 10, 30, 70, 90
 	return players.map((p, index) => ({
 		id: p.userId,
 		username: p.username,
@@ -33,20 +33,4 @@ export function updateMTCGame(match: MatchState) {
 			match.ball.dy += impact * 2;
 		}
 	});
-}
-
-function addScoreToTeam(match: MatchState, loserSide: 'left' | 'right') {
-	const teamA = match.players.slice(0, 2);
-	const teamB = match.players.slice(2, 4);
-	const team = loserSide === 'left' ? teamB : teamA;
-	team.forEach(p => p.score++);
-}
-
-function resetBall(match: MatchState) {
-	match.ball = {
-		x: 400,
-		y: 300,
-		dx: Math.random() > 0.5 ? 1 : -1,
-		dy: Math.random() > 0.5 ? 1 : -1
-	};
 }

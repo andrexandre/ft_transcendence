@@ -44,14 +44,14 @@ export function connectToGameServer(event : MessageEvent<any>) {
 			showToast.yellow(`👋 Saiu do lobby`);
 			break;
 
-		// Tournament CASES
 		case "show-bracket":
 			if (data.state) {
 				tournamentState.rounds = data.state.rounds;
 			}
-			console.log("✅✅✅", tournamentState);
+			console.log("✅✅", tournamentState);
 			renderTournamentBracket();
 			break;
+
 			
 		case "start-round":
 			renderTournamentBracket();
