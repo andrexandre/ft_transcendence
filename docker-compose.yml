@@ -67,36 +67,16 @@ services:
     env_file:
       - .env
 
-  vite:
-    image: vite
-    container_name: vite
+
+  vite-nginx:
+    image: vite-nginx
+    container_name: vite-nginx
     build:
       context: ./frontend
-    command:
-      sh -c "
-      npm config set fund false;
-      npm config set update-notifier false;
-      npm install;
-      npm audit fix;
-      exec npm run dev
-      "
-    working_dir: /frontend
     ports:
-      - "5500:5500"
-    volumes:
-      - ./frontend:/frontend:rw
+      - "5500:8008"
     networks:
       - ft_transcendence
-
-  # vite-nginx:
-  #   image: vite-nginx
-  #   container_name: vite-nginx
-  #   build:
-  #     context: ./frontend
-  #   ports:
-  #     - "5500:8008"
-  #   networks:
-  #     - ft_transcendence
 
   nginx:
     image: nginx-gateway
