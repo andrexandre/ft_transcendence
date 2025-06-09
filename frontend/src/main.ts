@@ -97,7 +97,6 @@ window.addEventListener("popstate", () => {
 	if (lib.userInfo.match_sock && lib.userInfo.match_sock.readyState === WebSocket.OPEN) {
 		lib.userInfo.match_sock.close(1000, "Quitted the game you loser")
 		lib.userInfo.match_sock = null;
-
 	}
 	loadApp(location.pathname);
 });

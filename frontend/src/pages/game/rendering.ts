@@ -168,7 +168,10 @@ export function connectToMatch(role: "left" | "right") {
 				console.warn("🔍 Evento desconhecido:", data.type);
 		}
 	};
+	// REsolver
 	userInfo.match_sock!.onclose = () => {
+		// userInfo.match_sock.close();
+		userInfo.match_sock = null;
 		console.log("❌ Socket do jogo foi encerrado");
 		showToast.red("Disconnected from match");
 	};

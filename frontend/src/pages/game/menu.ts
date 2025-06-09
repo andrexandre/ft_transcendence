@@ -28,8 +28,10 @@ export function turnOnGame() {
 
 export function turnOffGame() {
 	if (userInfo.game_sock) {
-		if (userInfo.game_sock.readyState === WebSocket.OPEN)
+		if (userInfo.game_sock.readyState === WebSocket.OPEN){
 			userInfo.game_sock.close();
+			userInfo.game_sock = null;
+		}
 		else
 			showToast.red('The game socket exists but is closed');
 	} else {
@@ -59,12 +61,12 @@ function initializeGameMainMenu(userData: {
 	}
 
 	// Dont click
-	dropdown.addElement("Single", "button", "item t-border-alt", "Don't click", () => {
-		document.body.innerHTML = "";
-		document.body.className = "h-screen m-0 bg-cover bg-center bg-no-repeat";
-		document.body.style.backgroundImage =
-		"url('https://upload.wikimedia.org/wikipedia/commons/3/3b/Windows_9X_BSOD.png')";
-	});
+	// dropdown.addElement("Single", "button", "item t-border-alt", "Don't click", () => {
+	// 	document.body.innerHTML = "";
+	// 	document.body.className = "h-screen m-0 bg-cover bg-center bg-no-repeat";
+	// 	document.body.style.backgroundImage =
+	// 	"url('https://upload.wikimedia.org/wikipedia/commons/3/3b/Windows_9X_BSOD.png')";
+	// });
 
 	// 👥 Multiplayer dropdown
 	dropdown.initialize('Multi', async () => {
