@@ -204,10 +204,11 @@ function listenerA(name: string) {
 			load: false
 		}));
 	}
-	userInfo.chat_sock!.send(JSON.stringify({
-		type: 'join-room',
-		friend: name
-	}));
+	//? TEMP test if commenting this works
+	// userInfo.chat_sock!.send(JSON.stringify({
+	// 	type: 'join-room',
+	// 	friend: name
+	// }));
 }
 
 function renderFriendList(name: string) {
@@ -322,8 +323,7 @@ function renderFriendRequest(name: string) {
 }
 
 function renderChatRoom(name: string, isBlocked: boolean, isInvited: boolean, lobbyId: string, from: string) {
-	const roomList = document.getElementById('chat-box-message-list')!;
-	roomList.innerHTML = '';
+	document.getElementById('chat-box-message-list')!.innerHTML = '';
 
 	const chatHeaderUsername = document.getElementById('chat-box-header-username')!;
 	chatHeaderUsername.textContent = name;

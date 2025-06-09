@@ -87,7 +87,17 @@ services:
       - ./frontend:/frontend:rw
     networks:
       - ft_transcendence
-      
+
+  # vite-nginx:
+  #   image: vite-nginx
+  #   container_name: vite-nginx
+  #   build:
+  #     context: ./frontend
+  #   ports:
+  #     - "5500:8008"
+  #   networks:
+  #     - ft_transcendence
+
   nginx:
     image: nginx:latest
     container_name: nginx-gateway

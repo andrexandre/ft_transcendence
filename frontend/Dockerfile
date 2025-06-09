@@ -14,4 +14,4 @@ COPY package.json package-lock.json ./
 # COPY nginx.conf /etc/nginx/conf.d/default.conf
 # COPY --from=build /frontend/dist /usr/share/nginx/html
 
-# EXPOSE 80
+# EXPOSE 8008
