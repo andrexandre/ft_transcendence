@@ -84,7 +84,7 @@ services:
     build:
       context: ./
     ports:
-      - "8080:443"
+      - "8080:80"
     depends_on:
       - services-api
     volumes:

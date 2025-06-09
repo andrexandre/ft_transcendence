@@ -16,4 +16,4 @@ RUN chmod 777  /etc/nginx/ssl/server.key /etc/nginx/ssl/server.crt
 
 # The instruction that is to be executed when a docker container starts
 # There can only one 'CMD' in the dockerfile and it should be the last parameter 
-CMD	["nginx", "-g", "daemon off;"]`
+CMD	["nginx", "-g", "daemon off;"]
