@@ -19,8 +19,22 @@ export const tournamentState: TournamentState = {
 
 
 export const tournamentTree = {
-	getHtml: () => /*html*/`
+	getHtmlNew: () => /*html*/`
+		<div class="flex flex-col items-center justify-center">
+			<p id="winner" class="card t-dashed rounded-2xl h-30 w-70"></p>
+			<!-- <div class="t-border w-10 h-30 border-l-0"></div> -->
+			<div class="t-border h-10 w-0 border-l-0"></div>
 			<div class="flex items-center justify-center">
+				<div id="left-bracket" class="card t-dashed"></div>
+				<div class="t-border h-0 w-10 border-t-0"></div>
+				<div id="center-bracket" class="card t-dashed"></div>
+				<div class="t-border h-0 w-10 border-t-0"></div>
+				<div id="right-bracket" class="card t-dashed"></div>
+			</div>
+		</div>
+	`,
+	getHtml: () => /*html*/`
+		<div class="flex items-center justify-center">
 			<div>
 				<div id="top-bracket" class="card t-dashed"></div>
 				<div id="bot-bracket" class="card t-dashed"></div>
@@ -32,6 +46,28 @@ export const tournamentTree = {
 			<p id="winner" class="card t-dashed rounded-2xl"></p>
 		</div>
 	`,
+	updateTreeNew: (tState: TournamentState) => {
+		const tRounds = tState.rounds;
+		tournamentTree.updateMatch('left-bracket', {
+			p1name: tRounds[0][0].player1,
+			p1score: 'X',
+			p2name: tRounds[0][0].player2,
+			p2score: 'X'
+		});
+		tournamentTree.updateMatch('right-bracket', {
+			p1name: tRounds[0][1].player1,
+			p1score: 'X',
+			p2name: tRounds[0][1].player2,
+			p2score: 'X'
+		});
+		tournamentTree.updateMatch('center-bracket', {
+			p1name: tRounds[0][0].winner || "---",
+			p1score: 'X',
+			p2name: tRounds[0][1].winner || "---",
+			p2score: 'X'
+		});
+		document.getElementById("winner")!.innerHTML = tRounds[1][0].winner || "---";
+	},
 	updateTree: (tState: TournamentState) => {
 		const tRounds = tState.rounds;
 		tournamentTree.updateMatch('top-bracket', {
@@ -54,6 +90,7 @@ export const tournamentTree = {
 		});
 		document.getElementById("winner")!.innerHTML = tRounds[1][0].winner || "---";
 	},
+	// updatePerson: (nodeId: string, match: { p1name: string, p1score: string, p2name: string, p2score: string }) => {},
 	updateMatch: (nodeId: string, match: { p1name: string, p1score: string, p2name: string, p2score: string }) => {
 		let nodeClasses = 'gap-2 grid grid-cols-[auto_1rem]';
 		document.getElementById(nodeId)!.innerHTML = /*html*/`

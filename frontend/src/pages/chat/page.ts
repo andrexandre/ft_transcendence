@@ -52,12 +52,22 @@ class Chat extends Page {
 						<button id="chat-box-send-button" class="p-2 rounded-2xl hover:bg-c-secondary dark:hover:bg-c-primary" disabled>Send</button>
 					</form>
 				</div>
-				<div class="flex flex-col gap-6 card t-dashed p-5">
-					<button id="users-list-refresh" class="flex gap-4 items-center item t-dashed p-4 justify-center">
-						<i class="fa-solid fa-users"></i>
-						<span>Users</span>
-					</button>
-					<ul id="users-list" class="flex flex-col flex-1 overflow-auto"></ul>
+				<div class="flex flex-col card t-dashed p-5">
+					<div class="flex flex-col gap-6 h-full">
+						<button id="users-list-refresh" class="flex gap-4 items-center item t-dashed p-4 justify-center">
+							<i class="fa-solid fa-users"></i>
+							<span>Users</span>
+						</button>
+						<ul id="users-list" class="flex flex-col flex-1 overflow-auto"></ul>
+					</div>
+					<hr class="text-c-primary">
+					<div id="game-notifications-container" class="flex flex-col gap-6 h-fit">
+						<ul id="game-notifications-list" class="hidden flex-col flex-1 overflow-auto"></ul>
+						<button id="game-notifications-list-refresh" class="flex gap-4 items-center item t-dashed p-4 justify-center">
+							<i class="fa-solid fa-comments"></i>
+							<span>Notifications</span>
+						</button>
+					</div>
 				</div>
 			</main>
 		`;

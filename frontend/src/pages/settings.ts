@@ -110,7 +110,8 @@ class Settings extends Page {
 				const file = (event.target as HTMLInputElement).files?.[0];
 				console.debug(file);
 				if (file && (file.type.startsWith('image/png') || file.type.startsWith('image/jpeg') || file.type.startsWith('image/jpg'))) {
-					if (file.size > 2 * 1024 * 1024) {
+					const MB = 2 ** 20;
+					if (file.size > 2 * MB) {
 						lib.showToast.red("Image is too big. Max: 2MB");
 						return;
 					}

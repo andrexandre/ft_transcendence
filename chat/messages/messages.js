@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { checkBlock } from '../database/db.js';
 import { roomName } from '../utils/utils.js';
+import { timeStamp } from 'console';
 
 export async function storeChat(room, message, blocked)
 {
@@ -138,4 +139,56 @@ export async function updateBlockRoom(username, friend)
 		return ;
 	const room = await roomName(username, friend);
 	copyContents(room);
+}
+
+export async function storeNotifications(room, message)
+{
+	const dirPath =  `./database/notifications`;
+	
+	if(!fs.existsSync(dirPath))
+		fs.mkdirSync(dirPath, {recursive: true});
+
+	const filePath = path.resolve(`${dirPath}/${room}.jsonl`);
+
+	if(!fs.existsSync(filePath))
+	{
+		console.log(`File doesnt exist. Creating file ${filePath}`);
+		fs.writeFileSync(filePath, '');
+		console.log(`File created successfully.`);
+	}
+	fs.appendFileSync(filePath, JSON.stringify(message) + '\n');
+}
+
+export async function loadNotifications(room)
+{
+	const dirPath =  `./database/notifications`;
+	
+	if(!fs.existsSync(dirPath))
+		fs.mkdirSync(dirPath, {recursive: true});
+
+	const filePath = path.resolve(`${dirPath}/${room}.jsonl`);
+
+	if(!fs.existsSync(filePath))
+		return [];
+
+	const fileContent = fs.readFileSync(filePath, 'utf8');
+
+	if (!fileContent.trim())
+		return [];
+	  
+	const messages = fileContent
+		.split('\n')
+		.filter(line => line.trim())
+		.map(line => JSON.parse(line));
+
+	return messages;
+}
+
+export function createNotification(msg, timestamp)
+{
+	const not = {
+		'msg': msg,
+		'timeStamp': timestamp
+	};
+	return not
 }

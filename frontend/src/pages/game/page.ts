@@ -3,7 +3,8 @@ import * as lib from "../../utils"
 import sidebar from "../../components/sidebar"
 import dropdown from "../../components/dropdown"
 import * as menu from "./menu"
-import { tournamentTree } from "./tournamentRender"
+import { tournamentSample, tournamentTree } from "./tournamentRender"
+import { chooseView } from "./renderUtils"
 
 class Game extends Page {
 	constructor() {
@@ -51,6 +52,10 @@ class Game extends Page {
 		document.getElementById('game-main-menu')!.addEventListener('click', (event) => this.setGameMenuToggler(event));
 		document.getElementById('hide-sidebar-button')?.click();
 		document.getElementById('tournament-bracket')!.innerHTML = tournamentTree.getHtml();
+		//* To render New tournamentTree
+		// document.getElementById('tournament-bracket')!.innerHTML = tournamentTree.getHtmlNew();
+		// tournamentTree.updateTreeNew(tournamentSample);
+		// chooseView('tree');
 	}
 	onCleanup(): void {
 		lib.setTheme(lib.getTheme());

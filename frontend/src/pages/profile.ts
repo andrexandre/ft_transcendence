@@ -43,7 +43,7 @@ async function loadInformation(profileUsername: string) {
 		})
 		if (!response.ok) {
 			window.history.replaceState({}, '', '/profile');
-			lib.navigate('/profile');
+			lib.navigate('/');
 			return lib.showToast.red('Failed to load user Information!');
 		}
 		// Set user information
