@@ -1,5 +1,5 @@
 // src/tournamentManager.ts
-import { createLobby, startGame, joinLobby } from './lobbyManager.js';
+import { createLobby, startGame, joinLobby, removeLobbyByGameId } from './lobbyManager.js';
 import { Logger } from './utils.js';
 
 interface TournamentPlayer {
@@ -188,6 +188,7 @@ export function handleMatchEndFromTournament( gameId: string, winnerId: number,
 		match.winnerId = winnerId;
 		match.score1 = score1;
 		match.score2 = score2;
+		removeLobbyByGameId(gameId);
 
 		const winner = winnerId === match.player1.userId ? match.player1 : match.player2;
 		const roundFinished = round.every(m => m.winnerId !== undefined);

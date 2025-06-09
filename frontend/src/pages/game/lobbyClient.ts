@@ -48,8 +48,8 @@ export function connectToGameServer(event : MessageEvent<any>) {
 		case "show-bracket":
 			if (data.state) {
 				tournamentState.rounds = data.state.rounds;
+				tournamentState.currentRound = data.state.currentRound;
 			}
-			// console.log("✅✅", tournamentState);
 			renderTournamentBracket();
 			break;
 
@@ -61,6 +61,12 @@ export function connectToGameServer(event : MessageEvent<any>) {
 		case "end-round":
 			renderTournamentBracket();
 			break;
+
+		case "end-tournament":
+			renderTournamentBracket();
+			userInfo.game_sock?.send(JSON.stringify({ type: 'leave-lobby' }));
+			break;
+
 		// TNT close
 
 		case "match-start":
@@ -97,7 +103,7 @@ export function connectToGameServer(event : MessageEvent<any>) {
 
 export function createLobby(gameMode: string, maxPlayers: number, difficulty?: string) {
 	if (!userInfo.game_sock || userInfo.game_sock.readyState !== WebSocket.OPEN) return;
-	if (lobbyId) return showToast.red("🚫 Já estás num lobby");
+	// if (lobbyId) return showToast.red("🚫 Já estás num lobby");
 	console.log("🚀 A criar lobby:", gameMode, maxPlayers, difficulty);
 
 	userInfo.game_sock.send(JSON.stringify({

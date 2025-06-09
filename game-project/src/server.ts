@@ -2,7 +2,6 @@
 import Fastify from "fastify";
 import fastifyWebsocket from '@fastify/websocket';
 import fastifyCookie from "@fastify/cookie";
-import cors from '@fastify/cors';
 import { getLobbyByLobbyId, createLobby, joinLobby, startGame, listLobbies, leaveLobby, getLobbyByUserId} from './lobbyManager.js';
 import { getUserById, getUserDatafGateway, userRoutes } from './userSet.js';
 import { handleMatchConnection } from './matchManager.js';

@@ -86,7 +86,7 @@ function socketOnMessage(event: MessageEvent<any>) {
 		data.notifications.forEach((notification: { msg: string, timeStamp: string }) => renderGameNotification(notification.msg, notification.timeStamp));
 		handleEmptyList('game-notifications-list', 'No game notifications');
 	}
-	// game start
+	// game in
 	else if (data.type === 'receive-game-invite') {
 		showToast.green(`🎮 Convite de ${data.from}`);
 		if(userInfo.path.startsWith('/chat'))
@@ -103,8 +103,14 @@ function socketOnMessage(event: MessageEvent<any>) {
 		}, 100);
 	}
 	else if (data.type === 'invite-rejected') {
-		document.getElementById("chat-box-invite-button")?.classList.remove("hidden");
-		showToast.red(`❌ ${data.from} rejeitou o convite`);
+	document.getElementById("chat-box-invite-button")?.classList.remove("hidden");
+	showToast.red(`❌ ${data.from} rejeitou o convite`);
+	if (userInfo.game_sock && userInfo.game_sock.readyState === WebSocket.OPEN) {
+		userInfo.game_sock.send(JSON.stringify({
+			type: 'leave-lobby',
+			reason: 'invite-rejected'
+		}));
+	}
 	}
 	// game OUT
 };

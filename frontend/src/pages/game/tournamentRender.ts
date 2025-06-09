@@ -92,15 +92,36 @@ export const tournamentTree = {
 	}
 };
 
-export function renderTournamentBracket() {
-	showToast.yellow("novo jogo")
-	chooseView('tree');
-	// ver
-	userInfo.chat_sock?.send(JSON.stringify({ 
-		type: "add-notification",
-		msg: "novo jogo"
 
-	}))
-	tournamentTree.updateTree();
+export function notifyChat(message: string) {
+	if (userInfo.chat_sock?.readyState === WebSocket.OPEN) {
+		userInfo.chat_sock.send(JSON.stringify({
+			type: "add-notification",
+			msg: message
+		}));
+	}
 }
 
+export function renderTournamentBracket() {
+	chooseView('tree');
+	tournamentTree.updateTree();
+
+	const round = tournamentState.rounds[tournamentState.currentRound];
+	if (round) {
+		for (const match of round) {
+			if (match.player1 === userInfo.username || match.player2 === userInfo.username) {
+				notifyTournamentMatchOnce(tournamentState.currentRound, match.player1, match.player2);
+				showToast.green(`🆕 Teu jogo: ${match.player1} vs ${match.player2}`);
+			}
+		}
+	}
+}
+
+let lastNotifiedRound = -1;
+
+export function notifyTournamentMatchOnce(round: number, player1: string, player2: string) {
+	if (round === lastNotifiedRound) return;
+	lastNotifiedRound = round;
+
+	notifyChat(`🎮 New Tournament Game: ${player1} vs ${player2}`);
+}
