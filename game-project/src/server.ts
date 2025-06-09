@@ -3,15 +3,16 @@ import Fastify from "fastify";
 import fastifyWebsocket from '@fastify/websocket';
 import fastifyCookie from "@fastify/cookie";
 import cors from '@fastify/cors';
-import { getLobbyByLobbyId, createLobby, joinLobby, startGame, listLobbies, leaveLobby, getLobbyByUserId, getLobbyBySocket } from './lobbyManager.js';
-import { getUserDatafGateway, userRoutes } from './userSet.js';
+import { getLobbyByLobbyId, createLobby, joinLobby, startGame, listLobbies, leaveLobby, getLobbyByUserId} from './lobbyManager.js';
+import { getUserById, getUserDatafGateway, userRoutes } from './userSet.js';
 import { handleMatchConnection } from './matchManager.js';
 import { createTournament } from "./tournamentManager.js";
 import { Logger } from "./utils.js";
+import type { UserData } from './lobbyManager.js';
 
 const PORT = 5000;
 const disconnectTimers = new Map<number, NodeJS.Timeout>();
-const gameserver = Fastify({ logger: false }); // alterar true
+const gameserver = Fastify({ logger: false });
 
 await gameserver.register(fastifyWebsocket);
 await gameserver.register(fastifyCookie);
@@ -53,12 +54,11 @@ gameserver.get('/lobby-ws', { websocket: true }, async (connection, req) => {
 		connection.on('close', () => {
 			if (!user) return;
 			Logger.log(`⏳ ${user.username} desconectou. Timeout de 5s iniciado`);
-			// implementar reconect
 			const timeout = setTimeout(() => {
 				Logger.log(`❌ ${user.username} não voltou. A sair do lobby.`);
 				leaveLobby(user.userId);
 				disconnectTimers.delete(user.userId);
-			}, 5000);
+			}, 1000);
 			disconnectTimers.set(user.userId, timeout);
 		});
 	} catch (err) {
@@ -73,22 +73,41 @@ gameserver.get('/game/lobbies', async (request, reply) => {
 	reply.send(lobbies);
 });
 
-function handleSocketMessage(connection: any, data: any) {
-	const user = connection.user;
-	if (!user) {
+async function handleSocketMessage(connection: any, data: any) {
+	if (!connection.user) {
 		connection.send(JSON.stringify({ type: "error", message: "User not authenticated" }));
 		return;
 	}
+	
+	const tmp:any = await getUserById(connection.user.userId);
+	const user: UserData = {
+		username: tmp.user_name,
+		userId: tmp.user_id
+	};
 
 	switch (data.type) {
 		case "create-lobby": {
 			const { gameMode, maxPlayers } = data;
 			if (!gameMode || !maxPlayers) {
-				connection.send(JSON.stringify({ type: "error", message: "Missing lobby info" }));
+				connection.send(JSON.stringify({
+					type: "error",
+					message: "Faltam dados para criar o lobby"
+				}));
 				return;
 			}
-			const lobbyId = createLobby(connection, connection.user, gameMode, maxPlayers, data.difficulty);
-			connection.send(JSON.stringify({ type: "lobby-created", lobbyId, maxPlayers }));
+			const lobbyId = createLobby(connection, user, gameMode, maxPlayers, data.difficulty);
+			if (!lobbyId) {
+				connection.send(JSON.stringify({
+					type: "error",
+					message: "Já estás noutro lobby!"
+				}));
+				return;
+			}
+			connection.send(JSON.stringify({
+				type: "lobby-created",
+				lobbyId,
+				maxPlayers
+			}));
 			break;
 		}
 
@@ -108,7 +127,6 @@ function handleSocketMessage(connection: any, data: any) {
 		
 		case "start-game": {
 			const lobby = getLobbyByLobbyId(data.lobbyId);
-
 			if (lobby && lobby.gameMode !== "TNT") {
 				const { success, gameId } = startGame(data.lobbyId, data.requesterId);
 				if (!success) {

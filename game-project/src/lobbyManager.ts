@@ -25,17 +25,18 @@ type Lobby = {
 	players: Player[];
 };
 
-
 export const lobbies = new Map<string, Lobby>();
 
-export function createLobby(socket: WebSocket, user: UserData, gameMode: string, maxPlayers: number, difficulty?: string) {
-	// const existingLobby = getLobbyByUserId(user.userId);
-	// if (existingLobby) {
-	// 	Logger.warn(`⚠️ ${user.username} já está no lobby ${existingLobby.id}, criação bloqueada.`);
-	// 	return null;
-	// }
+// export function createLobby(socket: WebSocket, user: UserData, gameMode: string, maxPlayers: number, difficulty?: string) {
+export function createLobby(socket: WebSocket, user: UserData, gameMode: string, maxPlayers: number, difficulty?: string, force?: boolean): string | null {
+	if (!force) {
+		const existingLobby = getLobbyByUserId(user.userId);
+		if (existingLobby) {
+			Logger.warn(`🚫 ${user.username} tentou criar um lobby, mas já está no lobby ${existingLobby.id}`);
+			return null;
+		}
+	}
 	const lobbyId = `lob-${crypto.randomUUID().slice(0, 8)}`;
-	// Logger.log("🛠️🛠️🛠️ Dif:", difficulty);
 
 	const player: Player = {
 		userId: user.userId,
@@ -60,7 +61,15 @@ export function createLobby(socket: WebSocket, user: UserData, gameMode: string,
 	return lobbyId;
 }
 
-export function joinLobby(lobbyId: string, socket: WebSocket, user: UserData): string | null {
+export function joinLobby(lobbyId: string, socket: WebSocket, user: UserData, force?: boolean): string | null {
+	if (!force) {
+		const existingLobby = getLobbyByUserId(user.userId);
+		if (existingLobby) {
+			Logger.warn(`🚫 ${user.username} tentou entrar no lobby ${lobbyId}, mas já está no lobby ${existingLobby.id}`);
+			return null;
+		}
+	}
+
 	const lobby = lobbies.get(lobbyId);
 	if (!lobby || lobby.players.length >= lobby.maxPlayers || lobby.status !== "waiting") return null;
 
@@ -196,4 +205,3 @@ export function removeLobbyByGameId(gameId: string) {
 	}
 	Logger.warn(`⚠️ Nenhum lobby encontrado com gameId ${gameId} para remoção`);
 }
-  

@@ -1,6 +1,16 @@
+// src/game/renderUtils.ts
 import { showToast } from "../../utils";
 
-// src/game/renderUtils.ts
+export let gameCanvas: HTMLCanvasElement;
+export let ctx: CanvasRenderingContext2D;
+
+export function initGameCanvas() {
+	gameCanvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
+	ctx = gameCanvas.getContext("2d")!;
+	gameCanvas.width = 800;
+	gameCanvas.height = 600;
+}
+
 export function updateScoreboard(players: any[]) {
 	const el = document.getElementById("scoreboard") as HTMLDivElement;
 	if (players.length < 2) return;

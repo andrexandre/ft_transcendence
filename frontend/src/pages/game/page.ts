@@ -67,7 +67,6 @@ class Game extends Page {
 						<div class="flex flex-col w-80">
 							${dropdown.getHtml('Single')}
 							${dropdown.getHtml('Multi')}
-							${dropdown.getHtml('Co-Op')}
 							${dropdown.getHtml('Settings')}
 						</div>
 						<div id="lobby" class="hidden flex-col w-100 space-y-3 item t-border text-sm">

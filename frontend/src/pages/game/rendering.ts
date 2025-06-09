@@ -1,12 +1,8 @@
-import { showToast } from '../../utils';
-// import { Logger } from '../utils';
+import { showToast, userInfo } from '../../utils';
 import { playSound, sounds, stopSound } from './audio';
 import { clearLobbyId } from './lobbyClient';
-import { chooseView, drawGameMessage } from './renderUtils';
-import { state as tournamentState, renderTournamentBracket, handleEndTournament, showRoundTransition, state } from './tournamentRender';
-
-export let gameCanvas: HTMLCanvasElement;
-export let ctx: CanvasRenderingContext2D;
+import { chooseView, drawGameMessage, updateScoreboard } from './renderUtils';
+import { gameCanvas, ctx, initGameCanvas } from './renderUtils'
 
 const paddleWidth = 10;
 const paddleHeight = 80;
@@ -16,15 +12,7 @@ let currentPlayerId: number = 0;
 let players: { username: string; userId: number; posiY: number; posiX: number; score: number }[] = [];
 let ball = { x: 800, y: 600 };
 let gameStarted = false;
-let matchSocket: WebSocket;
 let localUsername: string = "";
-
-export function initGameCanvas() {
-	gameCanvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
-	ctx = gameCanvas.getContext("2d")!;
-	gameCanvas.width = 800;
-	gameCanvas.height = 600;
-}
 
 function drawGame() {
 	ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
@@ -58,36 +46,6 @@ function drawGame() {
 	updateScoreboard(players);
 }
 
-export function updateScoreboard(players: any[]) {
-	const el = document.getElementById("scoreboard") as HTMLDivElement;
-	if (players.length < 2) return;
-	if (players.length == 4) {
-		const teamA = players.slice(0, 2);
-		const teamB = players.slice(2, 4);
-		const scoreA = teamA.reduce((acc, p) => acc + p.score, 0);
-		const scoreB = teamB.reduce((acc, p) => acc + p.score, 0);
-		el.innerHTML = /*html*/`
-			<div class="grid grid-cols-[1fr_15rem_1fr] space-y-1">
-				<div class="text-right truncate" style='color: blue;'>Team 1</div>
-				<div class="text-center">${scoreA} vs ${scoreB}</div>
-				<div class="text-left truncate" style='color: red;'>Team 2</div>
-				<div class="text-right text-sm">${teamA.map(p => p.username).join(', ')}</div>
-				<div class="text-center"></div>
-				<div class="text-left text-sm">${teamB.map(p => p.username).join(', ')}</div>
-			</div>
-		`;
-	} else {
-		const [p1, p2] = players;
-		el.innerHTML = /*html*/`
-			<div class="grid grid-cols-[1fr_15rem_1fr]">
-				<div class="text-right truncate" style='color: blue;'>${p1.username}</div>
-				<div class="text-center">${p1.score} vs ${p2.score}</div>
-				<div class="text-left truncate" style='color: red;'>${p2.username}</div>
-			</div>
-		`;
-	}
-}
-
 let isKeySetup = false;
 
 function setupControls() {
@@ -106,24 +64,23 @@ function setupControls() {
 	}
 
 	setInterval(() => {
-		if (!matchSocket || matchSocket.readyState !== WebSocket.OPEN) return;
+		if (!userInfo.match_sock || userInfo.match_sock.readyState !== WebSocket.OPEN) return;
 
 		const now = Date.now();
 		if (now - lastMoveTime < speedDelay) return;
 
 		if (keysPressed["ArrowUp"]) {
-			matchSocket.send(JSON.stringify({ type: "move", direction: "up" }));
+			userInfo.match_sock.send(JSON.stringify({ type: "move", direction: "up" }));
 			lastMoveTime = now;
 		}
 		if (keysPressed["ArrowDown"]) {
-			matchSocket.send(JSON.stringify({ type: "move", direction: "down" }));
+			userInfo.match_sock.send(JSON.stringify({ type: "move", direction: "down" }));
 			lastMoveTime = now;
 		}
 	}, 1000 / 60);
 }
 
-export function connectToMatch(socket: WebSocket, role: "left" | "right") {
-	matchSocket = socket;
+export function connectToMatch(role: "left" | "right") {
 	chooseView('game');
 	initGameCanvas();
 	setupControls();
@@ -133,109 +90,87 @@ export function connectToMatch(socket: WebSocket, role: "left" | "right") {
 
 	console.log("🎮 Socket conectado → preparando canvas");
 
-	matchSocket.onmessage = (event) => {
+	userInfo.match_sock!.onmessage = (event) => {
 		const data = JSON.parse(event.data);
 
-		if (data.type === "welcome") {
-			console.log("🎉 Welcome recebido:", data);
-			currentPlayerId = data.playerId;
-			data.role = role; //???
-			return;
-		}
+		switch (data.type) {
+			case "welcome":
+				console.log("🎉 Welcome recebido:", data);
+				currentPlayerId = data.playerId;
+				data.role = role;
+				break;
 
-		if (data.type === "countdown") {
-			gameStarting = true;
-			drawGameMessage(true, data.value.toString(), "green");
-			// add som
-			if ((window as any).appUser?.user_set_sound === 1) {
-				playSound("countdown");
-			}
-			if (data.value === 1) {
-				setTimeout(() => {
-					drawGameMessage(false);
-					if (!gameStarted) {
-						chooseView('game');
-						gameStarted = true;
-						console.log("🟢 Jogo marcado como iniciado");
-					}
-				}, 1000);
-			}
-			return;
-		}
-
-		if (data.type === "update") {
-			if (!gameStarted && !gameStarting) {
-				chooseView('game');
-				gameStarted = true;
-			}
-
-			localUsername = data.you;
-			// console.log("🟢🟢🟢🟢:", localUsername);
-			players = data.state.players;
-			role = data.state.role;
-			currentPlayerId = players.find(p => p.username === localUsername)?.userId ?? 0;
-			ball = data.state.ball;
-			drawGame();
-			return;
-		}
-
-		if (data.type === "scoreboard") {
-			players = data.players;
-			updateScoreboard(players);
-			return;
-		}
-
-		if (data.type === "show-bracket") {
-			console.log("TREEEEE no RENDERING");
-			renderTournamentBracket();
-			return;
-		}
-
-
-		if (data.type === "end-round") {
-			renderTournamentBracket();
-			tournamentState.rounds[data.roundIndex][data.matchIndex].winner = data.winner;
-			return;
-		}
-
-		if (data.type === "end-tournament") {
-			handleEndTournament(data.winner);
-			return;
-		}
-
-		if (data.type === "start-round") {
-			showRoundTransition(data.round);
-			return;
-		}
-
-		if (data.type === "player-disconnected") {
-			showToast.red(`⚠️ ${data.username} foi desconectado`);
-		}
-
-		if (data.type === "end" && !gameEnded) {
-			gameEnded = true;
-			drawGameMessage(true, `${data.winner} wins!`, data.winner === (window as any).appUser?.user_name ? "blue" : "red")
-			setTimeout(() => {
-				chooseView('menu');
-				drawGameMessage(false);
-
-				clearLobbyId();
-				gameStarted = false;
-				gameStarting = false;
-				gameEnded = false;
-
-				// remove som
+			case "countdown":
+				gameStarting = true;
+				drawGameMessage(true, data.value.toString(), "green");
 				if ((window as any).appUser?.user_set_sound === 1) {
-					stopSound("gameMusic");
-					sounds.menuMusic.play().catch(() => { });
+					playSound("countdown");
 				}
-			}, 5000);
-			return;
+				if (data.value === 1) {
+					setTimeout(() => {
+						drawGameMessage(false);
+						if (!gameStarted) {
+							chooseView('game');
+							gameStarted = true;
+							console.log("🟢 Jogo marcado como iniciado");
+						}
+					}, 100);
+				}
+				break;
+
+			case "update":
+				if (!gameStarted && !gameStarting) {
+					chooseView('game');
+					gameStarted = true;
+				}
+
+				localUsername = data.you;
+				players = data.state.players;
+				role = data.state.role;
+				currentPlayerId = players.find(p => p.username === localUsername)?.userId ?? 0;
+				ball = data.state.ball;
+				drawGame();
+				break;
+
+			case "scoreboard":
+				players = data.players;
+				updateScoreboard(players);
+				break;
+
+			case "player-disconnected":
+				showToast.red(`⚠️ ${data.username} foi desconectado`);
+				break;
+
+			case "end":
+				if (gameEnded) break;
+				gameEnded = true;
+				drawGameMessage(
+					true,
+					`${data.winner} wins!`,
+					data.winner === (window as any).appUser?.user_name ? "blue" : "red"
+				);
+				setTimeout(() => {
+					chooseView('menu');
+					drawGameMessage(false);
+					clearLobbyId();
+					gameStarted = false;
+					gameStarting = false;
+					gameEnded = false;
+
+					if ((window as any).appUser?.user_set_sound === 1) {
+						stopSound("gameMusic");
+						sounds.menuMusic.play().catch(() => {});
+					}
+				}, 5000);
+				break;
+
+			default:
+				console.warn("🔍 Evento desconhecido:", data.type);
 		}
 	};
-
-	matchSocket.onclose = () => {
+	userInfo.match_sock!.onclose = () => {
 		console.log("❌ Socket do jogo foi encerrado");
 		showToast.red("Disconnected from match");
 	};
 }
+
