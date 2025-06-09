@@ -23,6 +23,8 @@ async function loadInformation() {
 		(document.getElementById('2fa-toggle') as HTMLInputElement).checked = userData.two_FA_status;
 		if (userData.auth_method === 'google')
 			(document.getElementById('2fa-toggle') as HTMLInputElement).disabled = true
+		else
+			document.getElementById('2fa-toggle')!.addEventListener('click', twoFaToogleListener);
 
 		// Set user avatar
 		renderProfileImage("profile-image", userData.username);
@@ -30,7 +32,67 @@ async function loadInformation() {
 		return lib.showToast.red(error.message);
 	}
 }
+async function twoFaToogleListener() {
+	const twoFAButton = document.getElementById('2fa-toggle') as HTMLInputElement;
 
+	try {
+		const response = await fetch(`http://${location.hostname}:8080/2fa/set-google-authenticator?status=${twoFAButton.checked}`, {
+			method: 'GET',
+			credentials: "include"
+		});
+		if (!response.ok) {
+			const errorData = await response.json();
+			throw new Error(errorData.message);
+		}
+		if (twoFAButton.checked) {
+			const data = await response.json();
+			document.getElementById('2fa-info')!.outerHTML = /*html*/`
+				<div id="2fa-info" class="flex card pb-0 pt-2">
+					<img id="qr-code-img" src="${data.content}" class="shadow-lg shadow-neutral-400 rounded"/>
+					<div class="flex flex-col justify-center self-center gap-6 ml-20">
+						<p>
+							<b>To set up two factor authentication</b> <br>
+							1. Download an authenticator app. <br>
+							2. Scan the QR code. <br>
+							3. Enter the 2FA code from the app, here.
+						</p>
+						<input type="text" id="qr-code-input" class="p-1 t-dashed pl-4 h-fit" placeholder="Enter 2FA code" maxlength="6" />
+					</div>
+				</div>
+			`;
+			document.getElementById('qr-code-input')!.addEventListener('input', async (event) => {
+				const input = (event.target as HTMLInputElement);
+				if (input.value.length === 6) {
+					const payload: { totpCode: string; username: string } = {
+						totpCode: input.value,
+						username: lib.userInfo.username
+					};
+					const response2fa = await fetch(`http://${location.hostname}:8080/2fa/verify-google-authenticator?isSetup=true`, {
+						method: 'POST',
+						credentials: "include",
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify(payload),
+					});
+					if (response2fa.status === 401) throw new Error("Invalid Code.");
+
+					if (!response2fa.ok) {
+						const errorData = await response2fa.json();
+						throw new Error(errorData.message);
+					}
+					lib.showToast.green("2FA enabled");	
+					lib.showToast(`Sent 2FA code: ${input.value}`);
+					document.getElementById('2fa-info')?.remove();
+				}
+			});
+		} else {
+			document.getElementById('2fa-info')?.classList.add('hidden');
+			lib.showToast.red("2FA disabled");
+		}
+	} catch (error: any) {
+		console.log(error);
+		return lib.showToast.red(error.message);
+	}
+}
 class Settings extends Page {
 	constructor() {
 		super("settings", '/settings');
@@ -80,69 +142,6 @@ class Settings extends Page {
 					lib.showToast.red("Invalid image");
 			}, { once: true });
 			input.click();
-		});
-
-		// 2FA status button
-		document.getElementById('2fa-toggle')!.addEventListener('click', async () => {
-			const twoFAButton = document.getElementById('2fa-toggle') as HTMLInputElement;
-
-			try {
-				const response = await fetch(`http://${location.hostname}:8080/2fa/set-google-authenticator?status=${twoFAButton.checked}`, {
-					method: 'GET',
-					credentials: "include"
-				});
-				if (!response.ok) {
-					const errorData = await response.json();
-					throw new Error(errorData.message);
-				}
-				if (twoFAButton.checked) {
-					const data = await response.json();
-					document.getElementById('2fa-info')!.outerHTML = /*html*/`
-						<div id="2fa-info" class="flex card pb-0 pt-2">
-							<img id="qr-code-img" src="${data.content}" class="shadow-lg shadow-neutral-400 rounded"/>
-							<div class="flex flex-col justify-center self-center gap-6 ml-20">
-								<p>
-									<b>To set up two factor authentication</b> <br>
-									1. Download an authenticator app. <br>
-									2. Scan the QR code. <br>
-									3. Enter the 2FA code from the app, here.
-								</p>
-								<input type="text" id="qr-code-input" class="p-1 t-dashed pl-4 h-fit" placeholder="Enter 2FA code" maxlength="6" />
-							</div>
-						</div>
-					`;
-					document.getElementById('qr-code-input')!.addEventListener('input', async (event) => {
-						const input = (event.target as HTMLInputElement);
-						if (input.value.length === 6) {
-							const payload: { totpCode: string; username: string } = {
-								totpCode: input.value,
-								username: lib.userInfo.username
-							};
-							const response2fa = await fetch(`http://${location.hostname}:8080/2fa/verify-google-authenticator?isSetup=true`, {
-								method: 'POST',
-								credentials: "include",
-								headers: { 'Content-Type': 'application/json' },
-								body: JSON.stringify(payload),
-							});
-							if (response2fa.status === 401) throw new Error("Invalid Code.");
-
-							if (!response2fa.ok) {
-								const errorData = await response2fa.json();
-								throw new Error(errorData.message);
-							}
-							lib.showToast.green("2FA enabled");	
-							lib.showToast(`Sent 2FA code: ${input.value}`);
-							document.getElementById('2fa-info')?.remove();
-						}
-					});
-				} else {
-					document.getElementById('2fa-info')?.classList.add('hidden');
-					lib.showToast.red("2FA disabled");
-				}
-			} catch (error: any) {
-				console.log(error);
-				return lib.showToast.red(error.message);
-			}
 		});
 
 		// Set up the theme selector

@@ -10,7 +10,7 @@ async function callbackOAuth(fastify, options) {
             secure: true,
             sameSite: 'Strict'
           });
-          reply.redirect(`http://${req.headers.host}:5500`).status(200);
+          return reply.redirect(`http://127.0.0.1:5500`).status(200);
         } catch (err) {
           reply.status(500).send(err);
         }

@@ -8,6 +8,7 @@ const getSettingsSchema = {
 				email: { type: 'string' },
 				codename: { type: 'string' },
 				biography: { type: 'string' },
+				auth_method: { type: 'string' },
 				two_FA_status: { type: 'boolean' }
 			}
 		},
