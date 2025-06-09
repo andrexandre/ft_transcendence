@@ -1,4 +1,6 @@
 // src/pages/game/tournamentRender.ts
+// import { userInfo } from './utils';
+import { showToast, userInfo } from '../../utils';
 import { chooseView } from './renderUtils';
 
 export type TournamentMatch = {
@@ -91,7 +93,14 @@ export const tournamentTree = {
 };
 
 export function renderTournamentBracket() {
+	showToast.yellow("novo jogo")
 	chooseView('tree');
+	// ver
+	userInfo.chat_sock?.send(JSON.stringify({ 
+		type: "add-notification",
+		msg: "novo jogo"
+
+	}))
 	tournamentTree.updateTree();
 }
 

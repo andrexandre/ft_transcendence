@@ -43,12 +43,13 @@ export function connectToGameServer(event : MessageEvent<any>) {
 			lobbyId = null;
 			showToast.yellow(`👋 Saiu do lobby`);
 			break;
-
+		
+		// TNT in
 		case "show-bracket":
 			if (data.state) {
 				tournamentState.rounds = data.state.rounds;
 			}
-			console.log("✅✅", tournamentState);
+			// console.log("✅✅", tournamentState);
 			renderTournamentBracket();
 			break;
 
@@ -204,7 +205,7 @@ function renderLobbyList(lobbies: any[]) {
 		const isInLobby = lobby.players?.some((p: any) => Number(p.userId) === Number(currentUserId));
 
 		// console.log(`📦 Lobby: ${lobby.id} | isHost: ${isHost} | isInLobby: ${isInLobby} | isFull: ${isFull}`);
-		console.log("🛠️ Lobby data:", lobbyId);
+		// console.log("🛠️ Lobby data:", lobbyId);
 
 		addLobbyEntry(
 			lobby.id,

@@ -127,8 +127,10 @@ export async function SocketHandler(socket, username)
 					removeInviteLobby(data.lobbyId);
 					break;
 				case 'load-notifications':
-					const room_not = roomNotifications(username);
-					const notifications = loadNotifications(room_not);
+					const room_not = await roomNotifications(username);
+					console.log(room_not)
+					const notifications = await loadNotifications(room_not);
+					console.log(notifications);
 					socket.send(JSON.stringify({
 						type: 'load-notifications',
 						notifications: notifications
@@ -136,7 +138,7 @@ export async function SocketHandler(socket, username)
 					break;
 				case 'add-notification':
 					const notif = createNotification(data.msg, getTimeString());
-					storeNotifications(roomNotifications(username), notif);
+					storeNotifications(await roomNotifications(username), notif);
 					break;
 			}
 		});
