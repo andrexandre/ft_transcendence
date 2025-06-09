@@ -204,10 +204,11 @@ function listenerA(name: string) {
 			load: false
 		}));
 	}
-	userInfo.chat_sock!.send(JSON.stringify({
-		type: 'join-room',
-		friend: name
-	}));
+	//? TEMP test if commenting this works
+	// userInfo.chat_sock!.send(JSON.stringify({
+	// 	type: 'join-room',
+	// 	friend: name
+	// }));
 }
 
 function renderFriendList(name: string) {
@@ -322,8 +323,7 @@ function renderFriendRequest(name: string) {
 }
 
 function renderChatRoom(name: string, isBlocked: boolean, isInvited: boolean, lobbyId: string, from: string) {
-	const roomList = document.getElementById('chat-box-message-list')!;
-	roomList.innerHTML = '';
+	document.getElementById('chat-box-message-list')!.innerHTML = '';
 
 	const chatHeaderUsername = document.getElementById('chat-box-header-username')!;
 	chatHeaderUsername.textContent = name;
@@ -337,12 +337,12 @@ function renderChatRoom(name: string, isBlocked: boolean, isInvited: boolean, lo
 		document.getElementById("reject-invite-to-game-button")!.classList.add('hidden');
 	}
 
-	(document.getElementById('chat-box-input') as HTMLInputElement).disabled = isBlocked;
-	(document.getElementById('chat-box-send-button') as HTMLButtonElement).disabled = isBlocked;
 	if ((document.getElementById('chat-box-profile') as HTMLButtonElement).disabled) {
 		const chatBoxElements = document.querySelectorAll('#chat-box input, #chat-box button');
 		chatBoxElements.forEach(element => (element as HTMLInputElement).disabled = false);
 	}
+	(document.getElementById('chat-box-input') as HTMLInputElement).disabled = isBlocked;
+	(document.getElementById('chat-box-send-button') as HTMLButtonElement).disabled = isBlocked;
 	window.history.replaceState({}, '', `/chat/${name}`);
 	renderProfileImage("chat-box-profile-image", name);
 	userInfo.chat_sock!.send(JSON.stringify({
@@ -393,7 +393,6 @@ export function setChatEventListeners() {
 				type: 'get-online-users'
 			}));
 		});
-	handleEmptyList('game-notifications-list', 'No game requests');
 	document.getElementById('game-notifications-list-refresh')?.addEventListener('click',
 		() => {
 			if (document.getElementById('game-notifications-list')?.classList.contains('hidden')) {
