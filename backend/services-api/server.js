@@ -22,6 +22,8 @@ import logoutRoute from './routes/auth/logout.js';
 import callbackOAuthRoute from './routes/auth/OAuth/callbackOAuth.js';
 import jwtHandler from './routes/auth/jwt/jwtHandler.js'
 import twoFactorAuth from './routes/auth/two-factor-auth.js'
+import fs from 'fs';
+
 
 dotenv.config();
 const fastify = Fastify({
@@ -29,6 +31,10 @@ const fastify = Fastify({
     level: 'debug',
     timestamp: true, 
   },
+  https: {
+    key: fs.readFileSync('/ssl/server.key'),
+    cert: fs.readFileSync('/ssl/server.crt'),
+  }
 });
 
 fastify.register(fastifyCookie);

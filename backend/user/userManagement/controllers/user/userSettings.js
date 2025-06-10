@@ -19,7 +19,7 @@ async function saveSettings(request, reply) {
 
 		const { username } =  request.body;
 		if (request.authenticatedUser.username !== username) {
-			const responseJwt = await fetch('http://nginx-gateway:80/token/updateToken', {
+			const responseJwt = await fetch('https://nginx-gateway:80/token/updateToken', {
 				method: 'POST',
 				headers: {
 					"Content-Type": "application/json",
@@ -41,7 +41,7 @@ async function saveSettings(request, reply) {
 			delete cookieOpts.name;
 			delete cookieOpts.value;
 
-			const responseGame = await fetch('http://nginx-gateway:80/game/updateUserInfo', {
+			const responseGame = await fetch('https://nginx-gateway:80/game/updateUserInfo', {
 				method: 'POST',
 				headers: { "Cookie": `token=${newValue}` },
 			});

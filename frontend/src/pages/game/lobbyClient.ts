@@ -74,7 +74,7 @@ export function connectToGameServer(event : MessageEvent<any>) {
 
 			console.log("🎮 Game start recebido! A abrir ligação para /match-ws");
 			showToast.green(`🎮 Game started! You are: ${data.playerRole}`);
-			userInfo.match_sock = new WebSocket(`ws://${location.hostname}:5000/match-ws?gameId=${data.gameId}`);
+			userInfo.match_sock = new WebSocket(`wss://${location.hostname}:5000/match-ws?gameId=${data.gameId}`);
 			console.log("🛰️ Connecting to match-ws:", data.gameId);
 
 			userInfo.match_sock.onopen = () => {

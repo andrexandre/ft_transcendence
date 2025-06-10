@@ -7,7 +7,7 @@ export default function jwtHandler(fastify, options) {
     reply.setCookie('token', token, {
       path: '/',
       httpOnly: true,
-      secure: false,
+      secure: true,
       sameSite: 'lax'
     }).status(200);
   })

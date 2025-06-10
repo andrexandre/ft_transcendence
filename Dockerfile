@@ -4,6 +4,10 @@ RUN apt update && \
 	apt install -y sqlite3 && \
 	rm -rf /var/lib/apt/lists/*
 
+RUN mkdir -p /ssl
+
+COPY ./certificates /ssl
+
 RUN npm config set fund false && npm config set update-notifier false
 
 
