@@ -71,9 +71,7 @@ export function handleMatchConnection(gameId: string, connection: any) {
 	}
 
 	const socketArray = matchSockets.get(gameId)!;
-	const index = socketArray.length;
 	socketArray.push(connection);
-	// console.log(connection)
 	Logger.log(`👥 Total de sockets no jogo ${gameId}: ${socketArray.length}`);
 
 	if (!matches.has(gameId)) {
@@ -94,22 +92,19 @@ export function handleMatchConnection(gameId: string, connection: any) {
 	const user = connection.user;
 	if (user) {
 		connection.send(JSON.stringify({
-		type: "welcome",
-		playerId: user.userId,
-		username: user.username
+			type: "welcome",
+			playerId: user.userId,
+			username: user.username
 		}));
 	}
-	// console.log(user)
 
 	connection.on("message", (msg: string) => {
 		try {
 			const data = JSON.parse(msg.toString());
 			const match = matches.get(gameId);
-			if (!match) return;
+			if (!match || !user) return;
 
-			const player = match.players[index];
-			// const player = match.players.find(p => p.id === user.userId);
-
+			const player = match.players.find(p => p.id === user.userId);
 			if (!player) return;
 
 			if (data.type === "move") {
@@ -140,7 +135,7 @@ export function handleMatchConnection(gameId: string, connection: any) {
 			Logger.log(`👥 Jogadores restantes: ${sockets.length}`);
 		}
 	});
-};
+}
 
 function updateMatchState(gameId: string) {
 	const match = matches.get(gameId);

@@ -27,7 +27,6 @@ type Lobby = {
 
 export const lobbies = new Map<string, Lobby>();
 
-// export function createLobby(socket: WebSocket, user: UserData, gameMode: string, maxPlayers: number, difficulty?: string) {
 export function createLobby(socket: WebSocket, user: UserData, gameMode: string, maxPlayers: number, difficulty?: string, force?: boolean): string | null {
 	if (!force) {
 		const existingLobby = getLobbyByUserId(user.userId);

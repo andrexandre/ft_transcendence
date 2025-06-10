@@ -152,15 +152,34 @@ async function handleSocketMessage(connection: any, data: any) {
 }
 
 // MATCH WS
+// gameserver.get('/match-ws', { websocket: true }, (connection, req) => {
+// 	const gameId = new URL(req.url!, 'http://127.0.0.1:').searchParams.get('gameId');
+// 	if (!gameId) {
+// 		connection.send(JSON.stringify({ type: "error", message: "Missing gameId" }));
+// 		connection.close();
+// 		return;
+// 	}
+// 	handleMatchConnection(gameId, connection);
+// });
+
 gameserver.get('/match-ws', { websocket: true }, (connection, req) => {
-	const gameId = new URL(req.url!, 'http://127.0.0.1:').searchParams.get('gameId');
-	if (!gameId) {
-		connection.send(JSON.stringify({ type: "error", message: "Missing gameId" }));
-		connection.close();
+	const ws = connection as any;
+	const query = new URL(req.url!, 'http://localhost').searchParams;
+
+	const gameId = query.get('gameId');
+	const userId = Number(query.get('userId'));
+	const username = query.get('username');
+
+	if (!gameId || !userId || !username) {
+		ws.send(JSON.stringify({ type: "error", message: "Missing gameId or user" }));
+		ws.close();
 		return;
 	}
-	handleMatchConnection(gameId, connection);
+
+	ws.user = { userId, username };
+	handleMatchConnection(gameId, ws);
 });
+
 
 // SERVER LISTENING
 gameserver.listen({ port: PORT, host: "0.0.0.0" }, () => {
