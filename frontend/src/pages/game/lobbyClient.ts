@@ -11,7 +11,7 @@ let matchSocketStarted = false;
 export function connectToGameServer(event : MessageEvent<any>) {
 	user = {username: userInfo.username, userId: userInfo.userId}
 	const data = JSON.parse(event.data);
-	console.log("📨 WS Message:", data);
+	// console.log("📨 WS Message:", data); // URG
 
 	switch (data.type) {
 		case "lobby-created":
@@ -46,6 +46,7 @@ export function connectToGameServer(event : MessageEvent<any>) {
 		
 		// TNT in
 		case "show-bracket":
+			// console.log("🎯 Received bracket update:", data.state);
 			if (data.state) {
 				tournamentState.rounds = data.state.rounds;
 				tournamentState.currentRound = data.state.currentRound;
@@ -53,20 +54,18 @@ export function connectToGameServer(event : MessageEvent<any>) {
 			renderTournamentBracket();
 			break;
 
-			
 		case "start-round":
 			renderTournamentBracket();
 			break;
 
-		case "end-round":
-			renderTournamentBracket();
-			break;
-
 		case "end-tournament":
+			if (data.state) {
+				tournamentState.rounds = data.state.rounds;
+				tournamentState.currentRound = data.state.currentRound;
+			}
 			renderTournamentBracket();
 			userInfo.game_sock?.send(JSON.stringify({ type: 'leave-lobby' }));
 			break;
-
 		// TNT close
 
 		case "match-start":
@@ -80,12 +79,19 @@ export function connectToGameServer(event : MessageEvent<any>) {
 
 			console.log("🎮 Game start recebido! A abrir ligação para /match-ws");
 			showToast.green(`🎮 Game started! You are: ${data.playerRole}`);
-			userInfo.match_sock = new WebSocket(`ws://${location.hostname}:5000/match-ws?gameId=${data.gameId}`);
+			// userInfo.match_sock = new WebSocket(`ws://${location.hostname}:5000/match-ws?gameId=${data.gameId}`);
+			userInfo.match_sock = new WebSocket(
+				`ws://${location.hostname}:5000/match-ws?gameId=${data.gameId}&userId=${userInfo.userId}&username=${userInfo.username}`
+			);
+
 			console.log("🛰️ Connecting to match-ws:", data.gameId);
 
 			userInfo.match_sock.onopen = () => {
 				console.log("✅ Connected to match WebSocket for game:", data.gameId);
-				connectToMatch(data.playerRole);
+				// connectToMatch(data.playerRole);
+				const playerRole = data.playerRole ?? "left";
+				connectToMatch(playerRole);
+
 			};
 
 			userInfo.match_sock.onerror = () => {
@@ -209,7 +215,6 @@ function renderLobbyList(lobbies: any[]) {
 		const isHost = Number(lobby.hostUserId) === currentUserId;
 		const isFull = lobby.playerCount === lobby.maxPlayers;
 		const isInLobby = lobby.players?.some((p: any) => Number(p.userId) === Number(currentUserId));
-
 		// console.log(`📦 Lobby: ${lobby.id} | isHost: ${isHost} | isInLobby: ${isInLobby} | isFull: ${isFull}`);
 		// console.log("🛠️ Lobby data:", lobbyId);
 

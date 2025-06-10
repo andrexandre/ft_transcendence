@@ -73,6 +73,7 @@ export function handleMatchConnection(gameId: string, connection: any) {
 	const socketArray = matchSockets.get(gameId)!;
 	const index = socketArray.length;
 	socketArray.push(connection);
+	// console.log(connection)
 	Logger.log(`👥 Total de sockets no jogo ${gameId}: ${socketArray.length}`);
 
 	if (!matches.has(gameId)) {
@@ -98,6 +99,7 @@ export function handleMatchConnection(gameId: string, connection: any) {
 		username: user.username
 		}));
 	}
+	// console.log(user)
 
 	connection.on("message", (msg: string) => {
 		try {
@@ -106,6 +108,8 @@ export function handleMatchConnection(gameId: string, connection: any) {
 			if (!match) return;
 
 			const player = match.players[index];
+			// const player = match.players.find(p => p.id === user.userId);
+
 			if (!player) return;
 
 			if (data.type === "move") {

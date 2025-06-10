@@ -67,23 +67,7 @@ export function createTournament(id: string, players: TournamentPlayer[]) {
 		for (const match of round) {
 			for (const player of [match.player1, match.player2]) {
 				if (player.socket.readyState === WebSocket.OPEN) {
-					player.socket.send(JSON.stringify({
-						type: "show-bracket",
-						state: {
-							currentRound: tournament.currentRound,
-							rounds: tournament.matches.map(round => 
-								round.map(match => ({
-									player1: match.player1.username,
-									player2: match.player2.username,
-									winner: match.winnerId 
-										? (match.winnerId === match.player1.userId ? match.player1.username : match.player2.username) 
-										: undefined,
-									score1: match.score1,
-									score2: match.score2
-								}))
-							)
-						}
-					}));
+					broadcastBracket(tournament);
 				}
 			}
 		}
@@ -104,23 +88,7 @@ function startNextRound(tournamentId: string) {
 		for (const match of round) {
 			for (const player of [match.player1, match.player2]) {
 				if (player?.socket?.readyState === WebSocket.OPEN) {
-					player.socket.send(JSON.stringify({
-						type: "show-bracket",
-						state: {
-							currentRound: tournament.currentRound,
-							rounds: tournament.matches.map(round => 
-								round.map(match => ({
-									player1: match.player1.username,
-									player2: match.player2.username,
-									winner: match.winnerId 
-										? (match.winnerId === match.player1.userId ? match.player1.username : match.player2.username) 
-										: undefined,
-									score1: match.score1,
-									score2: match.score2
-								}))
-							)
-						}
-					}));
+					broadcastBracket(tournament);
 				}
 			}
 		}
@@ -176,9 +144,8 @@ function startNextRound(tournamentId: string) {
 	}
 }
 
-export function handleMatchEndFromTournament( gameId: string, winnerId: number,
-	score1: number, score2: number): { roundIndex: number; matchIndex: number; winnerUsername: string; isFinal: boolean;
-	} | void {
+export function handleMatchEndFromTournament( gameId: string, winnerId: number, score1: number, score2: number): { 
+	roundIndex: number; matchIndex: number; winnerUsername: string; isFinal: boolean;} | void {
 	for (const tournament of tournaments.values()) {
 		const round = tournament.matches[tournament.currentRound];
 		const matchIndex = round.findIndex(m => m.gameId === gameId);
@@ -189,6 +156,7 @@ export function handleMatchEndFromTournament( gameId: string, winnerId: number,
 		match.score1 = score1;
 		match.score2 = score2;
 		removeLobbyByGameId(gameId);
+		broadcastBracket(tournament);
 
 		const winner = winnerId === match.player1.userId ? match.player1 : match.player2;
 		const roundFinished = round.every(m => m.winnerId !== undefined);
@@ -196,13 +164,9 @@ export function handleMatchEndFromTournament( gameId: string, winnerId: number,
     if (roundFinished) {
 		const nextPlayers = round.map(m => m.winnerId === m.player1.userId ? m.player1 : m.player2);
 		if (nextPlayers.length === 1) {
+			broadcastBracket(tournament);
 			Logger.log(`🏆 Torneio ${tournament.id} vencido por ${nextPlayers[0].username}`);
 			tournament.inProgress = false;
-
-			nextPlayers[0].socket.send(JSON.stringify({
-			type: "end-tournament",
-			winner: nextPlayers[0].username
-			}));
 
 			return;
 		}
@@ -220,8 +184,33 @@ export function handleMatchEndFromTournament( gameId: string, winnerId: number,
 		Logger.log("⏳ W8 7 secs...");
 		setTimeout(() => startNextRound(tournament.id), 7000);
     }
+	broadcastBracket(tournament);
 
 	return { roundIndex: tournament.currentRound, matchIndex,
 	winnerUsername: winner.username, isFinal: false	};
+	}
+}
+
+function broadcastBracket(tournament: Tournament) {
+	for (const player of tournament.players) {
+		if (player.socket.readyState === WebSocket.OPEN) {
+			player.socket.send(JSON.stringify({
+				type: "show-bracket",
+				state: {
+					currentRound: tournament.currentRound,
+					rounds: tournament.matches.map(round => 
+						round.map(match => ({
+							player1: match.player1.username,
+							player2: match.player2.username,
+							winner: match.winnerId 
+								? (match.winnerId === match.player1.userId ? match.player1.username : match.player2.username) 
+								: undefined,
+							score1: match.score1,
+							score2: match.score2
+						}))
+					)
+				}
+			}));
+		}
 	}
 }

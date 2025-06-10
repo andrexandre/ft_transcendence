@@ -46,30 +46,33 @@ export const tournamentTree = {
 		</div>
 	`,
 	updateTree: () => {
-		const [round1, round2] = tournamentState.rounds;
+		const rounds = tournamentState.rounds;
+		const winnerEl = document.getElementById("winner");
 
 		tournamentTree.updateMatch('top-bracket', {
-			p1name: round1?.[0]?.player1 || "---",
-			p1score: String(round1?.[0]?.score1 ?? "-"),
-			p2name: round1?.[0]?.player2 || "---",
-			p2score: String(round1?.[0]?.score2 ?? "-"),
+			p1name: rounds?.[0]?.[0]?.player1 ?? "---",
+			p1score: String(rounds?.[0]?.[0]?.score1 ?? "-"),
+			p2name: rounds?.[0]?.[0]?.player2 ?? "---",
+			p2score: String(rounds?.[0]?.[0]?.score2 ?? "-"),
 		});
 
 		tournamentTree.updateMatch('bot-bracket', {
-			p1name: round1?.[1]?.player1 || "---",
-			p1score: String(round1?.[1]?.score1 ?? "-"),
-			p2name: round1?.[1]?.player2 || "---",
-			p2score: String(round1?.[1]?.score2 ?? "-"),
+			p1name: rounds?.[0]?.[1]?.player1 ?? "---",
+			p1score: String(rounds?.[0]?.[1]?.score1 ?? "-"),
+			p2name: rounds?.[0]?.[1]?.player2 ?? "---",
+			p2score: String(rounds?.[0]?.[1]?.score2 ?? "-"),
 		});
 
 		tournamentTree.updateMatch('next-bracket', {
-			p1name: round1?.[0]?.winner || "---",
-			p1score: "-",
-			p2name: round1?.[1]?.winner || "---",
-			p2score: "-",
+			p1name: rounds?.[1]?.[0]?.player1 ?? "---",
+			p1score: String(rounds?.[1]?.[0]?.score1 ?? "-"),
+			p2name: rounds?.[1]?.[0]?.player2 ?? "---",
+			p2score: String(rounds?.[1]?.[0]?.score2 ?? "-"),
 		});
 
-		document.getElementById("winner")!.innerHTML = round2?.[0]?.winner || "---";
+		if (winnerEl)
+			winnerEl.innerText = rounds?.[1]?.[0]?.winner ?? "---";
+	
 	},
 
 	updateMatch: (nodeId: string, match: {
@@ -92,7 +95,6 @@ export const tournamentTree = {
 	}
 };
 
-
 export function notifyChat(message: string) {
 	if (userInfo.chat_sock?.readyState === WebSocket.OPEN) {
 		userInfo.chat_sock.send(JSON.stringify({
@@ -102,26 +104,30 @@ export function notifyChat(message: string) {
 	}
 }
 
+const notifiedMatches = new Set<string>();
 export function renderTournamentBracket() {
 	chooseView('tree');
 	tournamentTree.updateTree();
 
 	const round = tournamentState.rounds[tournamentState.currentRound];
-	if (round) {
-		for (const match of round) {
-			if (match.player1 === userInfo.username || match.player2 === userInfo.username) {
-				notifyTournamentMatchOnce(tournamentState.currentRound, match.player1, match.player2);
-				showToast.green(`🆕 Teu jogo: ${match.player1} vs ${match.player2}`);
-			}
+	if (!round) return;
+
+	for (const match of round) {
+		const matchKey = `${match.player1}-${match.player2}-${tournamentState.currentRound}`;
+		const isUserInMatch = match.player1 === userInfo.username || match.player2 === userInfo.username;
+
+		if (isUserInMatch && !notifiedMatches.has(matchKey)) {
+			notifiedMatches.add(matchKey);
+			showToast.green(`🆕 Teu jogo: ${match.player1} vs ${match.player2}`);
+			notifyTournamentMatchOnce(tournamentState.currentRound, match.player1, match.player2);
 		}
 	}
 }
 
 let lastNotifiedRound = -1;
-
 export function notifyTournamentMatchOnce(round: number, player1: string, player2: string) {
 	if (round === lastNotifiedRound) return;
+	
 	lastNotifiedRound = round;
-
 	notifyChat(`🎮 New Tournament Game: ${player1} vs ${player2}`);
 }
