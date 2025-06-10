@@ -190,7 +190,7 @@ function renderLobbyList(lobbies: any[]) {
 	}
 
 	if (lobbies.length === 0) {
-		list.innerHTML = /*html*/`<p class='text-c-secondary col-span-4'>No lobby available</p>`;
+		list.innerHTML = /*html*/`<p class="text-c-secondary col-span-4">No lobby available</p>`;
 		return;
 	}
 

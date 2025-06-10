@@ -51,10 +51,15 @@ class Game extends Page {
 		// document.getElementById('dropdownButton-Multi')?.click();
 		document.getElementById('game-main-menu')!.addEventListener('click', (event) => this.setGameMenuToggler(event));
 		document.getElementById('hide-sidebar-button')?.click();
+		//* To render tournamentTree
 		document.getElementById('tournament-bracket')!.innerHTML = tournamentTree.getHtml();
-		//* To render New tournamentTree
+		// tournamentTree.updateTree(tournamentSample);
+		//* To render tournamentTreeNew
 		// document.getElementById('tournament-bracket')!.innerHTML = tournamentTree.getHtmlNew();
 		// tournamentTree.updateTreeNew(tournamentSample);
+		//* To render tournamentTreeReallyNew
+		// document.getElementById('tournament-bracket')!.innerHTML = tournamentTree.getHtmlReallyNew();
+		// tournamentTree.updateTreeReallyNew(tournamentSample);
 		// chooseView('tree');
 	}
 	onCleanup(): void {

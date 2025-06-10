@@ -3,7 +3,7 @@ import { showToast } from "../../utils";
 import dropdown from "../../components/dropdown";
 import { connectToGameServer, createLobby, fetchLobbies } from "./lobbyClient";
 import { sounds, initSounds, playSound } from "./audio";
-import { tournamentTree, tournamentSample } from '../../components/tournamentTree'
+import { tournamentTree, tournamentSample } from './tournamentRender'
 import { userInfo } from "../../utils";
 import { chooseView } from "./renderUtils";
 
@@ -67,12 +67,12 @@ function initializeGameMainMenu(userData: {
 		});
 	}
 	// infinite change to shrink
-	dropdown.addElement('Single', 'button', 'item t-border-alt','Infinity',
+	dropdown.addElement('Single', 'button', 'item t-border-alt', 'Infinity',
 		() => {
 			sounds.menuMusic.play();
 			chooseView('tree');
 			let tournamentExample = tournamentSample;
-			tournamentTree.updateTree(tournamentExample);
+			tournamentTree.updateTree(tournamentExample); //? updateTreeNew
 			// * TEMP
 			(async () => {
 				let tRounds = tournamentExample.rounds;
@@ -85,7 +85,7 @@ function initializeGameMainMenu(userData: {
 						tRounds[0][1].winner = tRounds[0][1].player1;
 					else
 						tRounds[1][0].winner = tRounds[0][1].winner;
-					tournamentTree.updateTree(tournamentExample);
+					tournamentTree.updateTree(tournamentExample); //? updateTreeNew
 					await new Promise(resolve => setTimeout(resolve, time));
 				}
 				showToast("🏆 Reloading page...");

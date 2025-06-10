@@ -13,10 +13,30 @@ export type TournamentState = {
 
 // * TEMP
 export const tournamentTree = {
+	getHtmlReallyNew: () => /*html*/`
+		<div class="flex flex-col items-center justify-center">
+			<div class="card t-dashed rounded-2xl px-30 py-15">
+				<p id="winner">Bolacha</p>
+			</div>
+			<div class="flex items-center justify-center">
+				<div class="flex flex-col">
+					<div id="person1"></div>
+					<div id="person2"></div>
+				</div>
+				<div id="person5"></div>
+				<div id="person6"></div>
+				<div class="flex flex-col">
+					<div id="person3"></div>
+					<div id="person4"></div>
+				</div>
+			</div>
+		</div>
+	`,
 	getHtmlNew: () => /*html*/`
 		<div class="flex flex-col items-center justify-center">
-			<p id="winner" class="card t-dashed rounded-2xl h-30 w-70"></p>
-			<!-- <div class="t-border w-10 h-30 border-l-0"></div> -->
+			<div class="flex items-center justify-center card t-dashed rounded-2xl h-30 w-70">
+				<p id="winner"></p>
+			</div>
 			<div class="t-border h-10 w-0 border-l-0"></div>
 			<div class="flex items-center justify-center">
 				<div id="left-bracket" class="card t-dashed"></div>
@@ -40,6 +60,24 @@ export const tournamentTree = {
 			<p id="winner" class="card t-dashed rounded-2xl"></p>
 		</div>
 	`,
+	updatePerson: (personId: string, name: string, score: string) => {
+		let personClasses = "flex justify-between t-dashed card";
+		document.getElementById(personId)!.classList = personClasses;
+		document.getElementById(personId)!.innerHTML = /*html*/`
+			<p>${name}</p>
+			<p>${score}</p>
+		`;
+	},
+	updateTreeReallyNew: (tState: TournamentState) => {
+		const tRounds = tState.rounds;
+		tournamentTree.updatePerson('person1', tRounds[0][0].player1, 'X');
+		tournamentTree.updatePerson('person2', tRounds[0][0].player2, 'X');
+		tournamentTree.updatePerson('person3', tRounds[0][1].player1, 'X');
+		tournamentTree.updatePerson('person4', tRounds[0][1].player2, 'X');
+		tournamentTree.updatePerson('person5', tRounds[0][0].winner || "---", 'X');
+		tournamentTree.updatePerson('person6', tRounds[0][1].winner || "---", 'X');
+		document.getElementById("winner")!.innerHTML = tRounds[1][0].winner || "---";
+	},
 	updateTreeNew: (tState: TournamentState) => {
 		const tRounds = tState.rounds;
 		tournamentTree.updateMatch('left-bracket', {
@@ -84,7 +122,6 @@ export const tournamentTree = {
 		});
 		document.getElementById("winner")!.innerHTML = tRounds[1][0].winner || "---";
 	},
-	// updatePerson: (nodeId: string, match: { p1name: string, p1score: string, p2name: string, p2score: string }) => {},
 	updateMatch: (nodeId: string, match: { p1name: string, p1score: string, p2name: string, p2score: string }) => {
 		let nodeClasses = 'gap-2 grid grid-cols-[auto_1rem]';
 		document.getElementById(nodeId)!.innerHTML = /*html*/`
@@ -132,7 +169,7 @@ export function renderTournamentBracket() {
 
 	container.classList.remove("hidden");
 	container.style.display = "block";
-	container.innerHTML = "<h2 class='text-xl mb-4'>🏆 Tournament Bracket</h2>";
+	container.innerHTML = '<h2 class="text-xl mb-4">🏆 Tournament Bracket</h2>';
 
 	// chooseView('tree');
 	state.rounds.forEach((round, roundIndex) => {
