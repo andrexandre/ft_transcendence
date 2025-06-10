@@ -18,6 +18,7 @@ import { errorResponseSchema } from "./utils/error.js";
 import db from './plugins/db_plugin.js';
 
 // Creation of the app  instance
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 const server = fastify({ loger: true });
 
 const ajv = new Ajv({ allErrors: true, $data: true, formats: { email: true }});

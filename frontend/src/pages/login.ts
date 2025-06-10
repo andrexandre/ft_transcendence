@@ -51,7 +51,7 @@ class Login extends Page {
 				password: (document.getElementById('password') as HTMLInputElement).value
 			};
 			try {
-				const response = await fetch(`http://${location.hostname}:8080/login`, {
+				const response = await fetch(`https://${location.hostname}:8080/login`, {
 					method: 'POST',
 					credentials: "include",
 					headers: { 'Content-Type': 'application/json' },
@@ -67,7 +67,7 @@ class Login extends Page {
 						const input = (event.target as HTMLInputElement);
 						if (input.value.length === 6) {
 							try {
-								const response = await fetch(`http://${location.hostname}:8080/2fa/verify-google-authenticator?isSetup=false`, {
+								const response = await fetch(`https://${location.hostname}:8080/2fa/verify-google-authenticator?isSetup=false`, {
 									method: 'POST',
 									credentials: "include",
 									headers: { 'Content-Type': 'application/json' },
@@ -76,7 +76,7 @@ class Login extends Page {
 								if (!response.ok)
 									throw new Error(`${response.status} - ${response.statusText}`);
 								
-								const responseGenerateToken = await fetch(`http://${location.hostname}:8080/token/generateToken`, {
+								const responseGenerateToken = await fetch(`https://${location.hostname}:8080/token/generateToken`, {
 									method: 'POST',
 									headers: { 'Content-Type': 'application/json' },
 									body: JSON.stringify({ username: userData.username }),
@@ -100,7 +100,7 @@ class Login extends Page {
 					document.getElementById("2fa")?.classList.add("flex");
 					return;
 				}
-				const responseGenerateToken = await fetch(`http://${location.hostname}:8080/token/generateToken`, {
+				const responseGenerateToken = await fetch(`https://${location.hostname}:8080/token/generateToken`, {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({ username: userData.username }),

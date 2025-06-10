@@ -38,7 +38,7 @@ export function renderGameStatistics(history: MatchHistoryI[], profileUsername: 
 
 async function loadInformation(profileUsername: string) {
 	try {
-		const response = await fetch(`http://${location.hostname}:8080/api/users/${profileUsername}/info`, {
+		const response = await fetch(`https://${location.hostname}:8080/api/users/${profileUsername}/info`, {
 			credentials: 'include'
 		})
 		if (!response.ok) {

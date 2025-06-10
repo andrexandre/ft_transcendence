@@ -1,19 +1,50 @@
+FROM node:slim AS backend
 
-# FROM node:alpine
-FROM nginx:latest
+RUN apt update && \
+	apt install -y sqlite3 && \
+	rm -rf /var/lib/apt/lists/*
+
+RUN npm config set fund false && npm config set update-notifier false
+
+
+FROM nginx:latest AS nginx-gateway
 
 EXPOSE 443
 
 RUN apt update && apt install -y openssl
 
-RUN mkdir -p /etc/nginx/ssl && \
-	openssl req -newkey rsa:4096 -x509 -sha256 -days 365 -nodes \
-	-keyout /etc/nginx/ssl/server.key \
-	-out /etc/nginx/ssl/server.crt \
-	-subj "/C=PT/ST=Lisbon/L=Lisbon/O=42Lisboa/OU=ft_transcendence/CN=localhost/"
+RUN mkdir -p /etc/nginx/ssl
+
+COPY ./certificates /etc/nginx/ssl
 
 RUN chmod 777  /etc/nginx/ssl/server.key /etc/nginx/ssl/server.crt
 
-# The instruction that is to be executed when a docker container starts
-# There can only one 'CMD' in the dockerfile and it should be the last parameter 
 CMD	["nginx", "-g", "daemon off;"]
+
+
+FROM node:slim AS build
+
+WORKDIR /frontend
+COPY ./frontend /frontend/
+RUN npm config set fund false && npm config set update-notifier false
+RUN npm install && npm audit fix && npm run build
+
+FROM nginx:alpine AS frontend
+
+# Instalar openssl no Alpine
+RUN apk add --no-cache openssl
+
+# Copiar config do NGINX
+COPY ./frontend/nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copiar build do frontend
+COPY --from=build ./frontend/dist /usr/share/nginx/html
+
+# Gerar certificados autoassinados
+RUN mkdir -p /etc/nginx/ssl
+
+COPY ./certificates /etc/nginx/ssl
+
+RUN chmod 777 /etc/nginx/ssl/server.key /etc/nginx/ssl/server.crt
+
+EXPOSE 8008

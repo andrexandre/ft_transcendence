@@ -1,10 +1,19 @@
 
 services:
   user_management:
-    image: user_management
+    image: backend_image
     container_name: user_management
     build: 
-      context: ./backend/user/conf
+      context: ./
+      target: backend
+    command: |
+      sh -c "
+        cd /backend/user/userManagement;
+        npm install;
+        exec npm start
+      "
+    expose:
+      - 3000
     ports:
       - "3000:3000"
     volumes:
@@ -15,25 +24,36 @@ services:
       - .env
 
   game:
-    image: pongify
+    image: backend_image
     container_name: pongify
+    command: |
+      sh -c "
+        cd /pong_vol/game-project;
+        npm install;
+        exec npm run watch
+      "
     environment:
       - NODE_ENV=PRODUCTION
     volumes:
       - ./game-project:/pong_vol/game-project/:rw
+    expose:
+      - 5000
     ports:
       - "5000:5000"
-    build: ./game-project/
     networks:
       - ft_transcendence
     env_file:
       - .env
 
   services-api:
-    image: services-api
+    image: backend_image
     container_name: services-api
-    build: 
-      context: ./backend/services-api/conf
+    command: |
+      sh -c "
+        cd /backend;
+        npm install;
+        exec npm run dev
+      "
     ports:
       - "7000:7000"
     volumes:
@@ -42,10 +62,14 @@ services:
       - ft_transcendence
 
   two-factor-auth:
-    image: two-factor-auth
+    image: backend_image
     container_name: two-factor-auth
-    build: 
-      context: ./backend/two-factor-auth/conf
+    command: |
+      sh -c "
+        cd /backend;
+        npm install;
+        exec npm run start
+      "
     ports:
       - "3500:3500"
     volumes:
@@ -54,10 +78,16 @@ services:
       - ft_transcendence
 
   chat:
-    image: chat
+    image: backend_image
     container_name: chat
-    build: 
-      context: ./chat/conf
+    command: |
+      sh -c "
+        cd /chat;
+        npm install;
+        exec npm start
+      "
+    expose:
+      - 2000
     ports:
       - "2000:2000"
     volumes:
@@ -66,13 +96,13 @@ services:
       - ft_transcendence
     env_file:
       - .env
-
-
+  
   vite-nginx:
     image: vite-nginx
     container_name: vite-nginx
     build:
-      context: ./frontend
+      context: ./
+      target: frontend
     ports:
       - "5500:8008"
     networks:
@@ -83,10 +113,11 @@ services:
     container_name: nginx-gateway
     build:
       context: ./
+      target: nginx-gateway
     ports:
       - "8080:80"
-    depends_on:
-      - services-api
+    # depends_on:
+    #   - services-api
     volumes:
       - ./nginx.conf.template:/etc/nginx/templates/nginx.conf.template
       - /dev/null:/etc/nginx/conf.d/default.conf

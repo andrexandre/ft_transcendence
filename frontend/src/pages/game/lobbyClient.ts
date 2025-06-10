@@ -145,7 +145,7 @@ export function clearLobbyId() {
 
 export async function fetchLobbies() {
 	try {
-		const res = await fetch(`http://${location.hostname}:8080/game/lobbies`, {
+		const res = await fetch(`https://${location.hostname}:8080/game/lobbies`, {
 			credentials: "include"
 		});
 		if (!res.ok) throw new Error("Failed to fetch lobbies");
