@@ -89,7 +89,7 @@ function socketOnMessage(event: MessageEvent<any>) {
 	// game in
 	else if (data.type === 'receive-game-invite') {
 		showToast.green(`🎮 Convite de ${data.from}`);
-		if(userInfo.path.startsWith('/chat'))
+		if (userInfo.path.startsWith('/chat/'))
 			renderGameInviteButtons(data.from, data.lobbyId);
 	} else if (data.type === 'join-accepted2') {
 		showToast.green("✅ O teu amigo aceitou o convite. A iniciar jogo...");
