@@ -60,6 +60,8 @@ services:
       - ./backend/services-api:/backend/:rw #Vai guardar na home 
     networks:
       - ft_transcendence
+    env_file:
+      - .env
 
   two-factor-auth:
     image: backend_image

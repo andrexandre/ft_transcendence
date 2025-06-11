@@ -49,7 +49,6 @@ class Game extends Page {
 		// Initialize game info
 		menu.initUserData();
 		document.getElementById('game-main-menu')!.addEventListener('click', (event) => this.setGameMenuToggler(event));
-		document.getElementById('hide-sidebar-button')?.click();
 		document.getElementById('tournament-bracket')!.innerHTML = tournamentTree.getHtml();
 		// tournamentTree.updateTree();
 		//* To debug tournamentTreeNew
@@ -60,7 +59,6 @@ class Game extends Page {
 	onCleanup(): void {
 		lib.setTheme(lib.getTheme());
 		lib.setColor(localStorage.getItem('color') || lib.defaultColor);
-		document.getElementById('hide-sidebar-button')?.click();
 	}
 	getHtml(): string {
 		return /*html*/`
