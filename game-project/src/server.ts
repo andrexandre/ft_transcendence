@@ -152,16 +152,6 @@ async function handleSocketMessage(connection: any, data: any) {
 }
 
 // MATCH WS
-// gameserver.get('/match-ws', { websocket: true }, (connection, req) => {
-// 	const gameId = new URL(req.url!, 'http://127.0.0.1:').searchParams.get('gameId');
-// 	if (!gameId) {
-// 		connection.send(JSON.stringify({ type: "error", message: "Missing gameId" }));
-// 		connection.close();
-// 		return;
-// 	}
-// 	handleMatchConnection(gameId, connection);
-// });
-
 gameserver.get('/match-ws', { websocket: true }, (connection, req) => {
 	const ws = connection as any;
 	const query = new URL(req.url!, 'http://localhost').searchParams;
