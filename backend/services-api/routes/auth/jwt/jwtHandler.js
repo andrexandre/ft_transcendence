@@ -6,7 +6,6 @@ export default function jwtHandler(fastify, options) {
     const token = await fastify.generateToken(payload);
     reply.setCookie('token', token, {
       path: '/',
-      httpOnly: true,
       secure: true,
       sameSite: 'lax'
     }).status(200);
@@ -15,7 +14,7 @@ export default function jwtHandler(fastify, options) {
   fastify.post('/token/generateToken', async (request, reply) => {
 
 	const { username } = request.body;
-	const response = await fetch(`http://user_management:3000/api/tokenInfo?username=${username}`);
+	const response = await fetch(`https://nginx-gateway:80/api/tokenInfo?username=${username}`);
 	if (!response.ok)
 		return reply.status(401).send({message: (await response.json()).message});
 
@@ -23,21 +22,19 @@ export default function jwtHandler(fastify, options) {
     const token = await fastify.generateToken(payload);
     reply.status(200).setCookie("token", token, {
       path: '/',
-      httpOnly: true,
-      secure: false,
+      secure: true,
       sameSite: 'lax',
-    });
+    }).status(200);
   });
 
   fastify.get('/token/verifyToken', async(request, reply) => {
       try{
         await request.jwtVerify();
-		const payload = await fastify.parseToReadableData(request.cookies.token);
-		const response = await fetch(`http://user_management:3000/api/tokenInfo?username=${payload.username}`);
-		if (!response.ok) throw new Error((await response.json()).message);
-		reply.status(200).send(payload);
+		    const payload = await fastify.parseToReadableData(request.cookies.token);
+		    const response = await fetch(`https://nginx-gateway:80/api/tokenInfo?username=${payload.username}`);
+		    if (!response.ok) throw new Error((await response.json()).message);
+		    reply.status(200).send(payload);
       }catch(err){
-		console.log(err);
         reply.status(403);
         return err;
       }

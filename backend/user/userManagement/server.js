@@ -5,6 +5,7 @@ import fastifySensible from "@fastify/sensible";
 import fastifyMultipart from '@fastify/multipart'
 import fastifyCors from "@fastify/cors"; // temporario
 import Ajv from 'ajv';
+import fs from 'fs';
 import ajvErrors from 'ajv-errors';
 
 // Routes
@@ -19,7 +20,12 @@ import db from './plugins/db_plugin.js';
 
 // Creation of the app  instance
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-const server = fastify({ loger: true });
+const server = fastify({ loger: true, 	
+	https: {
+		key: fs.readFileSync('/ssl/server.key'),
+		cert: fs.readFileSync('/ssl/server.crt'),
+	} 
+});
 
 const ajv = new Ajv({ allErrors: true, $data: true, formats: { email: true }});
 ajvErrors(ajv)

@@ -9,7 +9,7 @@ class Login extends Page {
 		this.setSubmissionHandler();
 		lib.assignButtonNavigation('goto-register-button', '/register');
 		document.getElementById("google-auth-button")!.addEventListener("click", () => {
-			window.location.href = `http://${location.hostname}:7000/loginOAuth`;
+			window.location.href = `https://${location.hostname}:7000/loginOAuth`;
 		});
 	}
 	onCleanup(): void { }

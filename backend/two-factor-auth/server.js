@@ -1,16 +1,21 @@
 import Fastify from 'fastify';
 import fastifyCookie from '@fastify/cookie';
 import dotenv from 'dotenv';
+import fs from 'fs';
 import googleAuthRoutes from './google-auth-app-routes/google-app-routes.js';
 import { verifyGoogleAuthenticator } from './google-auth-app-routes/google-app-routes.js';
 
 dotenv.config();
-
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 const fastify = Fastify({
     logger: {
       level: 'debug',
       timestamp: true, 
     },
+    https: {
+		  key: fs.readFileSync('/ssl/server.key'),
+		  cert: fs.readFileSync('/ssl/server.crt'),
+	  }
   });
 
 fastify.register(googleAuthRoutes, { prefix: '/2fa' });
