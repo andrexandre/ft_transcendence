@@ -105,7 +105,20 @@ export function notifyChat(message: string) {
 }
 
 const notifiedMatches = new Set<string>();
+
+
+
+
+
+let lastNotifiedTree = -1;
 export function renderTournamentBracket() {
+	if (userInfo.path !== "/game") {
+		if (!lastNotifiedTree) {
+			showToast.red("❌ Não estás na página do jogo! Vai para /game para jogar.");
+		}
+		userInfo.match_sock?.close();
+		return;
+	}
 	chooseView('tree');
 	tournamentTree.updateTree();
 

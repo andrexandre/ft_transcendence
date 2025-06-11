@@ -81,8 +81,7 @@ function setupControls() {
 }
 
 export function connectToMatch(role: "left" | "right") {
-	const gameElem = document.getElementById("game-screen");
-	if (!gameElem) {
+	if (userInfo.path !== "/game") {
 		showToast.red("❌ Não estás na página do jogo! Vai para /game para jogar.");
 		userInfo.match_sock?.close();
 		return;
@@ -174,9 +173,9 @@ export function connectToMatch(role: "left" | "right") {
 				console.warn("🔍 Evento desconhecido:", data.type);
 		}
 	};
-	// REsolver
+	
 	userInfo.match_sock!.onclose = () => {
-		// userInfo.match_sock.close();
+
 		userInfo.match_sock = null;
 		console.log("❌ Socket do jogo foi encerrado");
 		showToast.red("Disconnected from match");
