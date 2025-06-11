@@ -4,7 +4,7 @@ import fastifyJwt from '@fastify/jwt';
 import fastifyCookie from '@fastify/cookie';
 import fastifyOAuth from '@fastify/oauth2';
 import fastifyCsrfProtection from '@fastify/csrf-protection';
-import cors from '@fastify/cors';
+import crypto from 'crypto';
 import dotenv from 'dotenv';
 
 //plugins
@@ -22,13 +22,20 @@ import logoutRoute from './routes/auth/logout.js';
 import callbackOAuthRoute from './routes/auth/OAuth/callbackOAuth.js';
 import jwtHandler from './routes/auth/jwt/jwtHandler.js'
 import twoFactorAuth from './routes/auth/two-factor-auth.js'
+import fs from 'fs';
+
 
 dotenv.config();
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 const fastify = Fastify({
   logger: {
     level: 'debug',
     timestamp: true, 
   },
+  https: {
+    key: fs.readFileSync('/ssl/server.key'),
+    cert: fs.readFileSync('/ssl/server.crt'),
+  }
 });
 
 fastify.register(fastifyCookie);
@@ -44,7 +51,7 @@ fastify.register(fastifyOAuth, {
     auth: fastifyOAuth.GOOGLE_CONFIGURATION
   },
   startRedirectPath: '/loginOAuth',
-  callbackUri: 'http://127.0.0.1:7000/callback',
+  callbackUri: 'https://127.0.0.1:7000/callback',
 });
 
 fastify.decorate('prepareTokenData', prepareTokenData);
@@ -60,8 +67,10 @@ fastify.register(logoutRoute);
 fastify.register(callbackOAuthRoute);
 fastify.register(jwtHandler);
 
+const JWT_SECRET_KEY = crypto.randomBytes(64).toString('hex');
+
 fastify.register(fastifyJwt, {
-  secret: process.env.JWT_SECRET_KEY,
+  secret: JWT_SECRET_KEY,
   cookie: {
     cookieName: 'token',
     signed: false

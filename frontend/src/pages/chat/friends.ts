@@ -3,7 +3,7 @@ import { renderDashboardFriend, renderProfileImage } from "../dashboard";
 
 export function turnOnChat() {
 	if (!userInfo.chat_sock || userInfo.chat_sock.readyState === WebSocket.CLOSED) {
-		userInfo.chat_sock = new WebSocket(`ws://${location.hostname}:2000/chat-ws`);
+		userInfo.chat_sock = new WebSocket(`wss://${location.hostname}:2000/chat-ws`);
 
 		userInfo.chat_sock.onopen = () => {
 			// console.debug('Chat socket created');

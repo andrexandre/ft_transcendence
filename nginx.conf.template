@@ -1,5 +1,6 @@
 server {
-        listen 80;
+        listen 80 ssl;
+		listen [::]:80 ssl;
 
         server_name localhost;
 		client_max_body_size 2M;
@@ -7,6 +8,10 @@ server {
         # Define access and error logs
         access_log /var/log/nginx/api_gateway_access.log;
         error_log /var/log/nginx/api_gateway_error.log;
+
+		ssl_certificate /etc/nginx/ssl/server.crt;
+		ssl_certificate_key /etc/nginx/ssl/server.key;
+		ssl_protocols TLSv1.2 TLSv1.3;
 
         location /service {
             if ($request_method = OPTIONS) {
@@ -24,7 +29,7 @@ server {
             add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, PUT' always;
             add_header 'Access-Control-Allow-Headers' 'Origin, Content-Type, Accept, Authorization' always;
             add_header 'Access-Control-Allow-Credentials' 'true' always;
-            proxy_pass http://services-api:7000;
+            proxy_pass https://services-api:7000;
         }
 
         location /login {
@@ -43,7 +48,7 @@ server {
             add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, PUT' always;
             add_header 'Access-Control-Allow-Headers' 'Origin, Content-Type, Accept, Authorization' always;
             add_header 'Access-Control-Allow-Credentials' 'true' always;
-            proxy_pass http://services-api:7000;
+            proxy_pass https://services-api:7000;
         }
 
         location /register {
@@ -62,7 +67,7 @@ server {
             add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, PUT' always;
             add_header 'Access-Control-Allow-Headers' 'Origin, Content-Type, Accept, Authorization' always;
             add_header 'Access-Control-Allow-Credentials' 'true' always;
-            proxy_pass http://services-api:7000;
+            proxy_pass https://services-api:7000;
         }
 
         location /token {
@@ -81,7 +86,7 @@ server {
             add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, PUT' always;
             add_header 'Access-Control-Allow-Headers' 'Origin, Content-Type, Accept, Authorization' always;
             add_header 'Access-Control-Allow-Credentials' 'true' always;
-            proxy_pass http://services-api:7000;
+            proxy_pass https://services-api:7000;
         }
 
         location /2fa {
@@ -100,7 +105,7 @@ server {
             add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, PUT' always;
             add_header 'Access-Control-Allow-Headers' 'Origin, Content-Type, Accept, Authorization' always;
             add_header 'Access-Control-Allow-Credentials' 'true' always;
-            proxy_pass http://two-factor-auth:3500;
+            proxy_pass https://two-factor-auth:3500;
         }
 
         location /api {
@@ -119,7 +124,7 @@ server {
             add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, PUT' always;
             add_header 'Access-Control-Allow-Headers' 'Origin, Content-Type, Accept, Authorization' always;
             add_header 'Access-Control-Allow-Credentials' 'true' always;
-            proxy_pass http://user_management:3000;
+            proxy_pass https://user_management:3000;
         }
 
         location /game/ {  
@@ -137,7 +142,7 @@ server {
             add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, PATCH' always;
             add_header 'Access-Control-Allow-Headers' 'Origin, Content-Type, Accept, Authorization' always;
             add_header 'Access-Control-Allow-Credentials' 'true' always;
-            proxy_pass http://pongify:5000;  # Reference the Fastify container by its service name
+            proxy_pass https://pongify:5000;  # Reference the Fastify container by its service name
         }
 		
 		location /frontend/ {
@@ -156,6 +161,6 @@ server {
             add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, PUT' always;
             add_header 'Access-Control-Allow-Headers' 'Origin, Content-Type, Accept, Authorization' always;
             add_header 'Access-Control-Allow-Credentials' 'true' always;
-            proxy_pass http://services-api:7000;  # Reference the Fastify container by its service name
+            proxy_pass https://services-api:7000;  # Reference the Fastify container by its service name
         }
     }

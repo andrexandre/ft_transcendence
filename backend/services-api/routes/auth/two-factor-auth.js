@@ -5,7 +5,7 @@ function twoFactorAuth(fastify, options) {
             username: username,
             password: password
         };
-        const response = await fetch('http://two-factor-auth:3500/verify-google-authenticator', {
+        const response = await fetch('https://two-factor-auth:3500/verify-google-authenticator', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

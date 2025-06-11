@@ -13,7 +13,7 @@ async function register(request, reply) {
 
 		// Create the user in game db
 		const user = await this.getUserByUsername(username);
-		const response = await fetch('http://nginx-gateway:80/game/init-user', {
+		const response = await fetch('https://nginx-gateway:80/game/init-user', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({id: user.id, username: user.username})

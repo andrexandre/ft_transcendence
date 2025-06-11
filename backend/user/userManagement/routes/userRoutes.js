@@ -9,7 +9,7 @@ import { profileSchema } from '../schemas/user/profileSchemas.js';
 
 async function extractInformationFromToken(request, reply) {
 	try {
-		const response = await fetch('http://nginx-gateway:80/token/verifyToken', {
+		const response = await fetch('https://nginx-gateway:80/token/verifyToken', {
 			method: "GET",
 			headers: {
 				"Content-Type": "application/json",

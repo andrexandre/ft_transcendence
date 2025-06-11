@@ -8,10 +8,18 @@ import { handleMatchConnection } from './matchManager.js';
 import { createTournament } from "./tournamentManager.js";
 import { Logger } from "./utils.js";
 import type { UserData } from './lobbyManager.js';
+import fs from 'fs';
 
 const PORT = 5000;
 const disconnectTimers = new Map<number, NodeJS.Timeout>();
-const gameserver = Fastify({ logger: false });
+const gameserver = Fastify({
+	logger: false,
+	https: {
+		key: fs.readFileSync('/ssl/server.key'),
+		cert: fs.readFileSync('/ssl/server.crt'),
+	}
+});
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 await gameserver.register(fastifyWebsocket);
 await gameserver.register(fastifyCookie);

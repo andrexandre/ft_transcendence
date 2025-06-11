@@ -11,7 +11,7 @@ export function assignButtonNavigation(buttonName: string, path: string) {
 
 export async function executeLogout() {
 	try {
-		const response = await fetch(`http://${location.hostname}:8080/service/logout`, {
+		const response = await fetch(`https://${location.hostname}:8080/service/logout`, {
 			credentials: 'include',
 		});
 		if (!response.ok)

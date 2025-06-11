@@ -6,11 +6,11 @@ async function callbackOAuth(fastify, options) {
           const jwtToken = await fastify.generateToken(await setPayload(payload));
           reply.setCookie('token', jwtToken, {
             path: '/',
-            httpOnly: true,
+            httpOnly: false,
             secure: true,
-            sameSite: 'Strict'
+            sameSite: 'lax'
           });
-          return reply.redirect(`http://127.0.0.1:5500`).status(200);
+          return reply.redirect(`https://127.0.0.1:5500`).status(200);
         } catch (err) {
           reply.status(500).send(err);
         }
@@ -18,7 +18,7 @@ async function callbackOAuth(fastify, options) {
 }
 
 async function setPayload(payload){
-  const response = await fetch('http://user_management:3000/api/login/googleSign', {
+  const response = await fetch('https://nginx-gateway:80/api/login/googleSign', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'

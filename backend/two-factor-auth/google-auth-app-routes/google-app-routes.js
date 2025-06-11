@@ -16,7 +16,6 @@ export default async function generateQrCode(fastify, options) {
 	const two_FA_status = request.query.status;
 	if (two_FA_status) {
 		const secret = speakeasy.generateSecret();
-		console.log('Secret:', secret.base32);
 		var url = speakeasy.otpauthURL({ secret: secret.base32, label: 'ft_transcendence', issuer: '2FAManager', encoding: 'base32' });
 		const data_url = await qrcode.toDataURL(url);
 		sendSecretToUserService(secret.base32, request.cookies.token, true);
@@ -55,7 +54,7 @@ export async function verifyGoogleAuthenticator(fastify, options) {
 			two_FA_status: true,
 			isSetup: true
 		  };
-		  const response = await fetch('http://user_management:3000/api/users/save-2fa-settings', {
+		  const response = await fetch('https://nginx-gateway:80/api/users/save-2fa-settings', {
 			method: 'PUT',
 			headers: {
 			  'Content-Type': 'application/json',
@@ -74,7 +73,7 @@ export async function verifyGoogleAuthenticator(fastify, options) {
 }
 
 export async function fetchTwoFactorAuthData(username) {
-  const response = await fetch(`http://user_management:3000/api/users/${username}/two-fa-secret`);
+  const response = await fetch(`https://nginx-gateway:80/api/users/${username}/two-fa-secret`);
   if (response.ok)
     return (await response.json());
 }
@@ -85,7 +84,7 @@ async function sendSecretToUserService(secret, cookieToken, is_setup) {
     two_FA_status: false,
     isSetup: is_setup
   };
-  const response = await fetch('http://user_management:3000/api/users/save-2fa-settings', {
+  const response = await fetch('https://nginx-gateway:80/api/users/save-2fa-settings', {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',

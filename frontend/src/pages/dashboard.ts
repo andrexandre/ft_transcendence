@@ -47,7 +47,7 @@ function displayMatchHistory(matchHistory: MatchHistoryI[], requestedUsername: s
 
 export async function updateMatchHistory(targetUsername: string) {
 	try {
-		const response = await fetch(`http://${location.hostname}:8080/game/${targetUsername}/user-game-history`, {
+		const response = await fetch(`https://${location.hostname}:8080/game/${targetUsername}/user-game-history`, {
 			credentials: "include",
 		});
 		if (!response.ok) {
@@ -91,7 +91,7 @@ export async function renderProfileImage(elementId: string, profileUsername: str
 		return;
 	}
 	try {
-		const imageResponse = await fetch(`http://${location.hostname}:8080/api/users/${profileUsername}/avatar`, {
+		const imageResponse = await fetch(`https://${location.hostname}:8080/api/users/${profileUsername}/avatar`, {
 			credentials: 'include'
 		})
 		if (!imageResponse.ok) {
@@ -114,7 +114,7 @@ export async function renderProfileImage(elementId: string, profileUsername: str
 
 async function loadInformation() {
 	try {
-		const response = await fetch(`http://${location.hostname}:8080/api/users/settings`, {
+		const response = await fetch(`https://${location.hostname}:8080/api/users/settings`, {
 			credentials: 'include'
 		})
 		if (!response.ok)

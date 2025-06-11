@@ -8,15 +8,15 @@ let lobbyRefreshInterval: ReturnType<typeof setInterval> | null = null;
 
 export function turnOnGame() {
 	if (!userInfo.game_sock || userInfo.game_sock.readyState === WebSocket.CLOSED) {
-		const url = `ws://${location.hostname}:5000/lobby-ws`;
+		const url = `wss://${location.hostname}:5000/lobby-ws`;
 		userInfo.game_sock = new WebSocket(url);
 
 		userInfo.game_sock.onopen = () => {
 			console.log(`✅ WebSocket connected for: ${userInfo.username} (${userInfo.userId}) → ${url}`);
 		};
 
-		userInfo.game_sock.onerror = () => showToast.red("❌ Erro na ligação do WebSocket");
-		userInfo.game_sock.onclose = () => console.log("🔌 Ligação terminada com o servidor");
+		userInfo.game_sock.onerror = (error) => console.log("❌ Erro na ligação do WebSocket: ", error);
+		userInfo.game_sock.onclose = (event) => console.log("🔌 Ligação terminada com o servidor: ", event.code, event.reason);
 
 		userInfo.game_sock.onmessage = (event) => {
 			connectToGameServer(event);
@@ -117,7 +117,7 @@ export async function initUserData() {
 	const soundSelect = document.getElementById('sound') as HTMLSelectElement;
 
 	try {
-	const response = await fetch(`http://${location.hostname}:8080/game/get-user-data`, {
+	const response = await fetch(`https://${location.hostname}:8080/game/get-user-data`, {
 		credentials: "include"
 	});
 
@@ -166,7 +166,7 @@ export async function saveSettingsHandler() {
 	console.log(`🎮 Saving settings for:`, { user, difficulty, tableSize, sound });
   
 	try {
-		const response = await fetch(`http://${location.hostname}:8080/game/save-settings`, {
+		const response = await fetch(`https://${location.hostname}:8080/game/save-settings`, {
 			method: "PATCH",
 			headers: { "Content-Type": "application/json" },
 			credentials: 'include',

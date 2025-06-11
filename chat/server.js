@@ -7,9 +7,16 @@ import { SocketHandler } from './socket/socket_handler.js';
 import { fileURLToPath } from 'url';
 import fastifyCookie from "@fastify/cookie";
 import fastifyCors from '@fastify/cors';
+import fs from 'fs';
 
-const server_chat = fastify();
+const server_chat = fastify({
+	https: {
+		key: fs.readFileSync('/ssl/server.key'),
+		cert: fs.readFileSync('/ssl/server.crt'),
+	}
+});
 const port = 2000;
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 let username;
 
 const __filename = fileURLToPath(import.meta.url);
@@ -66,7 +73,7 @@ async function setupServer() {
 
 async function fetchUserDataFromGateway(token) {
     try {
-        const response = await fetch('http://nginx-gateway:80/token/verifyToken', {
+        const response = await fetch('https://nginx-gateway:80/token/verifyToken', {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
