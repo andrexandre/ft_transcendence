@@ -38,8 +38,7 @@ env:
 	@IP=$$(hostname -I | awk '{print $$1}'); \
 	echo -n "IP = $$IP "; \
 	if ! grep -sq "IP = $$IP" .env; then \
-		curl -s https://gist.githubusercontent.com/andrexandre/8c011820a35117d005016151cfd46207/raw/bc7a6ebe41f09cca7a8257f55418d35b3ec4060e/.env > .env; \
-		echo "IP = $$IP" >> .env; \
+		echo "IP = $$IP" > .env; \
 		echo "CORS_ORIGIN = https://$$IP:5500" >> .env; \
 		echo "was added to .env"; \
 	else \
