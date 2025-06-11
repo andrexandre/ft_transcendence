@@ -13,7 +13,7 @@ export type TournamentState = {
 
 // * TEMP
 export const tournamentTree = {
-	getHtmlReallyNew: () => /*html*/`
+	getHtmlNew: () => /*html*/`
 		<div class="flex flex-col items-center justify-center">
 			<div class="card t-dashed rounded-2xl px-30 py-15">
 				<p id="winner">Bolacha</p>
@@ -29,21 +29,6 @@ export const tournamentTree = {
 					<div id="person3"></div>
 					<div id="person4"></div>
 				</div>
-			</div>
-		</div>
-	`,
-	getHtmlNew: () => /*html*/`
-		<div class="flex flex-col items-center justify-center">
-			<div class="flex items-center justify-center card t-dashed rounded-2xl h-30 w-70">
-				<p id="winner"></p>
-			</div>
-			<div class="t-border h-10 w-0 border-l-0"></div>
-			<div class="flex items-center justify-center">
-				<div id="left-bracket" class="card t-dashed"></div>
-				<div class="t-border h-0 w-10 border-t-0"></div>
-				<div id="center-bracket" class="card t-dashed"></div>
-				<div class="t-border h-0 w-10 border-t-0"></div>
-				<div id="right-bracket" class="card t-dashed"></div>
 			</div>
 		</div>
 	`,
@@ -68,7 +53,7 @@ export const tournamentTree = {
 			<p>${score}</p>
 		`;
 	},
-	updateTreeReallyNew: (tState: TournamentState) => {
+	updateTreeNew: (tState: TournamentState) => {
 		const tRounds = tState.rounds;
 		tournamentTree.updatePerson('person1', tRounds[0][0].player1, 'X');
 		tournamentTree.updatePerson('person2', tRounds[0][0].player2, 'X');
@@ -76,28 +61,6 @@ export const tournamentTree = {
 		tournamentTree.updatePerson('person4', tRounds[0][1].player2, 'X');
 		tournamentTree.updatePerson('person5', tRounds[0][0].winner || "---", 'X');
 		tournamentTree.updatePerson('person6', tRounds[0][1].winner || "---", 'X');
-		document.getElementById("winner")!.innerHTML = tRounds[1][0].winner || "---";
-	},
-	updateTreeNew: (tState: TournamentState) => {
-		const tRounds = tState.rounds;
-		tournamentTree.updateMatch('left-bracket', {
-			p1name: tRounds[0][0].player1,
-			p1score: 'X',
-			p2name: tRounds[0][0].player2,
-			p2score: 'X'
-		});
-		tournamentTree.updateMatch('right-bracket', {
-			p1name: tRounds[0][1].player1,
-			p1score: 'X',
-			p2name: tRounds[0][1].player2,
-			p2score: 'X'
-		});
-		tournamentTree.updateMatch('center-bracket', {
-			p1name: tRounds[0][0].winner || "---",
-			p1score: 'X',
-			p2name: tRounds[0][1].winner || "---",
-			p2score: 'X'
-		});
 		document.getElementById("winner")!.innerHTML = tRounds[1][0].winner || "---";
 	},
 	updateTree: (tState: TournamentState) => {

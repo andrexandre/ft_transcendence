@@ -57,9 +57,6 @@ class Game extends Page {
 		//* To render tournamentTreeNew
 		// document.getElementById('tournament-bracket')!.innerHTML = tournamentTree.getHtmlNew();
 		// tournamentTree.updateTreeNew(tournamentSample);
-		//* To render tournamentTreeReallyNew
-		// document.getElementById('tournament-bracket')!.innerHTML = tournamentTree.getHtmlReallyNew();
-		// tournamentTree.updateTreeReallyNew(tournamentSample);
 		// chooseView('tree');
 	}
 	onCleanup(): void {
