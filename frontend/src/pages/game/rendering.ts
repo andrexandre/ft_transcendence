@@ -81,6 +81,12 @@ function setupControls() {
 }
 
 export function connectToMatch(role: "left" | "right") {
+	const gameElem = document.getElementById("game-screen");
+	if (!gameElem) {
+		showToast.red("❌ Não estás na página do jogo! Vai para /game para jogar.");
+		userInfo.match_sock?.close();
+		return;
+	}
 	chooseView('game');
 	initGameCanvas();
 	setupControls();
