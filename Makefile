@@ -7,14 +7,13 @@ MAGENTA		:= \033[1;35m
 CYAN		:= \033[1;36m
 WHITE		:= \033[1;37m
 
-up: env build
+all: env build up
+
+up:
 	docker compose up
 
-build-up:
-	docker compose up --build
-
 build:
-	docker compose build 
+	docker compose build
 
 upd:
 	docker compose up -d
