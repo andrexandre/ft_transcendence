@@ -3,8 +3,9 @@ import * as lib from "../../utils"
 import sidebar from "../../components/sidebar"
 import dropdown from "../../components/dropdown"
 import * as menu from "./menu"
-import { tournamentSample, tournamentTree } from "./tournamentRender"
+import { tournamentTree } from "./tournamentRender"
 import { chooseView } from "./renderUtils"
+//* debug
 
 class Game extends Page {
 	constructor() {
@@ -47,16 +48,13 @@ class Game extends Page {
 
 		// Initialize game info
 		menu.initUserData();
-		// document.getElementById('sidebar')?.classList.toggle('hidden');
-		// document.getElementById('dropdownButton-Multi')?.click();
 		document.getElementById('game-main-menu')!.addEventListener('click', (event) => this.setGameMenuToggler(event));
 		document.getElementById('hide-sidebar-button')?.click();
-		//* To render tournamentTree
 		document.getElementById('tournament-bracket')!.innerHTML = tournamentTree.getHtml();
-		// tournamentTree.updateTree(tournamentSample);
-		//* To render tournamentTreeNew
+		// tournamentTree.updateTree();
+		//* To debug tournamentTreeNew
 		// document.getElementById('tournament-bracket')!.innerHTML = tournamentTree.getHtmlNew();
-		// tournamentTree.updateTreeNew(tournamentSample);
+		// tournamentTree.updateTreeNew();
 		// chooseView('tree');
 	}
 	onCleanup(): void {
@@ -74,7 +72,6 @@ class Game extends Page {
 						<div class="flex flex-col w-80">
 							${dropdown.getHtml('Single')}
 							${dropdown.getHtml('Multi')}
-							${dropdown.getHtml('Co-Op')}
 							${dropdown.getHtml('Settings')}
 						</div>
 						<div id="lobby" class="hidden flex-col w-100 space-y-3 item t-border text-sm">

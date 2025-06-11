@@ -28,7 +28,10 @@ export function turnOnChat() {
 export function turnOffChat() {
 	if (userInfo.chat_sock) {
 		if (userInfo.chat_sock.readyState === WebSocket.OPEN)
+		{
 			userInfo.chat_sock.close();
+			userInfo.chat_sock = null;
+		}
 		else
 			showToast.red('The chat socket exists but is closed');
 	} else {
@@ -49,9 +52,12 @@ function socketOnMessage(event: MessageEvent<any>) {
 	const data = JSON.parse(event.data);
 	// console.log(data);
 	if (data.type === 'message-emit') {
-		renderMessage(data.userId, data.data.from, data.data.message, data.data.timestamp);
-		const messageList = document.getElementById('chat-box-message-list')!;
-		messageList.scrollTop = messageList.scrollHeight;
+		if(userInfo.path.startsWith('/chat/'))
+		{
+			renderMessage(data.userId, data.data.from, data.data.message, data.data.timestamp);
+			const messageList = document.getElementById('chat-box-message-list')!;
+			messageList.scrollTop = messageList.scrollHeight;
+		}
 	}
 	else if (data.type === 'load-messages') {
 		data.data.forEach((msg: { user: string, from: string, message: string, timestamp: string }) => renderMessage(data.userId, msg.from, msg.message, msg.timestamp));
@@ -77,27 +83,34 @@ function socketOnMessage(event: MessageEvent<any>) {
 	else if (data.type === 'block-status')
 		renderChatRoom(data.friend, data.isBlocked, data.isInvited, data.lobbyId, data.friend);
 	else if (data.type === 'load-notifications') {
-		data.notifications.forEach((notification: { msg: string, timestamp: string }) => renderGameNotification(notification.msg, notification.timestamp));
+		data.notifications.forEach((notification: { msg: string, timeStamp: string }) => renderGameNotification(notification.msg, notification.timeStamp));
 		handleEmptyList('game-notifications-list', 'No game notifications');
 	}
-	// game start
+	// game in
 	else if (data.type === 'receive-game-invite') {
 		showToast.green(`🎮 Convite de ${data.from}`);
-		renderGameInviteButtons(data.from, data.lobbyId);
+		if(userInfo.path.startsWith('/chat'))
+			renderGameInviteButtons(data.from, data.lobbyId);
 	} else if (data.type === 'join-accepted2') {
 		showToast.green("✅ O teu amigo aceitou o convite. A iniciar jogo...");
+		navigate("/game");
 		setTimeout(() => {
 			userInfo.game_sock!.send(JSON.stringify({
 				type: 'start-game',
 				lobbyId: data.lobbyId,
 				requesterId: userInfo.userId
 			}));
-			navigate("/game");
-		}, 500);
+		}, 100);
 	}
 	else if (data.type === 'invite-rejected') {
-		document.getElementById("chat-box-invite-button")?.classList.remove("hidden");
-		showToast.red(`❌ ${data.from} rejeitou o convite`);
+	document.getElementById("chat-box-invite-button")?.classList.remove("hidden");
+	showToast.red(`❌ ${data.from} rejeitou o convite`);
+	if (userInfo.game_sock && userInfo.game_sock.readyState === WebSocket.OPEN) {
+		userInfo.game_sock.send(JSON.stringify({
+			type: 'leave-lobby',
+			reason: 'invite-rejected'
+		}));
+	}
 	}
 	// game OUT
 };
@@ -134,14 +147,7 @@ function renderGameInviteButtons(from: string, lobbyId: string) {
 			requesterId: userInfo.userId,
 			friend: currentFriend
 		}));
-		setTimeout(() => {
-			// userInfo.game_sock!.send(JSON.stringify({
-			// 	type: 'start-game',
-			// 	lobbyId: lobbyId,
-			// 	requesterId: userInfo.userId
-			// }));
-			navigate("/game");
-		}, 500);
+		navigate("/game");
 		hideInviteButtons();
 	};
 
@@ -345,7 +351,7 @@ function renderChatRoom(name: string, isBlocked: boolean, isInvited: boolean, lo
 	(document.getElementById('chat-box-send-button') as HTMLButtonElement).disabled = isBlocked;
 	window.history.replaceState({}, '', `/chat/${name}`);
 	renderProfileImage("chat-box-profile-image", name);
-	userInfo.chat_sock?.send(JSON.stringify({
+	userInfo.chat_sock!.send(JSON.stringify({
 		type: 'join-room',
 		friend: name
 	}));
@@ -393,6 +399,7 @@ export function setChatEventListeners() {
 				type: 'get-online-users'
 			}));
 		});
+	handleEmptyList('game-notifications-list', 'No game requests');
 	document.getElementById('game-notifications-list-refresh')?.addEventListener('click',
 		() => {
 			if (document.getElementById('game-notifications-list')?.classList.contains('hidden')) {
@@ -400,8 +407,6 @@ export function setChatEventListeners() {
 				userInfo.chat_sock!.send(JSON.stringify({
 					type: 'load-notifications'
 				}));
-				//! TEMP
-				["now", "yesterday", "now", "yesterday"].forEach(str => renderGameNotification("You are goin to play a tournament with the bros", str));
 			}
 			document.getElementById('game-notifications-list')?.classList.toggle('hidden');
 			document.getElementById('game-notifications-list')?.classList.toggle('flex');

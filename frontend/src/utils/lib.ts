@@ -19,6 +19,7 @@ export var userInfo = {
 	aDelay: 0.2,
 	chat_sock: null as WebSocket | null,
 	game_sock: null as WebSocket | null,
+	match_sock: null as WebSocket | null,
 	pendingInviteTo: null as string | null
 }
 

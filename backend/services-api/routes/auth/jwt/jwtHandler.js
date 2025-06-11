@@ -15,11 +15,7 @@ export default function jwtHandler(fastify, options) {
   fastify.post('/token/generateToken', async (request, reply) => {
 
 	const { username } = request.body;
-	const response = await fetch('http://user_management:3000/api/tokenInfo', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json'},
-			body: JSON.stringify({ username })
-		});
+	const response = await fetch(`http://user_management:3000/api/tokenInfo?username=${username}`);
 	if (!response.ok)
 		return reply.status(401).send({message: (await response.json()).message});
 
@@ -31,5 +27,19 @@ export default function jwtHandler(fastify, options) {
       secure: false,
       sameSite: 'lax',
     });
+  });
+
+  fastify.get('/token/verifyToken', async(request, reply) => {
+      try{
+        await request.jwtVerify();
+		const payload = await fastify.parseToReadableData(request.cookies.token);
+		const response = await fetch(`http://user_management:3000/api/tokenInfo?username=${payload.username}`);
+		if (!response.ok) throw new Error((await response.json()).message);
+		reply.status(200).send(payload);
+      }catch(err){
+		console.log(err);
+        reply.status(403);
+        return err;
+      }
   });
 }

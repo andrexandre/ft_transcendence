@@ -1,17 +1,22 @@
 // src/pages/game/tournamentRender.ts
-import { chooseView, drawGameMessage } from './renderUtils';
-type TournamentMatch = {
+// import { userInfo } from './utils';
+import { showToast, userInfo } from '../../utils';
+import { chooseView } from './renderUtils';
+
+export type TournamentMatch = {
 	player1: string;
 	player2: string;
 	winner?: string;
+	score1?: number;
+	score2?: number;
 };
 
-export type TournamentState = {
-	rounds: TournamentMatch[][];
-	currentRound: number;
+
+export const tournamentState = {
+	rounds: [] as TournamentMatch[][],
+	currentRound: 0
 };
 
-// * TEMP
 export const tournamentTree = {
 	getHtmlNew: () => /*html*/`
 		<div class="flex flex-col items-center justify-center">
@@ -53,37 +58,44 @@ export const tournamentTree = {
 			<p>${score}</p>
 		`;
 	},
-	updateTreeNew: (tState: TournamentState) => {
-		const tRounds = tState.rounds;
-		tournamentTree.updatePerson('person1', tRounds[0][0].player1, 'X');
-		tournamentTree.updatePerson('person2', tRounds[0][0].player2, 'X');
-		tournamentTree.updatePerson('person3', tRounds[0][1].player1, 'X');
-		tournamentTree.updatePerson('person4', tRounds[0][1].player2, 'X');
-		tournamentTree.updatePerson('person5', tRounds[0][0].winner || "---", 'X');
-		tournamentTree.updatePerson('person6', tRounds[0][1].winner || "---", 'X');
-		document.getElementById("winner")!.innerHTML = tRounds[1][0].winner || "---";
+	updateTreeNew: () => {
+		const tRounds = tournamentState.rounds;
+		tournamentTree.updatePerson('person1', tRounds[0]?.[0].player1 || "---", String(tRounds[0]?.[0].score1) ?? "-");
+		tournamentTree.updatePerson('person2', tRounds[0]?.[0].player2 || "---", String(tRounds[0]?.[0].score2) ?? "-");
+		tournamentTree.updatePerson('person3', tRounds[0]?.[1].player1 || "---", String(tRounds[0]?.[1].score1) ?? "-");
+		tournamentTree.updatePerson('person4', tRounds[0]?.[1].player2 || "---", String(tRounds[0]?.[1].score2) ?? "-");
+		tournamentTree.updatePerson('person5', tRounds[1]?.[0].player1 || "---", String(tRounds[1]?.[0].score1) ?? "-");
+		tournamentTree.updatePerson('person6', tRounds[1]?.[0].player2 || "---", String(tRounds[1]?.[0].score2) ?? "-");
+		document.getElementById("winner")!.innerHTML = tRounds[1]?.[0].winner || "---";
 	},
-	updateTree: (tState: TournamentState) => {
-		const tRounds = tState.rounds;
+	updateTree: () => {
+		const rounds = tournamentState.rounds;
+		const winnerEl = document.getElementById("winner");
+
 		tournamentTree.updateMatch('top-bracket', {
-			p1name: tRounds[0][0].player1,
-			p1score: 'X',
-			p2name: tRounds[0][0].player2,
-			p2score: 'X'
-		});
+			p1name: rounds?.[0]?.[0]?.player1 ?? "---",
+			p1score: String(rounds?.[0]?.[0]?.score1 ?? "-"),
+			p2name: rounds?.[0]?.[0]?.player2 ?? "---",
+			p2score: String(rounds?.[0]?.[0]?.score2 ?? "-"),
+		});		
+		
 		tournamentTree.updateMatch('bot-bracket', {
-			p1name: tRounds[0][1].player1,
-			p1score: 'X',
-			p2name: tRounds[0][1].player2,
-			p2score: 'X'
+			p1name: rounds?.[0]?.[1]?.player1 ?? "---",
+			p1score: String(rounds?.[0]?.[1]?.score1 ?? "-"),
+			p2name: rounds?.[0]?.[1]?.player2 ?? "---",
+			p2score: String(rounds?.[0]?.[1]?.score2 ?? "-"),
 		});
+
 		tournamentTree.updateMatch('next-bracket', {
-			p1name: tRounds[0][0].winner || "---",
-			p1score: 'X',
-			p2name: tRounds[0][1].winner || "---",
-			p2score: 'X'
+			p1name: rounds?.[1]?.[0]?.player1 ?? "---",
+			p1score: String(rounds?.[1]?.[0]?.score1 ?? "-"),
+			p2name: rounds?.[1]?.[0]?.player2 ?? "---",
+			p2score: String(rounds?.[1]?.[0]?.score2 ?? "-"),
 		});
-		document.getElementById("winner")!.innerHTML = tRounds[1][0].winner || "---";
+
+		if (winnerEl)
+			winnerEl.innerText = rounds?.[1]?.[0]?.winner ?? "---";
+	
 	},
 	updateMatch: (nodeId: string, match: { p1name: string, p1score: string, p2name: string, p2score: string }) => {
 		let nodeClasses = 'gap-2 grid grid-cols-[auto_1rem]';
@@ -98,112 +110,41 @@ export const tournamentTree = {
 			</div>
 		`;
 	}
-	// * TEMP
-	, generateRandomString: (maxLength: number = 6, minLength: number = 3) => {
-		const length = Math.floor(Math.random() * (maxLength - minLength + 1)) + minLength;
-		const characters = 'AEIOUabcdefghijklmnopqrstuvwxyz0123456789';
-		let result = '';
-		for (let i = 0; i < length; i++)
-			result += characters.charAt(Math.floor(Math.random() * characters.length));
-		return result;
+};
+
+export function notifyChat(message: string) {
+	if (userInfo.chat_sock?.readyState === WebSocket.OPEN) {
+		userInfo.chat_sock.send(JSON.stringify({
+			type: "add-notification",
+			msg: message
+		}));
 	}
 }
 
-// * TEMP
-export let tournamentSample: TournamentState = {
-	rounds: [
-		[
-			{ player1: tournamentTree.generateRandomString(), player2: tournamentTree.generateRandomString(), winner: "---" },
-			{ player1: tournamentTree.generateRandomString(), player2: tournamentTree.generateRandomString(), winner: "---" }
-		],
-		[
-			{ player1: "---", player2: "---", winner: "---" }
-		]
-	],
-	currentRound: 1
-}
-
-
-
+const notifiedMatches = new Set<string>();
 export function renderTournamentBracket() {
-	const container = document.getElementById("tournament-bracket");
-	console.log("🎨 Re-renderizando bracket...", JSON.stringify(state.rounds, null, 2));
-	if (!container) return;
-
-	container.classList.remove("hidden");
-	container.style.display = "block";
-	container.innerHTML = '<h2 class="text-xl mb-4">🏆 Tournament Bracket</h2>';
-
-	// chooseView('tree');
-	state.rounds.forEach((round, roundIndex) => {
-		// tournamentTree.updateTree(state);
-		const roundDiv = document.createElement("div");
-		roundDiv.className = "mb-4";
-
-		const roundTitle = document.createElement("h3");
-		roundTitle.className = "font-bold underline mb-2";
-		roundTitle.textContent = `Round ${roundIndex + 1}`;
-		roundDiv.appendChild(roundTitle);
-
-		round.forEach((match) => {
-			const matchDiv = document.createElement("div");
-			matchDiv.className = "ml-4";
-			matchDiv.innerHTML = `🎮 ${match.player1} vs ${match.player2} ${match.winner ? `→ 🏅 ${match.winner}` : ""}`;
-			roundDiv.appendChild(matchDiv);
-		});
-
-		container.appendChild(roundDiv);
-	});
-}
-
-const rawState: TournamentState = {
-	rounds: [],
-	currentRound: 0,
-};
-
-export const state: TournamentState = new Proxy(rawState, {
-	set(target, prop, value) {
-		// @ts-ignore
-		target[prop] = value;
-		renderTournamentBracket();
-		return true;
-	},
-});
-
-export function addRound(matches: TournamentMatch[]) {
-	state.rounds.push(matches);
-	renderTournamentBracket();
-}
-
-export function updateWinner(roundIndex: number, matchIndex: number, winner: string) {
-	const match = state.rounds[roundIndex]?.[matchIndex];
-	if (!match) return;
-	match.winner = winner;
-	renderTournamentBracket();
-}
-
-export function resetTournament() {
-	state.rounds = [];
-	state.currentRound = 0;
-}
-
-export function handleEndTournament(winner: string) {
 	chooseView('tree');
-	drawGameMessage(true, `🏆 Torneio vencido por ${winner}!`, "gold");
+	tournamentTree.updateTree();
 
-	setTimeout(() => {
-		chooseView('menu');
-		drawGameMessage(false, '');
-	}, 5000);
+	const round = tournamentState.rounds[tournamentState.currentRound];
+	if (!round) return;
+
+	for (const match of round) {
+		const matchKey = `${match.player1}-${match.player2}-${tournamentState.currentRound}`;
+		const isUserInMatch = match.player1 === userInfo.username || match.player2 === userInfo.username;
+
+		if (isUserInMatch && !notifiedMatches.has(matchKey)) {
+			notifiedMatches.add(matchKey);
+			showToast.green(`🆕 Teu jogo: ${match.player1} vs ${match.player2}`);
+			notifyTournamentMatchOnce(tournamentState.currentRound, match.player1, match.player2);
+		}
+	}
 }
 
-export function showRoundTransition(roundNumber: number) {
-	let count = 3;
-	const interval = setInterval(() => {
-		drawGameMessage(true, `Round ${roundNumber} starts in ${count}...`, "white");
-		if (count < 0) {
-			clearInterval(interval);
-			drawGameMessage(false, '');
-		}
-	}, 1000);
+let lastNotifiedRound = -1;
+export function notifyTournamentMatchOnce(round: number, player1: string, player2: string) {
+	if (round === lastNotifiedRound) return;
+	
+	lastNotifiedRound = round;
+	notifyChat(`🎮 New Tournament Game: ${player1} vs ${player2}`);
 }

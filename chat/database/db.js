@@ -120,8 +120,7 @@ export async function removeInviteLobby(lobby)
 
 export async function isInvited(username, invited)
 {
-	try{
-
+	try {
 		const user_id = await db.get('SELECT user_id FROM users WHERE username = ?', [username]);
 		const invited_id = await db.get('SELECT user_id FROM users WHERE username = ?', [invited]);
 	
@@ -133,10 +132,9 @@ export async function isInvited(username, invited)
 			WHERE (user_id = ? AND invited_user = ?)
 			`, [user_id.user_id, invited_id.user_id])
 		
-		return invite ? true : false;		
+		return invite ? true : false;
 	}
-	catch(error)
-	{
+	catch (error) {
 		console.log("Error: " + error);
 	}
 }
@@ -177,17 +175,16 @@ export async function getAll()
 
 export async function getUserId(username)
 {
-	try
-	{
+	try {
 		const user = await db.get('SELECT user_id FROM users WHERE username = ?', [username]);
 	
 		if(!user)
 			throw new Error('User doesnt exist');
+	
 		return user.user_id;
 	}
-	catch (error)
-	{
-		console.log('Error: ' + error);
+	catch (error) {
+		console.log("Error: " + error);
 	}
 }
 

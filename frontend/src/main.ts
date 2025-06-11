@@ -18,7 +18,7 @@ let firstPageLoad = true;
 async function loadApp(path: string) {
 	// check authentication
 	try {
-		const response = await fetch(`http://${location.hostname}:8080/frontend/fetchDashboardData`, {
+		const response = await fetch(`http://${location.hostname}:8080/token/verifyToken`, {
 			credentials: 'include',
 		});
 		if (!response.ok)
@@ -92,7 +92,12 @@ window.addEventListener('navigateTo', (e) => {
 	loadApp((e as CustomEvent).detail);
 });
 
+// ERRO AQUI
 window.addEventListener("popstate", () => {
+	if (lib.userInfo.match_sock && lib.userInfo.match_sock.readyState === WebSocket.OPEN) {
+		lib.userInfo.match_sock.close(1000, "Quitted the game you loser")
+		lib.userInfo.match_sock = null;
+	}
 	loadApp(location.pathname);
 });
 

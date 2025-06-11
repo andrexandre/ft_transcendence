@@ -8,7 +8,7 @@ const registerSchema = {
 			password: {
 				type: 'string',
 				minLength: 3,
-				// pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\\W_]).+$', // descomentar depois
+				pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\\W_]).+$', // descomentar depois
 			},
 		},
 		errorMessage: {

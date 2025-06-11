@@ -66,7 +66,7 @@ async function setupServer() {
 
 async function fetchUserDataFromGateway(token) {
     try {
-        const response = await fetch("http://services-api:7000/userData", {
+        const response = await fetch('http://nginx-gateway:80/token/verifyToken', {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",

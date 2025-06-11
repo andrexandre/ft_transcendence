@@ -74,6 +74,8 @@ export function getTimeString()
 export async function roomNotifications(username)
 {
 	const user_id = await getUserId(username);
+	// added
+	console.log("notification user id: " + user_id);
 
 	return `notif-${user_id}`;
 }

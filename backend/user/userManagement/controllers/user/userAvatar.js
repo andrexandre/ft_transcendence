@@ -39,9 +39,9 @@ async function getProfileAvatar (request, reply) {
 
 		const stream = fs.createReadStream(filePath);
 		const fileSize = (await fs.promises.stat(filePath)).size;
+		const extension = (user.avatar.split('.'))[1];
 		
-		// tipo dependendo da extensao
-		return reply.type('image/jpeg').header('content-Length', fileSize).send(stream);
+		return reply.type(`image/${extension}`).header('content-Length', fileSize).send(stream);
 	} catch(err) {
 		(err.statusCode) ? 
         reply.status(err.statusCode).send(err) : reply.status(500).send({statusCode: 500, error: "Internal server error", message: 'Failed to load Avatar!'});
@@ -53,12 +53,7 @@ async function saveAvatar(request, reply) {
 	
 	try {
 		const data = await request.file();
-	
-		console.log('FIELDNAME: ', data.fieldname);
-		console.log('FILENAME: ', data.filename);
-		console.log('ENDCONDING: ', data.encoding);
-		console.log('TYPE: ', data.mimetype);
-
+		
 		// Creating avatar filename
 		const extension = (data.mimetype.split('/'))[1];
 		const name = `${randomUUID()}.${extension}`;
@@ -72,7 +67,7 @@ async function saveAvatar(request, reply) {
 		if (request.authenticatedUser.avatar !== 'default.jpeg') {
 			const fileToDelete = path.join(uploadDirectory, request.authenticatedUser.avatar);
 			await unlink(fileToDelete);
-			console.log('Ficheiro removido:', fileToDelete);
+			console.log('File removed:', fileToDelete);
 		}
 
 		return;

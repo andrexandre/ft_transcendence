@@ -76,7 +76,7 @@ export function saveMatchToDatabase(match: MatchData) {
   
 export async function getUserDatafGateway(token: string | undefined): Promise<UserData | null> {
 	try {
-		const response = await fetch("http://services-api:7000/userData", {
+		const response = await fetch('http://nginx-gateway:80/token/verifyToken', {
 			method: "GET",
 			headers: {
 				"Content-Type": "application/json",
@@ -113,7 +113,7 @@ async function getUserHistory(id: any): Promise<GameHistory[]> {
 	});
 }
 
-const getUserById = (userId: Number) =>
+export const getUserById = (userId: Number) =>
 	new Promise((resolve, reject) => {
 		db_game.get("SELECT * FROM users WHERE user_id = ?", [userId], (err, row) => {
 			if (err) return reject({ status: 500, error: "Database error", details: err.message });

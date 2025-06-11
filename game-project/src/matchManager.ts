@@ -6,8 +6,7 @@ import { handleMatchEndFromTournament } from './tournamentManager.js';
 import { initMTCPlayers, updateMTCGame } from './mtcLogic.js';
 import { Logger } from "./utils.js";
 
-const matchDisconnectTimers = new Map<number, NodeJS.Timeout>();
-const winningScore = 2;
+const winningScore = 3;
 
 interface PlayerState {
 	id: number;
@@ -23,12 +22,10 @@ export type MatchState = {
 	ball: { x: number; y: number; dx: number; dy: number };
 	interval: NodeJS.Timeout;
 	paused: boolean;
-	isSinglePlayer: boolean;
 	gameMode: string;
 	aiDifficulty?: string;
 };
   
-
 const matches = new Map<string, MatchState>();
 const matchSockets = new Map<string, WebSocket[]>();
 
@@ -42,10 +39,8 @@ export function handleMatchConnection(gameId: string, connection: any) {
 	}
 
 	const players = lobby.players;
-	const isSingle = players.length === 1;
 	const gameMode = lobby.gameMode;
-	const aiDifficulty = isSingle ? players[0].difficulty || "Normal" : undefined;
-	// Logger.log(`🧑‍🤝‍🧑Not AI: `, aiDifficulty);
+	const aiDifficulty = (gameMode === "Classic") ? players[0].difficulty || "Normal" : undefined;
 
 	let realPlayers: PlayerState[] = [];
 	if (gameMode === "MTC") {
@@ -59,7 +54,7 @@ export function handleMatchConnection(gameId: string, connection: any) {
 			score: 0
 		}));
 
-		if (isSingle) {
+		if (gameMode === "Classic") {
 			realPlayers.push({
 				id: 9999,
 				username: "BoTony",
@@ -76,7 +71,6 @@ export function handleMatchConnection(gameId: string, connection: any) {
 	}
 
 	const socketArray = matchSockets.get(gameId)!;
-	const index = socketArray.length;
 	socketArray.push(connection);
 	Logger.log(`👥 Total de sockets no jogo ${gameId}: ${socketArray.length}`);
 
@@ -86,7 +80,6 @@ export function handleMatchConnection(gameId: string, connection: any) {
 			players: realPlayers,
 			ball: { x: 400, y: 300, dx: 3, dy: 3 },
 			paused: true,
-			isSinglePlayer: isSingle,
 			gameMode,
 			aiDifficulty,
 			interval: setInterval(() => updateMatchState(gameId), 1000 / 60)
@@ -99,9 +92,9 @@ export function handleMatchConnection(gameId: string, connection: any) {
 	const user = connection.user;
 	if (user) {
 		connection.send(JSON.stringify({
-		type: "welcome",
-		playerId: user.userId,
-		username: user.username
+			type: "welcome",
+			playerId: user.userId,
+			username: user.username
 		}));
 	}
 
@@ -109,9 +102,9 @@ export function handleMatchConnection(gameId: string, connection: any) {
 		try {
 			const data = JSON.parse(msg.toString());
 			const match = matches.get(gameId);
-			if (!match) return;
+			if (!match || !user) return;
 
-			const player = match.players[index];
+			const player = match.players.find(p => p.id === user.userId);
 			if (!player) return;
 
 			if (data.type === "move") {
@@ -135,26 +128,23 @@ export function handleMatchConnection(gameId: string, connection: any) {
 			const match = matches.get(gameId);
 			if (match) clearInterval(match.interval);
 			matches.delete(gameId);
-			removeLobbyByGameId(gameId); /// check loobbys
+			removeLobbyByGameId(gameId);
 			Logger.log(`🧹 Match ${gameId} limpo (todos os jogadores saíram)`);
 		} else {
 			matchSockets.set(gameId, sockets);
 			Logger.log(`👥 Jogadores restantes: ${sockets.length}`);
 		}
 	});
-};
+}
 
 function updateMatchState(gameId: string) {
 	const match = matches.get(gameId);
 	if (!match || match.paused) return;
 
-	if (match.isSinglePlayer) {
-		updateBotPlayer(match);
-	}
-
+	if (match.gameMode === "Classic") {
+		updateBotPlayer(match);}
 	if (match.gameMode === "MTC") {
-		updateMTCGame(match);
-	}
+		updateMTCGame(match);}
 
 	match.ball.x += match.ball.dx;
 	match.ball.y += match.ball.dy;
@@ -180,30 +170,6 @@ function updateMatchState(gameId: string) {
 	if (!sockets) return;
 	
 	if (handleScore(match, sockets, gameId)) return;
-
-	// if (match.ball.x < 0) {
-	// 	match.players[1].score++;
-	// 	broadcastScoreboard(sockets, match.players);
-	// 	if (match.players[1].score >= winningScore) {
-	// 		match.paused = true;
-	// 		setTimeout(() => endMatch(gameId), 500);
-	// 	} else {
-	// 		resetBall(gameId);
-	// 	}
-	// 	return;
-	// }
-
-	// if (match.ball.x > 800) {
-	// 	match.players[0].score++;
-	// 	broadcastScoreboard(sockets, match.players);
-	// 	if (match.players[0].score >= winningScore) {
-	// 		match.paused = true;
-	// 		setTimeout(() => endMatch(gameId), 500);
-	// 	} else {
-	// 		resetBall(gameId);
-	// 	}
-	// 	return;
-	// }
 
 	sockets.forEach((sock, i) => {
 		const player = match.players[i];
@@ -250,7 +216,7 @@ function endMatch(gameId: string) {
 	});
 
 	if (match.gameMode === "TNT") {
-		handleMatchEndFromTournament(match.gameId, winner.id);
+		handleMatchEndFromTournament(match.gameId, winner.id, p1.score, p2.score);
 	} else {
 		removeLobbyByGameId(gameId);
 	}
@@ -300,7 +266,6 @@ function handleScore(match: MatchState, sockets: WebSocket[], gameId: string): b
 
 		if (match.gameMode === "MTC") {
 			const scoringTeam = isLeftGoal ? match.players.slice(2, 4) : match.players.slice(0, 2);
-			// ✅ Só o primeiro da equipa marca ponto (evita duplicação visual)
 			scoringTeam[0].score++;
 		} else {
 			const scorerIndex = match.ball.x > 800 ? 0 : 1;
@@ -321,7 +286,6 @@ function handleScore(match: MatchState, sockets: WebSocket[], gameId: string): b
 	return false;
 }
 
-
 function resetBall(gameId: string) {
 	const match = matches.get(gameId);
 	if (!match) return;
@@ -336,11 +300,11 @@ function resetBall(gameId: string) {
 	const angle = minAngle + Math.random() * (maxAngle - minAngle);
   
 	const direction = Math.random() > 0.5 ? 1 : -1;
-	const speed = 2;
+	const speed = 4;
   
 	const dx = speed * Math.cos(angleRad);
 	const dy = speed * Math.sin(angleRad);
   
 	match.ball = { x: 400, y: 300, dx, dy };
 	startCountdown(gameId);
-  }
+}
