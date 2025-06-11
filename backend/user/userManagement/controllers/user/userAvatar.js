@@ -20,7 +20,7 @@ async function getAvatar(request, reply) {
 		// tipo dependendo da extensao
 		return reply.type('image/jpeg').header('content-Length', fileSize).send(stream);
 	} catch(err) {
-		reply.status(500).send({statusCode: 500, error: "Internal server error", message: 'Failed to load Avatar!'});
+		console.log({statusCode: 500, message: "Internal server error", error: err});
 		return;
 	}
 }
@@ -43,8 +43,10 @@ async function getProfileAvatar (request, reply) {
 		
 		return reply.type(`image/${extension}`).header('content-Length', fileSize).send(stream);
 	} catch(err) {
-		(err.statusCode) ? 
-        reply.status(err.statusCode).send(err) : reply.status(500).send({statusCode: 500, error: "Internal server error", message: 'Failed to load Avatar!'});
+		if (err.statusCode)
+			reply.status(err.statusCode).send(err)
+		else
+			console.log({statusCode: 500, message: "Internal server error", error: err});
 		return;
 	}
 }
@@ -72,7 +74,7 @@ async function saveAvatar(request, reply) {
 
 		return;
 	} catch(err) {
-		reply.status(500).send({statusCode: 500, error: "Internal server error", message: 'Error saving new avatar!'});
+		console.log({statusCode: 500, message: "Internal server error", error: err});
 		return;
 	}
 }

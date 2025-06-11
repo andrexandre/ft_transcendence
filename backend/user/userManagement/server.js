@@ -24,7 +24,7 @@ const server = fastify({ loger: true,
 	https: {
 		key: fs.readFileSync('/ssl/server.key'),
 		cert: fs.readFileSync('/ssl/server.crt'),
-	} 
+	}
 });
 
 const ajv = new Ajv({ allErrors: true, $data: true, formats: { email: true }});
@@ -85,7 +85,6 @@ async function start() {
 	
 		await server.createTables();
 		console.log("Tables Created!");
-		console.log('Routes: ', server.printRoutes());
 
 	} catch(err) {
 		console.error('Error in starting server:', err);

@@ -21,7 +21,6 @@ const profileSchema = {
 			}
 		},
 		404: { $ref: 'errorResponse#' },
-		500: { $ref: 'errorResponse#' },
 	}	
 };
 

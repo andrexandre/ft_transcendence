@@ -34,7 +34,7 @@ async function register(request, reply) {
             const msg = (err.message.includes("email")) ? 'Email' : 'Username';
             reply.status(409).send({statusCode: 409, error: "Conflict", message: `${msg} already exists!`});
         } else {
-            reply.status(500).send({statusCode: 500, error: "Internal server error", message: 'Error in creating user!'});
+            console.log({statusCode: 500, message: "Internal server error", error: err});
         } 
 	}
 }

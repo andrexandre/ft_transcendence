@@ -27,7 +27,7 @@ async function extractInformationFromToken(request, reply) {
 		if (err.statusCode)
 			reply.status(err.statusCode).send(err);
 		else
-			reply.status(500).send({statusCode: 500, error: "Internal server error", message: 'Error fetching resources!'});
+			console.log({statusCode: 500, message: "Internal server error", error: err});
 		return;
 	}
 }

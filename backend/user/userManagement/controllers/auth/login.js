@@ -1,3 +1,4 @@
+import { el } from '@faker-js/faker';
 import bcrypt from 'bcrypt';
 
 async function tokenInfo(request, response) {
@@ -13,8 +14,10 @@ async function tokenInfo(request, response) {
 		return response.status(200).send(resContent);
 
     } catch(err) {
-        (err.statusCode) ? 
-        response.status(err.statusCode).send(err) : response.status(500).send({statusCode: 500, error: "Internal server error", message: 'Error in authenticate the user!'});
+        if (err.statusCode)
+			response.status(err.statusCode).send(err)
+		else
+			console.log({statusCode: 500, message: "Internal server error", error: err});
     }
 }
 
@@ -38,8 +41,10 @@ async function login(request, response) {
         };
 
     } catch(err) {
-        (err.statusCode) ? 
-        response.status(err.statusCode).send(err) : response.status(500).send({statusCode: 500, error: "Internal server error", message: 'Error in authenticate the user!'});
+        if (err.statusCode)
+			response.status(err.statusCode).send(err)
+		else
+			console.log({statusCode: 500, message: "Internal server error", error: err});
     }
 
     response.status(200).send(resContent);

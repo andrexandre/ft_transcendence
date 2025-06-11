@@ -12,6 +12,7 @@ const registerSchema = {
 			},
 		},
 		errorMessage: {
+			type: 'object',
 			required: {
 				username: 'Missing username field.',
 				email: 'Missing email field.',
@@ -35,7 +36,6 @@ const registerSchema = {
 			}
 		},
 		409: { $ref: 'errorResponse#' },
-		500: { $ref: 'errorResponse#' },
 	},
 };
 

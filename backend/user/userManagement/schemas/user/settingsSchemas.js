@@ -82,7 +82,6 @@ const save2faSettingSchema =  {
 			type: 'object',
 			properties: { message: { type: 'string' } }
 		},
-		500: { $ref: 'errorResponse#' }
 	},
 };
 

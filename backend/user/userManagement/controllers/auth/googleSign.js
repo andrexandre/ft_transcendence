@@ -1,5 +1,6 @@
 import { randomUUID } from 'crypto';
 import { faker } from '@faker-js/faker';
+import { error } from 'console';
 
 function generateUsername(maxLength = 15) {
 	const raw = faker.internet.username().toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -51,7 +52,7 @@ async function googleSign(request, response) {
             const msg = (err.message.includes("email")) ? 'Email' : 'Username';
             response.status(409).send({statusCode: 409, error: "Conflict", message: `${msg} already exist!`});
         } else {
-            response.status(500).send({statusCode: 500, error: "Internal server error", message: 'Error in creating user!'});
+            console.log({statusCode: 500, message: "Internal server error", error: err});
         } 
     }
 }

@@ -62,7 +62,7 @@ async function saveSettings(request, reply) {
             const msg = (err.message.includes("email")) ? 'Email' : 'Username';
             reply.status(409).send({statusCode: 409, error: "Conflict", message: `${msg} already exist!`});
         } else {
-            reply.status(500).send({statusCode: 500, error: "Internal server error", message: err.message});
+            console.log({statusCode: 500, message: "Internal server error", error: err});
         } 
 	}
 	return; 
@@ -77,7 +77,7 @@ async function save2faSettings(request, reply) {
 
 	} catch (err) {
 		// dataBase errors
-		reply.status(500).send({statusCode: 500, error: "Internal server error", message: 'Error in updating 2FA'});
+		console.log({statusCode: 500, message: "Internal server error", error: err});
 		return;
 	}
 
@@ -97,7 +97,7 @@ async function get2faSecret(request, reply) {
 		if (err.statusCode)
 			reply.status(err.statusCode).send(err);
 		else
-			reply.status(500).send({statusCode: 500, error: "Internal server error", message: 'Error fetching resources!'});
+			console.log({statusCode: 500, message: "Internal server error", error: err});
         return;
 	}
 }
@@ -116,7 +116,7 @@ async function get2faStatus(request, reply) {
 		if (err.statusCode)
 			reply.status(err.statusCode).send(err);
 		else
-			reply.status(500).send({statusCode: 500, error: "Internal server error", message: 'Error fetching resources!'});
+			console.log({statusCode: 500, message: "Internal server error", error: err});
         return;
 	}
 }
