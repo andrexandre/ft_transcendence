@@ -13,6 +13,7 @@ node_modules
 frontend/**/*.js
 !profile.ts
 chat/database/messages/*.jsonl
+chat/database/notifications/*.jsonl
 
 # alex
 backend/user/userManagement/uploads/*.png
