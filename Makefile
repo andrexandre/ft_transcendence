@@ -7,7 +7,7 @@ MAGENTA		:= \033[1;35m
 CYAN		:= \033[1;36m
 WHITE		:= \033[1;37m
 
-all: env build up
+all: build up
 
 up:
 	docker compose up
@@ -75,7 +75,7 @@ db-clean:
 list-users:
 	sqlite3 $(DB-PATH) "select * from $(DB-NAME);"
 
-o:
+open:
 	@open http://$$(hostname -I | awk '{print $$1}'):5500
 
 # docker system prune --help
