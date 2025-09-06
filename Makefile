@@ -76,7 +76,7 @@ list-users:
 	sqlite3 $(DB-PATH) "select * from $(DB-NAME);"
 
 open:
-	@open http://$$(hostname -I | awk '{print $$1}'):5500
+	@open https://$$(hostname -I | awk '{print $$1}'):5500
 
 # docker system prune --help
 system-prune:
